@@ -28,7 +28,6 @@ class MainWindow(QMainWindow):
     signal_fft = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
-    signal_marker = Signal(object)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -139,7 +138,6 @@ class MainWindow(QMainWindow):
         self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        self.signal_marker.connect(lambda data: AppFunctions.plot_marker(self, data))
         
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
