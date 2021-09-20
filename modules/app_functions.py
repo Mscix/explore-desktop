@@ -428,6 +428,7 @@ class AppFunctions(MainWindow):
         AppFunctions.emit_orn(self)
         AppFunctions.emit_exg(self)
         # AppFunctions.emit_fft(self)
+        AppFunctions.emit_marker(self)
 
     def init_plot_orn(self):
         # pw = self.ui.graphicsView #testinng
@@ -597,6 +598,11 @@ class AppFunctions(MainWindow):
             for ch in self.exg_plot.keys():
                 self.exg_plot[ch] = self.exg_plot[ch][8:]
             
+            for idx_t in range(len(self.mrk_plot["t"])):
+                if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
+                    # self.plot_ch8.removeItem(self.mrk_plot["line"][idx_t])
+                    for i, plt in enumerate(self.plots_list):
+                        plt.removeItem(self.mrk_plot["line"][idx_t][i])
                     
         self.t_exg_plot.extend(data["t"])
         for ch in self.exg_plot.keys():
@@ -726,6 +732,38 @@ class AppFunctions(MainWindow):
         self.curve_my.setData(self.t_orn_plot, self.orn_plot["magY"])
         self.curve_mz.setData(self.t_orn_plot, self.orn_plot["magZ"])
         
+    def emit_marker(self):
+        '''
+        '''
+        stream_processor = self.explorer.stream_processor
+
+        def callback(packet):
+            timestamp, _ = packet.get_data()
+            if self._vis_time_offset is None:
+                self._vis_time_offset = timestamp[0]
+            timestamp -= self._vis_time_offset
+
+            '''new_data = dict(zip(['marker', 't', 'code'], [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
+                                                        np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))'''
+
+            data = [timestamp[0], self.ui.value_event_code.text()]
+            self.signal_marker.emit(data)
+
+        stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
+    
+    def plot_marker(self, data):
+        t, code = data
+        self.mrk_plot["t"].append(data[0])
+        self.mrk_plot["code"].append(data[1])
+
+        pen_marker = pg.mkPen(color='#7AB904', dash=[4,4])
+        
+        lines = []
+        for plt in self.plots_list:
+        # plt = self.plot_ch8
+            line = plt.addLine(t, label=code, pen=pen_marker)
+            lines.append(line)
+        self.mrk_plot["line"].append(lines)
 
     def _change_scale(self):
         old = Settings.SCALE_MENU[self.y_string]
@@ -1129,7 +1167,7 @@ class Plots(MainWindow):
         self.curve_gy = self.plot_gyro.plot(
             self.t_plot_orn, self.gy_plot, pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
         self.curve_gz = self.plot_gyro.plot(
-            self.t_plot_orn, self.gz_plot, pen=Settings.ORN_LINE_COLORS[2], name="agyro")
+            self.t_plot_orn, self.gz_plot, pen=Settings.ORN_LINE_COLORS[2], name="gyroZ")
 
         self.curve_mx = self.plot_mag.plot(
             self.t_plot_orn, self.mx_plot, pen=Settings.ORN_LINE_COLORS[0], name="magX")
