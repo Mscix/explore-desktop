@@ -592,9 +592,10 @@ class AppFunctions(MainWindow):
         
         # max_points = 100
         max_points = AppFunctions._plot_points(self) / 2
+        # if len(self.t_exg_plot)>max_points:
 
-        if len(self.t_exg_plot)>max_points:
-            print(max_points, len(self.t_exg_plot))
+        time_scale = AppFunctions._get_timeScale(self)
+        if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
             # self.plot_ch8.clear()
             # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
             self.t_exg_plot = self.t_exg_plot[8:]
@@ -695,12 +696,12 @@ class AppFunctions(MainWindow):
         # self.df = pd.DataFrame(columns=chan_list.append("t"))
         def callback(packet):
             timestamp, orn_data = packet.get_data()
-            '''if self._vis_time_offset is None:
+            if self._vis_time_offset is None:
                  self._vis_time_offset = timestamp[0]
-            timestamp -= self._vis_time_offset'''
+            time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
 
             data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
-            data['t'] = timestamp
+            data['t'] = time_vector
             # dftemp = pd.DataFrame.from_dict(data)
             # self.df = self.df.append(dftemp)
             
@@ -710,15 +711,19 @@ class AppFunctions(MainWindow):
 
     def plot_orn(self, data):
         
-        # sr = self.explorer.stream_processor.device_info['sampling_rate']
-        # time_scale = Settings.TIME_RANGE_MENU[self.ui.value_timeScale.currentText()]
+        time_scale = AppFunctions._get_timeScale(self)
 
-        max_points = AppFunctions._plot_points(self)
-        # max_points = 100
-        if len(self.t_orn_plot)>max_points:
+        max_points = AppFunctions._plot_points(self) / (2*7)
+        # if len(self.t_orn_plot)>max_points:
+        if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
             self.t_orn_plot = self.t_orn_plot[1:]
             for k in self.orn_plot.keys():
                 self.orn_plot[k] = self.orn_plot[k][1:]
+            if len(self.t_orn_plot) - max_points > 0:
+                extra = int(len(self.t_orn_plot) - max_points)
+                self.t_orn_plot = self.t_orn_plot[extra:]
+                for k in self.orn_plot.keys():
+                    self.orn_plot[k] = self.orn_plot[k][extra:]
 
         self.t_orn_plot.extend(data["t"])
         for k in self.orn_plot.keys():
