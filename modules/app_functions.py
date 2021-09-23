@@ -468,8 +468,21 @@ class AppFunctions(MainWindow):
 
     def init_plot_exg(self):
         # pw = self.ui.graphicsView #testinng
+        n_chan = self.explorer.stream_processor.device_info['adc_mask'].count(1)
+        self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
+
         pw = self.ui.plot_exg
-        self.plot_ch8 = pw.addPlot()
+        ticks = [(i+1, f"ch{i+1}") for i in range(n_chan)]
+        pw.getAxis("left").setTicks([ticks])
+
+        pw.getAxis("left").setWidth(50)
+        pw.showGrid(x=False, y=True, alpha=0.5)
+        pw.setRange(yRange=(-0.5, n_chan+1))
+        pw.setLabel("bottom", "time (s)")
+        pw.setLabel("left", "Voltage")
+
+        '''self.plot_ch8 = pw.addPlot
+        ()
         pw.nextRow()
         self.plot_ch7 = pw.addPlot()
         pw.nextRow()
@@ -510,7 +523,18 @@ class AppFunctions(MainWindow):
         self.curve_ch6 = self.plot_ch6.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch7 = self.plot_ch7.plot(pen=Settings.EXG_LINE_COLOR)
         # self.plots_list = [self.plot_ch8]
-        self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)'''
+
+        self.plots_list = [pw]
+        self.curve_ch1 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch2 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch3 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch4 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch5 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch6 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch7 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch8 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        
 
 
 
@@ -561,8 +585,8 @@ class AppFunctions(MainWindow):
             # exg_chan = dict(zip(chan_list, exg))
 
             # Update ExG unit
-            # exg = self.offsets + exg / self.y_unit
-            exg /= self.y_unit
+            exg = self.offsets + exg / self.y_unit
+            # exg /= self.y_unit
 
             data = dict(zip(chan_list, exg))
             data['t'] = time_vector
@@ -599,7 +623,6 @@ class AppFunctions(MainWindow):
         time_scale = AppFunctions._get_timeScale(self)
         # if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
         if len(self.t_exg_plot)>max_points:
-            print(len(self.t_exg_plot), max_points)
             # self.plot_ch8.clear()
             # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
             self.t_exg_plot = self.t_exg_plot[8:]
@@ -610,6 +633,7 @@ class AppFunctions(MainWindow):
             for idx_t in range(len(self.mrk_plot["t"])):
                 if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
                     # self.plot_ch8.removeItem(self.mrk_plot["line"][idx_t])
+                    # self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
                     for i, plt in enumerate(self.plots_list):
                         plt.removeItem(self.mrk_plot["line"][idx_t][i])
 
@@ -781,7 +805,7 @@ class AppFunctions(MainWindow):
         lines = []
         for plt in self.plots_list:
         # plt = self.plot_ch8
-            line = plt.addLine(t, label=code, pen=pen_marker)
+            line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
             lines.append(line)
         self.mrk_plot["line"].append(lines)
         print(self.plots_list)
@@ -796,9 +820,16 @@ class AppFunctions(MainWindow):
         self.y_string = self.ui.value_yAxis.currentText()
         self.y_unit = new_unit
 
-        for chan, val in self.exg_plot.items():
+        stream_processor = self.explorer.stream_processor
+        self.chan_key_list = [Settings.CHAN_LIST[i].lower()
+                              for i, mask in enumerate(reversed(stream_processor.device_info['adc_mask'])) if
+                              mask == 1]
+
+        for chan, value in self.exg_plot.items():
             if self.chan_dict[chan] == 1:
-                self.exg_plot[chan] = [i * (old_unit / new_unit) for i in val]
+                temp_offset = self.offsets[self.chan_key_list.index(chan)]
+                # self.exg_plot[chan] = [i * (old_unit / new_unit) for i in val]
+                self.exg_plot[chan] = list((value - temp_offset) * (old_unit / new_unit) + temp_offset)
         
         # self._r_peak_source.data['r_peak'] = (np.array(self._r_peak_source.data['r_peak']) - self.offsets[0]) * \
                                             #  (old_unit / self.y_unit) + self.offsets[0]

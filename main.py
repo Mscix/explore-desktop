@@ -20,7 +20,7 @@ from modules.dialogs import RecordingDialog, PlotDialog
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
 
-VERSION_APP = 'v0.14'
+VERSION_APP = 'v0.15'
 
 
 class MainWindow(QMainWindow):
@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = True
+        test = False
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
@@ -339,7 +339,7 @@ class MainWindow(QMainWindow):
             # if self.is_imp_measuring:
             #     self.explorer.stream_processor.disable_imp()
 
-            if self.ui.plot_exg.getItem(0,0) is None:
+            if self.ui.plot_orn.getItem(0,0) is None:
                 AppFunctions.init_plot_orn(self)
                 AppFunctions.init_plot_exg(self)
             
