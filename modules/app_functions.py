@@ -764,6 +764,7 @@ class AppFunctions(MainWindow):
             line = plt.addLine(t, label=code, pen=pen_marker)
             lines.append(line)
         self.mrk_plot["line"].append(lines)
+        print(self.plots_list)
 
     def _change_scale(self):
         old = Settings.SCALE_MENU[self.y_string]
