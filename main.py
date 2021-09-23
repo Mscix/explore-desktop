@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = False
+        test = True
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
         self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        self.signal_marker.connect(lambda data: AppFunctions.plot_marker(self, data))
+        self.signal_marker.connect(lambda data: AppFunctions.plot_orn(self, data))
         
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
