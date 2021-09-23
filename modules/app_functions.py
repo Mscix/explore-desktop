@@ -493,9 +493,10 @@ class AppFunctions(MainWindow):
         for idx, plt in enumerate(self.plots_list):
             # plt.getAxis("left").setTicks([[(0, f"ch{idx+1}")]])
             plt.getAxis("left").setLabel(f"ch{idx+1}")
-            plt.getAxis("left").setWidth(80)
+            plt.getAxis("left").setWidth(50)
             plt.showGrid(x=False, y=True, alpha=0.5)
-            # plt.setXRange(0, 10)
+            plt.setRange(yRange=(-1, 1))
+            # plt.disableAutoRange(axis="y")
             if idx != 0:
                 plt.setXLink(self.plot_ch1)
                 plt.getAxis("bottom").setStyle(showValues=False)
@@ -596,7 +597,9 @@ class AppFunctions(MainWindow):
         # if len(self.t_exg_plot)>max_points:
 
         time_scale = AppFunctions._get_timeScale(self)
-        if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
+        # if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
+        if len(self.t_exg_plot)>max_points:
+            print(len(self.t_exg_plot), max_points)
             # self.plot_ch8.clear()
             # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
             self.t_exg_plot = self.t_exg_plot[8:]
@@ -724,8 +727,8 @@ class AppFunctions(MainWindow):
         time_scale = AppFunctions._get_timeScale(self)
 
         max_points = AppFunctions._plot_points(self) / (2*7)
-        # if len(self.t_orn_plot)>max_points:
-        if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
+        if len(self.t_orn_plot)>max_points:
+        # if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
             self.t_orn_plot = self.t_orn_plot[1:]
             for k in self.orn_plot.keys():
                 self.orn_plot[k] = self.orn_plot[k][1:]
@@ -758,13 +761,13 @@ class AppFunctions(MainWindow):
             timestamp, _ = packet.get_data()
             if self._vis_time_offset is None:
                 self._vis_time_offset = timestamp[0]
-            timestamp -= self._vis_time_offset
+            time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
 
             '''new_data = dict(zip(['marker', 't', 'code'], [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
                                                         np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))'''
 
-            data = [timestamp[0], self.ui.value_event_code.text()]
-            self.signal_marker.emit(data)
+            data = [time_vector[0], self.ui.value_event_code.text()]
+            self.signal_mkr.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
     

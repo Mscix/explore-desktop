@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
     signal_fft = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
-    signal_marker= Signal(object)
+    signal_mkr= Signal(object)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -133,13 +133,15 @@ class MainWindow(QMainWindow):
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(lambda: AppFunctions.set_marker(self))
+        self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
+
 
         self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
 
         self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        self.signal_marker.connect(lambda data: AppFunctions.plot_orn(self, data))
+        self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
         
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
