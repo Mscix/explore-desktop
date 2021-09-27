@@ -472,26 +472,27 @@ class AppFunctions(MainWindow):
         n_chan = self.explorer.stream_processor.device_info['adc_mask'].count(1)
         self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
         timescale = AppFunctions._get_timeScale(self)
+        
         pw = self.ui.plot_exg
-        # ticks = [(i+1, f"ch{i+1}") for i in range(n_chan)]
-        # pw.getAxis("left").setTicks([ticks])
+        ticks = [(i+1, f"ch{i+1}") for i in range(n_chan)]
+        pw.getAxis("left").setTicks([ticks])
 
         pw.getAxis("left").setWidth(50)
         pw.showGrid(x=False, y=True, alpha=0.5)
-        # pw.setRange(yRange=(-0.5, n_chan+1))
-        pw.setRange(yRange=(-2, 1+2), xRange=(0, int(timescale)))
+        pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)))
+        # pw.setRange(yRange=(-2, 1+2), xRange=(0, int(timescale)))
         pw.setLabel("bottom", "time (s)")
         pw.setLabel("left", "Voltage")
 
         self.plots_list = [pw]
         self.curve_ch1 = pw.plot(pen=Settings.EXG_LINE_COLOR)
-        '''self.curve_ch2 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch2 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch3 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch4 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch5 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch6 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch7 = pw.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch8 = pw.plot(pen=Settings.EXG_LINE_COLOR)'''
+        self.curve_ch8 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         
 
 
@@ -634,16 +635,13 @@ class AppFunctions(MainWindow):
         
 
 
-        '''self.curve_ch2.setData(self.t_exg_plot, self.exg_plot["ch2"])
+        self.curve_ch2.setData(self.t_exg_plot, self.exg_plot["ch2"])
         self.curve_ch3.setData(self.t_exg_plot, self.exg_plot["ch3"])
         self.curve_ch4.setData(self.t_exg_plot, self.exg_plot["ch4"])
         self.curve_ch5.setData(self.t_exg_plot, self.exg_plot["ch5"])
         self.curve_ch6.setData(self.t_exg_plot, self.exg_plot["ch6"])
         self.curve_ch7.setData(self.t_exg_plot, self.exg_plot["ch7"])
-        self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch8"])'''
-        
-        # self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch1"])
-
+        self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch8"])
 
     def emit_fft(self):
         """

@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = True
+        test = False
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
