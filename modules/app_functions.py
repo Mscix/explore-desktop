@@ -1,5 +1,5 @@
 import time
-from typing import NewType
+from typing import NewType, Set
 from explorepy import stream_processor
 from explorepy.stream_processor import TOPICS
 from scipy.ndimage.measurements import label
@@ -452,6 +452,7 @@ class AppFunctions(MainWindow):
             plt.addLegend(horSpacing=20, colCount=3, brush="k")
             plt.getAxis("left").setWidth(80)
             plt.getAxis("left").setLabel(lbl)
+            plt.showGrid(x=True, y=True, alpha=0.5)
 
         self.curve_ax = plot_acc.plot(pen=Settings.ORN_LINE_COLORS[0], name="accX")
         self.curve_ay = plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name="accY")
@@ -470,70 +471,27 @@ class AppFunctions(MainWindow):
         # pw = self.ui.graphicsView #testinng
         n_chan = self.explorer.stream_processor.device_info['adc_mask'].count(1)
         self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
-
+        timescale = AppFunctions._get_timeScale(self)
         pw = self.ui.plot_exg
-        ticks = [(i+1, f"ch{i+1}") for i in range(n_chan)]
-        pw.getAxis("left").setTicks([ticks])
+        # ticks = [(i+1, f"ch{i+1}") for i in range(n_chan)]
+        # pw.getAxis("left").setTicks([ticks])
 
         pw.getAxis("left").setWidth(50)
         pw.showGrid(x=False, y=True, alpha=0.5)
-        pw.setRange(yRange=(-0.5, n_chan+1))
+        # pw.setRange(yRange=(-0.5, n_chan+1))
+        pw.setRange(yRange=(-2, 1+2), xRange=(0, int(timescale)))
         pw.setLabel("bottom", "time (s)")
         pw.setLabel("left", "Voltage")
 
-        '''self.plot_ch8 = pw.addPlot
-        ()
-        pw.nextRow()
-        self.plot_ch7 = pw.addPlot()
-        pw.nextRow()
-        self.plot_ch6 = pw.addPlot()
-        pw.nextRow()
-        self.plot_ch5 = pw.addPlot()
-        pw.nextRow()
-        self.plot_ch4 = pw.addPlot()
-        pw.nextRow()
-        self.plot_ch3 = pw.addPlot()
-        pw.nextRow()
-        self.plot_ch2 = pw.addPlot()
-        pw.nextRow()
-        self.plot_ch1 = pw.addPlot()
-
-        self.plots_list = [
-            self.plot_ch1, self.plot_ch2, self.plot_ch3, self.plot_ch4,
-            self.plot_ch5, self.plot_ch6, self.plot_ch7, self.plot_ch8
-        ]
-
-        for idx, plt in enumerate(self.plots_list):
-            # plt.getAxis("left").setTicks([[(0, f"ch{idx+1}")]])
-            plt.getAxis("left").setLabel(f"ch{idx+1}")
-            plt.getAxis("left").setWidth(50)
-            plt.showGrid(x=False, y=True, alpha=0.5)
-            plt.setRange(yRange=(-1, 1))
-            # plt.disableAutoRange(axis="y")
-            if idx != 0:
-                plt.setXLink(self.plot_ch1)
-                plt.getAxis("bottom").setStyle(showValues=False)
-                plt.hideAxis("bottom")
-            
-        self.curve_ch1 = self.plot_ch1.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch2 = self.plot_ch2.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch3 = self.plot_ch3.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch4 = self.plot_ch4.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch5 = self.plot_ch5.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch6 = self.plot_ch6.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch7 = self.plot_ch7.plot(pen=Settings.EXG_LINE_COLOR)
-        # self.plots_list = [self.plot_ch8]
-        self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)'''
-
         self.plots_list = [pw]
         self.curve_ch1 = pw.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch2 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        '''self.curve_ch2 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch3 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch4 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch5 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch6 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch7 = pw.plot(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch8 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch8 = pw.plot(pen=Settings.EXG_LINE_COLOR)'''
         
 
 
@@ -547,9 +505,9 @@ class AppFunctions(MainWindow):
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
         #TODO: change if not testing
-        '''stream_processor.add_filter(
+        stream_processor.add_filter(
                 cutoff_freq=(.5, 30), filter_type='bandpass')
-        stream_processor.add_filter(cutoff_freq=50, filter_type='notch')'''
+        stream_processor.add_filter(cutoff_freq=50, filter_type='notch')
 
         def callback(packet):
             exg_fs = stream_processor.device_info['sampling_rate']
@@ -565,8 +523,8 @@ class AppFunctions(MainWindow):
             time_vector = time_vector[::int(exg_fs / Settings.EXG_VIS_SRATE)]
 
             # Baseline correction
-            if self.plotting_filters["offset"]:
-            # if True:
+            # if self.plotting_filters["offset"]:
+            if True:
                 samples_avg = exg.mean(axis=1)
                 if self._baseline_corrector["baseline"] is None:
                     self._baseline_corrector["baseline"] = samples_avg
@@ -615,23 +573,33 @@ class AppFunctions(MainWindow):
     def plot_exg(self, data):
         
         # max_points = 100
-        max_points = AppFunctions._plot_points(self) / 2
+        max_points = AppFunctions._plot_points(self)
         # if len(self.t_exg_plot)>max_points:
 
         time_scale = AppFunctions._get_timeScale(self)
         # if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
         if len(self.t_exg_plot)>max_points:
-            # self.plot_ch8.clear()
-            # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
+            print(self.t_exg_plot[-1])
+            # self.plots_list[0].clear()
+            last_t = self.t_exg_plot[-1]
+            self.t_exg_plot = [np.NaN] * int(max_points)
+            for ch in self.exg_plot.keys():
+                self.exg_plot[ch] = [np.NaN] * int(max_points)
+
+            # self.curve_ch1.setData(
+            #     np.linspace(self.t_exg_plot[-1], self.t_exg_plot[-1]+time_scale, int(max_points)),
+            #     self.exg_plot["ch1"])
+            self.plots_list[0].setXRange(
+                int(last_t),
+                int(last_t + time_scale))
+            '''
             self.t_exg_plot = self.t_exg_plot[8:]
             for ch in self.exg_plot.keys():
-                self.exg_plot[ch] = self.exg_plot[ch][8:]
-            
+                self.exg_plot[ch] = self.exg_plot[ch][8:]'''
+
             # Remove marker line
             for idx_t in range(len(self.mrk_plot["t"])):
                 if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
-                    # self.plot_ch8.removeItem(self.mrk_plot["line"][idx_t])
-                    # self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
                     for i, plt in enumerate(self.plots_list):
                         plt.removeItem(self.mrk_plot["line"][idx_t][i])
 
@@ -642,18 +610,37 @@ class AppFunctions(MainWindow):
                 for ch in self.exg_plot.keys():
                     self.exg_plot[ch] = self.exg_plot[ch][extra:]
                     
-        self.t_exg_plot.extend(data["t"])
-        for ch in self.exg_plot.keys():
-            self.exg_plot[ch].extend(data[ch])
+        # self.t_exg_plot.extend(data["t"])
+        if np.NaN in self.t_exg_plot:
+            idx = self.t_exg_plot.index(np.NaN)
+            self.t_exg_plot[idx:idx+8] = data["t"]
+            
+            for ch in self.exg_plot.keys():
+                idx = self.exg_plot[ch].index(np.NaN)
+                self.exg_plot[ch][idx:idx+8] = data[ch]
 
+        else:
+            self.t_exg_plot.extend(data["t"])
+
+            for ch in self.exg_plot.keys():
+                self.exg_plot[ch].extend(data[ch])
+
+        # self.curve_ch1.setData(self.exg_plot["ch1"])
+        # self.curve_ch1.setPos(self.t_exg_plot[-1], 0)
         self.curve_ch1.setData(self.t_exg_plot, self.exg_plot["ch1"])
-        self.curve_ch2.setData(self.t_exg_plot, self.exg_plot["ch2"])
+        # if self.line is not None:
+        #     self.ui.plot_exg.removeItem(self.line)
+        # self.line = self.ui.plot_exg.addLine(self.t_exg_plot[-1], pen="#FF0000")
+        
+
+
+        '''self.curve_ch2.setData(self.t_exg_plot, self.exg_plot["ch2"])
         self.curve_ch3.setData(self.t_exg_plot, self.exg_plot["ch3"])
         self.curve_ch4.setData(self.t_exg_plot, self.exg_plot["ch4"])
         self.curve_ch5.setData(self.t_exg_plot, self.exg_plot["ch5"])
         self.curve_ch6.setData(self.t_exg_plot, self.exg_plot["ch6"])
         self.curve_ch7.setData(self.t_exg_plot, self.exg_plot["ch7"])
-        self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch8"])
+        self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch8"])'''
         
         # self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch1"])
 
@@ -748,7 +735,7 @@ class AppFunctions(MainWindow):
         
         time_scale = AppFunctions._get_timeScale(self)
 
-        max_points = AppFunctions._plot_points(self) / (2*7)
+        max_points = AppFunctions._plot_points(self) / (7)
         if len(self.t_orn_plot)>max_points:
         # if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
             self.t_orn_plot = self.t_orn_plot[1:]
@@ -957,7 +944,8 @@ class AppFunctions(MainWindow):
     def _plot_points(self):
         time_scale = AppFunctions._get_timeScale(self)
         sr = AppFunctions._get_samplinRate(self)
-        points = time_scale * sr
+        # points = (time_scale * sr) # / (time_scale * Settings.EXG_VIS_SRATE)
+        points = Settings.EXG_VIS_SRATE * time_scale
         return points
 
 

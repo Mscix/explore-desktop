@@ -60,6 +60,7 @@ class MainWindow(QMainWindow):
                                     "baseline": 0}
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = "1 mV"
+        self.line = None
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -78,7 +79,7 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = False
+        test = True
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
@@ -345,8 +346,8 @@ class MainWindow(QMainWindow):
                 AppFunctions.init_plot_orn(self)
                 AppFunctions.init_plot_exg(self)
             
-            if self.plotting_filters is None:
-                self.plot_filters()
+            # if self.plotting_filters is None:
+            #     self.plot_filters()
             
             # AppFunctions.emit_signals(self)
 
