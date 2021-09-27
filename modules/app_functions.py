@@ -550,8 +550,6 @@ class AppFunctions(MainWindow):
         '''stream_processor.add_filter(
                 cutoff_freq=(.5, 30), filter_type='bandpass')
         stream_processor.add_filter(cutoff_freq=50, filter_type='notch')'''
-        
-        AppFunctions._apply_filters(self)
 
         def callback(packet):
             exg_fs = stream_processor.device_info['sampling_rate']

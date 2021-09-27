@@ -142,7 +142,8 @@ class MainWindow(QMainWindow):
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
         self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
-        
+        # self.ui.btn_stream.hide()
+
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
         else:
@@ -194,7 +195,8 @@ class MainWindow(QMainWindow):
 
         dialog = PlotDialog()
         self.plotting_filters = dialog.exec()
-
+        AppFunctions._apply_filters(self)
+        time.sleep(0.5)
 
     def start_timer_recorder(self):
         '''
@@ -345,6 +347,8 @@ class MainWindow(QMainWindow):
             
             if self.plotting_filters is None:
                 self.plot_filters()
+            
+            # AppFunctions.emit_signals(self)
 
 
         elif btn_name == "btn_impedance":
