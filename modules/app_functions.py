@@ -468,8 +468,21 @@ class AppFunctions(MainWindow):
 
     def init_plot_exg(self):
         # pw = self.ui.graphicsView #testinng
+        n_chan = self.explorer.stream_processor.device_info['adc_mask'].count(1)
+        self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
+
         pw = self.ui.plot_exg
-        self.plot_ch8 = pw.addPlot()
+        ticks = [(i+1, f"ch{i+1}") for i in range(n_chan)]
+        pw.getAxis("left").setTicks([ticks])
+
+        pw.getAxis("left").setWidth(50)
+        pw.showGrid(x=False, y=True, alpha=0.5)
+        pw.setRange(yRange=(-0.5, n_chan+1))
+        pw.setLabel("bottom", "time (s)")
+        pw.setLabel("left", "Voltage")
+
+        '''self.plot_ch8 = pw.addPlot
+        ()
         pw.nextRow()
         self.plot_ch7 = pw.addPlot()
         pw.nextRow()
@@ -491,9 +504,12 @@ class AppFunctions(MainWindow):
         ]
 
         for idx, plt in enumerate(self.plots_list):
-            plt.getAxis("left").setTicks([[(0, f"ch{idx+1}")]])
-            plt.getAxis("left").setWidth(80)
+            # plt.getAxis("left").setTicks([[(0, f"ch{idx+1}")]])
+            plt.getAxis("left").setLabel(f"ch{idx+1}")
+            plt.getAxis("left").setWidth(50)
             plt.showGrid(x=False, y=True, alpha=0.5)
+            plt.setRange(yRange=(-1, 1))
+            # plt.disableAutoRange(axis="y")
             if idx != 0:
                 plt.setXLink(self.plot_ch1)
                 plt.getAxis("bottom").setStyle(showValues=False)
@@ -507,7 +523,18 @@ class AppFunctions(MainWindow):
         self.curve_ch6 = self.plot_ch6.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch7 = self.plot_ch7.plot(pen=Settings.EXG_LINE_COLOR)
         # self.plots_list = [self.plot_ch8]
-        self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)'''
+
+        self.plots_list = [pw]
+        self.curve_ch1 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch2 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch3 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch4 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch5 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch6 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch7 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch8 = pw.plot(pen=Settings.EXG_LINE_COLOR)
+        
 
 
 
@@ -515,6 +542,7 @@ class AppFunctions(MainWindow):
         """
         Get EXG data and plot
         """
+        print(self.y_string)
         stream_processor = self.explorer.stream_processor
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
@@ -522,23 +550,6 @@ class AppFunctions(MainWindow):
         '''stream_processor.add_filter(
                 cutoff_freq=(.5, 30), filter_type='bandpass')
         stream_processor.add_filter(cutoff_freq=50, filter_type='notch')'''
-        
-        notch_freq = self.plotting_filters["notch"]
-        high_freq = self.plotting_filters["highpass"]
-        low_freq = self.plotting_filters["lowpass"]
-
-        if notch_freq is not None:
-            stream_processor.add_filter(cutoff_freq=notch_freq, filter_type='notch')
-
-        if high_freq is not None and low_freq is not None:
-            stream_processor.add_filter(
-                cutoff_freq=(low_freq, high_freq), filter_type='bandpass')
-        elif high_freq is not None:
-            stream_processor.add_filter(cutoff_freq=high_freq, filter_type='highpass')
-        elif low_freq is not None:
-            stream_processor.add_filter(cutoff_freq=low_freq, filter_type='lowpass')
-
-        print(self.plotting_filters)
 
         def callback(packet):
             exg_fs = stream_processor.device_info['sampling_rate']
@@ -572,25 +583,43 @@ class AppFunctions(MainWindow):
             # exg_chan = dict(zip(chan_list, exg))
 
             # Update ExG unit
-            # exg = self.offsets + exg / self.y_unit
-            exg /= self.y_unit
+            exg = self.offsets + exg / self.y_unit
+            # exg /= self.y_unit
 
             data = dict(zip(chan_list, exg))
             data['t'] = time_vector
             self.signal_exg.emit(data)
-            # time.sleep(0.5)
 
         stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
+
+    def _apply_filters(self):
+
+        stream_processor = self.explorer.stream_processor
+        notch_freq = self.plotting_filters["notch"]
+        high_freq = self.plotting_filters["highpass"]
+        low_freq = self.plotting_filters["lowpass"]
+
+        if notch_freq is not None:
+            stream_processor.add_filter(cutoff_freq=notch_freq, filter_type='notch')
+
+        if high_freq is not None and low_freq is not None:
+            stream_processor.add_filter(
+                cutoff_freq=(low_freq, high_freq), filter_type='bandpass')
+        elif high_freq is not None:
+            stream_processor.add_filter(cutoff_freq=high_freq, filter_type='highpass')
+        elif low_freq is not None:
+            stream_processor.add_filter(cutoff_freq=low_freq, filter_type='lowpass')
+
+        print(self.plotting_filters)
 
     def plot_exg(self, data):
         
         # max_points = 100
         max_points = AppFunctions._plot_points(self) / 2
-        # print(data["t"])
-        # t_nosc = [t*10e9 for t in data["t"]]
-        # print(t_nosc)
-        # print(data)
+        # if len(self.t_exg_plot)>max_points:
 
+        time_scale = AppFunctions._get_timeScale(self)
+        # if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
         if len(self.t_exg_plot)>max_points:
             # self.plot_ch8.clear()
             # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
@@ -598,11 +627,20 @@ class AppFunctions(MainWindow):
             for ch in self.exg_plot.keys():
                 self.exg_plot[ch] = self.exg_plot[ch][8:]
             
+            # Remove marker line
             for idx_t in range(len(self.mrk_plot["t"])):
                 if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
                     # self.plot_ch8.removeItem(self.mrk_plot["line"][idx_t])
+                    # self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
                     for i, plt in enumerate(self.plots_list):
                         plt.removeItem(self.mrk_plot["line"][idx_t][i])
+
+            # Update axis
+            if len(self.t_exg_plot) - max_points > 0:
+                extra = int(len(self.t_exg_plot) - max_points)
+                self.t_exg_plot = self.t_exg_plot[extra:]
+                for ch in self.exg_plot.keys():
+                    self.exg_plot[ch] = self.exg_plot[ch][extra:]
                     
         self.t_exg_plot.extend(data["t"])
         for ch in self.exg_plot.keys():
@@ -689,18 +727,18 @@ class AppFunctions(MainWindow):
         """
         stream_processor = self.explorer.stream_processor
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-        import pandas as pd
-        self.df = pd.DataFrame(columns=chan_list.append("t"))
+        # import pandas as pd
+        # self.df = pd.DataFrame(columns=chan_list.append("t"))
         def callback(packet):
             timestamp, orn_data = packet.get_data()
-            # if self._vis_time_offset is None:
-            #     self._vis_time_offset = timestamp[0]
-            # timestamp -= self._vis_time_offset
-            # timestamp -= timestamp[0]
+            if self._vis_time_offset is None:
+                 self._vis_time_offset = timestamp[0]
+            time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
+
             data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
-            data['t'] = timestamp
-            dftemp = pd.DataFrame.from_dict(data)
-            self.df = self.df.append(dftemp)
+            data['t'] = time_vector
+            # dftemp = pd.DataFrame.from_dict(data)
+            # self.df = self.df.append(dftemp)
             
             self.signal_orn.emit(data)
 
@@ -708,15 +746,19 @@ class AppFunctions(MainWindow):
 
     def plot_orn(self, data):
         
-        # sr = self.explorer.stream_processor.device_info['sampling_rate']
-        # time_scale = Settings.TIME_RANGE_MENU[self.ui.value_timeScale.currentText()]
+        time_scale = AppFunctions._get_timeScale(self)
 
-        max_points = AppFunctions._plot_points(self)
-        # max_points = 100
+        max_points = AppFunctions._plot_points(self) / (2*7)
         if len(self.t_orn_plot)>max_points:
+        # if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
             self.t_orn_plot = self.t_orn_plot[1:]
             for k in self.orn_plot.keys():
                 self.orn_plot[k] = self.orn_plot[k][1:]
+            if len(self.t_orn_plot) - max_points > 0:
+                extra = int(len(self.t_orn_plot) - max_points)
+                self.t_orn_plot = self.t_orn_plot[extra:]
+                for k in self.orn_plot.keys():
+                    self.orn_plot[k] = self.orn_plot[k][extra:]
 
         self.t_orn_plot.extend(data["t"])
         for k in self.orn_plot.keys():
@@ -741,13 +783,13 @@ class AppFunctions(MainWindow):
             timestamp, _ = packet.get_data()
             if self._vis_time_offset is None:
                 self._vis_time_offset = timestamp[0]
-            timestamp -= self._vis_time_offset
+            time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
 
             '''new_data = dict(zip(['marker', 't', 'code'], [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
                                                         np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))'''
 
-            data = [timestamp[0], self.ui.value_event_code.text()]
-            self.signal_marker.emit(data)
+            data = [time_vector[0], self.ui.value_event_code.text()]
+            self.signal_mkr.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
     
@@ -761,9 +803,10 @@ class AppFunctions(MainWindow):
         lines = []
         for plt in self.plots_list:
         # plt = self.plot_ch8
-            line = plt.addLine(t, label=code, pen=pen_marker)
+            line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
             lines.append(line)
         self.mrk_plot["line"].append(lines)
+        print(self.plots_list)
 
     def _change_scale(self):
         old = Settings.SCALE_MENU[self.y_string]
@@ -775,9 +818,16 @@ class AppFunctions(MainWindow):
         self.y_string = self.ui.value_yAxis.currentText()
         self.y_unit = new_unit
 
-        for chan, val in self.exg_plot.items():
+        stream_processor = self.explorer.stream_processor
+        self.chan_key_list = [Settings.CHAN_LIST[i].lower()
+                              for i, mask in enumerate(reversed(stream_processor.device_info['adc_mask'])) if
+                              mask == 1]
+
+        for chan, value in self.exg_plot.items():
             if self.chan_dict[chan] == 1:
-                self.exg_plot[chan] = [i * (old_unit / new_unit) for i in val]
+                temp_offset = self.offsets[self.chan_key_list.index(chan)]
+                # self.exg_plot[chan] = [i * (old_unit / new_unit) for i in val]
+                self.exg_plot[chan] = list((value - temp_offset) * (old_unit / new_unit) + temp_offset)
         
         # self._r_peak_source.data['r_peak'] = (np.array(self._r_peak_source.data['r_peak']) - self.offsets[0]) * \
                                             #  (old_unit / self.y_unit) + self.offsets[0]

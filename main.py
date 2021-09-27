@@ -20,7 +20,7 @@ from modules.dialogs import RecordingDialog, PlotDialog
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
 
-VERSION_APP = 'v0.14'
+VERSION_APP = 'v0.15'
 
 
 class MainWindow(QMainWindow):
@@ -28,6 +28,7 @@ class MainWindow(QMainWindow):
     signal_fft = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
+    signal_mkr= Signal(object)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -132,13 +133,17 @@ class MainWindow(QMainWindow):
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(lambda: AppFunctions.set_marker(self))
+        self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
+
 
         self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
 
         self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        
+        self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
+        # self.ui.btn_stream.hide()
+
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
         else:
@@ -190,7 +195,8 @@ class MainWindow(QMainWindow):
 
         dialog = PlotDialog()
         self.plotting_filters = dialog.exec()
-
+        AppFunctions._apply_filters(self)
+        time.sleep(0.5)
 
     def start_timer_recorder(self):
         '''
@@ -335,12 +341,14 @@ class MainWindow(QMainWindow):
             # if self.is_imp_measuring:
             #     self.explorer.stream_processor.disable_imp()
 
-            if self.ui.plot_exg.getItem(0,0) is None:
+            if self.ui.plot_orn.getItem(0,0) is None:
                 AppFunctions.init_plot_orn(self)
                 AppFunctions.init_plot_exg(self)
             
             if self.plotting_filters is None:
                 self.plot_filters()
+            
+            # AppFunctions.emit_signals(self)
 
 
         elif btn_name == "btn_impedance":
