@@ -20,7 +20,7 @@ from modules.dialogs import RecordingDialog, PlotDialog
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
 
-VERSION_APP = 'v0.14'
+VERSION_APP = 'v0.15'
 
 
 class MainWindow(QMainWindow):
@@ -28,6 +28,7 @@ class MainWindow(QMainWindow):
     signal_fft = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
+    signal_mkr= Signal(object)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -48,8 +49,11 @@ class MainWindow(QMainWindow):
 
         self.plotting_filters = None
 
+        # self.t_exg_plot = []
         self.t_exg_plot = []
+        self.t_exg_plot_prev = []
         self.exg_plot = {}
+        self.exg_plot_prev = {}
         self.orn_plot = {k:[] for k in Settings.ORN_LIST}
         self.t_orn_plot = []
         self.mrk_plot = {"t":[], "code":[], "line":[]}
@@ -59,6 +63,8 @@ class MainWindow(QMainWindow):
                                     "baseline": 0}
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = "1 mV"
+        self.line = None
+        self.n = 1
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -80,16 +86,18 @@ class MainWindow(QMainWindow):
         test = False
         if test:
             # pass
-            self.explorer.connect(device_name="Explore_CA18")
-            # self.explorer.connect(device_name="Explore_CA0E")
+            # self.explorer.connect(device_name="Explore_CA18")
+            self.explorer.connect(device_name="Explore_CA07")
             AppFunctions.info_device(self)
             AppFunctions.update_frame_dev_settings(self)
             self.is_connected = True
 
             stream_processor = self.explorer.stream_processor
-            n_chan = stream_processor.device_info['adc_mask']
+            n_chan = reversed(stream_processor.device_info['adc_mask'])
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            # AppFunctions.init_plot_exg(self)
+            # AppFunctions.init_plot_orn(self)
         else:
             AppFunctions.scan_devices(self)
 
@@ -99,6 +107,8 @@ class MainWindow(QMainWindow):
         # Stacked pages - default open home
         # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+        # AppFunctions.emit_signals(self)
 
         # Stacked pages - navigation
         for w in self.ui.left_side_menu.findChildren(QPushButton):
@@ -132,13 +142,20 @@ class MainWindow(QMainWindow):
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(lambda: AppFunctions.set_marker(self))
+        self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
+
 
         self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
 
         self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        
+        self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
+
+        # self.ui.tabWidget.currentChanged.connect(lambda: AppFunctions.plot_tabs(self))
+
+        # self.ui.btn_stream.hide()
+
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
         else:
@@ -151,13 +168,10 @@ class MainWindow(QMainWindow):
         '''self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         # self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_exg(self))
         
-
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         # self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_fft(self))
-
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
         self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_orn(self))
-
         from datetime import datetime
         now = datetime.now()
         dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
@@ -190,7 +204,8 @@ class MainWindow(QMainWindow):
 
         dialog = PlotDialog()
         self.plotting_filters = dialog.exec()
-
+        AppFunctions._apply_filters(self)
+        time.sleep(0.5)
 
     def start_timer_recorder(self):
         '''
@@ -302,7 +317,6 @@ class MainWindow(QMainWindow):
     def changePage(self, btn_name):
         """
         Change the active page when the object is clicked
-
         Args:
             btn_name
         """
@@ -335,12 +349,14 @@ class MainWindow(QMainWindow):
             # if self.is_imp_measuring:
             #     self.explorer.stream_processor.disable_imp()
 
-            if self.ui.plot_exg.getItem(0,0) is None:
+            if self.ui.plot_orn.getItem(0,0) is None:
                 AppFunctions.init_plot_orn(self)
                 AppFunctions.init_plot_exg(self)
             
-            if self.plotting_filters is None:
-                self.plot_filters()
+            # if self.plotting_filters is None:
+            #     self.plot_filters()
+            
+            # AppFunctions.emit_signals(self)
 
 
         elif btn_name == "btn_impedance":
@@ -381,7 +397,6 @@ class MainWindow(QMainWindow):
     def mousePressEvent(self, event):
         '''
         Get mouse current position to move the window
-
         Args: mouse press event
         '''
         self.clickPosition = event.globalPos() 

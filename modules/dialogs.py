@@ -13,8 +13,8 @@ class PlotDialog(QDialog):
         self.ui.label_5.hide()
 
         # self.ui.value_notch.addItems(["", 50, 60])
-        self.ui.comboBox.addItems(["", "50", "60"])
-        self.ui.comboBox.setCurrentText("")
+        self.ui.comboBox.addItems(["50", "60"])
+        self.ui.comboBox.setCurrentText("50")
         # self.ui.value_notch.setValidator(QIntValidator())
         # self.ui.lineEdit.setValidator(QIntValidator())
 
