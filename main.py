@@ -49,8 +49,11 @@ class MainWindow(QMainWindow):
 
         self.plotting_filters = None
 
+        # self.t_exg_plot = []
         self.t_exg_plot = []
+        self.t_exg_plot_prev = []
         self.exg_plot = {}
+        self.exg_plot_prev = {}
         self.orn_plot = {k:[] for k in Settings.ORN_LIST}
         self.t_orn_plot = []
         self.mrk_plot = {"t":[], "code":[], "line":[]}
@@ -61,6 +64,7 @@ class MainWindow(QMainWindow):
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = "1 mV"
         self.line = None
+        self.n = 1
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -79,7 +83,7 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = False
+        test = True
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
@@ -92,6 +96,8 @@ class MainWindow(QMainWindow):
             n_chan = stream_processor.device_info['adc_mask']
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            AppFunctions.init_plot_exg(self)
+            AppFunctions.init_plot_orn(self)
         else:
             AppFunctions.scan_devices(self)
 
@@ -100,7 +106,9 @@ class MainWindow(QMainWindow):
 
         # Stacked pages - default open home
         # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
-        self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+        # AppFunctions.emit_signals(self)
 
         # Stacked pages - navigation
         for w in self.ui.left_side_menu.findChildren(QPushButton):
@@ -143,6 +151,9 @@ class MainWindow(QMainWindow):
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
         self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
+
+        # self.ui.tabWidget.currentChanged.connect(lambda: AppFunctions.plot_tabs(self))
+
         # self.ui.btn_stream.hide()
 
         if self.file_names is None:
