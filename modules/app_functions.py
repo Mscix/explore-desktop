@@ -133,13 +133,25 @@ class AppFunctions(MainWindow):
         Connect to the explore device
         """
         if self.is_connected is False:
-            device_name = self.ui.list_devices.selectedItems()[0].text()
-            print(device_name)
-            self.ui.ft_label_device_3.setText(f"Connecting ...")
+            try:
+                device_name = self.ui.list_devices.selectedItems()[0].text()
+                print(device_name)
+            except IndexError:
+                #TODO change to popup?
+                print("please select a device first")
+
+            self.ui.ft_label_device_3.setText("Connecting ...")
+            self.ui.ft_label_device_3.repaint() 
             QApplication.processEvents()
 
-            self.explorer.connect(device_name=device_name)
-            self.is_connected = True
+            try:
+                self.explorer.connect(device_name=device_name)
+                self.is_connected = True
+            # except DeviceNotFoundError:
+            except:
+                #TODO change to popup?
+                print("Could not find the device! Please make sure the device is on and in advertising mode.")
+
 
         else:
             self.explorer.disconnect()
@@ -154,6 +166,7 @@ class AppFunctions(MainWindow):
         AppFunctions.info_device(self)
         # (un)hide settings frame
         AppFunctions.update_frame_dev_settings(self)
+
 
     def info_device(self):
         r"""
@@ -615,7 +628,7 @@ class AppFunctions(MainWindow):
     def plot_exg(self, data):
         
         # max_points = 100
-        max_points = AppFunctions._plot_points(self) / 2
+        max_points = AppFunctions._plot_points(self) 
         # if len(self.t_exg_plot)>max_points:
 
         time_scale = AppFunctions._get_timeScale(self)
@@ -623,9 +636,11 @@ class AppFunctions(MainWindow):
         if len(self.t_exg_plot)>max_points:
             # self.plot_ch8.clear()
             # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
-            self.t_exg_plot = self.t_exg_plot[8:]
+            print(len(data["t"]))
+            new_points = len(data['t'])
+            self.t_exg_plot = self.t_exg_plot[new_points:]
             for ch in self.exg_plot.keys():
-                self.exg_plot[ch] = self.exg_plot[ch][8:]
+                self.exg_plot[ch] = self.exg_plot[ch][new_points:]
             
             # Remove marker line
             for idx_t in range(len(self.mrk_plot["t"])):
@@ -748,7 +763,7 @@ class AppFunctions(MainWindow):
         
         time_scale = AppFunctions._get_timeScale(self)
 
-        max_points = AppFunctions._plot_points(self) / (2*7)
+        max_points = AppFunctions._plot_points(self) / 7 #/ (2*7)
         if len(self.t_orn_plot)>max_points:
         # if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
             self.t_orn_plot = self.t_orn_plot[1:]
@@ -957,7 +972,7 @@ class AppFunctions(MainWindow):
     def _plot_points(self):
         time_scale = AppFunctions._get_timeScale(self)
         sr = AppFunctions._get_samplinRate(self)
-        points = time_scale * sr
+        points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
         return points
 
 
