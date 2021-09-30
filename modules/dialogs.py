@@ -10,7 +10,7 @@ class PlotDialog(QDialog):
         self.ui = Ui_PlotDialog()
         self.ui.setupUi(self)
         # self.int_validator = QIntValidator()
-        # self.ui.lbl_warning.hide()
+        self.ui.lbl_warning.hide()
         
         self.s_rate = float(sr)
                 
@@ -105,7 +105,12 @@ class PlotDialog(QDialog):
         self.ui.value_highpass.setStyleSheet(r_stylesheet)
         self.ui.value_lowpass.setStyleSheet(l_stylesheet)
         if not borderOnly:
-            self.ui.label_4.setText(lbl_txt)
+            self.ui.lbl_warning.setText(lbl_txt)
+            if lbl_txt != "":
+                lbl_txt.unhide()
+            else:
+                lbl_txt.hide()
+
 
         # QTimer.singleShot(1000, lambda: self.ui.value_highpass.setStyleSheet(''))
         # QTimer.singleShot(1000, lambda: self.ui.value_lowpass.setStyleSheet(''))
