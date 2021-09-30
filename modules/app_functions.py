@@ -510,19 +510,16 @@ class AppFunctions(MainWindow):
         self.curve_ch7 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)'''
 
-        # self.curve_ch1_prev = pg.PlotCurveItem(pen="#2786AB")
-        self.curve_ch1_prev = pg.PlotCurveItem(pen="#AB2795")
 
         self.curves_list = [self.curve_ch1]
-        self.curves_list_prev = [self.curve_ch1_prev]
+
         '''self.curves_list = [
             self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
             self.curve_ch5, self.curve_ch6, self.curve_ch7, self.curve_ch8
             ]'''
 
-        for curve, curve_prev in zip(self.curves_list, self.curves_list_prev):
+        for curve in self.curves_list:
             pw.addItem(curve)
-            pw.addItem(curve_prev)
 
     def emit_exg(self):
         """
@@ -578,142 +575,65 @@ class AppFunctions(MainWindow):
 
         stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
 
+    def handle_exg_data(self, data):
+
+        return self.t_exg_plot, self.exg_plot
+    
     def plot_exg(self, data):
 
         # max_points = 100
         max_points = AppFunctions._plot_points(self)
         # if len(self.t_exg_plot)>max_points:
-
         time_scale = AppFunctions._get_timeScale(self)
 
-        if (len(self.t_exg_plot) and data['t'][-1]>time_scale*self.n):
-        # if len(self.t_exg_plot)>=max_points:
-            '''self.t_exg_plot_prev = self.t_exg_plot
-            self.exg_plot_prev = self.exg_plot
+        # if not np.isnan(np.sum(self.t_exg_plot)):
 
-            print("\n")
-            print(f"{self.t_exg_plot[-1]=}")
-            print(f"{len(self.t_exg_plot_prev)=}")
-            print(f"{len(self.exg_plot_prev['ch1'])=}")'''
-            # print(f"{self.exg_plot_prev['ch1']}")
-            # self.t_exg_plot_prev = np.array(self.t_exg_plot_prev) + time_scale
-            # self.curve_ch1_prev.setData(self.t_exg_plot_prev, self.exg_plot_prev["ch1"])
 
-            self.n += 1
-            print(f"{max_points=}")
-            print(f"{len(self.t_exg_plot)=}")
-            # print(f"{(self.t_exg_plot)=}")
-            print(f"{len(self.exg_plot['ch1'])=}")
-            # print(f"{(self.exg_plot['ch1'])=}")
-            print(f"{data['t'][-1]=}")
-            print("\n")
+        
+        n_new_points = len(data["t"])
+        idxs = np.arange(self.t_pointer, self.t_pointer+n_new_points)
+        self.t_exg_plot.put(idxs, data["t"], mode="wrap") #replace values with new points
+        
 
-            # print(f"{data['t'][0]=}")
-            # # self.plots_list[0].clear()
-            # last_t = self.t_exg_plot[-1]
-            # print(f"{last_t=}")
+        for ch in self.exg_plot.keys():
+            self.exg_plot[ch].put(idxs, data[ch], mode="wrap")
+        
+        self.t_pointer += n_new_points
 
-            '''self.t_exg_plot = [np.NaN] * len(self.t_exg_plot)
-            for ch in self.exg_plot.keys():
-                self.exg_plot[ch] = [np.NaN] * len(self.t_exg_plot)'''
+        # if wrap happen -> pointer>length:
+        if self.t_pointer >= len(self.t_exg_plot):
+            while self.t_pointer >= len(self.t_exg_plot):
+                self.t_pointer -= len(self.t_exg_plot)
+            print(self.t_exg_plot[-1])
+            print(data["t"])
 
-            # update axis
-            last_t = data["t"][-1]
-            self.ui.plot_exg.setXRange( # self.plots_list[0]
-                int(last_t),
-                int(last_t + time_scale))
-
-            n_new_points = len(data['t'])
-            '''
-            self.t_exg_plot = self.t_exg_plot[n_new_points:]
-            for ch in self.exg_plot.keys():
-                self.exg_plot[ch] = self.exg_plot[ch][n_new_points:]
-            '''
+            self.t_exg_plot[self.t_pointer:] += AppFunctions._get_timeScale(self)
             
-            # print("before")
-            # for t, y in zip(self.t_exg_plot[:n_new_points+10], self.exg_plot['ch1'][:n_new_points+10]):
-            #     print(t, y)
-            n_new_points = len(data['t'])
-            self.t_exg_plot[:n_new_points] = data['t']
-            self.t_exg_plot[n_new_points:] = list(np.array(self.t_exg_plot[n_new_points:]) + time_scale)
+            t_min = int(data["t"][-1])
+            t_max = int(t_min + AppFunctions._get_timeScale(self))
+            self.ui.plot_exg.setXRange(t_min,t_max)
 
-            for ch in self.exg_plot.keys():
-                self.exg_plot[ch][:n_new_points] = data[ch]
-            
-            # print("\nafter")
-            # for t, y in zip(self.t_exg_plot[:n_new_points+10], self.exg_plot['ch1'][:n_new_points+10]):
-            #     print(t, y)
-                
-            # Remove marker line
-            for idx_t in range(len(self.mrk_plot["t"])):
-                if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
-                    '''for i, plt in enumerate(self.plots_list):
-                        plt.removeItem(self.mrk_plot["line"][idx_t][i])'''
-                    self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
 
-            # Update according to time scale
-            if abs(len(self.t_exg_plot) - max_points) != 0:
-                extra = int(len(self.t_exg_plot) - max_points)
-                self.t_exg_plot = self.t_exg_plot[extra:]
-                for ch in self.exg_plot.keys():
-                    self.exg_plot[ch] = self.exg_plot[ch][extra:]
-
-        else:
-            if self.n == 1:
-                self.t_exg_plot.extend(data["t"])
-                #np.concatenate((a,b))
-                for ch in self.exg_plot.keys():
-                        self.exg_plot[ch].extend(data[ch])
-            else:
-                n_new_points = len(data['t'])
-                self.t_exg_plot[:n_new_points] = data['t']
-                self.t_exg_plot[n_new_points:] = list(np.array(self.t_exg_plot[n_new_points:]) + time_scale)
-
-                for ch in self.exg_plot.keys():
-                    self.exg_plot[ch][:n_new_points] = data[ch]
-
-            '''if np.NaN in self.t_exg_plot:
-                len_t = len(data['t'])
-                idx = self.t_exg_plot.index(np.NaN)
-                self.t_exg_plot[idx:idx+len_t] = data['t']
-                # self.t_exg_plot_prev[idx:idx+len_t] = [np.NaN]*len_t
-            else:
-                self.t_exg_plot.extend(data["t"])
-
-            if np.NaN in self.exg_plot["ch1"]:
-                idx = self.exg_plot['ch1'].index(np.NaN)
-                len_exg = len(data['ch1'])
-                for ch in self.exg_plot.keys():
-                    self.exg_plot[ch][idx:idx+len_exg] = data[ch]
-                    # self.exg_plot_prev[ch][idx:idx+len_exg] = [np.NaN]*len_exg
-
-            else:
-                for ch in self.exg_plot.keys():
-                    self.exg_plot[ch].extend(data[ch])'''
-
+   
         # Position line:
         if self.line is not None:
-            # self.ui.plot_exg.removeItem(self.line)
             self.line.setPos(data["t"][-1])
         else:
             self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
 
         # Paint curves
-        for curve, curve_prev, ch in zip(self.curves_list, self.curves_list_prev, ["ch1"]):
+        for curve, ch in zip(self.curves_list, ["ch1"]):
+            '''print("\n")
+            print(f"{len(self.t_exg_plot)=}")
+            print(f"{len(self.exg_plot[ch])=}")
+            for t, e in zip(self.t_exg_plot, self.exg_plot[ch]):
+                print(t, e)'''
             curve.setData(self.t_exg_plot, self.exg_plot[ch])
 
-            '''if ch in self.exg_plot_prev.keys():
-                curve_prev.setData(self.t_exg_plot, self.exg_plot_prev[ch])'''
-
-        '''
-        self.curve_ch1.setData(self.t_exg_plot, self.exg_plot["ch1"])
-        self.curve_ch2.setData(self.t_exg_plot, self.exg_plot["ch2"])
-        self.curve_ch3.setData(self.t_exg_plot, self.exg_plot["ch3"])
-        self.curve_ch4.setData(self.t_exg_plot, self.exg_plot["ch4"])
-        self.curve_ch5.setData(self.t_exg_plot, self.exg_plot["ch5"])
-        self.curve_ch6.setData(self.t_exg_plot, self.exg_plot["ch6"])
-        self.curve_ch7.setData(self.t_exg_plot, self.exg_plot["ch7"])
-        self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch8"])'''
+    def _change_timescale(self):
+        t_min = int(min(self.t_exg_plot))
+        t_max = int(t_min + AppFunctions._get_timeScale(self))
+        self.ui.plot_exg.setXRange(t_min,t_max)
 
     def emit_fft(self):
         """
@@ -805,7 +725,7 @@ class AppFunctions(MainWindow):
 
         time_scale = AppFunctions._get_timeScale(self)
 
-        max_points = AppFunctions._plot_points(self) / (14)
+        max_points = AppFunctions._plot_points(self) / (7)
         if len(self.t_orn_plot)>max_points:
         # if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
             self.t_orn_plot = self.t_orn_plot[1:]
@@ -1006,7 +926,8 @@ class AppFunctions(MainWindow):
     def _plot_points(self):
         time_scale = AppFunctions._get_timeScale(self)
         sr = AppFunctions._get_samplinRate(self)
-        points = (time_scale * sr)
+        # points = (time_scale * sr)
+        points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
         # points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
         # points = Settings.EXG_VIS_SRATE * time_scale
         return points
@@ -1049,7 +970,8 @@ class AppFunctions(MainWindow):
             if self.chan_dict[chan] == 1:
                 temp_offset = self.offsets[self.chan_key_list.index(chan)]
                 # self.exg_plot[chan] = [i * (old_unit / new_unit) for i in val]
-                self.exg_plot[chan] = list((value - temp_offset) * (old_unit / new_unit) + temp_offset)
+                # self.exg_plot[chan] = list((value - temp_offset) * (old_unit / new_unit) + temp_offset)
+                self.exg_plot[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
 
         # self._r_peak_source.data['r_peak'] = (np.array(self._r_peak_source.data['r_peak']) - self.offsets[0]) * \
                                             #  (old_unit / self.y_unit) + self.offsets[0]

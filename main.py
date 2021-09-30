@@ -50,7 +50,13 @@ class MainWindow(QMainWindow):
         self.plotting_filters = None
 
         # self.t_exg_plot = []
-        self.t_exg_plot = []
+        self.t_exg_plot = np.array([np.NaN]*2500)
+        self.t_pointer = 0
+        '''self.t_exg_buffer = np.full((2, 2500), np.NaN)
+        self.exg_buffer = np.full((2, 2500), np.NaN)
+        self.t_pointer = 0
+        self.exg_pointer = [0,0]'''
+
         self.t_exg_plot_prev = []
         self.exg_plot = {}
         self.exg_plot_prev = {}
@@ -83,11 +89,11 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = True
+        test = False
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
-            # self.explorer.connect(device_name="Explore_CA0E")
+            # self.explorer.connect(device_name="Explore_CA07")
             AppFunctions.info_device(self)
             AppFunctions.update_frame_dev_settings(self)
             self.is_connected = True
@@ -95,7 +101,8 @@ class MainWindow(QMainWindow):
             stream_processor = self.explorer.stream_processor
             n_chan = stream_processor.device_info['adc_mask']
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-            self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            # self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.exg_plot = {ch:np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             AppFunctions.init_plot_exg(self)
             AppFunctions.init_plot_orn(self)
         else:
@@ -146,6 +153,7 @@ class MainWindow(QMainWindow):
 
 
         self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
+        self.ui.value_timeScale.currentTextChanged.connect(lambda: AppFunctions._change_timescale(self))
 
         self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
