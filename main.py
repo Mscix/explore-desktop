@@ -11,6 +11,7 @@ import explorepy as xpy
 # from pyqtgraph.Qt import App
 # from pyqtgraph.functions import disconnect
 from modules import *
+import time
 
 from datetime import datetime
 from modules.dialogs import RecordingDialog, PlotDialog
@@ -51,7 +52,8 @@ class MainWindow(QMainWindow):
 
         # self.t_exg_plot = []
         self.downsampling = False
-        self.t_exg = np.array([np.NaN]*2500)
+        self.t_exg = np.array([np.NaN]*5000)
+
         self.t_exg_plot = np.array([np.NaN]*2500)
         self.t_pointer = 0
         '''self.t_exg_buffer = np.full((2, 2500), np.NaN)
@@ -105,6 +107,7 @@ class MainWindow(QMainWindow):
             n_chan = stream_processor.device_info['adc_mask']
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             # self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.exg_data = {ch:np.array([np.NaN]*5000) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             self.exg_plot = {ch:np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             AppFunctions.init_plot_exg(self)
             AppFunctions.init_plot_orn(self)
@@ -219,7 +222,7 @@ class MainWindow(QMainWindow):
         Open plot filter dialog and apply filters
         '''
         sr = self.explorer.stream_processor.device_info['sampling_rate']
-        dialog = PlotDialog(sr=sr)
+        dialog = PlotDialog(sr=sr, current_filters=self.plotting_filters)
         self.plotting_filters = dialog.exec()
         AppFunctions._apply_filters(self)
         time.sleep(0.5)

@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QDialog
 
 
 class PlotDialog(QDialog):
-    def __init__(self, sr, parent=None):
+    def __init__(self, sr, current_filters, parent=None):
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
         self.ui.setupUi(self)
@@ -13,19 +13,36 @@ class PlotDialog(QDialog):
         self.ui.lbl_warning.hide()
         
         self.s_rate = float(sr)
-                
-        # self.ui.value_notch.addItems(["", 50, 60])
-        self.ui.comboBox.addItems(["50", "60"])
-        self.ui.comboBox.setCurrentText("50")
-        # self.ui.value_notch.setValidator(QIntValidator())
-        # self.ui.lineEdit.setValidator(QIntValidator())
 
+        if current_filters is None:
+            self.offset = False
+            self.notch = "50"
+            self.lowpass = ""
+            self.highpass = ""
+        else:
+            self.offset = current_filters["offset"]
+            self.notch = str(current_filters["notch"])
+            self.lowpass = str(current_filters["lowpass"])
+            self.highpass = str(current_filters["highpass"])
+
+        # Add options to notch combobox
+        self.ui.value_notch.addItems(["50", "60"])
+        
+        # Set current values 
+        self.ui.value_notch.setCurrentText(self.notch)
+        self.ui.value_highpass.setText(self.highpass)
+        self.ui.value_lowpass.setText(self.lowpass)
+        self.ui.cb_offset.setChecked(self.offset)
+
+        # Set validators (only accept doubles)
         self.ui.value_highpass.setValidator(QDoubleValidator())
         self.ui.value_lowpass.setValidator(QDoubleValidator())
 
+        # Verify input with output message when editing is done
         self.ui.value_lowpass.editingFinished.connect(lambda: self.verify_input())
         self.ui.value_highpass.editingFinished.connect(lambda: self.verify_input())
 
+        # Verify input without output message when typing
         self.ui.value_lowpass.textChanged.connect(lambda: self.verify_input(borderOnly=True))
         self.ui.value_highpass.textChanged.connect(lambda: self.verify_input(borderOnly=True))
 
@@ -107,9 +124,9 @@ class PlotDialog(QDialog):
         if not borderOnly:
             self.ui.lbl_warning.setText(lbl_txt)
             if lbl_txt != "":
-                lbl_txt.unhide()
+                self.ui.lbl_warning.setHidden(False)
             else:
-                lbl_txt.hide()
+                self.ui.lbl_warning.setHidden(True)
 
 
         # QTimer.singleShot(1000, lambda: self.ui.value_highpass.setStyleSheet(''))
@@ -121,7 +138,7 @@ class PlotDialog(QDialog):
         super().exec()
         return {
             "offset": self.ui.cb_offset.isChecked(),
-            "notch": None if self.ui.comboBox.currentText() == "" == "" else int(self.ui.comboBox.currentText()),
+            "notch": None if self.ui.value_notch.currentText() == "" == "" else int(self.ui.value_notch.currentText()),
             "lowpass": None if self.ui.value_lowpass.text() == "" else float(self.ui.value_lowpass.text()),
             "highpass": None if self.ui.value_highpass.text() == "" else float(self.ui.value_highpass.text())
             }
