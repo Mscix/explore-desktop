@@ -742,7 +742,7 @@ class AppFunctions(MainWindow):
         pw = self.ui.plot_fft
         pw.setXRange(0, 70)
         pw.showGrid(x=True, y=True, alpha=0.5)
-        # pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
+        pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
         pw.setLabel('left', "Amplitude (uV)")
         pw.setLabel('bottom', "Frequency (Hz)")
         pw.setLogMode(x=False, y=True)
@@ -751,14 +751,16 @@ class AppFunctions(MainWindow):
 
         pw = self.ui.plot_fft
         pw.clear()
+        pw.setXRange(0, 70)
+
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
-        exg_data = np.array([self.exg_plot[key] for key in self.exg_plot.keys()])
-        print("plot fft: ", time.strftime("%H:%M:%S", time.localtime()))
-
+        exg_data = np.array([self.exg_plot[key][~np.isnan(self.exg_plot[key])] for key in self.exg_plot.keys()])
+        # exg_data = np.array([self.exg_plot[key] for key in self.exg_plot.keys()])
+        
         if exg_data.shape[1] < exg_fs * 5:
-            print(exg_data.shape[1])
-            #return
+            return
 
+        print("plot fft: ", time.strftime("%H:%M:%S", time.localtime()))
         fft_content, freq = AppFunctions.get_fft(exg_data, exg_fs)
         # data = dict(zip(self.chan_key_list, fft_content))
         data = dict(zip(self.exg_plot.keys(), fft_content))
@@ -768,14 +770,13 @@ class AppFunctions(MainWindow):
             key = list(data.keys())[i]
             if key != "f":
                 pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
-        pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
 
 
     def get_fft(exg, s_rate):
         """
         Compute FFT
         Args:
-            exg: exg data froom ExG packet
+            exg: exg data from ExG packet
             s_rate (int): sampling rate
         """
         n_point = 1024
