@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = False
+        test = True
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
 
             stream_processor = self.explorer.stream_processor
             n_chan = stream_processor.device_info['adc_mask']
+            n_chan = [i for i in reversed(n_chan)]
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             # self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             self.exg_data = {ch:np.array([np.NaN]*5000) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}

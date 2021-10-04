@@ -460,12 +460,12 @@ class AppFunctions(MainWindow):
     def emit_signals(self):
         AppFunctions.emit_orn(self)
         AppFunctions.emit_exg(self)
-        # AppFunctions.emit_fft(self)
         AppFunctions.emit_marker(self)
 
     def init_plot_orn(self):
         # pw = self.ui.graphicsView #testinng
         pw = self.ui.plot_orn
+        pw.setBackground(Settings.PLOT_BACKGROUND)
 
         plot_acc = pw.addPlot()
         pw.nextRow()
@@ -511,6 +511,7 @@ class AppFunctions(MainWindow):
         timescale = AppFunctions._get_timeScale(self)
 
         pw = self.ui.plot_exg
+        pw.setBackground(Settings.PLOT_BACKGROUND)
 
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
         ticks = [(idx+1, ch) for idx, ch in enumerate(self.active_chan)]
@@ -593,10 +594,6 @@ class AppFunctions(MainWindow):
             else:
                 self._baseline_corrector["baseline"] = None
 
-            # exg_simple = exg[0]
-            # data = [time_vector, exg_simple]
-            # exg_chan = dict(zip(chan_list, exg))
-
             # Update ExG unit
             exg = self.offsets + exg / self.y_unit
             # exg /= self.y_unit
@@ -606,10 +603,6 @@ class AppFunctions(MainWindow):
             self.signal_exg.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
-
-    def handle_exg_data(self, data):
-
-        return self.t_exg_plot, self.exg_plot
     
     def plot_exg(self, data):
 
@@ -706,40 +699,10 @@ class AppFunctions(MainWindow):
         t_max = int(t_min + AppFunctions._get_timeScale(self))
         self.ui.plot_exg.setXRange(t_min,t_max)
 
-    def emit_fft(self):
-        """
-        Get FFT data and plot it
-        """
-        stream_processor = self.explorer.stream_processor
-        n_chan = stream_processor.device_info['adc_mask']
-        self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-        chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-
-        def callback(packet):
-            exg_fs = stream_processor.device_info['sampling_rate']
-            _, exg = packet.get_data(exg_fs)
-            print(exg)
-            print(type(exg))
-            print(len(exg))
-            '''if exg.shape[1] < exg_fs * 5:
-                return'''
-            fft_content, freq = AppFunctions.get_fft(exg, exg_fs)
-
-            data = dict(zip(chan_list, fft_content))
-            data['f'] = freq
-            # print(data)
-            # print(len(data))
-
-            self.signal_fft.emit(data)
-
-        stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
-        '''time.sleep(0.5)
-        stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)'''
-
-
     def init_plot_fft(self):
 
         pw = self.ui.plot_fft
+        pw.setBackground(Settings.PLOT_BACKGROUND)
         pw.setXRange(0, 70)
         pw.showGrid(x=True, y=True, alpha=0.5)
         pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
@@ -760,7 +723,6 @@ class AppFunctions(MainWindow):
         if exg_data.shape[1] < exg_fs * 5:
             return
 
-        print("plot fft: ", time.strftime("%H:%M:%S", time.localtime()))
         fft_content, freq = AppFunctions.get_fft(exg_data, exg_fs)
         # data = dict(zip(self.chan_key_list, fft_content))
         data = dict(zip(self.exg_plot.keys(), fft_content))
@@ -1060,8 +1022,9 @@ class AppFunctions(MainWindow):
         self.chan_key_list = [Settings.CHAN_LIST[i].lower()
                               for i, mask in enumerate(reversed(stream_processor.device_info['adc_mask'])) if
                               mask == 1]
-
+        print(self.chan_dict)
         for chan, value in self.exg_plot.items():
+            
             if self.chan_dict[chan] == 1:
                 temp_offset = self.offsets[self.chan_key_list.index(chan)]
                 # self.exg_plot[chan] = [i * (old_unit / new_unit) for i in val]
