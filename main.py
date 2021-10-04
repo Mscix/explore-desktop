@@ -97,8 +97,8 @@ class MainWindow(QMainWindow):
         test = False
         if test:
             # pass
-            # self.explorer.connect(device_name="Explore_CA18")
-            self.explorer.connect(device_name="Explore_CA4C")
+            self.explorer.connect(device_name="Explore_CA18")
+            # self.explorer.connect(device_name="Explore_CA4C")
             AppFunctions.info_device(self)
             AppFunctions.update_frame_dev_settings(self)
             self.is_connected = True
@@ -111,6 +111,7 @@ class MainWindow(QMainWindow):
             self.exg_plot = {ch:np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             AppFunctions.init_plot_exg(self)
             AppFunctions.init_plot_orn(self)
+            AppFunctions.init_plot_fft(self)
         else:
             AppFunctions.scan_devices(self)
 
@@ -175,6 +176,7 @@ class MainWindow(QMainWindow):
 
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
+            self.ui.btn_stream.clicked.connect(lambda: self.update_fft())
         else:
             self.ui.btn_stream.clicked.connect(lambda: self.start_recorded_plots())
 
@@ -199,6 +201,12 @@ class MainWindow(QMainWindow):
         # self.ui.pushButton_3.clicked.connect(lambda: self.ui.graphicsView.clear())'''
 
         # /////////////////////////////// END TESTING ///////////////////////
+
+    def update_fft(self):
+        self.timer_fft = QTimer(self)
+        self.timer_fft.setInterval(2000)
+        self.timer_fft.timeout.connect(lambda: AppFunctions.plot_fft(self))
+        self.timer_fft.start()
 
     def import_recorded_data(self):
         '''
@@ -373,6 +381,7 @@ class MainWindow(QMainWindow):
             if self.ui.plot_orn.getItem(0,0) is None:
                 AppFunctions.init_plot_orn(self)
                 AppFunctions.init_plot_exg(self)
+                AppFunctions.init_plot_fft(self)
             
             # if self.plotting_filters is None:
             #     self.plot_filters()

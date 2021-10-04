@@ -1,5 +1,7 @@
 # import time
 # from explorepy import stream_processor
+from datetime import timezone
+import time
 from explorepy.stream_processor import TOPICS
 # from scipy.ndimage.measurements import label
 from main import *
@@ -620,7 +622,8 @@ class AppFunctions(MainWindow):
         
         n_new_points = len(data["t"])
         idxs = np.arange(self.t_pointer, self.t_pointer+n_new_points)
-        # self.t_exg.put(idxs, data["t"], mode="wrap") 
+
+        self.t_exg.put(idxs, data["t"], mode="wrap") 
         self.t_exg_plot.put(idxs, data["t"], mode="wrap") #replace values with new points
         # self.t_exg_plot = self.t_exg
 
@@ -634,13 +637,14 @@ class AppFunctions(MainWindow):
             while self.t_pointer >= len(self.t_exg_plot):
                 self.t_pointer -= len(self.t_exg_plot)
             
-            print(self.t_exg[-1])
-            print(self.t_exg_plot[-1])
-            print(data["t"])
+            # print(self.t_exg[-1])
+            # print(self.t_exg_plot[-1])
+            # print(data["t"])
 
             self.t_exg_plot[self.t_pointer:] += AppFunctions._get_timeScale(self)
             
-            t_min = int(data["t"][-1])
+            t_min = int(round(np.mean(data["t"])))
+            # t_min = int(data["t"][-1])
             t_max = int(t_min + AppFunctions._get_timeScale(self))
             self.ui.plot_exg.setXRange(t_min,t_max)
 
@@ -673,6 +677,11 @@ class AppFunctions(MainWindow):
     def _change_timescale(self):
         current_size = len(self.t_exg_plot)
         new_size = AppFunctions._plot_points(self)
+        ts = AppFunctions._get_timeScale(self)
+
+        print(f"{self.t_exg_plot[-1] - ts =}")
+        print(f"{np.where(np.isclose(self.t_exg, self.t_exg_plot[-1]-ts))=}")
+        print(f"{np.nanmax(self.t_exg)=}\n")
 
         diff = int(new_size - current_size)
         if diff>0:
@@ -686,9 +695,9 @@ class AppFunctions(MainWindow):
             for ch in self.exg_plot.keys():
                 self.exg_plot[ch] = self.exg_plot[ch][diff:]
 
-        print(f"{current_size=}")
-        print(f"{new_size=}")
-        print(f"{len(self.t_exg_plot)=}")
+        # print(f"{current_size=}")
+        # print(f"{new_size=}")
+        # print(f"{len(self.t_exg_plot)=}")
 
         try:
             t_min = int(min(self.t_exg_plot))
@@ -728,19 +737,38 @@ class AppFunctions(MainWindow):
         stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)'''
 
 
+    def init_plot_fft(self):
 
-    def plot_fft(self, data):
-        pw = self.ui.graphicsView
-        pw.setLabel("bottom", "Frequency", units="Hz")
-        pw.setLabel("left", "Amplitude", units="V")
-        pw.setLogMode(x=True)
-        pw.showGrid(True, True, alpha=0.3)
+        pw = self.ui.plot_fft
+        pw.setXRange(0, 70)
+        pw.showGrid(x=True, y=True, alpha=0.5)
+        # pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
+        pw.setLabel('left', "Amplitude (uV)")
+        pw.setLabel('bottom', "Frequency (Hz)")
+        pw.setLogMode(x=False, y=True)
+
+    def plot_fft(self):
+
+        pw = self.ui.plot_fft
+        pw.clear()
+        exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
+        exg_data = np.array([self.exg_plot[key] for key in self.exg_plot.keys()])
+        print("plot fft: ", time.strftime("%H:%M:%S", time.localtime()))
+
+        if exg_data.shape[1] < exg_fs * 5:
+            print(exg_data.shape[1])
+            #return
+
+        fft_content, freq = AppFunctions.get_fft(exg_data, exg_fs)
+        # data = dict(zip(self.chan_key_list, fft_content))
+        data = dict(zip(self.exg_plot.keys(), fft_content))
+        data['f'] = freq
 
         for i in range(len(data.keys())):
             key = list(data.keys())[i]
             if key != "f":
                 pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
-        pw.addLegend()
+        pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
 
 
     def get_fft(exg, s_rate):
