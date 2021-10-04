@@ -5,13 +5,13 @@ import sys
 
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog
-from PySide6.QtCore import QTimer, Qt, Signal, QTimer
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import QTimer, Qt, Signal, QTimer 
+from PySide6.QtGui import QIcon, QCursor
 import explorepy as xpy
-from pyqtgraph.Qt import App
-from pyqtgraph.functions import disconnect
+# from pyqtgraph.Qt import App
+# from pyqtgraph.functions import disconnect
 from modules import *
-import pyqtgraph as pg
+
 from datetime import datetime
 from modules.dialogs import RecordingDialog, PlotDialog
 
@@ -50,6 +50,8 @@ class MainWindow(QMainWindow):
         self.plotting_filters = None
 
         # self.t_exg_plot = []
+        self.downsampling = False
+        self.t_exg = np.array([np.NaN]*2500)
         self.t_exg_plot = np.array([np.NaN]*2500)
         self.t_pointer = 0
         '''self.t_exg_buffer = np.full((2, 2500), np.NaN)
@@ -57,12 +59,13 @@ class MainWindow(QMainWindow):
         self.t_pointer = 0
         self.exg_pointer = [0,0]'''
 
-        self.t_exg_plot_prev = []
+        # self.t_exg_plot_prev = []
         self.exg_plot = {}
-        self.exg_plot_prev = {}
+        # self.exg_plot_prev = {}
         self.orn_plot = {k:[] for k in Settings.ORN_LIST}
         self.t_orn_plot = []
         self.mrk_plot = {"t":[], "code":[], "line":[]}
+        self.mrk_replot = {"t":[], "code":[], "line":[]}
 
         self._vis_time_offset = None
         self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
@@ -92,8 +95,8 @@ class MainWindow(QMainWindow):
         test = False
         if test:
             # pass
-            self.explorer.connect(device_name="Explore_CA18")
-            # self.explorer.connect(device_name="Explore_CA07")
+            # self.explorer.connect(device_name="Explore_CA18")
+            self.explorer.connect(device_name="Explore_CA4C")
             AppFunctions.info_device(self)
             AppFunctions.update_frame_dev_settings(self)
             self.is_connected = True
@@ -149,7 +152,10 @@ class MainWindow(QMainWindow):
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(lambda: AppFunctions.set_marker(self))
+        # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
         self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
+        # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
+        
 
 
         self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
@@ -212,8 +218,8 @@ class MainWindow(QMainWindow):
         '''
         Open plot filter dialog and apply filters
         '''
-
-        dialog = PlotDialog()
+        sr = self.explorer.stream_processor.device_info['sampling_rate']
+        dialog = PlotDialog(sr=sr)
         self.plotting_filters = dialog.exec()
         AppFunctions._apply_filters(self)
         time.sleep(0.5)

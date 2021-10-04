@@ -1,8 +1,7 @@
-import time
-from typing import NewType, Set
-from explorepy import stream_processor
+# import time
+# from explorepy import stream_processor
 from explorepy.stream_processor import TOPICS
-from scipy.ndimage.measurements import label
+# from scipy.ndimage.measurements import label
 from main import *
 import numpy as np
 from modules.app_settings import Settings
@@ -11,6 +10,8 @@ import numpy as np
 from scipy.ndimage import gaussian_filter1d
 import pandas as pd
 from PySide6.QtWidgets import QApplication
+from contextlib import contextmanager
+import pyqtgraph as pg
 
 class AppFunctions(MainWindow):
 
@@ -100,7 +101,8 @@ class AppFunctions(MainWindow):
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setChecked(self.chan_dict[w.objectName().replace("cb_", "")])
 
-            self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.exg_plot = {ch:np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+
 
             # Set sampling rate (value_sampling_rate)
             sr = stream_processor.device_info['sampling_rate']
@@ -120,13 +122,24 @@ class AppFunctions(MainWindow):
         Scans for available explore devices.
         """
 
-        self.ui.list_devices.clear()
-        explore_devices = bt_scan()
-        explore_devices = [dev[0] for dev in explore_devices]
-        if len(explore_devices) == 0:
-            print("No explore devices found. Please make sure it is turn on and click on reescan")
 
-        self.ui.list_devices.addItems(explore_devices)
+        self.ui.ft_label_device_3.setText("Scanning ...")
+        self.ui.ft_label_device_3.repaint() 
+        # QApplication.processEvents()
+
+        self.ui.list_devices.clear()
+        with AppFunctions._wait_cursor():
+            explore_devices = bt_scan()
+            explore_devices = [dev[0] for dev in explore_devices]
+            if len(explore_devices) == 0:
+                print("No explore devices found. Please make sure it is turn on and click on reescan")
+
+            self.ui.list_devices.addItems(explore_devices)
+            pass
+
+        self.ui.ft_label_device_3.setText("Not connected ...")
+        self.ui.ft_label_device_3.repaint() 
+        # QApplication.processEvents()
 
     def connect2device(self):
         """
@@ -144,13 +157,15 @@ class AppFunctions(MainWindow):
             self.ui.ft_label_device_3.repaint() 
             QApplication.processEvents()
 
-            try:
-                self.explorer.connect(device_name=device_name)
-                self.is_connected = True
-            # except DeviceNotFoundError:
-            except:
-                #TODO change to popup?
-                print("Could not find the device! Please make sure the device is on and in advertising mode.")
+            with AppFunctions._wait_cursor():
+                try:
+                    self.explorer.connect(device_name=device_name)
+                    self.is_connected = True
+                # except DeviceNotFoundError:
+                except:
+                    #TODO change to popup?
+                    print("Could not find the device! Please make sure the device is on and in advertising mode.")
+                pass
 
 
         else:
@@ -298,7 +313,8 @@ class AppFunctions(MainWindow):
             n_chan = [i for i in reversed(n_chan)]
             self.chan_dict = dict(
                     zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-            self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.exg_plot = {ch:np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+
         else:
             print("Same channel mask")
 
@@ -345,6 +361,9 @@ class AppFunctions(MainWindow):
         '''
         event_code = self.ui.value_event_code.text()
         self.explorer.set_marker(int(event_code))
+
+        # Clean input text box
+        self.ui.value_event_code.setText("")
 
     # ///// END PLOT PAGE FUNCTIONS/////
 
@@ -481,12 +500,19 @@ class AppFunctions(MainWindow):
 
     def init_plot_exg(self):
         # pw = self.ui.graphicsView #testinng
-        n_chan = self.explorer.stream_processor.device_info['adc_mask'].count(1)
+        n_chan_sp = self.explorer.stream_processor.device_info['adc_mask'].count(1)
+        n_chan = list(self.chan_dict.values()).count(1)
+        if n_chan != n_chan_sp: 
+            print("ERROR chan count does not match")
+
         self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
         timescale = AppFunctions._get_timeScale(self)
 
         pw = self.ui.plot_exg
-        ticks = [(i+1, f"ch{i+1}") for i in range(n_chan)]
+
+        self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
+        ticks = [(idx+1, ch) for idx, ch in enumerate(self.active_chan)]
+
         pw.getAxis("left").setTicks([ticks])
 
         pw.getAxis("left").setWidth(50)
@@ -502,24 +528,27 @@ class AppFunctions(MainWindow):
 
         # self.curve_ch1 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch1 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        '''self.curve_ch2 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch2 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch3 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch4 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch5 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch6 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch7 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)'''
+        self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
 
 
-        self.curves_list = [self.curve_ch1]
+        # self.curves_list = [self.curve_ch1]
 
-        '''self.curves_list = [
-            self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
-            self.curve_ch5, self.curve_ch6, self.curve_ch7, self.curve_ch8
-            ]'''
-
-        for curve in self.curves_list:
-            pw.addItem(curve)
+        all_curves_list = [
+        self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
+        self.curve_ch5, self.curve_ch6, self.curve_ch7, self.curve_ch8
+        ]
+        
+        self.curves_list = []
+        for curve, act in zip(all_curves_list, list(self.chan_dict.values())):
+            if act == 1:
+                pw.addItem(curve)
+                self.curves_list.append(curve)
 
     def emit_exg(self):
         """
@@ -544,8 +573,9 @@ class AppFunctions(MainWindow):
             time_vector = timestamp - self._vis_time_offset
 
             # Downsampling
-            # exg = exg[:, ::int(exg_fs / Settings.EXG_VIS_SRATE)]
-            # time_vector = time_vector[::int(exg_fs / Settings.EXG_VIS_SRATE)]
+            if self.downsampling:
+                exg = exg[:, ::int(exg_fs / Settings.EXG_VIS_SRATE)]
+                time_vector = time_vector[::int(exg_fs / Settings.EXG_VIS_SRATE)]
 
             # Baseline correction
             # if self.plotting_filters["offset"]:
@@ -587,13 +617,12 @@ class AppFunctions(MainWindow):
         time_scale = AppFunctions._get_timeScale(self)
 
         # if not np.isnan(np.sum(self.t_exg_plot)):
-
-
         
         n_new_points = len(data["t"])
         idxs = np.arange(self.t_pointer, self.t_pointer+n_new_points)
+        # self.t_exg.put(idxs, data["t"], mode="wrap") 
         self.t_exg_plot.put(idxs, data["t"], mode="wrap") #replace values with new points
-        
+        # self.t_exg_plot = self.t_exg
 
         for ch in self.exg_plot.keys():
             self.exg_plot[ch].put(idxs, data[ch], mode="wrap")
@@ -604,6 +633,8 @@ class AppFunctions(MainWindow):
         if self.t_pointer >= len(self.t_exg_plot):
             while self.t_pointer >= len(self.t_exg_plot):
                 self.t_pointer -= len(self.t_exg_plot)
+            
+            print(self.t_exg[-1])
             print(self.t_exg_plot[-1])
             print(data["t"])
 
@@ -613,8 +644,17 @@ class AppFunctions(MainWindow):
             t_max = int(t_min + AppFunctions._get_timeScale(self))
             self.ui.plot_exg.setXRange(t_min,t_max)
 
+            # Remove marker line and replot in the new axis
+            for idx_t in range(len(self.mrk_plot["t"])):
+                if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
+                    self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
+                    new_data = [
+                        self.mrk_plot["t"][idx_t] + AppFunctions._get_timeScale(self), 
+                        self.mrk_plot["code"][idx_t]
+                    ]
+                    AppFunctions.plot_marker(self, new_data, replot=True)
 
-   
+
         # Position line:
         if self.line is not None:
             self.line.setPos(data["t"][-1])
@@ -622,16 +662,38 @@ class AppFunctions(MainWindow):
             self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
 
         # Paint curves
-        for curve, ch in zip(self.curves_list, ["ch1"]):
-            '''print("\n")
-            print(f"{len(self.t_exg_plot)=}")
-            print(f"{len(self.exg_plot[ch])=}")
-            for t, e in zip(self.t_exg_plot, self.exg_plot[ch]):
-                print(t, e)'''
+        for curve, ch in zip(self.curves_list, self.active_chan):
             curve.setData(self.t_exg_plot, self.exg_plot[ch])
 
+        # Remove reploted markers
+        for idx_t in range(len(self.mrk_replot["t"])):
+            if self.mrk_replot["t"][idx_t] < data["t"][-1]:
+                self.ui.plot_exg.removeItem(self.mrk_replot["line"][idx_t])
+
     def _change_timescale(self):
-        t_min = int(min(self.t_exg_plot))
+        current_size = len(self.t_exg_plot)
+        new_size = AppFunctions._plot_points(self)
+
+        diff = int(new_size - current_size)
+        if diff>0:
+            self.t_exg_plot = np.concatenate((self.t_exg_plot, np.full((diff,), np.NaN)))
+            for ch in self.exg_plot.keys():
+                self.exg_plot[ch] = np.concatenate((self.exg_plot[ch], np.full((diff,), np.NaN)))
+
+        elif diff<0:
+            diff = abs(diff)
+            self.t_exg_plot = self.t_exg_plot[diff:]
+            for ch in self.exg_plot.keys():
+                self.exg_plot[ch] = self.exg_plot[ch][diff:]
+
+        print(f"{current_size=}")
+        print(f"{new_size=}")
+        print(f"{len(self.t_exg_plot)=}")
+
+        try:
+            t_min = int(min(self.t_exg_plot))
+        except ValueError: #if all nans (at the beginig)
+            t_min = 0
         t_max = int(t_min + AppFunctions._get_timeScale(self))
         self.ui.plot_exg.setXRange(t_min,t_max)
 
@@ -770,22 +832,23 @@ class AppFunctions(MainWindow):
 
         stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
 
-    def plot_marker(self, data):
+    def plot_marker(self, data, replot=False):
         t, code = data
-        self.mrk_plot["t"].append(data[0])
-        self.mrk_plot["code"].append(data[1])
+    
+        if replot is False:
+            mrk_dict = self.mrk_plot
+            color=Settings.MARKER_LINE_COLOR
+        else:
+            mrk_dict = self.mrk_replot
+            color=Settings.MARKER_LINE_COLOR_ALPHA
 
-        pen_marker = pg.mkPen(color='#7AB904', dash=[4,4])
-
-        # lines = []
-        '''for plt in self.plots_list:
-        # plt = self.plot_ch8
-            line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
-            lines.append(line)'''
+        mrk_dict["t"].append(t)
+        mrk_dict["code"].append(code)
+        pen_marker = pg.mkPen(color=color, dash=[4,4])
+        
         line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
-        # lines.append(line)
-        # self.mrk_plot["line"].append(lines)
-        self.mrk_plot["line"].append(line)
+        mrk_dict["line"].append(line)
+        
 
     def plot_tabs(self):
         #exg = 0, orn = 1, fft = 2
@@ -927,7 +990,10 @@ class AppFunctions(MainWindow):
         time_scale = AppFunctions._get_timeScale(self)
         sr = AppFunctions._get_samplinRate(self)
         # points = (time_scale * sr)
-        points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
+        if self.downsampling:
+            points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
+        else:
+            points = (time_scale * sr)
         # points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
         # points = Settings.EXG_VIS_SRATE * time_scale
         return points
@@ -976,6 +1042,13 @@ class AppFunctions(MainWindow):
         # self._r_peak_source.data['r_peak'] = (np.array(self._r_peak_source.data['r_peak']) - self.offsets[0]) * \
                                             #  (old_unit / self.y_unit) + self.offsets[0]
 
+    @contextmanager
+    def _wait_cursor():
+        try:
+            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+            yield
+        finally:
+            QApplication.restoreOverrideCursor()
 
 
     # ///// END FUNCTIONS/////

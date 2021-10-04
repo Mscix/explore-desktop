@@ -97,7 +97,9 @@ background-color: #2B851A;"""
         '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
         '#2ca02c', '#98df8a', '#d62728', '#ff9896']
 
-    MARKER_LINE_COLOR = '#7AB904'  # ALPHA = .8
+    MARKER_LINE_COLOR = '#7AB904'  # ALPHA = 1
+    # MARKER_LINE_COLOR_ALPHA = '#7AB904CC'  # ALPHA = .8
+    MARKER_LINE_COLOR_ALPHA = '#7AB90480'  # ALPHA = .5
 
     ORN_LINE_COLORS = ["#00FF00", "#42C4F7", "#FF0000"]
 
