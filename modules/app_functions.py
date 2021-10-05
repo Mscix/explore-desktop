@@ -1,7 +1,6 @@
-import time
-from typing import NewType
-from explorepy import stream_processor
 from explorepy.stream_processor import TOPICS
+from explorepy.tools import HeartRateEstimator
+
 from scipy.ndimage.measurements import label
 from main import *
 import numpy as np
@@ -597,7 +596,7 @@ class AppFunctions(MainWindow):
 
         print(self.plotting_filters)
 
-    def plot_exg(self, data):
+    def plot_exg_moving(self, data):
         
         # max_points = 100
         max_points = AppFunctions._plot_points(self) 
@@ -620,6 +619,18 @@ class AppFunctions(MainWindow):
                         plt.removeItem(self.mrk_plot["line"][idx_t][i])'''
                     self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
 
+            # Remove rr peaks
+            id2remove = []
+            for idx_t in range(len(self.r_peak["t"])):
+                if self.r_peak["t"][idx_t][0]  < self.t_exg_plot[0]:
+                    self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
+                    id2remove.append(idx_t)
+            for idx_t in id2remove:
+                self.r_peak["t"].remove(self.r_peak["t"][idx_t])
+                self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
+                self.r_peak["points"].remove(self.r_peak["points"][idx_t])
+                    
+
             # Update axis
             if len(self.t_exg_plot) - max_points > 0:
                 extra = int(len(self.t_exg_plot) - max_points)
@@ -633,17 +644,6 @@ class AppFunctions(MainWindow):
 
         for curve, ch in zip(self.curves_list, self.active_chan):
             curve.setData(self.t_exg_plot, self.exg_plot[ch])
-
-        '''self.curve_ch1.setData(self.t_exg_plot, self.exg_plot["ch1"])
-        self.curve_ch2.setData(self.t_exg_plot, self.exg_plot["ch2"])
-        self.curve_ch3.setData(self.t_exg_plot, self.exg_plot["ch3"])
-        self.curve_ch4.setData(self.t_exg_plot, self.exg_plot["ch4"])
-        self.curve_ch5.setData(self.t_exg_plot, self.exg_plot["ch5"])
-        self.curve_ch6.setData(self.t_exg_plot, self.exg_plot["ch6"])
-        self.curve_ch7.setData(self.t_exg_plot, self.exg_plot["ch7"])
-        self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch8"])'''
-        
-        # self.curve_ch8.setData(self.t_exg_plot, self.exg_plot["ch1"])
 
 
     def emit_fft(self):
@@ -732,7 +732,7 @@ class AppFunctions(MainWindow):
 
         stream_processor.subscribe(topic=TOPICS.raw_orn, callback=callback)
 
-    def plot_orn(self, data):
+    def plot_orn_moving(self, data):
         
         time_scale = AppFunctions._get_timeScale(self)
 
@@ -781,7 +781,7 @@ class AppFunctions(MainWindow):
 
         stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
     
-    def plot_marker(self, data):
+    def plot_marker_moving(self, data):
         t, code = data
         self.mrk_plot["t"].append(data[0])
         self.mrk_plot["code"].append(data[1])
@@ -950,6 +950,63 @@ class AppFunctions(MainWindow):
         points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
         return points
 
+    def _plot_heart_rate(self):
+        if self.ui.value_signal.currentText() == "EEG":
+            return
+
+        if "ch1" not in self.exg_plot.keys():
+            print('Heart rate estimation works only when channel 1 is enabled.')
+            return
+
+        # first_chan = self.exg_plot.keys()[0]
+
+        exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
+
+        if self.rr_estimator is None:
+            self.rr_estimator = HeartRateEstimator(fs=exg_fs)
+            
+            '''# Init R-peaks plot
+            self.exg_plot.circle(x='t', y='r_peak', source=self._r_peak_source,
+                                 fill_color="red", size=8)'''
+
+        ecg_data = (np.array(self.exg_plot['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
+        # ecg_data = (np.array(self.exg_plot[first_chan])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
+        time_vector = np.array(self.t_exg_plot)[-2 * Settings.EXG_VIS_SRATE:]
+
+        # Check if the peak2peak value is bigger than threshold
+        if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
+            print("P2P value larger or less than threshold. Cannot compute heart rate!")
+            return
+
+        peaks_time, peaks_val = self.rr_estimator.estimate(ecg_data, time_vector)
+        peaks_val = (np.array(peaks_val) / self.y_unit) + self.offsets[0]
+        if peaks_time:
+            self.r_peak['t'].append(peaks_time)
+            self.r_peak['r_peak'].append(peaks_val)
+
+            points = self.ui.plot_exg.plot(peaks_time, peaks_val,
+                        pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)
+            
+            self.r_peak["points"].extend([points])
+            
+            """self.r_peak['t'].extend(peaks_time)
+            self.r_peak['r_peak'].extend(peaks_val)
+
+            for idx in range(len(self.r_peak['t'])):
+                t = np.array([self.r_peak['t'][idx]])
+                peak = np.array([self.r_peak['r_peak'][idx]])
+                point = pg.PlotCurveItem(t, peak, 
+                        pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)
+                '''self.ui.plot_exg.plot(t, peak, 
+                        pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)
+                '''
+                self.ui.plot_exg.addItem(point)
+                self.r_peak["points"].extend([point])
+            # print(dict(zip(['r_peak', 't'], [peaks_val, peaks_time])))"""
+
+        # Update heart rate cell
+        estimated_heart_rate = self.rr_estimator.heart_rate
+        self.ui.value_heartRate.setText(str(estimated_heart_rate))
 
     # ///// END FUNCTIONS/////
 

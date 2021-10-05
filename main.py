@@ -64,7 +64,10 @@ class MainWindow(QMainWindow):
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = "1 mV"
         self.line = None
-        self.n = 1
+        
+        self.rr_estimator = None
+        self.r_peak = {"t":[], "r_peak":[], "points":[]}
+
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -86,8 +89,8 @@ class MainWindow(QMainWindow):
         test = False
         if test:
             # pass
-            # self.explorer.connect(device_name="Explore_CA18")
-            self.explorer.connect(device_name="Explore_CA07")
+            self.explorer.connect(device_name="Explore_CA18")
+            # self.explorer.connect(device_name="Explore_CA07")
             AppFunctions.info_device(self)
             AppFunctions.update_frame_dev_settings(self)
             self.is_connected = True
@@ -147,10 +150,10 @@ class MainWindow(QMainWindow):
 
         self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
 
-        self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
+        self.signal_exg.connect(lambda data: AppFunctions.plot_exg_moving(self, data))
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
-        self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
+        self.signal_orn.connect(lambda data: AppFunctions.plot_orn_moving(self, data))
+        self.signal_mkr.connect(lambda data: AppFunctions.plot_marker_moving(self, data))
 
         # self.ui.tabWidget.currentChanged.connect(lambda: AppFunctions.plot_tabs(self))
 
@@ -158,6 +161,7 @@ class MainWindow(QMainWindow):
 
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
+            self.ui.btn_stream.clicked.connect(lambda: self.update_heart_rate())
         else:
             self.ui.btn_stream.clicked.connect(lambda: self.start_recorded_plots())
 
@@ -179,6 +183,12 @@ class MainWindow(QMainWindow):
         # self.ui.pushButton_3.clicked.connect(lambda: self.ui.graphicsView.clear())'''
 
         # /////////////////////////////// END TESTING ///////////////////////
+
+    def update_heart_rate(self):
+        self.timer_hr = QTimer(self)
+        self.timer_hr.setInterval(2000)
+        self.timer_hr.timeout.connect(lambda: AppFunctions._plot_heart_rate(self))
+        self.timer_hr.start()
 
     def import_recorded_data(self):
         '''
