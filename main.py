@@ -12,7 +12,7 @@ import explorepy as xpy
 # from pyqtgraph.functions import disconnect
 from modules import *
 import time
-
+import numpy as np
 from datetime import datetime
 from modules.dialogs import RecordingDialog, PlotDialog
 
@@ -53,9 +53,13 @@ class MainWindow(QMainWindow):
         # self.t_exg_plot = []
         self.downsampling = False
         self.t_exg = np.array([np.NaN]*5000)
+        self.t_exg_buffer = np.full((6, 5000), np.NaN)
+
 
         self.t_exg_plot = np.array([np.NaN]*2500)
         self.t_pointer = 0
+        self.exg_buffer = np.full((8, 6, 5000), np.NaN)
+
         '''self.t_exg_buffer = np.full((2, 2500), np.NaN)
         self.exg_buffer = np.full((2, 2500), np.NaN)
         self.t_pointer = 0
@@ -75,7 +79,7 @@ class MainWindow(QMainWindow):
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = "1 mV"
         self.line = None
-        self.n = 1
+        self.last_t = 0
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -94,7 +98,7 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = True
+        test = False
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
@@ -384,8 +388,8 @@ class MainWindow(QMainWindow):
                 AppFunctions.init_plot_exg(self)
                 AppFunctions.init_plot_fft(self)
             
-            # if self.plotting_filters is None:
-            #     self.plot_filters()
+            if self.plotting_filters is None:
+                 self.plot_filters()
             
             # AppFunctions.emit_signals(self)
 

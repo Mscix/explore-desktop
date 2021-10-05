@@ -562,9 +562,10 @@ class AppFunctions(MainWindow):
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
         #TODO: change if not testing
-        stream_processor.add_filter(
+        '''stream_processor.add_filter(
                 cutoff_freq=(.5, 30), filter_type='bandpass')
-        stream_processor.add_filter(cutoff_freq=50, filter_type='notch')
+        stream_processor.add_filter(cutoff_freq=50, filter_type='notch')'''
+        AppFunctions._apply_filters(self)
 
         def callback(packet):
             exg_fs = stream_processor.device_info['sampling_rate']
@@ -581,8 +582,8 @@ class AppFunctions(MainWindow):
                 time_vector = time_vector[::int(exg_fs / Settings.EXG_VIS_SRATE)]
 
             # Baseline correction
-            # if self.plotting_filters["offset"]:
-            if True:
+            if self.plotting_filters["offset"]:
+            # if True:
                 samples_avg = exg.mean(axis=1)
                 if self._baseline_corrector["baseline"] is None:
                     self._baseline_corrector["baseline"] = samples_avg
@@ -616,12 +617,14 @@ class AppFunctions(MainWindow):
         n_new_points = len(data["t"])
         idxs = np.arange(self.t_pointer, self.t_pointer+n_new_points)
 
-        self.t_exg.put(idxs, data["t"], mode="wrap") 
+        # self.t_exg.put(idxs, data["t"], mode="wrap") 
+        # self.t_exg_buffer.put(idxs, data["t"], mode="wrap")
         self.t_exg_plot.put(idxs, data["t"], mode="wrap") #replace values with new points
         # self.t_exg_plot = self.t_exg
-
-        for ch in self.exg_plot.keys():
+        self.last_t = data["t"][-1]
+        for i, ch in enumerate(self.exg_plot.keys()):
             self.exg_plot[ch].put(idxs, data[ch], mode="wrap")
+            # self.exg_buffer[i,:,:].put(idxs, data[ch], mode="wrap")
         
         self.t_pointer += n_new_points
 
@@ -668,7 +671,7 @@ class AppFunctions(MainWindow):
                 self.ui.plot_exg.removeItem(self.mrk_replot["line"][idx_t])
 
     def _change_timescale(self):
-        current_size = len(self.t_exg_plot)
+        """current_size = len(self.t_exg_plot)
         new_size = AppFunctions._plot_points(self)
         ts = AppFunctions._get_timeScale(self)
 
@@ -676,11 +679,16 @@ class AppFunctions(MainWindow):
         print(f"{np.where(np.isclose(self.t_exg, self.t_exg_plot[-1]-ts))=}")
         print(f"{np.nanmax(self.t_exg)=}\n")
 
+        # df = pandas.DataFrame(data={"t_exg": list(self.t_exg), "t_plot": list(self.t_exg_plot)})
+        dict_ = {"t_exg": list(self.t_exg), "t_plot": list(self.t_exg_plot)}
+        df = pd.DataFrame({ key:pd.Series(value) for key, value in dict_.items() })
+        df.to_csv(f'filename_{self.t_exg_plot[-1]}.csv', sep=',',index=False)
+
         diff = int(new_size - current_size)
         if diff>0:
-            self.t_exg_plot = np.concatenate((self.t_exg_plot, np.full((diff,), np.NaN)))
+            self.t_exg_plot = np.concatenate((np.full((diff,), np.NaN), self.t_exg_plot))
             for ch in self.exg_plot.keys():
-                self.exg_plot[ch] = np.concatenate((self.exg_plot[ch], np.full((diff,), np.NaN)))
+                self.exg_plot[ch] = np.concatenate((np.full((diff,), np.NaN), self.exg_plot[ch]))
 
         elif diff<0:
             diff = abs(diff)
@@ -691,13 +699,28 @@ class AppFunctions(MainWindow):
         # print(f"{current_size=}")
         # print(f"{new_size=}")
         # print(f"{len(self.t_exg_plot)=}")
-
+        
         try:
-            t_min = int(min(self.t_exg_plot))
-        except ValueError: #if all nans (at the beginig)
+            t_min = int(np.nanmin(self.t_exg_plot))
+        except: #if all nans (at the beginig)
             t_min = 0
         t_max = int(t_min + AppFunctions._get_timeScale(self))
         self.ui.plot_exg.setXRange(t_min,t_max)
+
+        #"""
+
+        # Based on PyCorder approach
+        t_min = self.last_t
+        t_max = int(t_min + AppFunctions._get_timeScale(self))
+        self.ui.plot_exg.setXRange(t_min,t_max)
+
+        new_size = AppFunctions._plot_points(self)
+        self.t_pointer = 0
+        self.t_exg_plot = np.array([np.NaN]*new_size)
+        self.exg_plot = {ch:np.array([np.NaN]*new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+
+
+        
 
     def init_plot_fft(self):
 
@@ -987,7 +1010,7 @@ class AppFunctions(MainWindow):
             points = (time_scale * sr)
         # points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
         # points = Settings.EXG_VIS_SRATE * time_scale
-        return points
+        return int(points)
 
     def _apply_filters(self):
         stream_processor = self.explorer.stream_processor
@@ -1022,7 +1045,6 @@ class AppFunctions(MainWindow):
         self.chan_key_list = [Settings.CHAN_LIST[i].lower()
                               for i, mask in enumerate(reversed(stream_processor.device_info['adc_mask'])) if
                               mask == 1]
-        print(self.chan_dict)
         for chan, value in self.exg_plot.items():
             
             if self.chan_dict[chan] == 1:
