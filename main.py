@@ -4,9 +4,9 @@ from pathlib import Path
 import sys
 
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton, QFileDialog
 from PySide6.QtCore import QTimer, Qt, Signal, QTimer
-from PySide6.QtGui import QIcon, QCursor
+from PySide6.QtGui import QIcon
 import explorepy as xpy
 # from pyqtgraph.Qt import App
 # from pyqtgraph.functions import disconnect
@@ -15,6 +15,10 @@ import time
 import numpy as np
 from datetime import datetime
 from modules.dialogs import RecordingDialog, PlotDialog
+# from modules.app_settings import Settings
+# from modules.app_functions import AppFunctions, Plots
+# from modules.ui_functions import UIFunctions
+# from modules.ui_main_window import Ui_MainWindow
 
 
 # pyside6-uic ui_main_window.ui > ui_main_window.py
@@ -48,8 +52,8 @@ class MainWindow(QMainWindow):
         self.file_names = None
         self.is_started = False
 
-        # self.plotting_filters = None
-        self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
+        self.plotting_filters = None
+        # self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
 
         self.downsampling = False
         self.t_exg_plot = np.array([np.NaN]*2500)
@@ -145,7 +149,8 @@ class MainWindow(QMainWindow):
         # IMPEDANCE PAGE
         self.ui.btn_imp_meas.clicked.connect(lambda: AppFunctions.emit_imp(self))
         self.signal_imp.connect(lambda data: AppFunctions._update_impedance(self, data))
-        self.ui.label_6.linkActivated.connect(lambda: AppFunctions.disable_imp(self))
+        # self.ui.label_6.linkActivated.connect(lambda: AppFunctions.disable_imp(self))
+        self.ui.label_6.setHidden(True)
 
         # PLOTTING PAGE
         self.ui.btn_record.clicked.connect(self.start_record)
@@ -367,23 +372,30 @@ class MainWindow(QMainWindow):
 
         elif btn_name == "btn_settings":
             self.mode = "settings"
+            if self.is_imp_measuring:
+                QMessageBox.information(self, "", "Impedance mode will be disabled")
+                AppFunctions.disable_imp(self)
+
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
-            # if self.is_imp_measuring:
-            #     self.explorer.stream_processor.disable_imp()
 
         elif btn_name == "btn_plots":
             self.mode = "exg"
-            # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
 
-            if self.file_names is None:
+            if self.is_imp_measuring:
+                QMessageBox.information(self, "", "Impedance mode will be disabled")
+                AppFunctions.disable_imp(self)
+
+            if self.is_connected is False and self.file_names is None:
+                msg = "Please connect an Explore device or import data before attempting to visualize the data"
+                QMessageBox.information(self, "!", msg)
+                return
+            elif self.file_names is None:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
             else:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
 
             # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plots)
             # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
-            # if self.is_imp_measuring:
-            #     self.explorer.stream_processor.disable_imp()
 
             if self.ui.plot_orn.getItem(0, 0) is None:
                 AppFunctions.init_plot_orn(self)
@@ -402,9 +414,10 @@ class MainWindow(QMainWindow):
 
         elif btn_name == "btn_integration":
             self.mode = "integration"
+            if self.is_imp_measuring:
+                QMessageBox.information(self, "", "Impedance mode will be disabled")
+                AppFunctions.disable_imp(self)
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_integration)
-            # if self.is_imp_measuring:
-            #     self.explorer.stream_processor.disable_imp()
 
     def leftMenuButtonClicked(self):
         """
@@ -413,6 +426,9 @@ class MainWindow(QMainWindow):
 
         btn = self.sender()
         btn_name = btn.objectName()
+
+        # Navigate to active page
+        self.changePage(btn_name)
 
         if btn_name != "btn_left_menu_toggle":
             # Reset style for other buttons
@@ -425,9 +441,6 @@ class MainWindow(QMainWindow):
             # Apply new style
             newStyle = btn.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
             btn.setStyleSheet(newStyle)
-
-            # Navigate to active page
-            self.changePage(btn_name)
 
     def mousePressEvent(self, event):
         '''

@@ -2,6 +2,8 @@
 # from explorepy import stream_processor
 from datetime import timezone
 import time
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCursor, QIntValidator
 from explorepy.stream_processor import TOPICS
 from pyqtgraph.Qt import App
 # from scipy.ndimage.measurements import label
@@ -12,11 +14,11 @@ from explorepy.tools import bt_scan
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
 import pandas as pd
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QCheckBox, QMessageBox
 from contextlib import contextmanager
 import pyqtgraph as pg
 import mne
-
+from explorepy.tools import HeartRateEstimator
 
 class AppFunctions(MainWindow):
 
@@ -139,7 +141,7 @@ class AppFunctions(MainWindow):
             self.ui.list_devices.addItems(explore_devices)
             pass
 
-        self.ui.ft_label_device_3.setText("Not connected ...")
+        self.ui.ft_label_device_3.setText("Not connected")
         self.ui.ft_label_device_3.repaint()
         # QApplication.processEvents()
 
@@ -247,9 +249,11 @@ class AppFunctions(MainWindow):
 
         question = "Are you sure you want to reset your settings?"
         response = QMessageBox.question(self, "Confirmation", question)
+        
         if response == QMessageBox.StandardButton.Yes:
             self.explorer.reset_soft()
             print(self.explorer.stream_processor.device_info['sampling_rate'])
+            AppFunctions.update_frame_dev_settings(self)
         else:
             return
 
@@ -264,6 +268,7 @@ class AppFunctions(MainWindow):
         response = QMessageBox.question(self, "Confirmation", question)
 
         if response == QMessageBox.StandardButton.Yes:
+            QMessageBox.information(self, "Done", "Calibrating...\nPlease move and rotate the device")
             self.explorer.calibrate_orn(do_overwrite=True)
             QMessageBox.information(self, "Done", "Calibration Complete")
         else:
@@ -322,8 +327,10 @@ class AppFunctions(MainWindow):
         Apply changes in device settings
         """
         stream_processor = self.explorer.stream_processor
-        AppFunctions.change_active_channels(self)
-        AppFunctions.change_sampling_rate(self)
+        with AppFunctions._wait_cursor():
+            AppFunctions.change_active_channels(self)
+            AppFunctions.change_sampling_rate(self)
+            pass
         act_chan = ", ".join([ch for ch in self.chan_dict if self.chan_dict[ch]==1])
         title = "!"
         msg = (
@@ -372,6 +379,9 @@ class AppFunctions(MainWindow):
     def disable_imp(self):
         if self.is_connected:
             self.explorer.stream_processor.disable_imp()
+            AppFunctions._reset_impedance(self)
+            self.ui.btn_imp_meas.setText("Measure Impedances")
+            self.is_imp_measuring = False
         else:
             return
 
@@ -411,38 +421,46 @@ class AppFunctions(MainWindow):
 
             self.signal_imp.emit(data)
 
+
         if self.is_connected is False:
             return
 
         else:
-            # if self.is_imp_measuring is False:
+            if self.is_imp_measuring is False:
             # print("start")
-            self.explorer._check_connection()
-            if int(stream_processor.device_info["sampling_rate"]) != 250:
-                question = (
-                    "Impedance mode only works in 250 Hz sampling rate!"
-                    "\nThe current sampling rate is "
-                    f"{int(stream_processor.device_info['sampling_rate'])}."
-                    "Click on Confirm to change the sampling rate.")
-
-                response = QMessageBox.question(self, "Confirmation", question)
-                if response == QMessageBox.StandardButton.Yes:
-                    self.explorer.set_sampling_rate(sampling_rate=250)
-                    self.ui.value_sampling_rate.setCurrentText(str(250))
-                else:
+                sr_ok = AppFunctions._verify_samplingRate(self)
+                if sr_ok is False:
                     return
+                self.ui.btn_imp_meas.setText("Stop")
+                QApplication.processEvents()
+                stream_processor.imp_initialize(notch_freq=50)
+                stream_processor.subscribe(callback=callback, topic=TOPICS.imp)
+                self.is_imp_measuring = True
 
-            stream_processor.imp_initialize(notch_freq=50)
-            stream_processor.subscribe(callback=callback, topic=TOPICS.imp)
-            self.is_imp_measuring = True
-
-            # else:
-            #    print("stop")
-            #    self.is_imp_measuring = False
+            else:
             #    self.signal_imp.disconnect()
+               AppFunctions.disable_imp(self)
 
     # ///// END IMPEDANCE PAGE FUNCTIONS/////
+    def _verify_samplingRate(self):
+        self.explorer._check_connection()
+        sr = int(AppFunctions._get_samplinRate(self))
+        if sr != 250:
+            question = (
+                "Impedance mode only works in 250 Hz sampling rate!"
+                f"\nThe current sampling rate is {sr}."
+                "Click on Confirm to change the sampling rate.")
 
+            response = QMessageBox.question(self, "Confirmation", question)
+            if response == QMessageBox.StandardButton.Yes:
+                self.explorer.set_sampling_rate(sampling_rate=250)
+                self.ui.value_sampling_rate.setCurrentText(str(250))
+                ok = True
+            else:
+                ok = False
+        else:
+            ok = True
+        return ok
     # ////////////////////////////////////////
     # ///// START INTEGRATION PAGE FUNCTIONS/////
 
@@ -1098,8 +1116,8 @@ class AppFunctions(MainWindow):
                 # self.exg_plot[chan] = list((value - temp_offset) * (old_unit / new_unit) + temp_offset)
                 self.exg_plot[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
 
-        # self._r_peak_source.data['r_peak'] = (np.array(self._r_peak_source.data['r_peak']) - self.offsets[0]) * \
-        # (old_unit / self.y_unit) + self.offsets[0]
+        self.r_peak['r_peak'] = (np.array(self.r_peak['r_peak']) - self.offsets[0]) * \
+            (old_unit / self.y_unit) + self.offsets[0]
 
     @contextmanager
     def _wait_cursor():
@@ -1246,6 +1264,7 @@ class AppFunctions(MainWindow):
                 self.ui.plot_exg.addItem(point)
                 self.r_peak["points"].extend([point])
             # print(dict(zip(['r_peak', 't'], [peaks_val, peaks_time])))"""
+            print(dict(zip(['r_peak', 't'], [peaks_val, peaks_time])))
 
         # Update heart rate cell
         estimated_heart_rate = self.rr_estimator.heart_rate

@@ -1,3 +1,4 @@
+from PySide6.QtGui import QDoubleValidator
 from modules.dialog_plot_settings import Ui_Dialog as Ui_PlotDialog
 from modules.dialog_recording_settings import Ui_Dialog as Ui_RecordingDialog
 from main import *
