@@ -3,6 +3,7 @@
 from datetime import timezone
 import time
 from explorepy.stream_processor import TOPICS
+from pyqtgraph.Qt import App
 # from scipy.ndimage.measurements import label
 from main import *
 import numpy as np
@@ -14,6 +15,7 @@ import pandas as pd
 from PySide6.QtWidgets import QApplication
 from contextlib import contextmanager
 import pyqtgraph as pg
+
 
 class AppFunctions(MainWindow):
 
@@ -77,7 +79,6 @@ class AppFunctions(MainWindow):
         else:
             self.ui.btn_connect.setText("Connect")
 
-
     def update_frame_dev_settings(self):
         """
         Update the frame with the device settings.
@@ -103,8 +104,7 @@ class AppFunctions(MainWindow):
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setChecked(self.chan_dict[w.objectName().replace("cb_", "")])
 
-            self.exg_plot = {ch:np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-
+            self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
 
             # Set sampling rate (value_sampling_rate)
             sr = stream_processor.device_info['sampling_rate']
@@ -124,7 +124,6 @@ class AppFunctions(MainWindow):
         Scans for available explore devices.
         """
 
-
         self.ui.ft_label_device_3.setText("Scanning ...")
         self.ui.ft_label_device_3.repaint() 
         # QApplication.processEvents()
@@ -140,7 +139,7 @@ class AppFunctions(MainWindow):
             pass
 
         self.ui.ft_label_device_3.setText("Not connected ...")
-        self.ui.ft_label_device_3.repaint() 
+        self.ui.ft_label_device_3.repaint()
         # QApplication.processEvents()
 
     def connect2device(self):
@@ -152,11 +151,11 @@ class AppFunctions(MainWindow):
                 device_name = self.ui.list_devices.selectedItems()[0].text()
                 print(device_name)
             except IndexError:
-                #TODO change to popup?
+                # TODO change to popup?
                 print("please select a device first")
 
             self.ui.ft_label_device_3.setText("Connecting ...")
-            self.ui.ft_label_device_3.repaint() 
+            self.ui.ft_label_device_3.repaint()
             QApplication.processEvents()
 
             with AppFunctions._wait_cursor():
@@ -165,21 +164,20 @@ class AppFunctions(MainWindow):
                     self.is_connected = True
                 # except DeviceNotFoundError:
                 except:
-                    #TODO change to popup?
+                    # TODO change to popup?
                     print("Could not find the device! Please make sure the device is on and in advertising mode.")
                 pass
-
 
         else:
             self.explorer.disconnect()
             self.is_connected = False
 
         print(self.is_connected)
-        # change footer & button text:                
+        # change footer & button text:            
         AppFunctions.change_footer(self)
         AppFunctions.change_btn_connect(self)
         # if self.is_connected:
-            # AppFunctions.info_device(self)
+        # AppFunctions.info_device(self)
         AppFunctions.info_device(self)
         # (un)hide settings frame
         AppFunctions.update_frame_dev_settings(self)
@@ -259,11 +257,10 @@ class AppFunctions(MainWindow):
         Calibrate the orientation
         """
         question = ("Do you want to continue with the orientation sensors calibration?\n"
-            "This will overwrite the calibration data if it already exists\n\n"
-            "If yes, you would need to move and rotate the device for 100 seconds\n"
-            )
+                    "This will overwrite the calibration data if it already exists\n\n"
+                    "If yes, you would need to move and rotate the device for 100 seconds\n"
+                    )
         response = QMessageBox.question(self, "Confirmation", question)
-
 
         if response == QMessageBox.StandardButton.Yes:
             self.explorer.calibrate_orn(do_overwrite=True)
@@ -290,7 +287,6 @@ class AppFunctions(MainWindow):
         else:
             print("Same sampling rate")
 
-
     def change_active_channels(self):
         """
         Read selected checkboxes and set the channel mask of the device
@@ -315,7 +311,7 @@ class AppFunctions(MainWindow):
             n_chan = [i for i in reversed(n_chan)]
             self.chan_dict = dict(
                     zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-            self.exg_plot = {ch:np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
 
         else:
             print("Same channel mask")
@@ -467,44 +463,46 @@ class AppFunctions(MainWindow):
         pw = self.ui.plot_orn
         pw.setBackground(Settings.PLOT_BACKGROUND)
 
-        plot_acc = pw.addPlot()
+        timescale = int(AppFunctions._get_timeScale(self))
+
+        self.plot_acc = pw.addPlot()
         pw.nextRow()
-        plot_gyro = pw.addPlot()
+        self.plot_gyro = pw.addPlot()
         pw.nextRow()
-        plot_mag = pw.addPlot()
+        self.plot_mag = pw.addPlot()
 
-        plots_orn_list = [plot_acc, plot_gyro, plot_mag]
+        self.plots_orn_list = [self.plot_acc, self.plot_gyro, self.plot_mag]
 
-        plot_acc.setXLink(plot_mag)
-        plot_gyro.setXLink(plot_mag)
+        self.plot_acc.setXLink(self.plot_mag)
+        self.plot_gyro.setXLink(self.plot_mag)
 
-        plot_acc.getAxis("bottom").setStyle(showValues=False)
-        plot_gyro.getAxis("bottom").setStyle(showValues=False)
+        self.plot_acc.getAxis("bottom").setStyle(showValues=False)
+        self.plot_gyro.getAxis("bottom").setStyle(showValues=False)
 
-        for plt,lbl in zip(plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
+        for plt, lbl in zip(self.plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
             plt.addLegend(horSpacing=20, colCount=3, brush="k")
             plt.getAxis("left").setWidth(80)
             plt.getAxis("left").setLabel(lbl)
             plt.showGrid(x=True, y=True, alpha=0.5)
+            plt.setXRange(0, timescale)
 
-        self.curve_ax = plot_acc.plot(pen=Settings.ORN_LINE_COLORS[0], name="accX")
-        self.curve_ay = plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name="accY")
-        self.curve_az = plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name="accZ")
+        self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name="accZ")
+        self.curve_ay = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name="accY")
+        self.curve_ax = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[0], name="accX")
 
-        self.curve_gx = plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[0], name="gyroX")
-        self.curve_gy = plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
-        self.curve_gz = plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="agyro")
+        self.curve_gx = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[0], name="gyroX")
+        self.curve_gy = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
+        self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="agyro")
 
-        self.curve_mx = plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX")
-        self.curve_my = plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY")
-        self.curve_mz = plot_mag.plot(pen=Settings.ORN_LINE_COLORS[2], name="magZ")
-
+        self.curve_mx = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX")
+        self.curve_my = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY")
+        self.curve_mz = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[2], name="magZ")
 
     def init_plot_exg(self):
         # pw = self.ui.graphicsView #testinng
         n_chan_sp = self.explorer.stream_processor.device_info['adc_mask'].count(1)
         n_chan = list(self.chan_dict.values()).count(1)
-        if n_chan != n_chan_sp: 
+        if n_chan != n_chan_sp:
             print("ERROR chan count does not match")
 
         self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
@@ -526,10 +524,6 @@ class AppFunctions(MainWindow):
         pw.setLabel("bottom", "time (s)")
         pw.setLabel("left", "Voltage")
 
-        # self.plots_list = [pw]
-
-
-        # self.curve_ch1 = pw.plot(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch1 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch2 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch3 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
@@ -539,14 +533,11 @@ class AppFunctions(MainWindow):
         self.curve_ch7 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
         self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
 
-
-        # self.curves_list = [self.curve_ch1]
-
         all_curves_list = [
-        self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
-        self.curve_ch5, self.curve_ch6, self.curve_ch7, self.curve_ch8
+            self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
+            self.curve_ch5, self.curve_ch6, self.curve_ch7, self.curve_ch8
         ]
-        
+
         self.curves_list = []
         for curve, act in zip(all_curves_list, list(self.chan_dict.values())):
             if act == 1:
@@ -561,7 +552,7 @@ class AppFunctions(MainWindow):
         stream_processor = self.explorer.stream_processor
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
-        #TODO: change if not testing
+        # TODO: change if not testing
         '''stream_processor.add_filter(
                 cutoff_freq=(.5, 30), filter_type='bandpass')
         stream_processor.add_filter(cutoff_freq=50, filter_type='notch')'''
@@ -582,8 +573,7 @@ class AppFunctions(MainWindow):
                 time_vector = time_vector[::int(exg_fs / Settings.EXG_VIS_SRATE)]
 
             # Baseline correction
-            if self.plotting_filters["offset"]:
-            # if True:
+            if self.plotting_filters["offset"]: # if True: # if testing
                 samples_avg = exg.mean(axis=1)
                 if self._baseline_corrector["baseline"] is None:
                     self._baseline_corrector["baseline"] = samples_avg
@@ -604,7 +594,7 @@ class AppFunctions(MainWindow):
             self.signal_exg.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
-    
+
     def plot_exg(self, data):
 
         # max_points = 100
@@ -613,36 +603,29 @@ class AppFunctions(MainWindow):
         time_scale = AppFunctions._get_timeScale(self)
 
         # if not np.isnan(np.sum(self.t_exg_plot)):
-        
-        n_new_points = len(data["t"])
-        idxs = np.arange(self.t_pointer, self.t_pointer+n_new_points)
 
-        # self.t_exg.put(idxs, data["t"], mode="wrap") 
-        # self.t_exg_buffer.put(idxs, data["t"], mode="wrap")
-        self.t_exg_plot.put(idxs, data["t"], mode="wrap") #replace values with new points
-        # self.t_exg_plot = self.t_exg
+        n_new_points = len(data["t"])
+        idxs = np.arange(self.exg_pointer, self.exg_pointer+n_new_points)
+
+        self.t_exg_plot.put(idxs, data["t"], mode="wrap")  # replace values with new points
         self.last_t = data["t"][-1]
+
         for i, ch in enumerate(self.exg_plot.keys()):
             self.exg_plot[ch].put(idxs, data[ch], mode="wrap")
-            # self.exg_buffer[i,:,:].put(idxs, data[ch], mode="wrap")
-        
-        self.t_pointer += n_new_points
+
+        self.exg_pointer += n_new_points
 
         # if wrap happen -> pointer>length:
-        if self.t_pointer >= len(self.t_exg_plot):
-            while self.t_pointer >= len(self.t_exg_plot):
-                self.t_pointer -= len(self.t_exg_plot)
-            
-            # print(self.t_exg[-1])
-            # print(self.t_exg_plot[-1])
-            # print(data["t"])
+        if self.exg_pointer >= len(self.t_exg_plot):
+            while self.exg_pointer >= len(self.t_exg_plot):
+                self.exg_pointer -= len(self.t_exg_plot)
 
-            self.t_exg_plot[self.t_pointer:] += AppFunctions._get_timeScale(self)
-            
+            self.t_exg_plot[self.exg_pointer:] += AppFunctions._get_timeScale(self)
+
             t_min = int(round(np.mean(data["t"])))
             # t_min = int(data["t"][-1])
             t_max = int(t_min + AppFunctions._get_timeScale(self))
-            self.ui.plot_exg.setXRange(t_min,t_max)
+            self.ui.plot_exg.setXRange(t_min, t_max)
 
             # Remove marker line and replot in the new axis
             for idx_t in range(len(self.mrk_plot["t"])):
@@ -653,7 +636,6 @@ class AppFunctions(MainWindow):
                         self.mrk_plot["code"][idx_t]
                     ]
                     AppFunctions.plot_marker(self, new_data, replot=True)
-
 
         # Position line:
         if self.line is not None:
@@ -699,7 +681,7 @@ class AppFunctions(MainWindow):
         # print(f"{current_size=}")
         # print(f"{new_size=}")
         # print(f"{len(self.t_exg_plot)=}")
-        
+
         try:
             t_min = int(np.nanmin(self.t_exg_plot))
         except: #if all nans (at the beginig)
@@ -712,15 +694,19 @@ class AppFunctions(MainWindow):
         # Based on PyCorder approach
         t_min = self.last_t
         t_max = int(t_min + AppFunctions._get_timeScale(self))
-        self.ui.plot_exg.setXRange(t_min,t_max)
+        self.ui.plot_exg.setXRange(t_min, t_max)
+        for plt in self.plots_orn_list:
+            plt.setXRange(t_min, t_max)
 
         new_size = AppFunctions._plot_points(self)
-        self.t_pointer = 0
+        self.exg_pointer = 0
         self.t_exg_plot = np.array([np.NaN]*new_size)
-        self.exg_plot = {ch:np.array([np.NaN]*new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+        self.exg_plot = {ch: np.array([np.NaN]*new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
 
-
-        
+        new_size_orn = AppFunctions._plot_points(self, orn=True)
+        self.orn_pointer = 0
+        self.t_orn_plot = np.array([np.NaN]*new_size_orn)
+        self.orn_plot = {k: np.array([np.NaN]*new_size_orn) for k in Settings.ORN_LIST}
 
     def init_plot_fft(self):
 
@@ -742,7 +728,7 @@ class AppFunctions(MainWindow):
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
         exg_data = np.array([self.exg_plot[key][~np.isnan(self.exg_plot[key])] for key in self.exg_plot.keys()])
         # exg_data = np.array([self.exg_plot[key] for key in self.exg_plot.keys()])
-        
+
         if exg_data.shape[1] < exg_fs * 5:
             return
 
@@ -755,7 +741,6 @@ class AppFunctions(MainWindow):
             key = list(data.keys())[i]
             if key != "f":
                 pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
-
 
     def get_fft(exg, s_rate):
         """
@@ -772,8 +757,6 @@ class AppFunctions(MainWindow):
         fft_content = gaussian_filter1d(fft_content, 1)
         return fft_content[:, 1:], freq[1:]
 
-
-
     def emit_orn(self):
         """"
         Get orientation data
@@ -782,10 +765,11 @@ class AppFunctions(MainWindow):
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
         # import pandas as pd
         # self.df = pd.DataFrame(columns=chan_list.append("t"))
+
         def callback(packet):
             timestamp, orn_data = packet.get_data()
             if self._vis_time_offset is None:
-                 self._vis_time_offset = timestamp[0]
+                self._vis_time_offset = timestamp[0]
             time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
 
             data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
@@ -799,7 +783,7 @@ class AppFunctions(MainWindow):
 
     def plot_orn(self, data):
 
-        time_scale = AppFunctions._get_timeScale(self)
+        '''time_scale = AppFunctions._get_timeScale(self)
 
         max_points = AppFunctions._plot_points(self) / (7)
         if len(self.t_orn_plot)>max_points:
@@ -815,8 +799,39 @@ class AppFunctions(MainWindow):
 
         self.t_orn_plot.extend(data["t"])
         for k in self.orn_plot.keys():
-            self.orn_plot[k].extend(data[k])
+            self.orn_plot[k].extend(data[k])'''
+        n_new_points = len(data["t"])
+        idxs = np.arange(self.orn_pointer, self.orn_pointer+n_new_points)
 
+        self.t_orn_plot.put(idxs, data["t"], mode="wrap")  # replace values with new points
+        # self.last_t_orn = data["t"][-1]
+
+        for k in self.orn_plot.keys():
+            self.orn_plot[k].put(idxs, data[k], mode="wrap")
+
+        self.orn_pointer += n_new_points
+
+        # if wrap happen -> pointer>length:
+        if self.orn_pointer >= len(self.t_orn_plot):
+            while self.orn_pointer >= len(self.t_orn_plot):
+                self.orn_pointer -= len(self.t_orn_plot)
+
+            self.t_orn_plot[self.orn_pointer:] += AppFunctions._get_timeScale(self)
+
+            t_min = int(round(np.mean(data["t"])))
+            # t_min = int(data["t"][-1])
+            t_max = int(t_min + AppFunctions._get_timeScale(self))
+            for plt in self.plots_orn_list:
+                plt.setXRange(t_min, t_max)
+        # Position line
+        if None in self.lines_orn:
+            for i, plt in enumerate(self.plots_orn_list):
+                self.lines_orn[i] = plt.addLine(data["t"][-1], pen="#FF0000")
+        else:
+            for line in self.lines_orn:
+                line.setPos(data["t"][-1])
+
+        # Paint curves
         self.curve_ax.setData(self.t_orn_plot, self.orn_plot["accX"])
         self.curve_ay.setData(self.t_orn_plot, self.orn_plot["accY"])
         self.curve_az.setData(self.t_orn_plot, self.orn_plot["accZ"])
@@ -838,8 +853,10 @@ class AppFunctions(MainWindow):
                 self._vis_time_offset = timestamp[0]
             time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
 
-            '''new_data = dict(zip(['marker', 't', 'code'], [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
-                                                        np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))'''
+            '''new_data = dict(zip(
+                ['marker', 't', 'code'],
+                [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
+                    np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))'''
 
             data = [time_vector[0], self.ui.value_event_code.text()]
             self.signal_mkr.emit(data)
@@ -848,24 +865,23 @@ class AppFunctions(MainWindow):
 
     def plot_marker(self, data, replot=False):
         t, code = data
-    
+
         if replot is False:
             mrk_dict = self.mrk_plot
-            color=Settings.MARKER_LINE_COLOR
+            color = Settings.MARKER_LINE_COLOR
         else:
             mrk_dict = self.mrk_replot
-            color=Settings.MARKER_LINE_COLOR_ALPHA
+            color = Settings.MARKER_LINE_COLOR_ALPHA
 
         mrk_dict["t"].append(t)
         mrk_dict["code"].append(code)
         pen_marker = pg.mkPen(color=color, dash=[4,4])
-        
+
         line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
         mrk_dict["line"].append(line)
-        
 
     def plot_tabs(self):
-        #exg = 0, orn = 1, fft = 2
+        # exg = 0, orn = 1, fft = 2
         tab_idx = int(self.ui.tabWidget.currentIndex())
         if tab_idx == 0:
             self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
@@ -1000,14 +1016,17 @@ class AppFunctions(MainWindow):
         sr = stream_processor.device_info['sampling_rate']
         return sr
 
-    def _plot_points(self):
+    def _plot_points(self, orn=False):
         time_scale = AppFunctions._get_timeScale(self)
         sr = AppFunctions._get_samplinRate(self)
         # points = (time_scale * sr)
-        if self.downsampling:
-            points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
+        if not orn:
+            if self.downsampling:
+                points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
+            else:
+                points = (time_scale * sr)
         else:
-            points = (time_scale * sr)
+            points = time_scale * Settings.ORN_SRATE
         # points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
         # points = Settings.EXG_VIS_SRATE * time_scale
         return int(points)
@@ -1046,7 +1065,7 @@ class AppFunctions(MainWindow):
                               for i, mask in enumerate(reversed(stream_processor.device_info['adc_mask'])) if
                               mask == 1]
         for chan, value in self.exg_plot.items():
-            
+
             if self.chan_dict[chan] == 1:
                 temp_offset = self.offsets[self.chan_key_list.index(chan)]
                 # self.exg_plot[chan] = [i * (old_unit / new_unit) for i in val]
@@ -1054,7 +1073,7 @@ class AppFunctions(MainWindow):
                 self.exg_plot[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
 
         # self._r_peak_source.data['r_peak'] = (np.array(self._r_peak_source.data['r_peak']) - self.offsets[0]) * \
-                                            #  (old_unit / self.y_unit) + self.offsets[0]
+        # (old_unit / self.y_unit) + self.offsets[0]
 
     @contextmanager
     def _wait_cursor():
@@ -1063,7 +1082,6 @@ class AppFunctions(MainWindow):
             yield
         finally:
             QApplication.restoreOverrideCursor()
-
 
     # ///// END FUNCTIONS/////
 
@@ -1134,7 +1152,6 @@ class Plots(MainWindow):
         self.plot_gyro = self.layoutWidget.addPlot()
         self.layoutWidget.nextRow()
         self.plot_mag = self.layoutWidget.addPlot()
-
 
     def init_data_exg(self):
         '''
@@ -1337,7 +1354,7 @@ class Plots(MainWindow):
         self.curve_ch1 = self.layoutWidget.plot(self.f, self.ch1, pen=pg.mkPen(color=Settings.FFT_LINE_COLORS[0]), name="ch1")
         self.curve_ch2 = self.layoutWidget.plot(self.f, self.ch2, pen=pg.mkPen(color=Settings.FFT_LINE_COLORS[1]), name="ch2")
         self.curve_ch3 = self.layoutWidget.plot(self.f, self.ch3, pen=pg.mkPen(color=Settings.FFT_LINE_COLORS[2]), name="ch3")
-        self.curve_ch4 =  self.layoutWidget.plot(self.f, self.ch4, pen=pg.mkPen(color=Settings.FFT_LINE_COLORS[3]), name="ch4")
+        self.curve_ch4 = self.layoutWidget.plot(self.f, self.ch4, pen=pg.mkPen(color=Settings.FFT_LINE_COLORS[3]), name="ch4")
         self.curve_ch5 = self.layoutWidget.plot(self.f, self.ch5, pen=pg.mkPen(color=Settings.FFT_LINE_COLORS[4]), name="ch5")
         self.curve_ch6 = self.layoutWidget.plot(self.f, self.ch6, pen=pg.mkPen(color=Settings.FFT_LINE_COLORS[5]), name="ch6")
         self.curve_ch7 = self.layoutWidget.plot(self.f, self.ch7, pen=pg.mkPen(color=Settings.FFT_LINE_COLORS[6]), name="ch7")
@@ -1386,7 +1403,6 @@ class Plots(MainWindow):
 
         '''if self.windowWidth_exg >= len(self.ch1)-1:
             self.timer_exg.stop()'''
-
 
     def update_plot_orn(self):
         '''

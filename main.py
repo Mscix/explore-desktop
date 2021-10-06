@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
     signal_fft = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
-    signal_mkr= Signal(object)
+    signal_mkr = Signal(object)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -48,30 +48,19 @@ class MainWindow(QMainWindow):
         self.file_names = None
         self.is_started = False
 
-        self.plotting_filters = None
+        # self.plotting_filters = None
+        self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
 
-        # self.t_exg_plot = []
         self.downsampling = False
-        self.t_exg = np.array([np.NaN]*5000)
-        self.t_exg_buffer = np.full((6, 5000), np.NaN)
-
-
         self.t_exg_plot = np.array([np.NaN]*2500)
-        self.t_pointer = 0
-        self.exg_buffer = np.full((8, 6, 5000), np.NaN)
-
-        '''self.t_exg_buffer = np.full((2, 2500), np.NaN)
-        self.exg_buffer = np.full((2, 2500), np.NaN)
-        self.t_pointer = 0
-        self.exg_pointer = [0,0]'''
-
-        # self.t_exg_plot_prev = []
+        self.exg_pointer = 0
         self.exg_plot = {}
-        # self.exg_plot_prev = {}
-        self.orn_plot = {k:[] for k in Settings.ORN_LIST}
-        self.t_orn_plot = []
-        self.mrk_plot = {"t":[], "code":[], "line":[]}
-        self.mrk_replot = {"t":[], "code":[], "line":[]}
+        self.mrk_plot = {"t": [], "code": [], "line": []}
+        self.mrk_replot = {"t": [], "code": [], "line": []}
+
+        self.orn_plot = {k: np.array([np.NaN]*200) for k in Settings.ORN_LIST}
+        self.t_orn_plot = np.array([np.NaN]*200)
+        self.orn_pointer = 0
 
         self._vis_time_offset = None
         self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
@@ -79,7 +68,9 @@ class MainWindow(QMainWindow):
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = "1 mV"
         self.line = None
+        self.lines_orn = [None, None, None]
         self.last_t = 0
+        self.last_t_orn = 0
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -112,8 +103,7 @@ class MainWindow(QMainWindow):
             n_chan = [i for i in reversed(n_chan)]
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             # self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-            self.exg_data = {ch:np.array([np.NaN]*5000) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-            self.exg_plot = {ch:np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             AppFunctions.init_plot_exg(self)
             AppFunctions.init_plot_orn(self)
             AppFunctions.init_plot_fft(self)
@@ -125,8 +115,8 @@ class MainWindow(QMainWindow):
 
         # Stacked pages - default open home
         # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
-        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
-        self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+        self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
         # AppFunctions.emit_signals(self)
 
         # Stacked pages - navigation
@@ -149,14 +139,14 @@ class MainWindow(QMainWindow):
         self.ui.label_6.linkActivated.connect(lambda: AppFunctions.disable_imp(self))
 
         # PLOTTING PAGE
-        self.ui.btn_record.clicked.connect(self.start_record)    
+        self.ui.btn_record.clicked.connect(self.start_record)
         self.ui.btn_plot_filters.clicked.connect(lambda: self.plot_filters())
 
         self.ui.btn_marker.setEnabled(False)
         self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
-                (self.ui.value_event_code.text() != "") 
-                or 
-                ((self.ui.value_event_code.text().isnumeric()) and (8 <= int(self.ui.value_event_code.text()) <= 65535))
+                (self.ui.value_event_code.text() != "")
+                or
+                ((self.ui.value_event_code.text().isnumeric()) and (8 <= int(self.ui.value_event_code.text())))
             )
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
@@ -164,8 +154,6 @@ class MainWindow(QMainWindow):
         # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
         self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
         # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
-        
-
 
         self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
         self.ui.value_timeScale.currentTextChanged.connect(lambda: AppFunctions._change_timescale(self))
@@ -191,7 +179,7 @@ class MainWindow(QMainWindow):
         # /////////////////////////////// START TESTING ///////////////////////
         '''self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         # self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_exg(self))
-        
+
 
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         # self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_fft(self))
@@ -307,7 +295,6 @@ class MainWindow(QMainWindow):
         else:
             time_scale = None
 
-
         if self.is_started is False:
             self.is_started = True
             exg_wdgt = self.ui.plot_exg_rec
@@ -317,7 +304,6 @@ class MainWindow(QMainWindow):
                 self.plot_exg_recorded = Plots("exg", self.file_names, exg_wdgt, time_scale)
                 plot_fft = Plots("fft", self.file_names, fft_wdgt, time_scale)
 
-
             if any("exg" in s.lower() for s in self.file_names):
                 self.plot_orn_recorded = Plots("orn", self.file_names, orn_wdgt, time_scale)
 
@@ -326,19 +312,16 @@ class MainWindow(QMainWindow):
             self.ui.btn_stream.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
             self.is_streaming = True
             QApplication.processEvents()
-
-            
+  
             self.timer_exg = QTimer()
             self.timer_exg.setInterval(1)
             self.timer_exg.timeout.connect(lambda: self.plot_exg_recorded.update_plot_exg())
             self.timer_exg.start()
 
-            
             self.timer_orn = QTimer()
             self.timer_orn.setInterval(50)
             self.timer_orn.timeout.connect(lambda: self.plot_orn_recorded.update_plot_orn())
             self.timer_orn.start()
-
 
         else:
             self.ui.btn_stream.setText("Start Data Stream")
@@ -383,16 +366,15 @@ class MainWindow(QMainWindow):
             # if self.is_imp_measuring:
             #     self.explorer.stream_processor.disable_imp()
 
-            if self.ui.plot_orn.getItem(0,0) is None:
+            if self.ui.plot_orn.getItem(0, 0) is None:
                 AppFunctions.init_plot_orn(self)
                 AppFunctions.init_plot_exg(self)
                 AppFunctions.init_plot_fft(self)
-            
-            if self.plotting_filters is None:
-                 self.plot_filters()
-            
-            # AppFunctions.emit_signals(self)
 
+            if self.plotting_filters is None:
+                self.plot_filters()
+
+            # AppFunctions.emit_signals(self)
 
         elif btn_name == "btn_impedance":
             self.mode = "imp"
@@ -405,7 +387,6 @@ class MainWindow(QMainWindow):
             # if self.is_imp_measuring:
             #     self.explorer.stream_processor.disable_imp()
 
-
     def leftMenuButtonClicked(self):
         """
         Change style of the button clicked and move to the selected page
@@ -415,7 +396,7 @@ class MainWindow(QMainWindow):
         btn_name = btn.objectName()
 
         if btn_name != "btn_left_menu_toggle":
-            #Reset style for other buttons
+            # Reset style for other buttons
             for w in self.ui.left_side_menu.findChildren(QPushButton):
                 if w.objectName() != btn_name:
                     defaultStyle = w.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
@@ -440,9 +421,6 @@ class MainWindow(QMainWindow):
     '''def resizeEvent(self, event):
         # Update Size Grips
         UIFunctions.resize_grips(self)'''
-
-
-
 
 
 if __name__ == "__main__":
