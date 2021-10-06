@@ -15,6 +15,7 @@ import pandas as pd
 from PySide6.QtWidgets import QApplication
 from contextlib import contextmanager
 import pyqtgraph as pg
+import mne
 
 
 class AppFunctions(MainWindow):
@@ -367,6 +368,7 @@ class AppFunctions(MainWindow):
 
     # ////////////////////////////////////////
     # ///// START IMPEDANCE PAGE FUNCTIONS/////
+
     def disable_imp(self):
         if self.is_connected:
             self.explorer.stream_processor.disable_imp()
@@ -451,98 +453,12 @@ class AppFunctions(MainWindow):
     # ///// END INTEGRATION PAGE FUNCTIONS/////
 
     # ////////////////////////////////////////
-    # ///// START/////
-    # ########### Start Plotting Functions ################
+    # ///// START PLOTTING FUNCTIONS/////
+    # ########### Start Emit Signals Functions ################
     def emit_signals(self):
         AppFunctions.emit_orn(self)
         AppFunctions.emit_exg(self)
         AppFunctions.emit_marker(self)
-
-    def init_plot_orn(self):
-        # pw = self.ui.graphicsView #testinng
-        pw = self.ui.plot_orn
-        pw.setBackground(Settings.PLOT_BACKGROUND)
-
-        timescale = int(AppFunctions._get_timeScale(self))
-
-        self.plot_acc = pw.addPlot()
-        pw.nextRow()
-        self.plot_gyro = pw.addPlot()
-        pw.nextRow()
-        self.plot_mag = pw.addPlot()
-
-        self.plots_orn_list = [self.plot_acc, self.plot_gyro, self.plot_mag]
-
-        self.plot_acc.setXLink(self.plot_mag)
-        self.plot_gyro.setXLink(self.plot_mag)
-
-        self.plot_acc.getAxis("bottom").setStyle(showValues=False)
-        self.plot_gyro.getAxis("bottom").setStyle(showValues=False)
-
-        for plt, lbl in zip(self.plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
-            plt.addLegend(horSpacing=20, colCount=3, brush="k")
-            plt.getAxis("left").setWidth(80)
-            plt.getAxis("left").setLabel(lbl)
-            plt.showGrid(x=True, y=True, alpha=0.5)
-            plt.setXRange(0, timescale)
-
-        self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name="accZ")
-        self.curve_ay = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name="accY")
-        self.curve_ax = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[0], name="accX")
-
-        self.curve_gx = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[0], name="gyroX")
-        self.curve_gy = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
-        self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="agyro")
-
-        self.curve_mx = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX")
-        self.curve_my = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY")
-        self.curve_mz = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[2], name="magZ")
-
-    def init_plot_exg(self):
-        # pw = self.ui.graphicsView #testinng
-        n_chan_sp = self.explorer.stream_processor.device_info['adc_mask'].count(1)
-        n_chan = list(self.chan_dict.values()).count(1)
-        if n_chan != n_chan_sp:
-            print("ERROR chan count does not match")
-
-        self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
-        timescale = AppFunctions._get_timeScale(self)
-
-        pw = self.ui.plot_exg
-        pw.setBackground(Settings.PLOT_BACKGROUND)
-
-        self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-        ticks = [(idx+1, ch) for idx, ch in enumerate(self.active_chan)]
-
-        pw.getAxis("left").setTicks([ticks])
-
-        pw.getAxis("left").setWidth(50)
-        pw.showGrid(x=False, y=True, alpha=0.5)
-        pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)))
-        # pw.setRange(yRange=(-0.5, n_chan+1))
-        # pw.setRange(yRange=(-2, 1+2), xRange=(0, int(timescale)))
-        pw.setLabel("bottom", "time (s)")
-        pw.setLabel("left", "Voltage")
-
-        self.curve_ch1 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch2 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch3 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch4 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch5 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch6 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch7 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-
-        all_curves_list = [
-            self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
-            self.curve_ch5, self.curve_ch6, self.curve_ch7, self.curve_ch8
-        ]
-
-        self.curves_list = []
-        for curve, act in zip(all_curves_list, list(self.chan_dict.values())):
-            if act == 1:
-                pw.addItem(curve)
-                self.curves_list.append(curve)
 
     def emit_exg(self):
         """
@@ -594,7 +510,157 @@ class AppFunctions(MainWindow):
             self.signal_exg.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
+    
+    def emit_orn(self):
+        """"
+        Get orientation data
+        """
+        stream_processor = self.explorer.stream_processor
+        chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
+        # import pandas as pd
+        # self.df = pd.DataFrame(columns=chan_list.append("t"))
 
+        def callback(packet):
+            timestamp, orn_data = packet.get_data()
+            if self._vis_time_offset is None:
+                self._vis_time_offset = timestamp[0]
+            time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
+
+            data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
+            data['t'] = time_vector
+            # dftemp = pd.DataFrame.from_dict(data)
+            # self.df = self.df.append(dftemp)
+
+            self.signal_orn.emit(data)
+
+        stream_processor.subscribe(topic=TOPICS.raw_orn, callback=callback)
+    
+    def emit_marker(self):
+        '''
+        '''
+        stream_processor = self.explorer.stream_processor
+
+        def callback(packet):
+            timestamp, _ = packet.get_data()
+            if self._vis_time_offset is None:
+                self._vis_time_offset = timestamp[0]
+            time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
+
+            '''new_data = dict(zip(
+                ['marker', 't', 'code'],
+                [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
+                    np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))'''
+
+            data = [time_vector[0], self.ui.value_event_code.text()]
+            self.signal_mkr.emit(data)
+
+        stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
+
+    # ########### End Emit Signals Functions ################
+
+    # #######################################################
+    # ########### Start Init Plot Functions ################
+    def init_plot_exg(self):
+        # pw = self.ui.graphicsView #testinng
+        n_chan_sp = self.explorer.stream_processor.device_info['adc_mask'].count(1)
+        n_chan = list(self.chan_dict.values()).count(1)
+        if n_chan != n_chan_sp:
+            print("ERROR chan count does not match")
+
+        self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
+        timescale = AppFunctions._get_timeScale(self)
+
+        pw = self.ui.plot_exg
+        pw.setBackground(Settings.PLOT_BACKGROUND)
+
+        self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
+        ticks = [(idx+1, ch) for idx, ch in enumerate(self.active_chan)]
+
+        pw.getAxis("left").setTicks([ticks])
+
+        pw.getAxis("left").setWidth(50)
+        pw.showGrid(x=False, y=True, alpha=0.5)
+        pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)))
+        # pw.setRange(yRange=(-0.5, n_chan+1))
+        # pw.setRange(yRange=(-2, 1+2), xRange=(0, int(timescale)))
+        pw.setLabel("bottom", "time (s)")
+        pw.setLabel("left", "Voltage")
+
+        self.curve_ch1 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch2 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch3 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch4 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch5 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch6 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch7 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+
+        all_curves_list = [
+            self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
+            self.curve_ch5, self.curve_ch6, self.curve_ch7, self.curve_ch8
+        ]
+
+        self.curves_list = []
+        for curve, act in zip(all_curves_list, list(self.chan_dict.values())):
+            if act == 1:
+                pw.addItem(curve)
+                self.curves_list.append(curve)
+
+    def init_plot_orn(self):
+        # pw = self.ui.graphicsView #testinng
+        pw = self.ui.plot_orn
+        pw.setBackground(Settings.PLOT_BACKGROUND)
+
+        timescale = int(AppFunctions._get_timeScale(self))
+
+        self.plot_acc = pw.addPlot()
+        pw.nextRow()
+        self.plot_gyro = pw.addPlot()
+        pw.nextRow()
+        self.plot_mag = pw.addPlot()
+
+        self.plots_orn_list = [self.plot_acc, self.plot_gyro, self.plot_mag]
+
+        self.plot_acc.setXLink(self.plot_mag)
+        self.plot_gyro.setXLink(self.plot_mag)
+
+        self.plot_acc.getAxis("bottom").setStyle(showValues=False)
+        self.plot_gyro.getAxis("bottom").setStyle(showValues=False)
+
+        for plt, lbl in zip(self.plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
+            plt.addLegend(horSpacing=20, colCount=3, brush="k")
+            plt.getAxis("left").setWidth(80)
+            plt.getAxis("left").setLabel(lbl)
+            plt.showGrid(x=True, y=True, alpha=0.5)
+            plt.setXRange(0, timescale)
+
+        self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name="accZ")
+        self.curve_ay = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name="accY")
+        self.curve_ax = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[0], name="accX")
+
+        self.curve_gx = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[0], name="gyroX")
+        self.curve_gy = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
+        self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="agyro")
+
+        self.curve_mx = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX")
+        self.curve_my = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY")
+        self.curve_mz = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[2], name="magZ")
+
+    def init_plot_fft(self):
+
+        pw = self.ui.plot_fft
+        pw.setBackground(Settings.PLOT_BACKGROUND)
+        pw.setXRange(0, 70)
+        pw.showGrid(x=True, y=True, alpha=0.5)
+        pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
+        pw.setLabel('left', "Amplitude (uV)")
+        pw.setLabel('bottom', "Frequency (Hz)")
+        pw.setLogMode(x=False, y=True)
+
+    # ########### End Init Plot Functions ################
+
+    # #######################################################
+    # ########### Start Swiping Plot Functions ################
     def plot_exg(self, data):
 
         # max_points = 100
@@ -652,134 +718,22 @@ class AppFunctions(MainWindow):
             if self.mrk_replot["t"][idx_t] < data["t"][-1]:
                 self.ui.plot_exg.removeItem(self.mrk_replot["line"][idx_t])
 
-    def _change_timescale(self):
-        """current_size = len(self.t_exg_plot)
-        new_size = AppFunctions._plot_points(self)
-        ts = AppFunctions._get_timeScale(self)
+    def plot_marker(self, data, replot=False):
+        t, code = data
 
-        print(f"{self.t_exg_plot[-1] - ts =}")
-        print(f"{np.where(np.isclose(self.t_exg, self.t_exg_plot[-1]-ts))=}")
-        print(f"{np.nanmax(self.t_exg)=}\n")
+        if replot is False:
+            mrk_dict = self.mrk_plot
+            color = Settings.MARKER_LINE_COLOR
+        else:
+            mrk_dict = self.mrk_replot
+            color = Settings.MARKER_LINE_COLOR_ALPHA
 
-        # df = pandas.DataFrame(data={"t_exg": list(self.t_exg), "t_plot": list(self.t_exg_plot)})
-        dict_ = {"t_exg": list(self.t_exg), "t_plot": list(self.t_exg_plot)}
-        df = pd.DataFrame({ key:pd.Series(value) for key, value in dict_.items() })
-        df.to_csv(f'filename_{self.t_exg_plot[-1]}.csv', sep=',',index=False)
+        mrk_dict["t"].append(t)
+        mrk_dict["code"].append(code)
+        pen_marker = pg.mkPen(color=color, dash=[4,4])
 
-        diff = int(new_size - current_size)
-        if diff>0:
-            self.t_exg_plot = np.concatenate((np.full((diff,), np.NaN), self.t_exg_plot))
-            for ch in self.exg_plot.keys():
-                self.exg_plot[ch] = np.concatenate((np.full((diff,), np.NaN), self.exg_plot[ch]))
-
-        elif diff<0:
-            diff = abs(diff)
-            self.t_exg_plot = self.t_exg_plot[diff:]
-            for ch in self.exg_plot.keys():
-                self.exg_plot[ch] = self.exg_plot[ch][diff:]
-
-        # print(f"{current_size=}")
-        # print(f"{new_size=}")
-        # print(f"{len(self.t_exg_plot)=}")
-
-        try:
-            t_min = int(np.nanmin(self.t_exg_plot))
-        except: #if all nans (at the beginig)
-            t_min = 0
-        t_max = int(t_min + AppFunctions._get_timeScale(self))
-        self.ui.plot_exg.setXRange(t_min,t_max)
-
-        #"""
-
-        # Based on PyCorder approach
-        t_min = self.last_t
-        t_max = int(t_min + AppFunctions._get_timeScale(self))
-        self.ui.plot_exg.setXRange(t_min, t_max)
-        for plt in self.plots_orn_list:
-            plt.setXRange(t_min, t_max)
-
-        new_size = AppFunctions._plot_points(self)
-        self.exg_pointer = 0
-        self.t_exg_plot = np.array([np.NaN]*new_size)
-        self.exg_plot = {ch: np.array([np.NaN]*new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-
-        new_size_orn = AppFunctions._plot_points(self, orn=True)
-        self.orn_pointer = 0
-        self.t_orn_plot = np.array([np.NaN]*new_size_orn)
-        self.orn_plot = {k: np.array([np.NaN]*new_size_orn) for k in Settings.ORN_LIST}
-
-    def init_plot_fft(self):
-
-        pw = self.ui.plot_fft
-        pw.setBackground(Settings.PLOT_BACKGROUND)
-        pw.setXRange(0, 70)
-        pw.showGrid(x=True, y=True, alpha=0.5)
-        pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
-        pw.setLabel('left', "Amplitude (uV)")
-        pw.setLabel('bottom', "Frequency (Hz)")
-        pw.setLogMode(x=False, y=True)
-
-    def plot_fft(self):
-
-        pw = self.ui.plot_fft
-        pw.clear()
-        pw.setXRange(0, 70)
-
-        exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
-        exg_data = np.array([self.exg_plot[key][~np.isnan(self.exg_plot[key])] for key in self.exg_plot.keys()])
-        # exg_data = np.array([self.exg_plot[key] for key in self.exg_plot.keys()])
-
-        if exg_data.shape[1] < exg_fs * 5:
-            return
-
-        fft_content, freq = AppFunctions.get_fft(exg_data, exg_fs)
-        # data = dict(zip(self.chan_key_list, fft_content))
-        data = dict(zip(self.exg_plot.keys(), fft_content))
-        data['f'] = freq
-
-        for i in range(len(data.keys())):
-            key = list(data.keys())[i]
-            if key != "f":
-                pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
-
-    def get_fft(exg, s_rate):
-        """
-        Compute FFT
-        Args:
-            exg: exg data from ExG packet
-            s_rate (int): sampling rate
-        """
-        n_point = 1024
-        exg -= exg.mean(axis=1)[:, np.newaxis]
-        freq = s_rate * np.arange(int(n_point / 2)) / n_point
-        fft_content = np.fft.fft(exg, n=n_point) / n_point
-        fft_content = np.abs(fft_content[:, range(int(n_point / 2))])
-        fft_content = gaussian_filter1d(fft_content, 1)
-        return fft_content[:, 1:], freq[1:]
-
-    def emit_orn(self):
-        """"
-        Get orientation data
-        """
-        stream_processor = self.explorer.stream_processor
-        chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-        # import pandas as pd
-        # self.df = pd.DataFrame(columns=chan_list.append("t"))
-
-        def callback(packet):
-            timestamp, orn_data = packet.get_data()
-            if self._vis_time_offset is None:
-                self._vis_time_offset = timestamp[0]
-            time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
-
-            data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
-            data['t'] = time_vector
-            # dftemp = pd.DataFrame.from_dict(data)
-            # self.df = self.df.append(dftemp)
-
-            self.signal_orn.emit(data)
-
-        stream_processor.subscribe(topic=TOPICS.raw_orn, callback=callback)
+        line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
+        mrk_dict["line"].append(line)
 
     def plot_orn(self, data):
 
@@ -842,62 +796,134 @@ class AppFunctions(MainWindow):
         self.curve_my.setData(self.t_orn_plot, self.orn_plot["magY"])
         self.curve_mz.setData(self.t_orn_plot, self.orn_plot["magZ"])
 
-    def emit_marker(self):
-        '''
-        '''
-        stream_processor = self.explorer.stream_processor
+    def plot_fft(self):
 
-        def callback(packet):
-            timestamp, _ = packet.get_data()
-            if self._vis_time_offset is None:
-                self._vis_time_offset = timestamp[0]
-            time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
+        pw = self.ui.plot_fft
+        pw.clear()
+        pw.setXRange(0, 70)
 
-            '''new_data = dict(zip(
-                ['marker', 't', 'code'],
-                [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
-                    np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))'''
+        exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
+        exg_data = np.array([self.exg_plot[key][~np.isnan(self.exg_plot[key])] for key in self.exg_plot.keys()])
+        # exg_data = np.array([self.exg_plot[key] for key in self.exg_plot.keys()])
 
-            data = [time_vector[0], self.ui.value_event_code.text()]
-            self.signal_mkr.emit(data)
+        if exg_data.shape[1] < exg_fs * 5:
+            return
 
-        stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
+        fft_content, freq = AppFunctions.get_fft(exg_data, exg_fs)
+        # data = dict(zip(self.chan_key_list, fft_content))
+        data = dict(zip(self.exg_plot.keys(), fft_content))
+        data['f'] = freq
 
-    def plot_marker(self, data, replot=False):
+        for i in range(len(data.keys())):
+            key = list(data.keys())[i]
+            if key != "f":
+                pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
+
+    # ########### End Swiping Plot Functions ################
+
+    # #######################################################
+    # ########### Start Moving Plot Functions ################
+    def plot_exg_moving(self, data):
+        
+        # max_points = 100
+        max_points = AppFunctions._plot_points(self) 
+        # if len(self.t_exg_plot)>max_points:
+
+        time_scale = AppFunctions._get_timeScale(self)
+        # if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
+        if len(self.t_exg_plot)>max_points:
+            # self.plot_ch8.clear()
+            # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
+            new_points = len(data['t'])
+            self.t_exg_plot = self.t_exg_plot[new_points:]
+            for ch in self.exg_plot.keys():
+                self.exg_plot[ch] = self.exg_plot[ch][new_points:]
+            
+            # Remove marker line
+            for idx_t in range(len(self.mrk_plot["t"])):
+                if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
+                    '''for i, plt in enumerate(self.plots_list):
+                        plt.removeItem(self.mrk_plot["line"][idx_t][i])'''
+                    self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
+
+            # Remove rr peaks
+            id2remove = []
+            for idx_t in range(len(self.r_peak["t"])):
+                if self.r_peak["t"][idx_t][0]  < self.t_exg_plot[0]:
+                    self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
+                    id2remove.append(idx_t)
+            for idx_t in id2remove:
+                self.r_peak["t"].remove(self.r_peak["t"][idx_t])
+                self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
+                self.r_peak["points"].remove(self.r_peak["points"][idx_t])
+                    
+
+            # Update axis
+            if len(self.t_exg_plot) - max_points > 0:
+                extra = int(len(self.t_exg_plot) - max_points)
+                self.t_exg_plot = self.t_exg_plot[extra:]
+                for ch in self.exg_plot.keys():
+                    self.exg_plot[ch] = self.exg_plot[ch][extra:]
+                    
+        self.t_exg_plot.extend(data["t"])
+        for ch in self.exg_plot.keys():
+            self.exg_plot[ch].extend(data[ch])
+
+        for curve, ch in zip(self.curves_list, self.active_chan):
+            curve.setData(self.t_exg_plot, self.exg_plot[ch])
+
+    def plot_orn_moving(self, data):
+        
+        time_scale = AppFunctions._get_timeScale(self)
+
+        max_points = AppFunctions._plot_points(self) / 7 #/ (2*7)
+        if len(self.t_orn_plot)>max_points:
+        # if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
+            self.t_orn_plot = self.t_orn_plot[1:]
+            for k in self.orn_plot.keys():
+                self.orn_plot[k] = self.orn_plot[k][1:]
+            if len(self.t_orn_plot) - max_points > 0:
+                extra = int(len(self.t_orn_plot) - max_points)
+                self.t_orn_plot = self.t_orn_plot[extra:]
+                for k in self.orn_plot.keys():
+                    self.orn_plot[k] = self.orn_plot[k][extra:]
+
+        self.t_orn_plot.extend(data["t"])
+        for k in self.orn_plot.keys():
+            self.orn_plot[k].extend(data[k])
+
+        self.curve_ax.setData(self.t_orn_plot, self.orn_plot["accX"])
+        self.curve_ay.setData(self.t_orn_plot, self.orn_plot["accY"])
+        self.curve_az.setData(self.t_orn_plot, self.orn_plot["accZ"])
+        self.curve_gx.setData(self.t_orn_plot, self.orn_plot["gyroX"])
+        self.curve_gy.setData(self.t_orn_plot, self.orn_plot["gyroY"])
+        self.curve_gz.setData(self.t_orn_plot, self.orn_plot["gyroZ"])
+        self.curve_mx.setData(self.t_orn_plot, self.orn_plot["magX"])
+        self.curve_my.setData(self.t_orn_plot, self.orn_plot["magY"])
+        self.curve_mz.setData(self.t_orn_plot, self.orn_plot["magZ"])
+
+    def plot_marker_moving(self, data):
         t, code = data
+        self.mrk_plot["t"].append(data[0])
+        self.mrk_plot["code"].append(data[1])
 
-        if replot is False:
-            mrk_dict = self.mrk_plot
-            color = Settings.MARKER_LINE_COLOR
-        else:
-            mrk_dict = self.mrk_replot
-            color = Settings.MARKER_LINE_COLOR_ALPHA
-
-        mrk_dict["t"].append(t)
-        mrk_dict["code"].append(code)
-        pen_marker = pg.mkPen(color=color, dash=[4,4])
-
+        pen_marker = pg.mkPen(color='#7AB904', dash=[4,4])
+        
+        # lines = []
+        '''for plt in self.plots_list:
+        # plt = self.plot_ch8
+            line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
+            lines.append(line)'''
         line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
-        mrk_dict["line"].append(line)
+        # lines.append(line)
+        # self.mrk_plot["line"].append(lines)
+        self.mrk_plot["line"].append(line)
 
-    def plot_tabs(self):
-        # exg = 0, orn = 1, fft = 2
-        tab_idx = int(self.ui.tabWidget.currentIndex())
-        if tab_idx == 0:
-            self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
-            self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
-
-        elif tab_idx == 1:
-            self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-
-        elif tab_idx == 2:
-            self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
+    # ########### End Moving Plot Functions ################
+    # ///// END PLOTTING FUNCTIONS/////
 
     # ////////////////////////////////////////
-    # ///// END TESTING/////
-
-    # ////////////////////////////////////////
-    # ///// START FUNCTIONS/////
+    # ///// START HELPER FUNCTIONS/////
 
     def _battery_stylesheet(self, value):
         if value > 60:
@@ -1082,6 +1108,90 @@ class AppFunctions(MainWindow):
             yield
         finally:
             QApplication.restoreOverrideCursor()
+
+    def _plot_tabs(self):
+        # exg = 0, orn = 1, fft = 2
+        tab_idx = int(self.ui.tabWidget.currentIndex())
+        if tab_idx == 0:
+            self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
+            self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
+
+        elif tab_idx == 1:
+            self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
+
+        elif tab_idx == 2:
+            self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
+
+    def _change_timescale(self):
+        """current_size = len(self.t_exg_plot)
+        new_size = AppFunctions._plot_points(self)
+        ts = AppFunctions._get_timeScale(self)
+
+        print(f"{self.t_exg_plot[-1] - ts =}")
+        print(f"{np.where(np.isclose(self.t_exg, self.t_exg_plot[-1]-ts))=}")
+        print(f"{np.nanmax(self.t_exg)=}\n")
+
+        # df = pandas.DataFrame(data={"t_exg": list(self.t_exg), "t_plot": list(self.t_exg_plot)})
+        dict_ = {"t_exg": list(self.t_exg), "t_plot": list(self.t_exg_plot)}
+        df = pd.DataFrame({ key:pd.Series(value) for key, value in dict_.items() })
+        df.to_csv(f'filename_{self.t_exg_plot[-1]}.csv', sep=',',index=False)
+
+        diff = int(new_size - current_size)
+        if diff>0:
+            self.t_exg_plot = np.concatenate((np.full((diff,), np.NaN), self.t_exg_plot))
+            for ch in self.exg_plot.keys():
+                self.exg_plot[ch] = np.concatenate((np.full((diff,), np.NaN), self.exg_plot[ch]))
+
+        elif diff<0:
+            diff = abs(diff)
+            self.t_exg_plot = self.t_exg_plot[diff:]
+            for ch in self.exg_plot.keys():
+                self.exg_plot[ch] = self.exg_plot[ch][diff:]
+
+        # print(f"{current_size=}")
+        # print(f"{new_size=}")
+        # print(f"{len(self.t_exg_plot)=}")
+
+        try:
+            t_min = int(np.nanmin(self.t_exg_plot))
+        except: #if all nans (at the beginig)
+            t_min = 0
+        t_max = int(t_min + AppFunctions._get_timeScale(self))
+        self.ui.plot_exg.setXRange(t_min,t_max)
+
+        #"""
+
+        # Based on PyCorder approach
+        t_min = self.last_t
+        t_max = int(t_min + AppFunctions._get_timeScale(self))
+        self.ui.plot_exg.setXRange(t_min, t_max)
+        for plt in self.plots_orn_list:
+            plt.setXRange(t_min, t_max)
+
+        new_size = AppFunctions._plot_points(self)
+        self.exg_pointer = 0
+        self.t_exg_plot = np.array([np.NaN]*new_size)
+        self.exg_plot = {ch: np.array([np.NaN]*new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+
+        new_size_orn = AppFunctions._plot_points(self, orn=True)
+        self.orn_pointer = 0
+        self.t_orn_plot = np.array([np.NaN]*new_size_orn)
+        self.orn_plot = {k: np.array([np.NaN]*new_size_orn) for k in Settings.ORN_LIST}
+
+    def get_fft(exg, s_rate):
+        """
+        Compute FFT
+        Args:
+            exg: exg data from ExG packet
+            s_rate (int): sampling rate
+        """
+        n_point = 1024
+        exg -= exg.mean(axis=1)[:, np.newaxis]
+        freq = s_rate * np.arange(int(n_point / 2)) / n_point
+        fft_content = np.fft.fft(exg, n=n_point) / n_point
+        fft_content = np.abs(fft_content[:, range(int(n_point / 2))])
+        fft_content = gaussian_filter1d(fft_content, 1)
+        return fft_content[:, 1:], freq[1:]
 
     # ///// END FUNCTIONS/////
 
