@@ -5,7 +5,7 @@ import sys
 
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog
-from PySide6.QtCore import QTimer, Qt, Signal, QTimer 
+from PySide6.QtCore import QTimer, Qt, Signal, QTimer
 from PySide6.QtGui import QIcon, QCursor
 import explorepy as xpy
 # from pyqtgraph.Qt import App
@@ -26,7 +26,7 @@ VERSION_APP = 'v0.15'
 
 class MainWindow(QMainWindow):
     signal_exg = Signal(object)
-    signal_fft = Signal(object)
+    # signal_fft = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
     signal_mkr = Signal(object)
@@ -68,9 +68,13 @@ class MainWindow(QMainWindow):
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = "1 mV"
         self.line = None
+
         self.lines_orn = [None, None, None]
         self.last_t = 0
         self.last_t_orn = 0
+
+        self.rr_estimator = None
+        self.r_peak = {"t": [], "r_peak": [], "points": []}
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -93,12 +97,16 @@ class MainWindow(QMainWindow):
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
+
             # self.explorer.connect(device_name="Explore_CA4C")
+            # self.explorer.connect(device_name="Explore_CA07")
+
             AppFunctions.info_device(self)
             AppFunctions.update_frame_dev_settings(self)
             self.is_connected = True
 
             stream_processor = self.explorer.stream_processor
+
             n_chan = stream_processor.device_info['adc_mask']
             n_chan = [i for i in reversed(n_chan)]
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
@@ -107,6 +115,7 @@ class MainWindow(QMainWindow):
             AppFunctions.init_plot_exg(self)
             AppFunctions.init_plot_orn(self)
             AppFunctions.init_plot_fft(self)
+
         else:
             AppFunctions.scan_devices(self)
 
@@ -151,6 +160,7 @@ class MainWindow(QMainWindow):
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(lambda: AppFunctions.set_marker(self))
+
         # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
         self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
         # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
@@ -159,9 +169,13 @@ class MainWindow(QMainWindow):
         self.ui.value_timeScale.currentTextChanged.connect(lambda: AppFunctions._change_timescale(self))
 
         self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
-        self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
+        # self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
         self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
+
+        # self.signal_exg.connect(lambda data: AppFunctions.plot_exg_moving(self, data))
+        # self.signal_orn.connect(lambda data: AppFunctions.plot_orn_moving(self, data))
+        # self.signal_mkr.connect(lambda data: AppFunctions.plot_marker_moving(self, data))
 
         # self.ui.tabWidget.currentChanged.connect(lambda: AppFunctions.plot_tabs(self))
 
@@ -170,6 +184,8 @@ class MainWindow(QMainWindow):
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
             self.ui.btn_stream.clicked.connect(lambda: self.update_fft())
+            self.ui.btn_stream.clicked.connect(lambda: self.update_heart_rate())
+
         else:
             self.ui.btn_stream.clicked.connect(lambda: self.start_recorded_plots())
 
@@ -179,14 +195,10 @@ class MainWindow(QMainWindow):
         # /////////////////////////////// START TESTING ///////////////////////
         '''self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         # self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_exg(self))
-
-
         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         # self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_fft(self))
-
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
         self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_orn(self))
-
         from datetime import datetime
         now = datetime.now()
         dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
@@ -200,6 +212,12 @@ class MainWindow(QMainWindow):
         self.timer_fft.setInterval(2000)
         self.timer_fft.timeout.connect(lambda: AppFunctions.plot_fft(self))
         self.timer_fft.start()
+
+    def update_heart_rate(self):
+        self.timer_hr = QTimer(self)
+        self.timer_hr.setInterval(2000)
+        self.timer_hr.timeout.connect(lambda: AppFunctions._plot_heart_rate(self))
+        self.timer_hr.start()
 
     def import_recorded_data(self):
         '''
@@ -267,8 +285,8 @@ class MainWindow(QMainWindow):
             QApplication.processEvents()
 
             self.explorer.record_data(
-                file_name=file_name, 
-                file_type=file_type, 
+                file_name=file_name,
+                file_type=file_type,
                 duration=duration)
             self.is_recording = True
             self.start_timer_recorder()
@@ -312,7 +330,7 @@ class MainWindow(QMainWindow):
             self.ui.btn_stream.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
             self.is_streaming = True
             QApplication.processEvents()
-  
+
             self.timer_exg = QTimer()
             self.timer_exg.setInterval(1)
             self.timer_exg.timeout.connect(lambda: self.plot_exg_recorded.update_plot_exg())
@@ -333,7 +351,6 @@ class MainWindow(QMainWindow):
     def changePage(self, btn_name):
         """
         Change the active page when the object is clicked
-
         Args:
             btn_name
         """
@@ -413,10 +430,9 @@ class MainWindow(QMainWindow):
     def mousePressEvent(self, event):
         '''
         Get mouse current position to move the window
-
         Args: mouse press event
         '''
-        self.clickPosition = event.globalPos() 
+        self.clickPosition = event.globalPos()
 
     '''def resizeEvent(self, event):
         # Update Size Grips
