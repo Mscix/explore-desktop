@@ -1193,6 +1193,63 @@ class AppFunctions(MainWindow):
         fft_content = gaussian_filter1d(fft_content, 1)
         return fft_content[:, 1:], freq[1:]
 
+    def _plot_heart_rate(self):
+        if self.ui.value_signal.currentText() == "EEG":
+            return
+
+        if "ch1" not in self.exg_plot.keys():
+            print('Heart rate estimation works only when channel 1 is enabled.')
+            return
+
+        # first_chan = self.exg_plot.keys()[0]
+
+        exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
+
+        if self.rr_estimator is None:
+            self.rr_estimator = HeartRateEstimator(fs=exg_fs)
+            
+            '''# Init R-peaks plot
+            self.exg_plot.circle(x='t', y='r_peak', source=self._r_peak_source,
+                                 fill_color="red", size=8)'''
+
+        ecg_data = (np.array(self.exg_plot['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
+        # ecg_data = (np.array(self.exg_plot[first_chan])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
+        time_vector = np.array(self.t_exg_plot)[-2 * Settings.EXG_VIS_SRATE:]
+
+        # Check if the peak2peak value is bigger than threshold
+        if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
+            print("P2P value larger or less than threshold. Cannot compute heart rate!")
+            return
+
+        peaks_time, peaks_val = self.rr_estimator.estimate(ecg_data, time_vector)
+        peaks_val = (np.array(peaks_val) / self.y_unit) + self.offsets[0]
+        if peaks_time:
+            self.r_peak['t'].append(peaks_time)
+            self.r_peak['r_peak'].append(peaks_val)
+
+            points = self.ui.plot_exg.plot(peaks_time, peaks_val,
+                        pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)
+            
+            self.r_peak["points"].extend([points])
+            
+            """self.r_peak['t'].extend(peaks_time)
+            self.r_peak['r_peak'].extend(peaks_val)
+
+            for idx in range(len(self.r_peak['t'])):
+                t = np.array([self.r_peak['t'][idx]])
+                peak = np.array([self.r_peak['r_peak'][idx]])
+                point = pg.PlotCurveItem(t, peak, 
+                        pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)
+                '''self.ui.plot_exg.plot(t, peak, 
+                        pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)
+                '''
+                self.ui.plot_exg.addItem(point)
+                self.r_peak["points"].extend([point])
+            # print(dict(zip(['r_peak', 't'], [peaks_val, peaks_time])))"""
+
+        # Update heart rate cell
+        estimated_heart_rate = self.rr_estimator.heart_rate
+        self.ui.value_heartRate.setText(str(estimated_heart_rate))
     # ///// END FUNCTIONS/////
 
 

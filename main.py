@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
         self.t_orn_plot = np.array([np.NaN]*200)
         self.orn_pointer = 0
 
+
         self._vis_time_offset = None
         self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
                                     "baseline": 0}
@@ -97,7 +98,6 @@ class MainWindow(QMainWindow):
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
-
             # self.explorer.connect(device_name="Explore_CA4C")
             # self.explorer.connect(device_name="Explore_CA07")
 
@@ -160,6 +160,8 @@ class MainWindow(QMainWindow):
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(lambda: AppFunctions.set_marker(self))
+        self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
+
 
         # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
         self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
