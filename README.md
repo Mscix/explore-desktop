@@ -14,6 +14,7 @@
  - `pandas`
  - `pyqtgraph`
  - `PySide6`
+ - `mne`
 
 4. Launch the app: `python main.py`
 
