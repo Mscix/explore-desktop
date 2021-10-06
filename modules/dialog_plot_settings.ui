@@ -19,7 +19,7 @@
      <x>3</x>
      <y>10</y>
      <width>391</width>
-     <height>201</height>
+     <height>207</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -47,7 +47,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox"/>
+       <widget class="QComboBox" name="value_notch"/>
       </item>
      </layout>
     </item>
@@ -61,12 +61,35 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="value_lowpass"/>
+       <widget class="QLineEdit" name="value_lowpass">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="value_highpass"/>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="lbl_warning">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: #d90000;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QLabel" name="label_4">
@@ -92,25 +115,6 @@
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>20</y>
-     <width>376</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-     <italic>true</italic>
-    </font>
-   </property>
-   <property name="text">
-    <string>If only one value is introduced, the filter will be a high/low pass</string>
-   </property>
   </widget>
  </widget>
  <resources/>

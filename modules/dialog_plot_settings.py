@@ -3,14 +3,14 @@
 ################################################################################
 ## Form generated from reading UI file 'dialog_plot_settings.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.1.3
+## Created by: Qt User Interface Compiler version 6.1.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
 
 
 class Ui_Dialog(object):
@@ -20,7 +20,7 @@ class Ui_Dialog(object):
         Dialog.resize(396, 216)
         self.layoutWidget = QWidget(Dialog)
         self.layoutWidget.setObjectName(u"layoutWidget")
-        self.layoutWidget.setGeometry(QRect(3, 10, 391, 201))
+        self.layoutWidget.setGeometry(QRect(3, 10, 391, 207))
         self.verticalLayout = QVBoxLayout(self.layoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -41,10 +41,10 @@ class Ui_Dialog(object):
 
         self.horizontalLayout_2.addWidget(self.label_2)
 
-        self.comboBox = QComboBox(self.layoutWidget)
-        self.comboBox.setObjectName(u"comboBox")
+        self.value_notch = QComboBox(self.layoutWidget)
+        self.value_notch.setObjectName(u"value_notch")
 
-        self.horizontalLayout_2.addWidget(self.comboBox)
+        self.horizontalLayout_2.addWidget(self.value_notch)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_2)
@@ -58,6 +58,7 @@ class Ui_Dialog(object):
 
         self.value_lowpass = QLineEdit(self.layoutWidget)
         self.value_lowpass.setObjectName(u"value_lowpass")
+        self.value_lowpass.setStyleSheet(u"")
 
         self.horizontalLayout.addWidget(self.value_lowpass)
 
@@ -69,11 +70,19 @@ class Ui_Dialog(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.label_4 = QLabel(self.layoutWidget)
-        self.label_4.setObjectName(u"label_4")
+        self.lbl_warning = QLabel(self.layoutWidget)
+        self.lbl_warning.setObjectName(u"lbl_warning")
         font = QFont()
         font.setPointSize(10)
         font.setItalic(True)
+        self.lbl_warning.setFont(font)
+        self.lbl_warning.setStyleSheet(u"color: #d90000;")
+        self.lbl_warning.setWordWrap(True)
+
+        self.verticalLayout.addWidget(self.lbl_warning)
+
+        self.label_4 = QLabel(self.layoutWidget)
+        self.label_4.setObjectName(u"label_4")
         self.label_4.setFont(font)
 
         self.verticalLayout.addWidget(self.label_4)
@@ -85,10 +94,6 @@ class Ui_Dialog(object):
 
         self.verticalLayout.addWidget(self.buttonBox)
 
-        self.label_5 = QLabel(Dialog)
-        self.label_5.setObjectName(u"label_5")
-        self.label_5.setGeometry(QRect(20, 20, 376, 23))
-        self.label_5.setFont(font)
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)
@@ -103,7 +108,7 @@ class Ui_Dialog(object):
         self.cb_offset.setText(QCoreApplication.translate("Dialog", u"Baseline Correction", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Notch Filter", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Band pass filter", None))
+        self.lbl_warning.setText("")
         self.label_4.setText(QCoreApplication.translate("Dialog", u"If only one value is introduced, the filter will be a high/low pass", None))
-        self.label_5.setText(QCoreApplication.translate("Dialog", u"If only one value is introduced, the filter will be a high/low pass", None))
     # retranslateUi
 

@@ -1169,6 +1169,7 @@ class Ui_MainWindow(object):
         self.exg.setObjectName(u"exg")
         self.horizontalLayout_21 = QHBoxLayout(self.exg)
         self.horizontalLayout_21.setObjectName(u"horizontalLayout_21")
+        # self.plot_exg = GraphicsLayoutWidget(self.exg)
         self.plot_exg = PlotWidget(self.exg)
         self.plot_exg.setObjectName(u"plot_exg")
 
