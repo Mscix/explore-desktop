@@ -19,6 +19,8 @@ from contextlib import contextmanager
 import pyqtgraph as pg
 import mne
 from explorepy.tools import HeartRateEstimator
+from modules.workers import Worker
+from modules.workers import Thread
 
 class AppFunctions(MainWindow):
 
@@ -467,10 +469,51 @@ class AppFunctions(MainWindow):
     # ////////////////////////////////////////
     # ///// START INTEGRATION PAGE FUNCTIONS/////
 
-    def push_lsl(self):
+    def push_lsl_worker(self, progress_callback):
         # TODO theres an error in explrorepy
-        duration = self.ui.duration_push_lsl.value()
-        self.explorer.push2lsl(duration=duration)
+        # duration = self.ui.duration_push_lsl.value()
+        # self.explorer.push2lsl(duration=duration)
+        
+        if self.is_pushing is False:
+            self.is_pushing = True
+            while self.run:
+                time.sleep(1)
+                from datetime import datetime
+                now = datetime.now()
+                dt_string = now.strftime("%H_%M_%S")
+                print("push_lsl: ", dt_string)
+                progress_callback.emit(dt_string)
+        else:
+            self.is_pushing = False
+            self.run = False
+    
+
+    def push_lsl(self):
+        # worker = Worker(AppFunctions.push_lsl_worker)
+        # worker.signals.result.connect(lambda s:print(s))
+        # worker.signals.finished.connect(lambda : print("Done"))
+        # worker.signals.progress.connect(AppFunctions.progress_fn)
+        
+        # # Execute
+        # self.threadpool.start(worker)
+        # if self.run is False:
+        #     print("STOP")
+        #     self.threadpool.stop(worker)
+        if self.th is None:
+            self.th = Thread(explore=self.explorer, duration=self.ui.duration_push_lsl.value())
+        
+        if self.is_pushing is False:
+            self.is_pushing = True
+            self.th.start()
+            self.ui.btn_push_lsl.setText("Stop")
+        else:
+            self.is_pushing = False
+            self.th.stop()
+            self.th = None
+            self.ui.btn_push_lsl.setText("Push")
+
+
+
     # ///// END INTEGRATION PAGE FUNCTIONS/////
 
     # ////////////////////////////////////////
