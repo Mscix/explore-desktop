@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
 
 
         # List devices when starting the app
-        test = True
+        test = False
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
@@ -192,7 +192,7 @@ class MainWindow(QMainWindow):
 
         # self.ui.tabWidget.currentChanged.connect(lambda: AppFunctions.plot_tabs(self))
 
-        # self.ui.btn_stream.hide()
+        self.ui.btn_stream.hide()
 
         if self.file_names is None:
             self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
@@ -257,7 +257,7 @@ class MainWindow(QMainWindow):
         dialog = PlotDialog(sr=sr, current_filters=self.plotting_filters)
         self.plotting_filters = dialog.exec()
         AppFunctions._apply_filters(self)
-        time.sleep(0.5)
+        time.sleep(1)
 
     def start_timer_recorder(self):
         '''
@@ -411,7 +411,9 @@ class MainWindow(QMainWindow):
             if self.plotting_filters is None:
                 self.plot_filters()
 
-            # AppFunctions.emit_signals(self)
+            AppFunctions.emit_signals(self)
+            self.update_fft()
+            self.update_heart_rate()
 
         elif btn_name == "btn_impedance":
             self.mode = "imp"
