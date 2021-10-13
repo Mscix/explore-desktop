@@ -133,7 +133,10 @@ class AppFunctions(MainWindow):
 
         self.ui.list_devices.clear()
         with AppFunctions._wait_cursor():
-            explore_devices = bt_scan()
+            try:
+                explore_devices = bt_scan()
+            except ValueError:
+                print("Error opening socket. Check if bt is on")
             explore_devices = [dev[0] for dev in explore_devices]
             if len(explore_devices) == 0:
                 print("No explore devices found. Please make sure it is turn on and click on reescan")
@@ -1663,7 +1666,7 @@ class Plots(MainWindow):
                 elif "ORN" in file:
                     data["orn"] = self._read_csv(file)
                 else:
-                    print("Not a exg, mmarker or ORN file")
+                    print("Not a exg, marker or ORN file")
             elif file.endswith(".edf"):
                 print("Not supported yet")
             else:
