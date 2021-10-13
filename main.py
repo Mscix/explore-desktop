@@ -20,7 +20,6 @@ from modules.dialogs import RecordingDialog, PlotDialog
 # from modules.ui_functions import UIFunctions
 # from modules.ui_main_window import Ui_MainWindow
 
-
 # pyside6-uic ui_main_window.ui > ui_main_window.py
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
@@ -51,6 +50,12 @@ class MainWindow(QMainWindow):
         self.is_imp_measuring = False
         self.file_names = None
         self.is_started = False
+
+        self.is_pushing = False
+        self.run = True
+        self.th = None
+        self.ui.label_3.setHidden(True)
+        self.ui.duration_push_lsl.hide()
 
         self.plotting_filters = None
         # self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
@@ -97,8 +102,9 @@ class MainWindow(QMainWindow):
         # Initialize values
         AppFunctions.init_dropdowns(self)
 
+
         # List devices when starting the app
-        test = False
+        test = True
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
