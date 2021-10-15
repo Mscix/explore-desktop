@@ -21,6 +21,7 @@ import mne
 from explorepy.tools import HeartRateEstimator
 from modules.workers import Worker
 from modules.workers import Thread
+import explorepy._exceptions as xpy_ex
 
 class AppFunctions(MainWindow):
 
@@ -148,7 +149,7 @@ class AppFunctions(MainWindow):
 
         self.ui.ft_label_device_3.setText("Not connected")
         self.ui.ft_label_device_3.repaint()
-        # QApplication.processEvents()
+        # QApplication.processEvents()        
 
     def connect2device(self):
         """
@@ -159,8 +160,9 @@ class AppFunctions(MainWindow):
                 device_name = self.ui.list_devices.selectedItems()[0].text()
                 print(device_name)
             except IndexError:
-                # TODO change to popup?
-                print("please select a device first")
+                msg = "Please select a device before connecting"
+                QMessageBox.critical(self, "Error", msg)
+                return
 
             self.ui.ft_label_device_3.setText("Connecting ...")
             self.ui.ft_label_device_3.repaint()
@@ -170,15 +172,29 @@ class AppFunctions(MainWindow):
                 try:
                     self.explorer.connect(device_name=device_name)
                     self.is_connected = True
-                # except DeviceNotFoundError:
-                except:
-                    # TODO change to popup?
-                    print("Could not find the device! Please make sure the device is on and in advertising mode.")
+                except AssertionError as e:
+                    msg = str(e)
+                    QMessageBox.critical(self, "Error", msg)
+                    return
+                except xpy_ex.DeviceNotFoundError as e:
+                    msg = str(e)
+                    QMessageBox.critical(self, "Error", msg)
+                    return
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", str(e))
+                    return
                 pass
 
         else:
-            self.explorer.disconnect()
-            self.is_connected = False
+            try:
+                self.explorer.disconnect()
+                self.is_connected = False
+            except AssertionError as e:
+                msg = str(e)
+                QMessageBox.critical(self, "Error", msg)
+            except Exception as e:
+                msg = str(e)
+                QMessageBox.critical(self, "Error", msg)
 
         print(self.is_connected)
         # change footer & button text:            
@@ -644,7 +660,7 @@ class AppFunctions(MainWindow):
 
         pw.getAxis("left").setWidth(50)
         pw.showGrid(x=False, y=True, alpha=0.5)
-        pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)))
+        pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)), padding=0.01)
         # pw.setRange(yRange=(-0.5, n_chan+1))
         # pw.setRange(yRange=(-2, 1+2), xRange=(0, int(timescale)))
         pw.setLabel("bottom", "time (s)")
@@ -696,7 +712,7 @@ class AppFunctions(MainWindow):
             plt.getAxis("left").setWidth(80)
             plt.getAxis("left").setLabel(lbl)
             plt.showGrid(x=True, y=True, alpha=0.5)
-            plt.setXRange(0, timescale)
+            plt.setXRange(0, timescale, padding=0.01)
 
         self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name="accZ")
         self.curve_ay = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name="accY")
@@ -714,7 +730,7 @@ class AppFunctions(MainWindow):
 
         pw = self.ui.plot_fft
         pw.setBackground(Settings.PLOT_BACKGROUND)
-        pw.setXRange(0, 70)
+        pw.setXRange(0, 70, padding=0.01)
         pw.showGrid(x=True, y=True, alpha=0.5)
         pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
         pw.setLabel('left', "Amplitude (uV)")
@@ -755,7 +771,7 @@ class AppFunctions(MainWindow):
             t_min = int(round(np.mean(data["t"])))
             # t_min = int(data["t"][-1])
             t_max = int(t_min + AppFunctions._get_timeScale(self))
-            self.ui.plot_exg.setXRange(t_min, t_max)
+            self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
             # Remove marker line and replot in the new axis
             for idx_t in range(len(self.mrk_plot["t"])):
@@ -840,7 +856,7 @@ class AppFunctions(MainWindow):
             # t_min = int(data["t"][-1])
             t_max = int(t_min + AppFunctions._get_timeScale(self))
             for plt in self.plots_orn_list:
-                plt.setXRange(t_min, t_max)
+                plt.setXRange(t_min, t_max, padding=0.01)
         # Position line
         if None in self.lines_orn:
             for i, plt in enumerate(self.plots_orn_list):
@@ -864,7 +880,7 @@ class AppFunctions(MainWindow):
 
         pw = self.ui.plot_fft
         pw.clear()
-        pw.setXRange(0, 70)
+        pw.setXRange(0, 70, padding=0.01)
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
         exg_data = np.array([self.exg_plot[key][~np.isnan(self.exg_plot[key])] for key in self.exg_plot.keys()])
@@ -1228,9 +1244,9 @@ class AppFunctions(MainWindow):
         # Based on PyCorder approach
         t_min = self.last_t
         t_max = int(t_min + AppFunctions._get_timeScale(self))
-        self.ui.plot_exg.setXRange(t_min, t_max)
+        self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
         for plt in self.plots_orn_list:
-            plt.setXRange(t_min, t_max)
+            plt.setXRange(t_min, t_max, padding=0.01)
 
         new_size = AppFunctions._plot_points(self)
         self.exg_pointer = 0
@@ -1315,6 +1331,9 @@ class AppFunctions(MainWindow):
         # Update heart rate cell
         estimated_heart_rate = self.rr_estimator.heart_rate
         self.ui.value_heartRate.setText(str(estimated_heart_rate))
+
+    def _display_error(self, msg):
+        QMessageBox.critical(self, title="Error", text=msg)
     # ///// END FUNCTIONS/////
 
 

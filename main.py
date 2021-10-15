@@ -402,17 +402,19 @@ class MainWindow(QMainWindow):
             # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plots)
             # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
 
+            if self.plotting_filters is None:
+                self.plot_filters()
+
             if self.ui.plot_orn.getItem(0, 0) is None:
                 AppFunctions.init_plot_orn(self)
                 AppFunctions.init_plot_exg(self)
                 AppFunctions.init_plot_fft(self)
-
-            if self.plotting_filters is None:
-                self.plot_filters()
-
-            AppFunctions.emit_signals(self)
-            self.update_fft()
-            self.update_heart_rate()
+                
+            if not self.is_streaming:
+                AppFunctions.emit_signals(self)
+                self.update_fft()
+                self.update_heart_rate()
+                self.is_streaming = True
 
         elif btn_name == "btn_impedance":
             self.mode = "imp"
