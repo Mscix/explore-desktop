@@ -1289,7 +1289,7 @@ class AppFunctions(MainWindow):
         peaks_val = (np.array(peaks_val) / self.y_unit) + self.offsets[0]
         if peaks_time:
             self.r_peak['t'].append(peaks_time)
-            self.r_peak['r_peak'].append(peaks_val)
+            list(self.r_peak['r_peak']).append(peaks_val)
 
             points = self.ui.plot_exg.plot(peaks_time, peaks_val,
                         pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)

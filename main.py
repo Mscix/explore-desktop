@@ -102,7 +102,6 @@ class MainWindow(QMainWindow):
         # Initialize values
         AppFunctions.init_dropdowns(self)
 
-
         # List devices when starting the app
         test = False
         if test:
