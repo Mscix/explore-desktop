@@ -17,60 +17,75 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(396, 216)
-        self.layoutWidget = QWidget(Dialog)
-        self.layoutWidget.setObjectName(u"layoutWidget")
-        self.layoutWidget.setGeometry(QRect(3, 10, 391, 207))
-        self.verticalLayout = QVBoxLayout(self.layoutWidget)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.label = QLabel(self.layoutWidget)
+        Dialog.resize(396, 227)
+        self.verticalLayout_3 = QVBoxLayout(Dialog)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.label = QLabel(Dialog)
         self.label.setObjectName(u"label")
 
-        self.verticalLayout.addWidget(self.label)
+        self.verticalLayout_3.addWidget(self.label)
 
-        self.cb_offset = QCheckBox(self.layoutWidget)
+        self.cb_offset = QCheckBox(Dialog)
         self.cb_offset.setObjectName(u"cb_offset")
 
-        self.verticalLayout.addWidget(self.cb_offset)
+        self.verticalLayout_3.addWidget(self.cb_offset)
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.label_2 = QLabel(self.layoutWidget)
+        self.label_2 = QLabel(Dialog)
         self.label_2.setObjectName(u"label_2")
 
         self.horizontalLayout_2.addWidget(self.label_2)
 
-        self.value_notch = QComboBox(self.layoutWidget)
+        self.value_notch = QComboBox(Dialog)
         self.value_notch.setObjectName(u"value_notch")
 
         self.horizontalLayout_2.addWidget(self.value_notch)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.label_3 = QLabel(self.layoutWidget)
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.label_3 = QLabel(Dialog)
         self.label_3.setObjectName(u"label_3")
+        self.label_3.setAlignment(Qt.AlignCenter)
 
-        self.horizontalLayout.addWidget(self.label_3)
+        self.verticalLayout.addWidget(self.label_3)
 
-        self.value_lowpass = QLineEdit(self.layoutWidget)
+        self.value_lowpass = QLineEdit(Dialog)
         self.value_lowpass.setObjectName(u"value_lowpass")
+        self.value_lowpass.setMinimumSize(QSize(0, 20))
         self.value_lowpass.setStyleSheet(u"")
 
-        self.horizontalLayout.addWidget(self.value_lowpass)
+        self.verticalLayout.addWidget(self.value_lowpass)
 
-        self.value_highpass = QLineEdit(self.layoutWidget)
+
+        self.horizontalLayout.addLayout(self.verticalLayout)
+
+        self.verticalLayout_2 = QVBoxLayout()
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.label_5 = QLabel(Dialog)
+        self.label_5.setObjectName(u"label_5")
+        self.label_5.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_2.addWidget(self.label_5)
+
+        self.value_highpass = QLineEdit(Dialog)
         self.value_highpass.setObjectName(u"value_highpass")
+        self.value_highpass.setMinimumSize(QSize(0, 20))
 
-        self.horizontalLayout.addWidget(self.value_highpass)
+        self.verticalLayout_2.addWidget(self.value_highpass)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout.addLayout(self.verticalLayout_2)
 
-        self.lbl_warning = QLabel(self.layoutWidget)
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout)
+
+        self.lbl_warning = QLabel(Dialog)
         self.lbl_warning.setObjectName(u"lbl_warning")
         font = QFont()
         font.setPointSize(10)
@@ -79,20 +94,14 @@ class Ui_Dialog(object):
         self.lbl_warning.setStyleSheet(u"color: #d90000;")
         self.lbl_warning.setWordWrap(True)
 
-        self.verticalLayout.addWidget(self.lbl_warning)
+        self.verticalLayout_3.addWidget(self.lbl_warning)
 
-        self.label_4 = QLabel(self.layoutWidget)
-        self.label_4.setObjectName(u"label_4")
-        self.label_4.setFont(font)
-
-        self.verticalLayout.addWidget(self.label_4)
-
-        self.buttonBox = QDialogButtonBox(self.layoutWidget)
+        self.buttonBox = QDialogButtonBox(Dialog)
         self.buttonBox.setObjectName(u"buttonBox")
         self.buttonBox.setOrientation(Qt.Horizontal)
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
 
-        self.verticalLayout.addWidget(self.buttonBox)
+        self.verticalLayout_3.addWidget(self.buttonBox)
 
 
         self.retranslateUi(Dialog)
@@ -107,8 +116,8 @@ class Ui_Dialog(object):
         self.label.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">Visualization Settings</span></p></body></html>", None))
         self.cb_offset.setText(QCoreApplication.translate("Dialog", u"Baseline Correction", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Notch Filter", None))
-        self.label_3.setText(QCoreApplication.translate("Dialog", u"Band pass filter", None))
+        self.label_3.setText(QCoreApplication.translate("Dialog", u"Low Cutoff Frequency (Hz)", None))
+        self.label_5.setText(QCoreApplication.translate("Dialog", u"High Cutoff Frequency (Hz)", None))
         self.lbl_warning.setText("")
-        self.label_4.setText(QCoreApplication.translate("Dialog", u"If only one value is introduced, the filter will be a high/low pass", None))
     # retranslateUi
 

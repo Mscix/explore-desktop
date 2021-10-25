@@ -3,14 +3,14 @@
 ################################################################################
 ## Form generated from reading UI file 'ui_main_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.1.3
+## Created by: Qt User Interface Compiler version 6.1.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
 
 from pyqtgraph import PlotWidget
 from pyqtgraph import GraphicsLayoutWidget
@@ -38,7 +38,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setStyleSheet(u"/*GENERAL*/\n"
 "QWidget{\n"
-"	font: 11pt;\n"
+"	font: 13pt;\n"
 "}\n"
 " \n"
 "QFrame{\n"
@@ -153,6 +153,29 @@ class Ui_MainWindow(object):
 "}\n"
 "#settings_title{\n"
 "	font: 28pt;\n"
+"}\n"
+"\n"
+"/*TABS*/\n"
+"QTabWidget::pane{\n"
+"	border: 0px;\n"
+"}\n"
+"QTabBar::tab \n"
+"{\n"
+"    background: rgb(28, 30, 42);\n"
+"    color: white;\n"
+"	border: 1px solid rgb(228, 227, 229);\n"
+"	margin-left: 2;\n"
+"	margin-right: 2;\n"
+"}\n"
+"\n"
+"QTabBar::tab:selected\n"
+"{\n"
+"	background: rgba(49, 52, 86, 215);\n"
+"    color: white;   \n"
+"    border: 1px solid rgb(255, 255, 255);\n"
+"}, \n"
+"QTabBar::tab:hover \n"
+"{\n"
 "}")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setSpacing(0)
@@ -383,7 +406,7 @@ class Ui_MainWindow(object):
 "	border-bottom: 1px solid #FFF;\n"
 "	border-top: none;\n"
 "	border-left: none;\n"
-"	border-rigth: none;\n"
+"	border-right: none;\n"
 "}\n"
 "")
         self.frame_home_title.setFrameShape(QFrame.StyledPanel)
@@ -441,7 +464,7 @@ class Ui_MainWindow(object):
 "	border-bottom: 1px solid #FFF;\n"
 "	border-top: none;\n"
 "	border-left: none;\n"
-"	border-rigth: none;\n"
+"	border-right: none;\n"
 "}\n"
 "")
         self.frame_integrationn_title.setFrameShape(QFrame.StyledPanel)
@@ -502,28 +525,12 @@ class Ui_MainWindow(object):
         self.label_2 = QLabel(self.layoutWidget)
         self.label_2.setObjectName(u"label_2")
         font1 = QFont()
-        font1.setPointSize(11)
+        font1.setPointSize(13)
         font1.setBold(False)
         font1.setItalic(False)
         self.label_2.setFont(font1)
 
         self.verticalLayout_3.addWidget(self.label_2)
-
-        self.horizontalLayout_8 = QHBoxLayout()
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.label_3 = QLabel(self.layoutWidget)
-        self.label_3.setObjectName(u"label_3")
-
-        self.horizontalLayout_8.addWidget(self.label_3)
-
-        self.duration_push_lsl = QSpinBox(self.layoutWidget)
-        self.duration_push_lsl.setObjectName(u"duration_push_lsl")
-        self.duration_push_lsl.setStyleSheet(u"color:#FFF;")
-
-        self.horizontalLayout_8.addWidget(self.duration_push_lsl)
-
-
-        self.verticalLayout_3.addLayout(self.horizontalLayout_8)
 
         self.btn_push_lsl = QPushButton(self.layoutWidget)
         self.btn_push_lsl.setObjectName(u"btn_push_lsl")
@@ -552,7 +559,7 @@ class Ui_MainWindow(object):
 "	border-bottom: 1px solid #FFF;\n"
 "	border-top: none;\n"
 "	border-left: none;\n"
-"	border-rigth: none;\n"
+"	border-right: none;\n"
 "}\n"
 "")
         self.frame_settings_title.setFrameShape(QFrame.StyledPanel)
@@ -573,7 +580,7 @@ class Ui_MainWindow(object):
         self.settings_title.setObjectName(u"settings_title")
         self.settings_title.setMinimumSize(QSize(0, 0))
         font2 = QFont()
-        # font2.setFamilies([u".SF NS Text"])
+        font2.setFamilies([u".SF NS Text"])
         font2.setPointSize(28)
         font2.setBold(False)
         font2.setItalic(False)
@@ -643,13 +650,23 @@ class Ui_MainWindow(object):
         self.frame.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_9 = QHBoxLayout(self.frame)
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.list_devices = QListWidget(self.frame)
+        self.horizontalLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.frame_5 = QFrame(self.frame)
+        self.frame_5.setObjectName(u"frame_5")
+        self.frame_5.setFrameShape(QFrame.StyledPanel)
+        self.frame_5.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_24 = QVBoxLayout(self.frame_5)
+        self.verticalLayout_24.setObjectName(u"verticalLayout_24")
+        self.list_devices = QListWidget(self.frame_5)
         self.list_devices.setObjectName(u"list_devices")
         self.list_devices.viewport().setProperty("cursor", QCursor(Qt.ArrowCursor))
         self.list_devices.setStyleSheet(u"border: 1px solid rgb(84, 89, 124);\n"
 "color: #FFFFFF;")
 
-        self.horizontalLayout_9.addWidget(self.list_devices)
+        self.verticalLayout_24.addWidget(self.list_devices)
+
+
+        self.horizontalLayout_9.addWidget(self.frame_5)
 
         self.frame_btns_scan_connect = QFrame(self.frame)
         self.frame_btns_scan_connect.setObjectName(u"frame_btns_scan_connect")
@@ -692,6 +709,32 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_6.addWidget(self.frame)
 
+        self.frame_6 = QFrame(self.frame_BT)
+        self.frame_6.setObjectName(u"frame_6")
+        self.frame_6.setMinimumSize(QSize(0, 30))
+        self.frame_6.setFrameShape(QFrame.StyledPanel)
+        self.frame_6.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_10 = QHBoxLayout(self.frame_6)
+        self.horizontalLayout_10.setSpacing(10)
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
+        self.label_9 = QLabel(self.frame_6)
+        self.label_9.setObjectName(u"label_9")
+
+        self.horizontalLayout_10.addWidget(self.label_9)
+
+        self.dev_name_input = QLineEdit(self.frame_6)
+        self.dev_name_input.setObjectName(u"dev_name_input")
+        self.dev_name_input.setStyleSheet(u"color: #FFF;\n"
+"background-color: rgb(0, 255, 255);\n"
+"background-color: rgb(83, 88, 123);\n"
+"")
+
+        self.horizontalLayout_10.addWidget(self.dev_name_input)
+
+
+        self.verticalLayout_6.addWidget(self.frame_6)
+
         self.line = QFrame(self.frame_BT)
         self.line.setObjectName(u"line")
         self.line.setStyleSheet(u"background-color: rgb(255, 255, 255);\n"
@@ -701,14 +744,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_6.addWidget(self.line)
 
-        self.label_import = QLabel(self.frame_BT)
-        self.label_import.setObjectName(u"label_import")
-        self.label_import.setFont(font1)
-        self.label_import.setStyleSheet(u"border: none;\n"
-"color: #FFF")
-        self.label_import.setAlignment(Qt.AlignCenter)
+        self.label_8 = QLabel(self.frame_BT)
+        self.label_8.setObjectName(u"label_8")
+        self.label_8.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_6.addWidget(self.label_import)
+        self.verticalLayout_6.addWidget(self.label_8)
 
         self.btn_import_data = QPushButton(self.frame_BT)
         self.btn_import_data.setObjectName(u"btn_import_data")
@@ -716,7 +756,7 @@ class Ui_MainWindow(object):
         self.btn_import_data.setMaximumSize(QSize(150, 16777215))
         self.btn_import_data.setCursor(QCursor(Qt.PointingHandCursor))
 
-        self.verticalLayout_6.addWidget(self.btn_import_data, 0, Qt.AlignHCenter)
+        self.verticalLayout_6.addWidget(self.btn_import_data, 0, Qt.AlignHCenter|Qt.AlignVCenter)
 
 
         self.horizontalLayout_31.addWidget(self.frame_BT)
@@ -790,17 +830,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_6.addWidget(self.cb_ch1)
 
-        self.cb_ch3 = QCheckBox(self.frame_cb_channels)
-        self.cb_ch3.setObjectName(u"cb_ch3")
-        self.cb_ch3.setCursor(QCursor(Qt.PointingHandCursor))
-
-        self.horizontalLayout_6.addWidget(self.cb_ch3)
-
         self.cb_ch2 = QCheckBox(self.frame_cb_channels)
         self.cb_ch2.setObjectName(u"cb_ch2")
         self.cb_ch2.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.horizontalLayout_6.addWidget(self.cb_ch2)
+
+        self.cb_ch3 = QCheckBox(self.frame_cb_channels)
+        self.cb_ch3.setObjectName(u"cb_ch3")
+        self.cb_ch3.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.horizontalLayout_6.addWidget(self.cb_ch3)
 
         self.cb_ch4 = QCheckBox(self.frame_cb_channels)
         self.cb_ch4.setObjectName(u"cb_ch4")
@@ -836,6 +876,66 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_2.addWidget(self.frame_channels)
+
+        self.frame_cb_channels_16 = QFrame(self.frame_device)
+        self.frame_cb_channels_16.setObjectName(u"frame_cb_channels_16")
+        self.frame_cb_channels_16.setMaximumSize(QSize(16777215, 38))
+        self.frame_cb_channels_16.setFrameShape(QFrame.StyledPanel)
+        self.frame_cb_channels_16.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_8 = QHBoxLayout(self.frame_cb_channels_16)
+        self.horizontalLayout_8.setSpacing(5)
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.horizontalLayout_8.setContentsMargins(0, 0, 0, 0)
+        self.cb_ch9 = QCheckBox(self.frame_cb_channels_16)
+        self.cb_ch9.setObjectName(u"cb_ch9")
+        self.cb_ch9.setCursor(QCursor(Qt.PointingHandCursor))
+        self.cb_ch9.setStyleSheet(u"color: #FFF")
+
+        self.horizontalLayout_8.addWidget(self.cb_ch9)
+
+        self.cb_ch10 = QCheckBox(self.frame_cb_channels_16)
+        self.cb_ch10.setObjectName(u"cb_ch10")
+        self.cb_ch10.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.horizontalLayout_8.addWidget(self.cb_ch10)
+
+        self.cb_ch11 = QCheckBox(self.frame_cb_channels_16)
+        self.cb_ch11.setObjectName(u"cb_ch11")
+        self.cb_ch11.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.horizontalLayout_8.addWidget(self.cb_ch11)
+
+        self.cb_ch12 = QCheckBox(self.frame_cb_channels_16)
+        self.cb_ch12.setObjectName(u"cb_ch12")
+        self.cb_ch12.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.horizontalLayout_8.addWidget(self.cb_ch12)
+
+        self.cb_ch13 = QCheckBox(self.frame_cb_channels_16)
+        self.cb_ch13.setObjectName(u"cb_ch13")
+        self.cb_ch13.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.horizontalLayout_8.addWidget(self.cb_ch13)
+
+        self.cb_ch14 = QCheckBox(self.frame_cb_channels_16)
+        self.cb_ch14.setObjectName(u"cb_ch14")
+
+        self.horizontalLayout_8.addWidget(self.cb_ch14)
+
+        self.cb_ch15 = QCheckBox(self.frame_cb_channels_16)
+        self.cb_ch15.setObjectName(u"cb_ch15")
+        self.cb_ch15.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.horizontalLayout_8.addWidget(self.cb_ch15)
+
+        self.cb_ch16 = QCheckBox(self.frame_cb_channels_16)
+        self.cb_ch16.setObjectName(u"cb_ch16")
+        self.cb_ch16.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.horizontalLayout_8.addWidget(self.cb_ch16)
+
+
+        self.verticalLayout_2.addWidget(self.frame_cb_channels_16)
 
         self.frame_samplingrate = QFrame(self.frame_device)
         self.frame_samplingrate.setObjectName(u"frame_samplingrate")
@@ -873,7 +973,7 @@ class Ui_MainWindow(object):
         self.btn_apply_settings = QPushButton(self.frame_device)
         self.btn_apply_settings.setObjectName(u"btn_apply_settings")
         self.btn_apply_settings.setMinimumSize(QSize(150, 25))
-        self.btn_apply_settings.setMaximumSize(QSize(16777215, 16777215))
+        self.btn_apply_settings.setMaximumSize(QSize(150, 16777215))
         self.btn_apply_settings.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.verticalLayout_2.addWidget(self.btn_apply_settings, 0, Qt.AlignHCenter)
@@ -903,6 +1003,7 @@ class Ui_MainWindow(object):
 
         self.btn_calibrate = QPushButton(self.frame_device_buttons)
         self.btn_calibrate.setObjectName(u"btn_calibrate")
+        self.btn_calibrate.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.horizontalLayout_4.addWidget(self.btn_calibrate)
 
@@ -1164,12 +1265,11 @@ class Ui_MainWindow(object):
 
         self.tabWidget = QTabWidget(self.page_plotsNoWidget)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setStyleSheet(u"color: #FFF;")
+        self.tabWidget.setStyleSheet(u"")
         self.exg = QWidget()
         self.exg.setObjectName(u"exg")
         self.horizontalLayout_21 = QHBoxLayout(self.exg)
         self.horizontalLayout_21.setObjectName(u"horizontalLayout_21")
-        # self.plot_exg = GraphicsLayoutWidget(self.exg)
         self.plot_exg = PlotWidget(self.exg)
         self.plot_exg.setObjectName(u"plot_exg")
 
@@ -1198,6 +1298,12 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.fft, "")
 
         self.verticalLayout_21.addWidget(self.tabWidget)
+
+        self.label_7 = QLabel(self.page_plotsNoWidget)
+        self.label_7.setObjectName(u"label_7")
+        self.label_7.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.verticalLayout_21.addWidget(self.label_7)
 
         self.stackedWidget.addWidget(self.page_plotsNoWidget)
         self.page_plotsRecorded = QWidget()
@@ -1251,6 +1357,9 @@ class Ui_MainWindow(object):
 "	border-left: 20px solid rgb(61, 64, 89);*/\n"
 "")
         self.verticalLayout_25 = QVBoxLayout(self.page_plotsRecorded)
+#ifndef Q_OS_MAC
+        self.verticalLayout_25.setSpacing(-1)
+#endif
         self.verticalLayout_25.setObjectName(u"verticalLayout_25")
         self.horizontalLayout_36 = QHBoxLayout()
         self.horizontalLayout_36.setObjectName(u"horizontalLayout_36")
@@ -1346,6 +1455,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_25.addLayout(self.horizontalLayout_36)
 
+        self.cb_swiping = QCheckBox(self.page_plotsRecorded)
+        self.cb_swiping.setObjectName(u"cb_swiping")
+
+        self.verticalLayout_25.addWidget(self.cb_swiping)
+
         self.tabWidget_rec = QTabWidget(self.page_plotsRecorded)
         self.tabWidget_rec.setObjectName(u"tabWidget_rec")
         self.tabWidget_rec.setStyleSheet(u"color: #FFF;")
@@ -1382,6 +1496,13 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_25.addWidget(self.tabWidget_rec)
 
+        self.label_3 = QLabel(self.page_plotsRecorded)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setFont(font1)
+        self.label_3.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.verticalLayout_25.addWidget(self.label_3)
+
         self.stackedWidget.addWidget(self.page_plotsRecorded)
         self.page_impedance = QWidget()
         self.page_impedance.setObjectName(u"page_impedance")
@@ -1399,7 +1520,7 @@ class Ui_MainWindow(object):
 "	border-bottom: 1px solid #FFF;\n"
 "	border-top: none;\n"
 "	border-left: none;\n"
-"	border-rigth: none;\n"
+"	border-right: none;\n"
 "}\n"
 "")
         self.frame_impedance_title.setFrameShape(QFrame.StyledPanel)
@@ -1447,10 +1568,8 @@ class Ui_MainWindow(object):
 "}")
         self.frame_impedance.setFrameShape(QFrame.StyledPanel)
         self.frame_impedance.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_16 = QVBoxLayout(self.frame_impedance)
-        self.verticalLayout_16.setSpacing(0)
-        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
-        self.verticalLayout_16.setContentsMargins(-1, 0, -1, -1)
+        self.verticalLayout_35 = QVBoxLayout(self.frame_impedance)
+        self.verticalLayout_35.setObjectName(u"verticalLayout_35")
         self.frame_impedance_widgets = QFrame(self.frame_impedance)
         self.frame_impedance_widgets.setObjectName(u"frame_impedance_widgets")
         self.frame_impedance_widgets.setMaximumSize(QSize(16777215, 200))
@@ -1880,7 +1999,435 @@ class Ui_MainWindow(object):
         self.horizontalLayout_18.addWidget(self.frame_ch8)
 
 
-        self.verticalLayout_16.addWidget(self.frame_impedance_widgets)
+        self.verticalLayout_35.addWidget(self.frame_impedance_widgets)
+
+        self.frame_impedance_widgets_16 = QFrame(self.frame_impedance)
+        self.frame_impedance_widgets_16.setObjectName(u"frame_impedance_widgets_16")
+        self.frame_impedance_widgets_16.setMaximumSize(QSize(16777215, 200))
+        self.frame_impedance_widgets_16.setStyleSheet(u"border: none;")
+        self.frame_impedance_widgets_16.setFrameShape(QFrame.StyledPanel)
+        self.frame_impedance_widgets_16.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_20 = QHBoxLayout(self.frame_impedance_widgets_16)
+        self.horizontalLayout_20.setSpacing(5)
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.frame_ch9 = QFrame(self.frame_impedance_widgets_16)
+        self.frame_ch9.setObjectName(u"frame_ch9")
+        self.frame_ch9.setMaximumSize(QSize(80, 150))
+        self.frame_ch9.setStyleSheet(u"QFrame{\n"
+"	\n"
+"	border-color: rgb(255, 98, 92);\n"
+"}\n"
+"\n"
+"QLabel{\n"
+"	color: #FFF;\n"
+"}")
+        self.frame_ch9.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch9.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_16 = QVBoxLayout(self.frame_ch9)
+        self.verticalLayout_16.setSpacing(0)
+        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
+        self.frame_ch9_color = QFrame(self.frame_ch9)
+        self.frame_ch9_color.setObjectName(u"frame_ch9_color")
+        sizePolicy1.setHeightForWidth(self.frame_ch9_color.sizePolicy().hasHeightForWidth())
+        self.frame_ch9_color.setSizePolicy(sizePolicy1)
+        self.frame_ch9_color.setMinimumSize(QSize(61, 61))
+        self.frame_ch9_color.setMaximumSize(QSize(1000, 61))
+        self.frame_ch9_color.setSizeIncrement(QSize(1, 1))
+        self.frame_ch9_color.setStyleSheet(u"border: 2px solid rgb(145, 145, 145);\n"
+"border-radius: 30px;\n"
+"background-color: rgb(169, 169, 169);")
+        self.frame_ch9_color.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch9_color.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_16.addWidget(self.frame_ch9_color)
+
+        self.label_ch9 = QLabel(self.frame_ch9)
+        self.label_ch9.setObjectName(u"label_ch9")
+        self.label_ch9.setMinimumSize(QSize(61, 0))
+        self.label_ch9.setMaximumSize(QSize(16777215, 30))
+        self.label_ch9.setFont(font1)
+        self.label_ch9.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_16.addWidget(self.label_ch9)
+
+        self.label_ch9_value = QLabel(self.frame_ch9)
+        self.label_ch9_value.setObjectName(u"label_ch9_value")
+        self.label_ch9_value.setMinimumSize(QSize(61, 0))
+        self.label_ch9_value.setMaximumSize(QSize(16777215, 30))
+        self.label_ch9_value.setFont(font1)
+        self.label_ch9_value.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_16.addWidget(self.label_ch9_value)
+
+
+        self.horizontalLayout_20.addWidget(self.frame_ch9)
+
+        self.frame_ch10 = QFrame(self.frame_impedance_widgets_16)
+        self.frame_ch10.setObjectName(u"frame_ch10")
+        self.frame_ch10.setMaximumSize(QSize(80, 150))
+        self.frame_ch10.setStyleSheet(u"QFrame{\n"
+"	\n"
+"	border-color: rgb(255, 98, 92);\n"
+"}\n"
+"\n"
+"QLabel{\n"
+"	color: #FFF;\n"
+"}")
+        self.frame_ch10.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch10.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_26 = QVBoxLayout(self.frame_ch10)
+        self.verticalLayout_26.setSpacing(0)
+        self.verticalLayout_26.setObjectName(u"verticalLayout_26")
+        self.frame_ch10_color = QFrame(self.frame_ch10)
+        self.frame_ch10_color.setObjectName(u"frame_ch10_color")
+        sizePolicy1.setHeightForWidth(self.frame_ch10_color.sizePolicy().hasHeightForWidth())
+        self.frame_ch10_color.setSizePolicy(sizePolicy1)
+        self.frame_ch10_color.setMinimumSize(QSize(61, 61))
+        self.frame_ch10_color.setMaximumSize(QSize(1000, 61))
+        self.frame_ch10_color.setSizeIncrement(QSize(1, 1))
+        self.frame_ch10_color.setStyleSheet(u"border: 2px solid rgb(145, 145, 145);\n"
+"border-radius: 30px;\n"
+"background-color: rgb(169, 169, 169)")
+        self.frame_ch10_color.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch10_color.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_26.addWidget(self.frame_ch10_color)
+
+        self.label_ch10 = QLabel(self.frame_ch10)
+        self.label_ch10.setObjectName(u"label_ch10")
+        self.label_ch10.setMinimumSize(QSize(61, 0))
+        self.label_ch10.setMaximumSize(QSize(16777215, 30))
+        self.label_ch10.setFont(font1)
+        self.label_ch10.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_26.addWidget(self.label_ch10)
+
+        self.label_ch10_value = QLabel(self.frame_ch10)
+        self.label_ch10_value.setObjectName(u"label_ch10_value")
+        self.label_ch10_value.setMinimumSize(QSize(61, 0))
+        self.label_ch10_value.setMaximumSize(QSize(16777215, 30))
+        self.label_ch10_value.setFont(font1)
+        self.label_ch10_value.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_26.addWidget(self.label_ch10_value)
+
+
+        self.horizontalLayout_20.addWidget(self.frame_ch10)
+
+        self.frame_ch11 = QFrame(self.frame_impedance_widgets_16)
+        self.frame_ch11.setObjectName(u"frame_ch11")
+        self.frame_ch11.setMaximumSize(QSize(80, 150))
+        self.frame_ch11.setStyleSheet(u"QFrame{\n"
+"	\n"
+"	border-color: rgb(255, 98, 92);\n"
+"}\n"
+"\n"
+"QLabel{\n"
+"	color: #FFF;\n"
+"}")
+        self.frame_ch11.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch11.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_27 = QVBoxLayout(self.frame_ch11)
+        self.verticalLayout_27.setSpacing(0)
+        self.verticalLayout_27.setObjectName(u"verticalLayout_27")
+        self.frame_ch11_color = QFrame(self.frame_ch11)
+        self.frame_ch11_color.setObjectName(u"frame_ch11_color")
+        sizePolicy1.setHeightForWidth(self.frame_ch11_color.sizePolicy().hasHeightForWidth())
+        self.frame_ch11_color.setSizePolicy(sizePolicy1)
+        self.frame_ch11_color.setMinimumSize(QSize(61, 61))
+        self.frame_ch11_color.setMaximumSize(QSize(1000, 61))
+        self.frame_ch11_color.setSizeIncrement(QSize(1, 1))
+        self.frame_ch11_color.setStyleSheet(u"border: 2px solid rgb(145, 145, 145);\n"
+"border-radius: 30px;\n"
+"background-color: rgb(169, 169, 169)")
+        self.frame_ch11_color.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch11_color.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_27.addWidget(self.frame_ch11_color)
+
+        self.label_ch11 = QLabel(self.frame_ch11)
+        self.label_ch11.setObjectName(u"label_ch11")
+        self.label_ch11.setMinimumSize(QSize(61, 0))
+        self.label_ch11.setMaximumSize(QSize(16777215, 30))
+        self.label_ch11.setFont(font1)
+        self.label_ch11.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_27.addWidget(self.label_ch11)
+
+        self.label_ch11_value = QLabel(self.frame_ch11)
+        self.label_ch11_value.setObjectName(u"label_ch11_value")
+        self.label_ch11_value.setMinimumSize(QSize(61, 0))
+        self.label_ch11_value.setMaximumSize(QSize(16777215, 30))
+        self.label_ch11_value.setFont(font1)
+        self.label_ch11_value.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_27.addWidget(self.label_ch11_value)
+
+
+        self.horizontalLayout_20.addWidget(self.frame_ch11)
+
+        self.frame_ch12 = QFrame(self.frame_impedance_widgets_16)
+        self.frame_ch12.setObjectName(u"frame_ch12")
+        self.frame_ch12.setMaximumSize(QSize(80, 150))
+        self.frame_ch12.setStyleSheet(u"QFrame{\n"
+"	\n"
+"	border-color: rgb(255, 98, 92);\n"
+"}\n"
+"\n"
+"QLabel{\n"
+"	color: #FFF;\n"
+"}")
+        self.frame_ch12.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch12.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_28 = QVBoxLayout(self.frame_ch12)
+        self.verticalLayout_28.setSpacing(0)
+        self.verticalLayout_28.setObjectName(u"verticalLayout_28")
+        self.frame_ch12_color = QFrame(self.frame_ch12)
+        self.frame_ch12_color.setObjectName(u"frame_ch12_color")
+        sizePolicy1.setHeightForWidth(self.frame_ch12_color.sizePolicy().hasHeightForWidth())
+        self.frame_ch12_color.setSizePolicy(sizePolicy1)
+        self.frame_ch12_color.setMinimumSize(QSize(61, 61))
+        self.frame_ch12_color.setMaximumSize(QSize(1000, 61))
+        self.frame_ch12_color.setSizeIncrement(QSize(1, 1))
+        self.frame_ch12_color.setStyleSheet(u"border: 2px solid rgb(145, 145, 145);\n"
+"border-radius: 30px;\n"
+"background-color: rgb(169, 169, 169)")
+        self.frame_ch12_color.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch12_color.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_28.addWidget(self.frame_ch12_color)
+
+        self.label_ch12 = QLabel(self.frame_ch12)
+        self.label_ch12.setObjectName(u"label_ch12")
+        self.label_ch12.setMinimumSize(QSize(61, 0))
+        self.label_ch12.setMaximumSize(QSize(16777215, 30))
+        self.label_ch12.setFont(font1)
+        self.label_ch12.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_28.addWidget(self.label_ch12)
+
+        self.label_ch12_value = QLabel(self.frame_ch12)
+        self.label_ch12_value.setObjectName(u"label_ch12_value")
+        self.label_ch12_value.setMinimumSize(QSize(61, 0))
+        self.label_ch12_value.setMaximumSize(QSize(16777215, 30))
+        self.label_ch12_value.setFont(font1)
+        self.label_ch12_value.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_28.addWidget(self.label_ch12_value)
+
+
+        self.horizontalLayout_20.addWidget(self.frame_ch12)
+
+        self.frame_ch13 = QFrame(self.frame_impedance_widgets_16)
+        self.frame_ch13.setObjectName(u"frame_ch13")
+        self.frame_ch13.setMaximumSize(QSize(80, 150))
+        self.frame_ch13.setStyleSheet(u"QFrame{\n"
+"	\n"
+"	border-color: rgb(255, 98, 92);\n"
+"}\n"
+"\n"
+"QLabel{\n"
+"	color: #FFF;\n"
+"}")
+        self.frame_ch13.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch13.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_31 = QVBoxLayout(self.frame_ch13)
+        self.verticalLayout_31.setSpacing(0)
+        self.verticalLayout_31.setObjectName(u"verticalLayout_31")
+        self.frame_ch13_color = QFrame(self.frame_ch13)
+        self.frame_ch13_color.setObjectName(u"frame_ch13_color")
+        sizePolicy1.setHeightForWidth(self.frame_ch13_color.sizePolicy().hasHeightForWidth())
+        self.frame_ch13_color.setSizePolicy(sizePolicy1)
+        self.frame_ch13_color.setMinimumSize(QSize(61, 61))
+        self.frame_ch13_color.setMaximumSize(QSize(1000, 61))
+        self.frame_ch13_color.setSizeIncrement(QSize(1, 1))
+        self.frame_ch13_color.setStyleSheet(u"border: 2px solid rgb(145, 145, 145);\n"
+"border-radius: 30px;\n"
+"background-color: rgb(169, 169, 169)")
+        self.frame_ch13_color.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch13_color.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_31.addWidget(self.frame_ch13_color)
+
+        self.label_ch13 = QLabel(self.frame_ch13)
+        self.label_ch13.setObjectName(u"label_ch13")
+        self.label_ch13.setMinimumSize(QSize(61, 0))
+        self.label_ch13.setMaximumSize(QSize(16777215, 30))
+        self.label_ch13.setFont(font1)
+        self.label_ch13.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_31.addWidget(self.label_ch13)
+
+        self.label_ch13_value = QLabel(self.frame_ch13)
+        self.label_ch13_value.setObjectName(u"label_ch13_value")
+        self.label_ch13_value.setMinimumSize(QSize(61, 0))
+        self.label_ch13_value.setMaximumSize(QSize(16777215, 30))
+        self.label_ch13_value.setFont(font1)
+        self.label_ch13_value.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_31.addWidget(self.label_ch13_value)
+
+
+        self.horizontalLayout_20.addWidget(self.frame_ch13)
+
+        self.frame_ch14 = QFrame(self.frame_impedance_widgets_16)
+        self.frame_ch14.setObjectName(u"frame_ch14")
+        self.frame_ch14.setMaximumSize(QSize(80, 150))
+        self.frame_ch14.setStyleSheet(u"QFrame{\n"
+"	\n"
+"	border-color: rgb(255, 98, 92);\n"
+"}\n"
+"\n"
+"QLabel{\n"
+"	color: #FFF;\n"
+"}")
+        self.frame_ch14.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch14.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_32 = QVBoxLayout(self.frame_ch14)
+        self.verticalLayout_32.setSpacing(0)
+        self.verticalLayout_32.setObjectName(u"verticalLayout_32")
+        self.frame_ch14_color = QFrame(self.frame_ch14)
+        self.frame_ch14_color.setObjectName(u"frame_ch14_color")
+        sizePolicy1.setHeightForWidth(self.frame_ch14_color.sizePolicy().hasHeightForWidth())
+        self.frame_ch14_color.setSizePolicy(sizePolicy1)
+        self.frame_ch14_color.setMinimumSize(QSize(61, 61))
+        self.frame_ch14_color.setMaximumSize(QSize(1000, 61))
+        self.frame_ch14_color.setSizeIncrement(QSize(1, 1))
+        self.frame_ch14_color.setStyleSheet(u"border: 2px solid rgb(145, 145, 145);\n"
+"border-radius: 30px;\n"
+"background-color: rgb(169, 169, 169)")
+        self.frame_ch14_color.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch14_color.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_32.addWidget(self.frame_ch14_color)
+
+        self.label_ch14 = QLabel(self.frame_ch14)
+        self.label_ch14.setObjectName(u"label_ch14")
+        self.label_ch14.setMinimumSize(QSize(61, 0))
+        self.label_ch14.setMaximumSize(QSize(16777215, 30))
+        self.label_ch14.setFont(font1)
+        self.label_ch14.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_32.addWidget(self.label_ch14)
+
+        self.label_ch14_value = QLabel(self.frame_ch14)
+        self.label_ch14_value.setObjectName(u"label_ch14_value")
+        self.label_ch14_value.setMinimumSize(QSize(61, 0))
+        self.label_ch14_value.setMaximumSize(QSize(16777215, 30))
+        self.label_ch14_value.setFont(font1)
+        self.label_ch14_value.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_32.addWidget(self.label_ch14_value)
+
+
+        self.horizontalLayout_20.addWidget(self.frame_ch14)
+
+        self.frame_ch15 = QFrame(self.frame_impedance_widgets_16)
+        self.frame_ch15.setObjectName(u"frame_ch15")
+        self.frame_ch15.setMaximumSize(QSize(80, 150))
+        self.frame_ch15.setStyleSheet(u"QFrame{\n"
+"	\n"
+"	border-color: rgb(255, 98, 92);\n"
+"}\n"
+"\n"
+"QLabel{\n"
+"	color: #FFF;\n"
+"}")
+        self.frame_ch15.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch15.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_33 = QVBoxLayout(self.frame_ch15)
+        self.verticalLayout_33.setSpacing(0)
+        self.verticalLayout_33.setObjectName(u"verticalLayout_33")
+        self.frame_ch15_color = QFrame(self.frame_ch15)
+        self.frame_ch15_color.setObjectName(u"frame_ch15_color")
+        sizePolicy1.setHeightForWidth(self.frame_ch15_color.sizePolicy().hasHeightForWidth())
+        self.frame_ch15_color.setSizePolicy(sizePolicy1)
+        self.frame_ch15_color.setMinimumSize(QSize(61, 61))
+        self.frame_ch15_color.setMaximumSize(QSize(1000, 61))
+        self.frame_ch15_color.setSizeIncrement(QSize(1, 1))
+        self.frame_ch15_color.setStyleSheet(u"border: 2px solid rgb(145, 145, 145);\n"
+"border-radius: 30px;\n"
+"background-color: rgb(169, 169, 169)")
+        self.frame_ch15_color.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch15_color.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_33.addWidget(self.frame_ch15_color)
+
+        self.label_ch15 = QLabel(self.frame_ch15)
+        self.label_ch15.setObjectName(u"label_ch15")
+        self.label_ch15.setMinimumSize(QSize(61, 0))
+        self.label_ch15.setMaximumSize(QSize(16777215, 30))
+        self.label_ch15.setFont(font1)
+        self.label_ch15.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_33.addWidget(self.label_ch15)
+
+        self.label_ch15_value = QLabel(self.frame_ch15)
+        self.label_ch15_value.setObjectName(u"label_ch15_value")
+        self.label_ch15_value.setMinimumSize(QSize(61, 0))
+        self.label_ch15_value.setMaximumSize(QSize(16777215, 30))
+        self.label_ch15_value.setFont(font1)
+        self.label_ch15_value.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_33.addWidget(self.label_ch15_value)
+
+
+        self.horizontalLayout_20.addWidget(self.frame_ch15)
+
+        self.frame_ch16 = QFrame(self.frame_impedance_widgets_16)
+        self.frame_ch16.setObjectName(u"frame_ch16")
+        self.frame_ch16.setMaximumSize(QSize(80, 150))
+        self.frame_ch16.setStyleSheet(u"QFrame{\n"
+"	\n"
+"	border-color: rgb(255, 98, 92);\n"
+"}\n"
+"\n"
+"QLabel{\n"
+"	color: #FFF;\n"
+"}")
+        self.frame_ch16.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch16.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_34 = QVBoxLayout(self.frame_ch16)
+        self.verticalLayout_34.setSpacing(0)
+        self.verticalLayout_34.setObjectName(u"verticalLayout_34")
+        self.frame_ch16_color = QFrame(self.frame_ch16)
+        self.frame_ch16_color.setObjectName(u"frame_ch16_color")
+        sizePolicy1.setHeightForWidth(self.frame_ch16_color.sizePolicy().hasHeightForWidth())
+        self.frame_ch16_color.setSizePolicy(sizePolicy1)
+        self.frame_ch16_color.setMinimumSize(QSize(61, 61))
+        self.frame_ch16_color.setMaximumSize(QSize(1000, 61))
+        self.frame_ch16_color.setSizeIncrement(QSize(1, 1))
+        self.frame_ch16_color.setStyleSheet(u"border: 2px solid rgb(145, 145, 145);\n"
+"border-radius: 30px;\n"
+"background-color: rgb(169, 169, 169)")
+        self.frame_ch16_color.setFrameShape(QFrame.StyledPanel)
+        self.frame_ch16_color.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_34.addWidget(self.frame_ch16_color)
+
+        self.label_ch16 = QLabel(self.frame_ch16)
+        self.label_ch16.setObjectName(u"label_ch16")
+        self.label_ch16.setMinimumSize(QSize(61, 0))
+        self.label_ch16.setMaximumSize(QSize(16777215, 30))
+        self.label_ch16.setFont(font1)
+        self.label_ch16.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_34.addWidget(self.label_ch16)
+
+        self.label_ch16_value = QLabel(self.frame_ch16)
+        self.label_ch16_value.setObjectName(u"label_ch16_value")
+        self.label_ch16_value.setMinimumSize(QSize(61, 0))
+        self.label_ch16_value.setMaximumSize(QSize(16777215, 30))
+        self.label_ch16_value.setFont(font1)
+        self.label_ch16_value.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_34.addWidget(self.label_ch16_value)
+
+
+        self.horizontalLayout_20.addWidget(self.frame_ch16)
+
+
+        self.verticalLayout_35.addWidget(self.frame_impedance_widgets_16)
 
         self.imp_mode = QComboBox(self.frame_impedance)
         self.imp_mode.setObjectName(u"imp_mode")
@@ -1889,29 +2436,49 @@ class Ui_MainWindow(object):
         self.imp_mode.setStyleSheet(u"color: #FFF;\n"
 "border: 1px solid #FFF")
 
-        self.verticalLayout_16.addWidget(self.imp_mode, 0, Qt.AlignHCenter)
+        self.verticalLayout_35.addWidget(self.imp_mode, 0, Qt.AlignHCenter)
 
         self.btn_imp_meas = QPushButton(self.frame_impedance)
         self.btn_imp_meas.setObjectName(u"btn_imp_meas")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.btn_imp_meas.sizePolicy().hasHeightForWidth())
-        self.btn_imp_meas.setSizePolicy(sizePolicy2)
+        sizePolicy1.setHeightForWidth(self.btn_imp_meas.sizePolicy().hasHeightForWidth())
+        self.btn_imp_meas.setSizePolicy(sizePolicy1)
         self.btn_imp_meas.setMaximumSize(QSize(200, 16777215))
+        self.btn_imp_meas.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btn_imp_meas.setToolTipDuration(1)
 
-        self.verticalLayout_16.addWidget(self.btn_imp_meas, 0, Qt.AlignHCenter)
+        self.verticalLayout_35.addWidget(self.btn_imp_meas, 0, Qt.AlignHCenter)
 
         self.label_6 = QLabel(self.frame_impedance)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setMaximumSize(QSize(16777215, 100))
+        self.label_6.setMaximumSize(QSize(16777215, 30))
 
-        self.verticalLayout_16.addWidget(self.label_6)
+        self.verticalLayout_35.addWidget(self.label_6, 0, Qt.AlignHCenter)
 
 
         self.verticalLayout_22.addWidget(self.frame_impedance)
 
         self.stackedWidget.addWidget(self.page_impedance)
+        self.page = QWidget()
+        self.page.setObjectName(u"page")
+        self.btn_scan_2 = QPushButton(self.page)
+        self.btn_scan_2.setObjectName(u"btn_scan_2")
+        self.btn_scan_2.setGeometry(QRect(770, 140, 119, 25))
+        self.btn_scan_2.setMinimumSize(QSize(0, 25))
+        self.btn_scan_2.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btn_scan_2.setStyleSheet(u"background-image: url(:/icons/icons/cil-reload.png);\n"
+"background-repeat: no-repeat;\n"
+"background-position: center;\n"
+"/*\n"
+"border-radius: 5px;\n"
+"	background-position: left center;\n"
+"    	background-repeat: no-repeat;\n"
+"	border: none;\n"
+"	border-left: 20px solid transparent;\n"
+"	text-align: left;\n"
+"	padding-left: 44px;\n"
+"	color: rgb(189, 189, 189);\n"
+"*/")
+        self.stackedWidget.addWidget(self.page)
         self.page_settings_testing = QWidget()
         self.page_settings_testing.setObjectName(u"page_settings_testing")
         self.label_5 = QLabel(self.page_settings_testing)
@@ -1996,7 +2563,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_28.addLayout(self.horizontalLayout_26)
 
         self.horizontalLayout_27 = QHBoxLayout()
-        self.horizontalLayout_27.setSpacing(0)
+        self.horizontalLayout_27.setSpacing(10)
         self.horizontalLayout_27.setObjectName(u"horizontalLayout_27")
         self.ft_label_temp = QLabel(self.main_footer)
         self.ft_label_temp.setObjectName(u"ft_label_temp")
@@ -2046,8 +2613,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(2)
-        self.tabWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(2)
 
 
@@ -2077,29 +2644,34 @@ class Ui_MainWindow(object):
         self.integration_log.setText("")
         self.integration_title.setText(QCoreApplication.translate("MainWindow", u"INTEGRATION", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Push to LSL</span></p></body></html>", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Duration", None))
         self.btn_push_lsl.setText(QCoreApplication.translate("MainWindow", u"Push", None))
         self.settings_log.setText("")
         self.settings_title.setText(QCoreApplication.translate("MainWindow", u"SETTINGS", None))
         self.label_explore_name_2.setText(QCoreApplication.translate("MainWindow", u"Connect your device", None))
         self.btn_scan.setText(QCoreApplication.translate("MainWindow", u"Scan nearby devices", None))
         self.btn_connect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
-        self.label_import.setText(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Arial'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Import data</p></body></html>", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Device Name: ", None))
+        self.dev_name_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Explore_XXX", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Import data", None))
         self.btn_import_data.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.label_explore_name.setText(QCoreApplication.translate("MainWindow", u"Explore_XXXXX", None))
         self.label_activeChannels.setText(QCoreApplication.translate("MainWindow", u"Active channels", None))
         self.cb_ch1.setText(QCoreApplication.translate("MainWindow", u"1", None))
-        self.cb_ch3.setText(QCoreApplication.translate("MainWindow", u"2", None))
-        self.cb_ch2.setText(QCoreApplication.translate("MainWindow", u"3", None))
+        self.cb_ch2.setText(QCoreApplication.translate("MainWindow", u"2", None))
+        self.cb_ch3.setText(QCoreApplication.translate("MainWindow", u"3", None))
         self.cb_ch4.setText(QCoreApplication.translate("MainWindow", u"4", None))
         self.cb_ch5.setText(QCoreApplication.translate("MainWindow", u"5", None))
         self.cb_ch6.setText(QCoreApplication.translate("MainWindow", u"6", None))
         self.cb_ch7.setText(QCoreApplication.translate("MainWindow", u"7", None))
         self.cb_ch8.setText(QCoreApplication.translate("MainWindow", u"8", None))
+        self.cb_ch9.setText(QCoreApplication.translate("MainWindow", u"9", None))
+        self.cb_ch10.setText(QCoreApplication.translate("MainWindow", u"10", None))
+        self.cb_ch11.setText(QCoreApplication.translate("MainWindow", u"11", None))
+        self.cb_ch12.setText(QCoreApplication.translate("MainWindow", u"12", None))
+        self.cb_ch13.setText(QCoreApplication.translate("MainWindow", u"13", None))
+        self.cb_ch14.setText(QCoreApplication.translate("MainWindow", u"14", None))
+        self.cb_ch15.setText(QCoreApplication.translate("MainWindow", u"15", None))
+        self.cb_ch16.setText(QCoreApplication.translate("MainWindow", u"16", None))
         self.label_samping_rate.setText(QCoreApplication.translate("MainWindow", u"Sampling Rate", None))
         self.btn_apply_settings.setText(QCoreApplication.translate("MainWindow", u"Apply changes", None))
         self.btn_format_memory.setText(QCoreApplication.translate("MainWindow", u"Format Memory", None))
@@ -2116,18 +2688,21 @@ class Ui_MainWindow(object):
         self.value_event_code.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Event Code", None))
         self.btn_marker.setText(QCoreApplication.translate("MainWindow", u" Set", None))
         self.btn_plot_filters.setText(QCoreApplication.translate("MainWindow", u"Filters", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.exg), QCoreApplication.translate("MainWindow", u"ExG", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.orn), QCoreApplication.translate("MainWindow", u"Orientation", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.fft), QCoreApplication.translate("MainWindow", u"FFT", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.exg), QCoreApplication.translate("MainWindow", u"  ExG  ", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.orn), QCoreApplication.translate("MainWindow", u"  Orientation  ", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.fft), QCoreApplication.translate("MainWindow", u"  FFT  ", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><a href=\"mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">Back to recorded data visualization</span></a></p></body></html>", None))
         self.label_signal_rec.setText(QCoreApplication.translate("MainWindow", u"Signal", None))
         self.label_yAxis_rec.setText(QCoreApplication.translate("MainWindow", u"Y-axis Scale", None))
         self.label_timeScale_rec.setText(QCoreApplication.translate("MainWindow", u"Time window", None))
         self.label_heartRate_rec.setText(QCoreApplication.translate("MainWindow", u"Heart Rate (bpm)", None))
         self.value_heartRate_rec.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.btn_stream_rec.setText(QCoreApplication.translate("MainWindow", u"Start Visualization", None))
+        self.cb_swiping.setText(QCoreApplication.translate("MainWindow", u"Moving window", None))
         self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.exg_rec), QCoreApplication.translate("MainWindow", u"ExG", None))
         self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.orn_rec), QCoreApplication.translate("MainWindow", u"Orientation", None))
         self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.fft_rec), QCoreApplication.translate("MainWindow", u"FFT", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><a href=\"mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">Back to RT visualization</span></a></p></body></html>", None))
         self.label_4.setText("")
         self.impedance_title.setText(QCoreApplication.translate("MainWindow", u"IMPEDANCES", None))
         self.label_ch1.setText(QCoreApplication.translate("MainWindow", u"Ch1", None))
@@ -2146,8 +2721,28 @@ class Ui_MainWindow(object):
         self.label_ch7_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.label_ch8.setText(QCoreApplication.translate("MainWindow", u"Ch8", None))
         self.label_ch8_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+        self.label_ch9.setText(QCoreApplication.translate("MainWindow", u"Ch9", None))
+        self.label_ch9_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+        self.label_ch10.setText(QCoreApplication.translate("MainWindow", u"Ch10", None))
+        self.label_ch10_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+        self.label_ch11.setText(QCoreApplication.translate("MainWindow", u"Ch11", None))
+        self.label_ch11_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+        self.label_ch12.setText(QCoreApplication.translate("MainWindow", u"Ch12", None))
+        self.label_ch12_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+        self.label_ch13.setText(QCoreApplication.translate("MainWindow", u"Ch13", None))
+        self.label_ch13_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+        self.label_ch14.setText(QCoreApplication.translate("MainWindow", u"Ch14", None))
+        self.label_ch14_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+        self.label_ch15.setText(QCoreApplication.translate("MainWindow", u"Ch15", None))
+        self.label_ch15_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+        self.label_ch16.setText(QCoreApplication.translate("MainWindow", u"Ch16", None))
+        self.label_ch16_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
+#if QT_CONFIG(tooltip)
+        self.btn_imp_meas.setToolTip("")
+#endif // QT_CONFIG(tooltip)
         self.btn_imp_meas.setText(QCoreApplication.translate("MainWindow", u"Measure Impedances", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Please restart the device after you have finished measuring impedances or <a href=\"www.mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">click here</span></a></p></body></html>", None))
+        self.btn_scan_2.setText(QCoreApplication.translate("MainWindow", u"Scan nearby devices", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"TESTING PLOTS", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Draw", None))
         self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
@@ -2156,7 +2751,7 @@ class Ui_MainWindow(object):
         self.ft_label_firmware_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.ft_label_battery.setText(QCoreApplication.translate("MainWindow", u"Battery %", None))
         self.ft_label_battery_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
-        self.ft_label_temp.setText(QCoreApplication.translate("MainWindow", u"Device temperature", None))
+        self.ft_label_temp.setText(QCoreApplication.translate("MainWindow", u"Device temperature:", None))
         self.ft_label_temp_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.ft_label_version.setText(QCoreApplication.translate("MainWindow", u"v0.1", None))
     # retranslateUi
