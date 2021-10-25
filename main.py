@@ -166,7 +166,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_calibrate.clicked.connect(lambda: AppFunctions.calibrate_orn(self))
 
         # IMPEDANCE PAGE
-        self.ui.btn_imp_meas.setToolTip("some info")
+        self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
         self.ui.btn_imp_meas.clicked.connect(lambda: AppFunctions.emit_imp(self))
         self.signal_imp.connect(lambda data: AppFunctions._update_impedance(self, data))
         # self.ui.label_6.linkActivated.connect(lambda: AppFunctions.disable_imp(self))

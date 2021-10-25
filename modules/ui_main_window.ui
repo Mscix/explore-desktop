@@ -52,6 +52,12 @@ QCheckBox{
 	color: #fff;
 }
 
+QToolTip{
+	background-color: transparent;
+	color: #FFF;
+	border: 1px solid rgb(218, 217, 219);
+}
+
 #centralwidget{
 	background-color: rgb(28, 30, 42);
 }
@@ -134,25 +140,31 @@ QCheckBox{
 
 /*TABS*/
 QTabWidget::pane{
-	border: 0px;
+	border: 1px solid #FFF
+}
+QTabWidget::tab-bar{
+	alignment: left;
 }
 QTabBar::tab 
 {
-    background: rgb(28, 30, 42);
+    background: transparent;
     color: white;
 	border: 1px solid rgb(228, 227, 229);
-	margin-left: 2;
-	margin-right: 2;
+	/*margin-left: 2;
+	margin-right: 2;*/
+	width: 100px;
+	padding: 2px
 }
 
 QTabBar::tab:selected
 {
 	background: rgba(49, 52, 86, 215);
     color: white;   
-    border: 1px solid rgb(255, 255, 255);
+    border: 2px solid rgb(255, 255, 255);
 }, 
 QTabBar::tab:hover 
 {
+	text-decoration: underline;
 }</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -691,7 +703,7 @@ background-color: (28, 30, 42);
              <string notr="true"/>
             </property>
             <property name="currentIndex">
-             <number>3</number>
+             <number>5</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -2202,11 +2214,15 @@ background-color: rgb(49, 52, 86)</string>
                       </property>
                       <property name="font">
                        <font>
-                        <pointsize>13</pointsize>
+                        <family>.SF NS Text</family>
+                        <pointsize>11</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">font: 11pt &quot;.SF NS Text&quot;;</string>
                       </property>
                       <property name="placeholderText">
                        <string>Event Code</string>
@@ -2289,7 +2305,7 @@ background-color: rgb(49, 52, 86)</string>
                  <string notr="true"/>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <widget class="QWidget" name="exg">
                  <attribute name="title">
@@ -2598,14 +2614,14 @@ QPushButton:pressed{
               <item>
                <widget class="QTabWidget" name="tabWidget_rec">
                 <property name="styleSheet">
-                 <string notr="true">color: #FFF;</string>
+                 <string notr="true"/>
                 </property>
                 <property name="currentIndex">
-                 <number>2</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="exg_rec">
                  <attribute name="title">
-                  <string>ExG</string>
+                  <string>  ExG  </string>
                  </attribute>
                  <layout class="QHBoxLayout" name="horizontalLayout_24">
                   <item>
@@ -2615,7 +2631,7 @@ QPushButton:pressed{
                 </widget>
                 <widget class="QWidget" name="orn_rec">
                  <attribute name="title">
-                  <string>Orientation</string>
+                  <string>  Orientation  </string>
                  </attribute>
                  <layout class="QHBoxLayout" name="horizontalLayout_30">
                   <item>
@@ -2625,7 +2641,7 @@ QPushButton:pressed{
                 </widget>
                 <widget class="QWidget" name="fft_rec">
                  <attribute name="title">
-                  <string>FFT</string>
+                  <string>  FFT  </string>
                  </attribute>
                  <layout class="QHBoxLayout" name="horizontalLayout_40">
                   <item>
@@ -4923,34 +4939,98 @@ border: 1px solid #FFF</string>
                   </widget>
                  </item>
                  <item alignment="Qt::AlignHCenter">
-                  <widget class="QPushButton" name="btn_imp_meas">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
+                  <widget class="QFrame" name="">
                    <property name="maximumSize">
                     <size>
-                     <width>200</width>
-                     <height>16777215</height>
+                     <width>16777215</width>
+                     <height>50</height>
                     </size>
                    </property>
-                   <property name="cursor">
-                    <cursorShape>PointingHandCursor</cursorShape>
-                   </property>
-                   <property name="toolTip">
-                    <string extracomment="Impedance is calculated as the sum ..."/>
-                   </property>
-                   <property name="toolTipDuration">
-                    <number>1</number>
-                   </property>
-                   <property name="text">
-                    <string>Measure Impedances</string>
-                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_11">
+                    <property name="spacing">
+                     <number>5</number>
+                    </property>
+                    <property name="sizeConstraint">
+                     <enum>QLayout::SetMinAndMaxSize</enum>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QPushButton" name="btn_imp_meas">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>200</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="toolTip">
+                       <string/>
+                      </property>
+                      <property name="toolTipDuration">
+                       <number>-1</number>
+                      </property>
+                      <property name="text">
+                       <string>Measure Impedances</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="imp_meas_info">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="cursor">
+                       <cursorShape>ArrowCursor</cursorShape>
+                      </property>
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sum of impedances of REF and inndividual channels divided by 2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="pixmap">
+                       <pixmap resource="app_resources.qrc">:/icons/icons/pngfind.com-png-circle-1194554.png</pixmap>
+                      </property>
+                      <property name="scaledContents">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
-                 <item alignment="Qt::AlignHCenter">
+                 <item>
                   <widget class="QLabel" name="label_6">
                    <property name="maximumSize">
                     <size>

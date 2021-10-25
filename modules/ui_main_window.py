@@ -73,6 +73,12 @@ class Ui_MainWindow(object):
 "	color: #fff;\n"
 "}\n"
 "\n"
+"QToolTip{\n"
+"	background-color: transparent;\n"
+"	color: #FFF;\n"
+"	border: 1px solid rgb(218, 217, 219);\n"
+"}\n"
+"\n"
 "#centralwidget{\n"
 "	background-color: rgb(28, 30, 42);\n"
 "}\n"
@@ -87,13 +93,13 @@ class Ui_MainWindow(object):
 "	border: none;\n"
 "}\n"
 "\n"
-"#top_right_btns .QPushButton{\n"
+"#top_right_btns .QP"
+                        "ushButton{\n"
 "	background-color: rgb(27, 29, 39);\n"
 "	border-radius: 5px;\n"
 "	border: none\n"
 "}\n"
-"#top_right_btns .Q"
-                        "PushButton:hover{\n"
+"#top_right_btns .QPushButton:hover{\n"
 "	background-color: rgb(61, 64, 89);\n"
 "}\n"
 "\n"
@@ -135,13 +141,13 @@ class Ui_MainWindow(object):
 "\n"
 "}\n"
 "#left_side_menu .QPushButton:pressed {\n"
-"	background-color: rgb(113, 120, 159);\n"
+""
+                        "	background-color: rgb(113, 120, 159);\n"
 "	border-left:  20px solid rgb(113, 120, 159);\n"
 "}\n"
 "\n"
 "\n"
-"/*TITLES FONT"
-                        "*/\n"
+"/*TITLES FONT*/\n"
 "#integration_title{\n"
 "	font: 28pt;\n"
 "}\n"
@@ -157,25 +163,31 @@ class Ui_MainWindow(object):
 "\n"
 "/*TABS*/\n"
 "QTabWidget::pane{\n"
-"	border: 0px;\n"
+"	border: 1px solid #FFF\n"
+"}\n"
+"QTabWidget::tab-bar{\n"
+"	alignment: left;\n"
 "}\n"
 "QTabBar::tab \n"
 "{\n"
-"    background: rgb(28, 30, 42);\n"
+"    background: transparent;\n"
 "    color: white;\n"
 "	border: 1px solid rgb(228, 227, 229);\n"
-"	margin-left: 2;\n"
-"	margin-right: 2;\n"
+"	/*margin-left: 2;\n"
+"	margin-right: 2;*/\n"
+"	width: 100px;\n"
+"	padding: 2px\n"
 "}\n"
 "\n"
 "QTabBar::tab:selected\n"
 "{\n"
 "	background: rgba(49, 52, 86, 215);\n"
 "    color: white;   \n"
-"    border: 1px solid rgb(255, 255, 255);\n"
+"    border: 2px solid rgb(255, 255, 255);\n"
 "}, \n"
 "QTabBar::tab:hover \n"
 "{\n"
+"	text-decoration: underline;\n"
 "}")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setSpacing(0)
@@ -1223,7 +1235,13 @@ class Ui_MainWindow(object):
         self.value_event_code = QLineEdit(self.page_plotsNoWidget)
         self.value_event_code.setObjectName(u"value_event_code")
         self.value_event_code.setMaximumSize(QSize(75, 30))
-        self.value_event_code.setFont(font1)
+        font3 = QFont()
+        font3.setFamilies([u".SF NS Text"])
+        font3.setPointSize(11)
+        font3.setBold(False)
+        font3.setItalic(False)
+        self.value_event_code.setFont(font3)
+        self.value_event_code.setStyleSheet(u"font: 11pt \".SF NS Text\";")
 
         self.verticalLayout_20.addWidget(self.value_event_code)
 
@@ -1462,7 +1480,7 @@ class Ui_MainWindow(object):
 
         self.tabWidget_rec = QTabWidget(self.page_plotsRecorded)
         self.tabWidget_rec.setObjectName(u"tabWidget_rec")
-        self.tabWidget_rec.setStyleSheet(u"color: #FFF;")
+        self.tabWidget_rec.setStyleSheet(u"")
         self.exg_rec = QWidget()
         self.exg_rec.setObjectName(u"exg_rec")
         self.horizontalLayout_24 = QHBoxLayout(self.exg_rec)
@@ -2438,21 +2456,43 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_35.addWidget(self.imp_mode, 0, Qt.AlignHCenter)
 
-        self.btn_imp_meas = QPushButton(self.frame_impedance)
+        self.frame1 = QFrame(self.frame_impedance)
+        self.frame1.setObjectName(u"frame1")
+        self.frame1.setMaximumSize(QSize(16777215, 50))
+        self.horizontalLayout_11 = QHBoxLayout(self.frame1)
+        self.horizontalLayout_11.setSpacing(5)
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.horizontalLayout_11.setSizeConstraint(QLayout.SetMinAndMaxSize)
+        self.horizontalLayout_11.setContentsMargins(0, 0, 0, 0)
+        self.btn_imp_meas = QPushButton(self.frame1)
         self.btn_imp_meas.setObjectName(u"btn_imp_meas")
         sizePolicy1.setHeightForWidth(self.btn_imp_meas.sizePolicy().hasHeightForWidth())
         self.btn_imp_meas.setSizePolicy(sizePolicy1)
         self.btn_imp_meas.setMaximumSize(QSize(200, 16777215))
         self.btn_imp_meas.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_imp_meas.setToolTipDuration(1)
+        self.btn_imp_meas.setToolTipDuration(-1)
 
-        self.verticalLayout_35.addWidget(self.btn_imp_meas, 0, Qt.AlignHCenter)
+        self.horizontalLayout_11.addWidget(self.btn_imp_meas)
+
+        self.imp_meas_info = QLabel(self.frame1)
+        self.imp_meas_info.setObjectName(u"imp_meas_info")
+        self.imp_meas_info.setMinimumSize(QSize(20, 20))
+        self.imp_meas_info.setMaximumSize(QSize(20, 20))
+        self.imp_meas_info.setCursor(QCursor(Qt.ArrowCursor))
+        self.imp_meas_info.setStyleSheet(u"")
+        self.imp_meas_info.setPixmap(QPixmap(u":/icons/icons/pngfind.com-png-circle-1194554.png"))
+        self.imp_meas_info.setScaledContents(True)
+
+        self.horizontalLayout_11.addWidget(self.imp_meas_info)
+
+
+        self.verticalLayout_35.addWidget(self.frame1, 0, Qt.AlignHCenter)
 
         self.label_6 = QLabel(self.frame_impedance)
         self.label_6.setObjectName(u"label_6")
         self.label_6.setMaximumSize(QSize(16777215, 30))
 
-        self.verticalLayout_35.addWidget(self.label_6, 0, Qt.AlignHCenter)
+        self.verticalLayout_35.addWidget(self.label_6)
 
 
         self.verticalLayout_22.addWidget(self.frame_impedance)
@@ -2613,9 +2653,9 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
-        self.tabWidget.setCurrentIndex(0)
-        self.tabWidget_rec.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(5)
+        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget_rec.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -2699,9 +2739,9 @@ class Ui_MainWindow(object):
         self.value_heartRate_rec.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.btn_stream_rec.setText(QCoreApplication.translate("MainWindow", u"Start Visualization", None))
         self.cb_swiping.setText(QCoreApplication.translate("MainWindow", u"Moving window", None))
-        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.exg_rec), QCoreApplication.translate("MainWindow", u"ExG", None))
-        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.orn_rec), QCoreApplication.translate("MainWindow", u"Orientation", None))
-        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.fft_rec), QCoreApplication.translate("MainWindow", u"FFT", None))
+        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.exg_rec), QCoreApplication.translate("MainWindow", u"  ExG  ", None))
+        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.orn_rec), QCoreApplication.translate("MainWindow", u"  Orientation  ", None))
+        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.fft_rec), QCoreApplication.translate("MainWindow", u"  FFT  ", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><a href=\"mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">Back to RT visualization</span></a></p></body></html>", None))
         self.label_4.setText("")
         self.impedance_title.setText(QCoreApplication.translate("MainWindow", u"IMPEDANCES", None))
@@ -2741,6 +2781,10 @@ class Ui_MainWindow(object):
         self.btn_imp_meas.setToolTip("")
 #endif // QT_CONFIG(tooltip)
         self.btn_imp_meas.setText(QCoreApplication.translate("MainWindow", u"Measure Impedances", None))
+#if QT_CONFIG(tooltip)
+        self.imp_meas_info.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Sum of impedances of REF and inndividual channels divided by 2</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.imp_meas_info.setText("")
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Please restart the device after you have finished measuring impedances or <a href=\"www.mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">click here</span></a></p></body></html>", None))
         self.btn_scan_2.setText(QCoreApplication.translate("MainWindow", u"Scan nearby devices", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"TESTING PLOTS", None))
