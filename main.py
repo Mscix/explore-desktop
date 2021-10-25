@@ -24,7 +24,7 @@ from modules.dialogs import RecordingDialog, PlotDialog
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
 
-VERSION_APP = 'v0.15'
+VERSION_APP = 'v0.16'
 
 
 class MainWindow(QMainWindow):
@@ -50,16 +50,21 @@ class MainWindow(QMainWindow):
         self.is_imp_measuring = False
         self.file_names = None
         self.is_started = False
-        # self.n_chan = 8
+
+        self.n_chan = 8
+        self.chan_list = Settings.CHAN_LIST[:self.n_chan]
 
         self.is_pushing = False
         self.run = True
         self.th = None
+        
+        # self.ui.duration_push_lsl.hide()
+        self.ui.frame_6.hide()
         self.ui.label_3.setHidden(True)
-        self.ui.duration_push_lsl.hide()
+        self.ui.label_7.setHidden(True)
 
-        # self.plotting_filters = None
-        self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
+        self.plotting_filters = None
+        # self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
 
         self.downsampling = False
         self.t_exg_plot = np.array([np.NaN]*2500)
@@ -108,16 +113,19 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = True
+        test = False
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
             # self.explorer.connect(device_name="Explore_CA4C")
             # self.explorer.connect(device_name="Explore_CA07")
             self.is_connected = True
+            # self.n_chan = 4
+            self.n_chan = len(self.explorer.stream_processor.device_info['adc_mask'])
+            self.chan_list = Settings.CHAN_LIST[:self.n_chan]
+
             AppFunctions.info_device(self)
             AppFunctions.update_frame_dev_settings(self)
-
             stream_processor = self.explorer.stream_processor
             n_chan = stream_processor.device_info['adc_mask']
             n_chan = [i for i in reversed(n_chan)]
@@ -128,6 +136,8 @@ class MainWindow(QMainWindow):
             # AppFunctions.init_plot_orn(self)
             # AppFunctions.init_plot_fft(self)
             AppFunctions.init_plots(self)
+            AppFunctions.init_imp(self)
+
 
         else:
             AppFunctions.scan_devices(self)
@@ -156,6 +166,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_calibrate.clicked.connect(lambda: AppFunctions.calibrate_orn(self))
 
         # IMPEDANCE PAGE
+        self.ui.btn_imp_meas.setToolTip("some info")
         self.ui.btn_imp_meas.clicked.connect(lambda: AppFunctions.emit_imp(self))
         self.signal_imp.connect(lambda data: AppFunctions._update_impedance(self, data))
         # self.ui.label_6.linkActivated.connect(lambda: AppFunctions.disable_imp(self))

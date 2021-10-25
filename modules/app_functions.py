@@ -103,16 +103,22 @@ class AppFunctions(MainWindow):
                 stream_processor.device_info["device_name"])
 
             # Set active channels
-            n_chan = stream_processor.device_info['adc_mask']
-            n_chan = [i for i in reversed(n_chan)]
+            chan = stream_processor.device_info['adc_mask']
+            chan = [i for i in reversed(chan)]
 
-            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-            print("update frame dev")
-            print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
-            print(f"{self.chan_dict=}")
+            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], chan))
+            
+            # print("update frame dev")
+            # print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
+            # print(f"{self.chan_dict=}")
 
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setChecked(self.chan_dict[w.objectName().replace("cb_", "")])
+                if w.objectName().replace("cb_", "") not in self.chan_list:
+                    w.hide()
+
+            if self.n_chan < 16:
+                self.ui.frame_cb_channels_16.hide()
 
             self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
 
@@ -201,15 +207,25 @@ class AppFunctions(MainWindow):
                 QMessageBox.critical(self, "Error", msg)
 
         print(self.is_connected)
+        # set number of channels:
+        # self.n_chan = len(self.explorer.stream_processor.device_info['adc_mask'])
+        AppFunctions._set_n_chan(self)
+        self.chan_list = Settings.CHAN_LIST[:self.n_chan]
+
         # change footer & button text:            
         AppFunctions.change_footer(self)
         AppFunctions.change_btn_connect(self)
+
         # if self.is_connected:
         # AppFunctions.info_device(self)
         AppFunctions.info_device(self)
+
         # (un)hide settings frame
         AppFunctions.update_frame_dev_settings(self)
+
+        # init plots and impedances
         AppFunctions.init_plots(self)
+        AppFunctions.init_imp(self)
 
     def info_device(self):
         r"""
@@ -419,6 +435,19 @@ class AppFunctions(MainWindow):
 
     # ////////////////////////////////////////
     # ///// START IMPEDANCE PAGE FUNCTIONS/////
+    def init_imp(self):
+        if self.n_chan < 16:
+            self.ui.frame_impedance_widgets_16.hide()
+
+        for chan in Settings.CHAN_LIST:
+            if chan not in self.chan_list:
+                frame_name = f"frame_{chan}"
+                try:
+                    ch_frame = AppFunctions._get_widget_by_objName(self, frame_name)
+                    ch_frame.hide()
+                except AttributeError:
+                    pass
+
 
     def disable_imp(self):
         if self.is_connected:
@@ -676,7 +705,7 @@ class AppFunctions(MainWindow):
 
         AppFunctions.init_plot_exg(self)
         AppFunctions.init_plot_orn(self)
-        AppFunctions.init_plot_exg(self)
+        AppFunctions.init_plot_fft(self)
 
     def init_plot_exg(self):
         # pw = self.ui.graphicsView #testinng
@@ -1128,10 +1157,10 @@ class AppFunctions(MainWindow):
     def _reset_impedance(self):
         if self.is_connected:
             stream_processor = self.explorer.stream_processor
-            n_chan = stream_processor.device_info['adc_mask']
+            # n_chan = stream_processor.device_info['adc_mask']
             # self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-            chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-            chan_dict = {ch: ["NA", AppFunctions._impedance_stylesheet_wet(self, "NA")] for ch in chan_list}
+            active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
+            chan_dict = {ch: ["NA", AppFunctions._impedance_stylesheet_wet(self, "NA")] for ch in active_chan}
 
             for chan in chan_dict.keys():
                 new_stylesheet = chan_dict[chan][1]
@@ -1377,6 +1406,29 @@ class AppFunctions(MainWindow):
 
     def _display_error(self, msg):
         QMessageBox.critical(self, title="Error", text=msg)
+    
+    def _set_n_chan(self):
+        og_mask = self.explorer.stream_processor.device_info['adc_mask']
+        chan = og_mask.count(1)
+        if chan > 8:
+            self.n_chan = 16
+        elif chan > 4:
+            self.n_chan = 8
+        else:
+            test_mask = int("11111111", 2)
+            self.explorer.set_channels(test_mask)
+            new_mask = self.explorer.stream_processor.device_info['adc_mask']
+            if new_mask == og_mask: 
+                # if the mask is the same after "activating 8 chan the device is 4chan"
+                self.n_chan = 4
+            else:
+                self.n_chan = 8
+        print(f"{self.n_chan=}")
+
+
+
+            
+
     # ///// END FUNCTIONS/////
 
 
