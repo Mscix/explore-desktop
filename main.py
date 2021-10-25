@@ -50,6 +50,7 @@ class MainWindow(QMainWindow):
         self.is_imp_measuring = False
         self.file_names = None
         self.is_started = False
+        # self.n_chan = 8
 
         self.is_pushing = False
         self.run = True
@@ -57,8 +58,8 @@ class MainWindow(QMainWindow):
         self.ui.label_3.setHidden(True)
         self.ui.duration_push_lsl.hide()
 
-        self.plotting_filters = None
-        # self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
+        # self.plotting_filters = None
+        self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
 
         self.downsampling = False
         self.t_exg_plot = np.array([np.NaN]*2500)
@@ -86,6 +87,10 @@ class MainWindow(QMainWindow):
         self.rr_estimator = None
         self.r_peak = {"t": [], "r_peak": [], "points": []}
 
+        self._lambda_exg = lambda data: AppFunctions.plot_exg(self, data)
+        self._lambda_orn = lambda data: AppFunctions.plot_orn(self, data)
+        self._lambda_marker = lambda data: AppFunctions.plot_marker(self, data)
+
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
 
@@ -103,27 +108,26 @@ class MainWindow(QMainWindow):
         AppFunctions.init_dropdowns(self)
 
         # List devices when starting the app
-        test = False
+        test = True
         if test:
             # pass
             self.explorer.connect(device_name="Explore_CA18")
             # self.explorer.connect(device_name="Explore_CA4C")
             # self.explorer.connect(device_name="Explore_CA07")
-
+            self.is_connected = True
             AppFunctions.info_device(self)
             AppFunctions.update_frame_dev_settings(self)
-            self.is_connected = True
 
             stream_processor = self.explorer.stream_processor
-
             n_chan = stream_processor.device_info['adc_mask']
             n_chan = [i for i in reversed(n_chan)]
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             # self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-            AppFunctions.init_plot_exg(self)
-            AppFunctions.init_plot_orn(self)
-            AppFunctions.init_plot_fft(self)
+            # AppFunctions.init_plot_exg(self)
+            # AppFunctions.init_plot_orn(self)
+            # AppFunctions.init_plot_fft(self)
+            AppFunctions.init_plots(self)
 
         else:
             AppFunctions.scan_devices(self)
@@ -180,10 +184,13 @@ class MainWindow(QMainWindow):
         self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
         self.ui.value_timeScale.currentTextChanged.connect(lambda: AppFunctions._change_timescale(self))
 
-        self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
+        '''self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
         # self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
+        self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))'''
+        self.signal_exg.connect(self._lambda_exg)
+        self.signal_orn.connect(self._lambda_orn)
+        self.signal_mkr.connect(self._lambda_marker)
 
         # self.signal_exg.connect(lambda data: AppFunctions.plot_exg_moving(self, data))
         # self.signal_orn.connect(lambda data: AppFunctions.plot_orn_moving(self, data))
@@ -405,11 +412,11 @@ class MainWindow(QMainWindow):
             if self.plotting_filters is None:
                 self.plot_filters()
 
-            if self.ui.plot_orn.getItem(0, 0) is None:
-                AppFunctions.init_plot_orn(self)
-                AppFunctions.init_plot_exg(self)
-                AppFunctions.init_plot_fft(self)
-                
+            # if self.ui.plot_orn.getItem(0, 0) is None:
+            #     AppFunctions.init_plot_orn(self)
+            #     AppFunctions.init_plot_exg(self)
+            #     AppFunctions.init_plot_fft(self)
+
             if not self.is_streaming:
                 AppFunctions.emit_signals(self)
                 self.update_fft()

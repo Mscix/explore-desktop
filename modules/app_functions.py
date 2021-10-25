@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor, QIntValidator
 from explorepy.stream_processor import TOPICS
 from pyqtgraph.Qt import App
+from scipy import signal
 # from scipy.ndimage.measurements import label
 from main import *
 import numpy as np
@@ -106,6 +107,9 @@ class AppFunctions(MainWindow):
             n_chan = [i for i in reversed(n_chan)]
 
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+            print("update frame dev")
+            print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
+            print(f"{self.chan_dict=}")
 
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setChecked(self.chan_dict[w.objectName().replace("cb_", "")])
@@ -205,6 +209,7 @@ class AppFunctions(MainWindow):
         AppFunctions.info_device(self)
         # (un)hide settings frame
         AppFunctions.update_frame_dev_settings(self)
+        AppFunctions.init_plots(self)
 
     def info_device(self):
         r"""
@@ -333,12 +338,17 @@ class AppFunctions(MainWindow):
             int_mask = int(mask, 2)
             self.explorer.set_channels(int_mask)
 
-            print(self.explorer.stream_processor.device_info['adc_mask'])
             n_chan = self.explorer.stream_processor.device_info['adc_mask']
             n_chan = [i for i in reversed(n_chan)]
+            
             self.chan_dict = dict(
                     zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+            
             self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            
+            print('changed')
+            print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
+            print(f"{self.chan_dict=}")
 
         else:
             print("Same channel mask")
@@ -347,6 +357,12 @@ class AppFunctions(MainWindow):
         """
         Apply changes in device settings
         """
+        
+        self.signal_exg.disconnect(self._lambda_exg)
+        self.signal_orn.disconnect(self._lambda_orn)
+        self.signal_mkr.disconnect(self._lambda_marker)
+        print('disconnected signal')
+
         stream_processor = self.explorer.stream_processor
         with AppFunctions._wait_cursor():
             AppFunctions.change_active_channels(self)
@@ -360,6 +376,13 @@ class AppFunctions(MainWindow):
             f"\nActive Channels: {act_chan}"
         )
         QMessageBox.information(self, title, msg)
+
+        self.signal_exg.connect(self._lambda_exg)
+        self.signal_orn.connect(self._lambda_orn)
+        self.signal_mkr.connect(self._lambda_marker)
+        print("connected signal")
+
+        AppFunctions.init_plots(self)
 
     # ///// END SETTINGS PAGE FUNCTIONS /////
 
@@ -412,9 +435,12 @@ class AppFunctions(MainWindow):
         """
 
         stream_processor = self.explorer.stream_processor
-        n_chan = stream_processor.device_info['adc_mask']
-        self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+        # n_chan = stream_processor.device_info['adc_mask']
+        # self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+        print(self.chan_dict)
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
+        print(chan_list)
+        # chan_list = 
         data = {ch: ["", AppFunctions._impedance_stylesheet_wet(self, "")] for ch in chan_list}
 
         def callback(packet):
@@ -640,6 +666,18 @@ class AppFunctions(MainWindow):
 
     # #######################################################
     # ########### Start Init Plot Functions ################
+    def init_plots(self):
+        if self.ui.plot_orn.getItem(0, 0) != None:
+
+            self.ui.plot_exg.clear()
+            self.ui.plot_fft.clear()
+            self.ui.plot_orn.clear()
+            print("cleared plots")
+
+        AppFunctions.init_plot_exg(self)
+        AppFunctions.init_plot_orn(self)
+        AppFunctions.init_plot_exg(self)
+
     def init_plot_exg(self):
         # pw = self.ui.graphicsView #testinng
         n_chan_sp = self.explorer.stream_processor.device_info['adc_mask'].count(1)
@@ -708,7 +746,8 @@ class AppFunctions(MainWindow):
         self.plot_gyro.getAxis("bottom").setStyle(showValues=False)
 
         for plt, lbl in zip(self.plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
-            plt.addLegend(horSpacing=20, colCount=3, brush="k")
+            plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0,-125))
+            # plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0,0))
             plt.getAxis("left").setWidth(80)
             plt.getAxis("left").setLabel(lbl)
             plt.showGrid(x=True, y=True, alpha=0.5)
@@ -720,7 +759,7 @@ class AppFunctions(MainWindow):
 
         self.curve_gx = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[0], name="gyroX")
         self.curve_gy = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
-        self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="agyro")
+        self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="gyroZ")
 
         self.curve_mx = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX")
         self.curve_my = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY")
@@ -750,14 +789,16 @@ class AppFunctions(MainWindow):
 
         # if not np.isnan(np.sum(self.t_exg_plot)):
 
-        n_new_points = len(data["t"])
+        n_new_points = len(data["t"]) + 1
         idxs = np.arange(self.exg_pointer, self.exg_pointer+n_new_points)
 
         self.t_exg_plot.put(idxs, data["t"], mode="wrap")  # replace values with new points
         self.last_t = data["t"][-1]
 
         for i, ch in enumerate(self.exg_plot.keys()):
-            self.exg_plot[ch].put(idxs, data[ch], mode="wrap")
+            d = np.concatenate((data[ch], np.array([np.NaN])))
+            self.exg_plot[ch].put(idxs, d, mode="wrap")
+            # self.exg_plot[ch][self.exg_pointer+n_new_points]=np.NaN
 
         self.exg_pointer += n_new_points
 
@@ -789,9 +830,11 @@ class AppFunctions(MainWindow):
         else:
             self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
 
+        connection = np.full(len(self.t_exg_plot), 1)
+        connection[self.exg_pointer-1:self.exg_pointer] = 0
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
-            curve.setData(self.t_exg_plot, self.exg_plot[ch])
+            curve.setData(self.t_exg_plot, self.exg_plot[ch], connect=connection)
 
         # Remove reploted markers
         for idx_t in range(len(self.mrk_replot["t"])):
@@ -1086,7 +1129,7 @@ class AppFunctions(MainWindow):
         if self.is_connected:
             stream_processor = self.explorer.stream_processor
             n_chan = stream_processor.device_info['adc_mask']
-            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+            # self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
             chan_dict = {ch: ["NA", AppFunctions._impedance_stylesheet_wet(self, "NA")] for ch in chan_list}
 
