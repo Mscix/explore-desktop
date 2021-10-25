@@ -209,7 +209,8 @@ class AppFunctions(MainWindow):
         print(self.is_connected)
         # set number of channels:
         # self.n_chan = len(self.explorer.stream_processor.device_info['adc_mask'])
-        AppFunctions._set_n_chan(self)
+        # AppFunctions._set_n_chan(self)
+        self.n_chan = 8
         self.chan_list = Settings.CHAN_LIST[:self.n_chan]
 
         # change footer & button text:            
