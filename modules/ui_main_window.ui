@@ -693,6 +693,12 @@ background-color: (28, 30, 42);
           </property>
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -700,10 +706,10 @@ background-color: (28, 30, 42);
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true"/>
+             <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>5</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -1142,10 +1148,16 @@ border: none</string>
                        <number>20</number>
                       </property>
                       <property name="leftMargin">
-                       <number>12</number>
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
                       </property>
                       <property name="bottomMargin">
-                       <number>12</number>
+                       <number>0</number>
                       </property>
                       <item>
                        <widget class="QLabel" name="label_explore_name_2">
@@ -1160,7 +1172,7 @@ border: none</string>
 color: #FFF</string>
                         </property>
                         <property name="text">
-                         <string>Connect your device</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Connect your device&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignCenter</set>
@@ -1168,7 +1180,25 @@ color: #FFF</string>
                        </widget>
                       </item>
                       <item>
+                       <widget class="QLabel" name="label_10">
+                        <property name="text">
+                         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.SF NS Text'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Scan for nearby devices or &lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;directly input the name of your device&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
                        <widget class="QFrame" name="frame">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="styleSheet">
                          <string notr="true">border:none
 </string>
@@ -1261,10 +1291,16 @@ QFrame{
                             </property>
                             <item>
                              <widget class="QPushButton" name="btn_scan">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
                               <property name="minimumSize">
                                <size>
-                                <width>0</width>
-                                <height>25</height>
+                                <width>140</width>
+                                <height>30</height>
                                </size>
                               </property>
                               <property name="cursor">
@@ -1277,10 +1313,16 @@ QFrame{
                             </item>
                             <item>
                              <widget class="QPushButton" name="btn_connect">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
                               <property name="minimumSize">
                                <size>
-                                <width>0</width>
-                                <height>25</height>
+                                <width>140</width>
+                                <height>30</height>
                                </size>
                               </property>
                               <property name="cursor">
@@ -1329,6 +1371,9 @@ QFrame{
                          </property>
                          <item>
                           <widget class="QLabel" name="label_9">
+                           <property name="styleSheet">
+                            <string notr="true"/>
+                           </property>
                            <property name="text">
                             <string>Device Name: </string>
                            </property>
@@ -1338,12 +1383,12 @@ QFrame{
                           <widget class="QLineEdit" name="dev_name_input">
                            <property name="styleSheet">
                             <string notr="true">color: #FFF;
-background-color: rgb(0, 255, 255);
-background-color: rgb(83, 88, 123);
+border: 1px solid rgb(84, 89, 124);
+/*background-color: rgb(83, 88, 123);*/
 </string>
                            </property>
                            <property name="placeholderText">
-                            <string>Explore_XXX</string>
+                            <string>Explore_XXXX or XXXX</string>
                            </property>
                           </widget>
                          </item>
@@ -1373,10 +1418,16 @@ border: none</string>
                       </item>
                       <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                        <widget class="QPushButton" name="btn_import_data">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="minimumSize">
                          <size>
                           <width>150</width>
-                          <height>25</height>
+                          <height>30</height>
                          </size>
                         </property>
                         <property name="maximumSize">
@@ -1439,8 +1490,32 @@ border: none</string>
                       <enum>QFrame::Raised</enum>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_2">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>12</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
                       <item>
                        <widget class="QLabel" name="label_explore_name">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>75</height>
+                         </size>
+                        </property>
                         <property name="styleSheet">
                          <string notr="true">border: none;
 color: #FFF</string>
@@ -1767,7 +1842,7 @@ border: 1px solid #FFF</string>
                         <property name="minimumSize">
                          <size>
                           <width>150</width>
-                          <height>25</height>
+                          <height>30</height>
                          </size>
                         </property>
                         <property name="maximumSize">
@@ -1786,6 +1861,12 @@ border: 1px solid #FFF</string>
                       </item>
                       <item>
                        <widget class="QFrame" name="frame_device_buttons">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="styleSheet">
                          <string notr="true">border: none</string>
                         </property>
@@ -1797,7 +1878,7 @@ border: 1px solid #FFF</string>
                         </property>
                         <layout class="QHBoxLayout" name="horizontalLayout_4">
                          <property name="spacing">
-                          <number>10</number>
+                          <number>20</number>
                          </property>
                          <property name="leftMargin">
                           <number>10</number>
@@ -1813,10 +1894,16 @@ border: 1px solid #FFF</string>
                          </property>
                          <item>
                           <widget class="QPushButton" name="btn_format_memory">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
                            <property name="minimumSize">
                             <size>
-                             <width>0</width>
-                             <height>25</height>
+                             <width>120</width>
+                             <height>30</height>
                             </size>
                            </property>
                            <property name="cursor">
@@ -1829,10 +1916,16 @@ border: 1px solid #FFF</string>
                          </item>
                          <item>
                           <widget class="QPushButton" name="btn_reset_settings">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
                            <property name="minimumSize">
                             <size>
-                             <width>0</width>
-                             <height>25</height>
+                             <width>120</width>
+                             <height>30</height>
                             </size>
                            </property>
                            <property name="cursor">
@@ -1845,6 +1938,18 @@ border: 1px solid #FFF</string>
                          </item>
                          <item>
                           <widget class="QPushButton" name="btn_calibrate">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>120</width>
+                             <height>30</height>
+                            </size>
+                           </property>
                            <property name="cursor">
                             <cursorShape>PointingHandCursor</cursorShape>
                            </property>
@@ -2305,7 +2410,7 @@ background-color: rgb(49, 52, 86)</string>
                  <string notr="true"/>
                 </property>
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="exg">
                  <attribute name="title">
@@ -2924,11 +3029,14 @@ background-color: rgb(169, 169, 169);</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -2950,14 +3058,7 @@ background-color: rgb(169, 169, 169);</string>
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">QFrame{
-	
-	border-color: rgb(255, 98, 92);
-}
-
-QLabel{
-	color: #FFF;
-}</string>
+                       <string notr="true">font:12pt</string>
                       </property>
                       <property name="frameShape">
                        <enum>QFrame::StyledPanel</enum>
@@ -3024,7 +3125,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3054,11 +3155,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -3184,11 +3288,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -3314,11 +3421,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -3444,11 +3554,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -3574,11 +3687,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -3704,11 +3820,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -3834,11 +3953,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -3863,7 +3985,7 @@ background-color: rgb(169, 169, 169)</string>
                     </size>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">border: none;</string>
+                    <string notr="true">font:12pt</string>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::StyledPanel</enum>
@@ -3958,7 +4080,7 @@ background-color: rgb(169, 169, 169);</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3988,11 +4110,14 @@ background-color: rgb(169, 169, 169);</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">f</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4088,7 +4213,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4118,7 +4243,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4218,7 +4343,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4248,7 +4373,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4348,7 +4473,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4378,11 +4503,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4404,14 +4532,7 @@ background-color: rgb(169, 169, 169)</string>
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">QFrame{
-	
-	border-color: rgb(255, 98, 92);
-}
-
-QLabel{
-	color: #FFF;
-}</string>
+                       <string notr="true">font:12pt</string>
                       </property>
                       <property name="frameShape">
                        <enum>QFrame::StyledPanel</enum>
@@ -4478,7 +4599,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4508,11 +4629,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4608,7 +4732,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4638,11 +4762,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4738,7 +4865,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4768,11 +4895,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4868,7 +4998,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4898,11 +5028,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>13</pointsize>
+                           <pointsize>-1</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4939,7 +5072,7 @@ border: 1px solid #FFF</string>
                   </widget>
                  </item>
                  <item alignment="Qt::AlignHCenter">
-                  <widget class="QFrame" name="">
+                  <widget class="QFrame" name="frame">
                    <property name="maximumSize">
                     <size>
                      <width>16777215</width>
@@ -4972,6 +5105,12 @@ border: 1px solid #FFF</string>
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>145</width>
+                        <height>30</height>
+                       </size>
                       </property>
                       <property name="maximumSize">
                        <size>

@@ -69,8 +69,9 @@ class PlotDialog(QDialog):
 
         bp_freq_warning = ("High cutoff frequency must be larger than low cutoff frequency.")
 
-        r_value = self.ui.value_highpass.text()
-        l_value = self.ui.value_lowpass.text()
+        r_value = "" if self.ui.value_highpass.text() in [None, 'None'] else self.ui.value_highpass.text()
+        l_value = "" if self.ui.value_lowpass.text() in [None, 'None'] else self.ui.value_lowpass.text()
+        print(r_value, l_value)
 
         r_stylesheet = ""
         l_stylesheet = ""
