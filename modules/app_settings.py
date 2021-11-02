@@ -91,6 +91,16 @@ background-color: #2B851A;"""
         "na": "color: #FFFFFF"
     }
 
+    POPUP_STYLESHEET = """
+QMessageBox {
+background-color: rgb(28, 30, 42);
+}
+
+QMessageBox QLabel {
+    color: rgb(200, 200, 200);
+}
+    """
+
     EXG_LINE_COLOR = "#42C4F7"
 
     FFT_LINE_COLORS = [

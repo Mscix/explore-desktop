@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButto
 from PySide6.QtCore import QTimer, Qt, Signal, QTimer
 from PySide6.QtGui import QIcon
 import explorepy as xpy
+# xpy.set_bt_interface("pybluez")
 # from pyqtgraph.Qt import App
 # from pyqtgraph.functions import disconnect
 from modules import *
@@ -277,12 +278,14 @@ class MainWindow(QMainWindow):
         '''
         Open plot filter dialog and apply filters
         '''
+        wait = True if self.plotting_filters is None else False
         sr = self.explorer.stream_processor.device_info['sampling_rate']
         dialog = PlotDialog(sr=sr, current_filters=self.plotting_filters)
         self.plotting_filters = dialog.exec()
         AppFunctions._apply_filters(self)
         # self.loading = LoadingScreen()
-        time.sleep(2)
+        if wait:
+            time.sleep(1.5)
 
     def start_timer_recorder(self):
         '''

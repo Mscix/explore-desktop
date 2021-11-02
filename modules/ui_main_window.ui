@@ -1181,13 +1181,19 @@ color: #FFF</string>
                       </item>
                       <item>
                        <widget class="QLabel" name="label_10">
+                        <property name="styleSheet">
+                         <string notr="true">font: 11pt
+</string>
+                        </property>
                         <property name="text">
                          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.SF NS Text'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Scan for nearby devices or &lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;directly input the name of your device&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Scan for nearby devices or directly input the name of your device&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                        <property name="wordWrap">
+                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
@@ -1372,7 +1378,7 @@ QFrame{
                          <item>
                           <widget class="QLabel" name="label_9">
                            <property name="styleSheet">
-                            <string notr="true"/>
+                            <string notr="true">font: 12pt;</string>
                            </property>
                            <property name="text">
                             <string>Device Name: </string>
@@ -1385,6 +1391,7 @@ QFrame{
                             <string notr="true">color: #FFF;
 border: 1px solid rgb(84, 89, 124);
 /*background-color: rgb(83, 88, 123);*/
+font: 12pt;
 </string>
                            </property>
                            <property name="placeholderText">
@@ -2327,7 +2334,7 @@ background-color: rgb(49, 52, 86)</string>
                        </font>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">font: 11pt &quot;.SF NS Text&quot;;</string>
+                       <string notr="true">font: 11pt </string>
                       </property>
                       <property name="placeholderText">
                        <string>Event Code</string>
@@ -3029,7 +3036,7 @@ background-color: rgb(169, 169, 169);</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3058,7 +3065,7 @@ background-color: rgb(169, 169, 169);</string>
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">font:12pt</string>
+                       <string notr="true">font:12px</string>
                       </property>
                       <property name="frameShape">
                        <enum>QFrame::StyledPanel</enum>
@@ -3155,7 +3162,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3288,7 +3295,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3421,7 +3428,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3554,7 +3561,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3687,7 +3694,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3820,7 +3827,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3953,7 +3960,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -3985,7 +3992,7 @@ background-color: rgb(169, 169, 169)</string>
                     </size>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">font:12pt</string>
+                    <string notr="true">font:12px</string>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::StyledPanel</enum>
@@ -4110,14 +4117,14 @@ background-color: rgb(169, 169, 169);</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
                          </property>
                          <property name="styleSheet">
-                          <string notr="true">f</string>
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4243,11 +4250,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4373,11 +4383,14 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">font:12pt</string>
                          </property>
                          <property name="text">
                           <string>NA</string>
@@ -4503,7 +4516,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4532,7 +4545,7 @@ background-color: rgb(169, 169, 169)</string>
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">font:12pt</string>
+                       <string notr="true">font:12px</string>
                       </property>
                       <property name="frameShape">
                        <enum>QFrame::StyledPanel</enum>
@@ -4629,7 +4642,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4762,7 +4775,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -4895,7 +4908,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -5028,7 +5041,7 @@ background-color: rgb(169, 169, 169)</string>
                          </property>
                          <property name="font">
                           <font>
-                           <pointsize>-1</pointsize>
+                           <pointsize>12</pointsize>
                            <weight>50</weight>
                            <italic>false</italic>
                            <bold>false</bold>
@@ -5072,7 +5085,7 @@ border: 1px solid #FFF</string>
                   </widget>
                  </item>
                  <item alignment="Qt::AlignHCenter">
-                  <widget class="QFrame" name="frame">
+                  <widget class="QFrame" name="frame_">
                    <property name="maximumSize">
                     <size>
                      <width>16777215</width>

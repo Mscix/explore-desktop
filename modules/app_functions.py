@@ -91,7 +91,7 @@ class AppFunctions(MainWindow):
         Update the frame with the device settings.
         Only shown if a device is connected
         """
-        self.explorer._check_connection()
+        # self.explorer._check_connection()
 
         if self.is_connected:
             explore = self.explorer
@@ -120,7 +120,9 @@ class AppFunctions(MainWindow):
             if self.n_chan < 16:
                 self.ui.frame_cb_channels_16.hide()
 
-            self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            points = AppFunctions._plot_points(self)
+            self.exg_plot = {ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.t_exg_plot = np.array([np.NaN]*points)
 
             # Set sampling rate (value_sampling_rate)
             sr = stream_processor.device_info['sampling_rate']
@@ -196,7 +198,8 @@ class AppFunctions(MainWindow):
                 device_name = device_name_list
             else:
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-                QMessageBox.critical(self, "Error", msg)
+                # QMessageBox.critical(self, "Error", msg)
+                AppFunctions._display_msg(self, msg)
                 return
 
             self.ui.ft_label_device_3.setText("Connecting ...")
@@ -209,22 +212,28 @@ class AppFunctions(MainWindow):
                     self.is_connected = True
                 except xpy_ex.DeviceNotFoundError as e:
                     msg = str(e)
-                    QMessageBox.critical(self, "Error", msg)
+                    # QMessageBox.critical(self, "Error", msg)
+                    AppFunctions._display_msg(self, msg)
                     return
                 except TypeError as e:
                     msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-                    QMessageBox.critical(self, "Error", msg)
+                    # QMessageBox.critical(self, "Error", msg)
+                    AppFunctions._display_msg(self, msg)
                     return
                 except AssertionError as e:
                     msg = str(e)
-                    QMessageBox.critical(self, "Error", msg)
+                    # QMessageBox.critical(self, "Error", msg)
+                    AppFunctions._display_msg(self, msg)
                     return
                 except ValueError:
                     msg = "Error opening socket.\nPlease make sure the bluetooth is on."
-                    QMessageBox.critical(self, "Error", msg)
+                    # QMessageBox.critical(self, "Error", msg)
+                    AppFunctions._display_msg(self, msg)
                     return
                 except Exception as e:
-                    QMessageBox.critical(self, "Error", str(e))
+                    msg = str(e)
+                    # QMessageBox.critical(self, "Error", msg)
+                    AppFunctions._display_msg(self, msg)
                     return
                 pass
 
@@ -234,10 +243,12 @@ class AppFunctions(MainWindow):
                 self.is_connected = False
             except AssertionError as e:
                 msg = str(e)
-                QMessageBox.critical(self, "Error", msg)
+                AppFunctions._display_msg(self, msg)
+                # QMessageBox.critical(self, "Error", msg)
             except Exception as e:
                 msg = str(e)
-                QMessageBox.critical(self, "Error", msg)
+                AppFunctions._display_msg(self, msg)
+                # QMessageBox.critical(self, "Error", msg)
 
         print(self.is_connected)
         AppFunctions._on_connection(self)
@@ -246,7 +257,7 @@ class AppFunctions(MainWindow):
         r"""
         Update device information
         """
-        self.explorer._check_connection()
+        # self.explorer._check_connection()
 
         def callback(packet):
             # print(packet)
@@ -292,10 +303,15 @@ class AppFunctions(MainWindow):
         """
 
         question = "Are you sure you want to format the memory?"
-        response = QMessageBox.question(self, "Confirmation", question)
+        # response = QMessageBox.question(self, "Confirmation", question)
+        # response.setStyleSheet(Settings.POPUP_STYLESHEET)
+        response = AppFunctions._display_msg(self, msg_text=question, type="question")
         if response == QMessageBox.StandardButton.Yes:
+            print("yes")
             self.explorer.format_memory()
+            AppFunctions._display_msg(self, msg_text="Memory formatted", type="info")
         else:
+            print("no")
             return
 
     def reset_settings(self):
@@ -305,12 +321,14 @@ class AppFunctions(MainWindow):
         """
 
         question = "Are you sure you want to reset your settings?"
-        response = QMessageBox.question(self, "Confirmation", question)
+        # response = QMessageBox.question(self, "Confirmation", question)
+        response = AppFunctions._display_msg(self, msg_text=question, type="question")
         
         if response == QMessageBox.StandardButton.Yes:
             self.explorer.reset_soft()
             print(self.explorer.stream_processor.device_info['sampling_rate'])
             AppFunctions.update_frame_dev_settings(self)
+            AppFunctions._display_msg(self, msg_text="Settings reset", type="info")
         else:
             return
 
@@ -322,12 +340,16 @@ class AppFunctions(MainWindow):
                     "This will overwrite the calibration data if it already exists\n\n"
                     "If yes, you would need to move and rotate the device for 100 seconds\n"
                     )
-        response = QMessageBox.question(self, "Confirmation", question)
+        # response = QMessageBox.question(self, "Confirmation", question)
+        response = AppFunctions._display_msg(self, msg_text=question, type="question")
 
         if response == QMessageBox.StandardButton.Yes:
-            QMessageBox.information(self, "Done", "Calibrating...\nPlease move and rotate the device")
+            # QMessageBox.information(self, "", "Calibrating...\nPlease move and rotate the device")
             self.explorer.calibrate_orn(do_overwrite=True)
-            QMessageBox.information(self, "Done", "Calibration Complete")
+            msg = "Calibration Complete"
+            title = "Done"
+            # QMessageBox.information(self, title, msg)
+            AppFunctions._display_msg(self, msg_text=msg, title=title, type="info")
         else:
             return
 
@@ -375,7 +397,11 @@ class AppFunctions(MainWindow):
             self.chan_dict = dict(
                     zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             
-            self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            # sr = AppFunctions._get_samplinRate(self)
+            # ts = AppFunctions._get_timeScale(self)
+            # points = sr * ts
+            # points = AppFunctions._plot_points(self)
+            # self.exg_plot = {ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             
             print('changed')
             print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
@@ -394,9 +420,24 @@ class AppFunctions(MainWindow):
         print('disconnected signal')
 
         stream_processor = self.explorer.stream_processor
+        filters = stream_processor.filters
+        # print(f"{stream_processor.filters=}")
+        # print("\n\n\n")
+        # stream_processor.filters = []
+        # print(f"{stream_processor.filters=}")
+        # print("\n\n\n")
+        # AppFunctions.emit_exg(self, stop=True)
+        # print("\n\n\n")
+
         with AppFunctions._wait_cursor():
             AppFunctions.change_active_channels(self)
             AppFunctions.change_sampling_rate(self)
+            # sr = AppFunctions._get_samplinRate(self)
+            # ts = AppFunctions._get_timeScale(self)
+            # points = sr * ts
+            points = AppFunctions._plot_points(self)
+            self.exg_plot = {ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.t_exg_plot = np.array([np.NaN]*points)
             pass
 
         act_chan = ", ".join([ch for ch in self.chan_dict if self.chan_dict[ch]==1])
@@ -406,12 +447,15 @@ class AppFunctions(MainWindow):
             f"\nSampling Rate: {int(stream_processor.device_info['sampling_rate'])}"
             f"\nActive Channels: {act_chan}"
         )
-        QMessageBox.information(self, title, msg)
+        # QMessageBox.information(self, title, msg)
+        AppFunctions._display_msg(self, msg_text=msg, type="info")
+
 
         AppFunctions._connect_signals(self)
         print("connected signal")
 
         AppFunctions.init_plots(self)
+        # AppFunctions.emit_exg(self)
 
     # ///// END SETTINGS PAGE FUNCTIONS /////
 
@@ -442,7 +486,8 @@ class AppFunctions(MainWindow):
         try:
             self.explorer.set_marker(int(event_code))
         except ValueError as e:
-            QMessageBox.critical(self, "Error", str(e))
+            AppFunctions._display_msg(self, msg_text=str(e))
+            # QMessageBox.critical(self, "Error", str(e))
 
 
         # Clean input text box
@@ -551,7 +596,9 @@ class AppFunctions(MainWindow):
                 f"\nThe current sampling rate is {sr}."
                 "Click on Confirm to change the sampling rate.")
 
-            response = QMessageBox.question(self, "Confirmation", question)
+            # response = QMessageBox.question(self, "Confirmation", question)
+            response = AppFunctions._display_msg(self, msg_text=question, type="question")
+
             if response == QMessageBox.StandardButton.Yes:
                 self.explorer.set_sampling_rate(sampling_rate=250)
                 self.ui.value_sampling_rate.setCurrentText(str(250))
@@ -607,7 +654,7 @@ class AppFunctions(MainWindow):
         AppFunctions.emit_exg(self)
         AppFunctions.emit_marker(self)
 
-    def emit_exg(self):
+    def emit_exg(self, stop=False):
         """
         Get EXG data and plot
         """
@@ -653,6 +700,10 @@ class AppFunctions(MainWindow):
             self.signal_exg.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
+
+        if stop:
+            stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
+            print("unsubscribe")
     
     def emit_orn(self):
         """"
@@ -1366,7 +1417,9 @@ class AppFunctions(MainWindow):
 
         if "ch1" not in self.exg_plot.keys():
             print('Heart rate estimation works only when channel 1 is enabled.')
-            QMessageBox.information(self, "!", 'Heart rate estimation works only when channel 1 is enabled.')
+            msg = "Heart rate estimation works only when channel 1 is enabled."
+            # QMessageBox.information(self, "!", msg)
+            AppFunctions._display_msg(self, msg_text=msg, type="info")
             return
 
         # first_chan = self.exg_plot.keys()[0]
@@ -1420,9 +1473,28 @@ class AppFunctions(MainWindow):
         estimated_heart_rate = self.rr_estimator.heart_rate
         self.ui.value_heartRate.setText(str(estimated_heart_rate))
 
-    def _display_error(self, msg):
-        QMessageBox.critical(self, title="Error", text=msg)
+    def _display_msg(self, msg_text, title=None, type="error"):
+        # msg = QMessageBox.critical(self, title="Error", text=msg)
+        msg = QMessageBox()
+        msg.setText(msg_text)
+        msg.setStyleSheet(Settings.POPUP_STYLESHEET)
+        
+        if type == "error":
+            wdw_title = "Error" if title is None else title
+            msg.setIcon(QMessageBox.Critical)
+        elif type == "info":
+            wdw_title = "!" if title is None else title
+            msg.setIcon(QMessageBox.Information)
+        elif type == "question":
+            wdw_title = "Confirmation" if title is None else title
+            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msg.setIcon(QMessageBox.Question)
+        
+        msg.setWindowTitle(wdw_title)
+        response = msg.exec()
+        return response
     
+
     def _set_n_chan(self):
         og_mask = self.explorer.stream_processor.device_info['adc_mask']
         chan = og_mask.count(1)

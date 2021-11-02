@@ -38,7 +38,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setStyleSheet(u"/*GENERAL*/\n"
 "QWidget{\n"
-"	font: 13pt;\n"
+"	font: 16px;\n"
 "}\n"
 " \n"
 "QFrame{\n"
@@ -57,6 +57,7 @@ class Ui_MainWindow(object):
 "	border: 2px solid rgb(84, 89, 124);\n"
 "	padding: 5px;\n"
 "	border-radius: 5px;\n"
+"       font: 12pt;"
 "\n"
 "}\n"
 "\n"
@@ -661,7 +662,10 @@ class Ui_MainWindow(object):
 
         self.label_10 = QLabel(self.frame_BT)
         self.label_10.setObjectName(u"label_10")
+        self.label_10.setStyleSheet(u"font: 8pt\n"
+"")
         self.label_10.setWordWrap(True)
+
         self.verticalLayout_6.addWidget(self.label_10)
 
         self.frame = QFrame(self.frame_BT)
@@ -719,6 +723,7 @@ class Ui_MainWindow(object):
         self.btn_scan.setSizePolicy(sizePolicy)
         self.btn_scan.setMinimumSize(QSize(140, 30))
         self.btn_scan.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btn_scan.adjustSize()
 
         self.verticalLayout_17.addWidget(self.btn_scan)
 
@@ -748,7 +753,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
         self.label_9 = QLabel(self.frame_6)
         self.label_9.setObjectName(u"label_9")
-        self.label_9.setStyleSheet(u"")
+        self.label_9.setStyleSheet(u"font: 12pt;")
 
         self.horizontalLayout_10.addWidget(self.label_9)
 
@@ -757,6 +762,7 @@ class Ui_MainWindow(object):
         self.dev_name_input.setStyleSheet(u"color: #FFF;\n"
 "border: 1px solid rgb(84, 89, 124);\n"
 "/*background-color: rgb(83, 88, 123);*/\n"
+"font: 12pt;\n"
 "")
 
         self.horizontalLayout_10.addWidget(self.dev_name_input)
@@ -1275,7 +1281,7 @@ class Ui_MainWindow(object):
         font3.setBold(False)
         font3.setItalic(False)
         self.value_event_code.setFont(font3)
-        self.value_event_code.setStyleSheet(u"font: 11pt \".SF NS Text\";")
+        self.value_event_code.setStyleSheet(u"font: 11pt ")
 
         self.verticalLayout_20.addWidget(self.value_event_code)
 
@@ -1679,6 +1685,7 @@ class Ui_MainWindow(object):
         self.label_ch1_value.setMinimumSize(QSize(61, 0))
         self.label_ch1_value.setMaximumSize(QSize(16777215, 30))
         font4 = QFont()
+        font4.setPointSize(12)
         font4.setBold(False)
         font4.setItalic(False)
         self.label_ch1_value.setFont(font4)
@@ -1693,7 +1700,7 @@ class Ui_MainWindow(object):
         self.frame_ch2 = QFrame(self.frame_impedance_widgets)
         self.frame_ch2.setObjectName(u"frame_ch2")
         self.frame_ch2.setMaximumSize(QSize(80, 150))
-        self.frame_ch2.setStyleSheet(u"font:12pt")
+        self.frame_ch2.setStyleSheet(u"font:12px")
         self.frame_ch2.setFrameShape(QFrame.StyledPanel)
         self.frame_ch2.setFrameShadow(QFrame.Raised)
         self.verticalLayout_8 = QVBoxLayout(self.frame_ch2)
@@ -1718,7 +1725,10 @@ class Ui_MainWindow(object):
         self.label_ch2.setObjectName(u"label_ch2")
         self.label_ch2.setMinimumSize(QSize(61, 0))
         self.label_ch2.setMaximumSize(QSize(16777215, 30))
-        self.label_ch2.setFont(font4)
+        font5 = QFont()
+        font5.setBold(False)
+        font5.setItalic(False)
+        self.label_ch2.setFont(font5)
         self.label_ch2.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_8.addWidget(self.label_ch2)
@@ -2060,7 +2070,7 @@ class Ui_MainWindow(object):
         self.frame_impedance_widgets_16 = QFrame(self.frame_impedance)
         self.frame_impedance_widgets_16.setObjectName(u"frame_impedance_widgets_16")
         self.frame_impedance_widgets_16.setMaximumSize(QSize(16777215, 200))
-        self.frame_impedance_widgets_16.setStyleSheet(u"font:12pt")
+        self.frame_impedance_widgets_16.setStyleSheet(u"font:12px")
         self.frame_impedance_widgets_16.setFrameShape(QFrame.StyledPanel)
         self.frame_impedance_widgets_16.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_20 = QHBoxLayout(self.frame_impedance_widgets_16)
@@ -2101,7 +2111,7 @@ class Ui_MainWindow(object):
         self.label_ch9.setObjectName(u"label_ch9")
         self.label_ch9.setMinimumSize(QSize(61, 0))
         self.label_ch9.setMaximumSize(QSize(16777215, 30))
-        self.label_ch9.setFont(font4)
+        self.label_ch9.setFont(font5)
         self.label_ch9.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_16.addWidget(self.label_ch9)
@@ -2111,7 +2121,7 @@ class Ui_MainWindow(object):
         self.label_ch9_value.setMinimumSize(QSize(61, 0))
         self.label_ch9_value.setMaximumSize(QSize(16777215, 30))
         self.label_ch9_value.setFont(font4)
-        self.label_ch9_value.setStyleSheet(u"f")
+        self.label_ch9_value.setStyleSheet(u"font:12pt")
         self.label_ch9_value.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_16.addWidget(self.label_ch9_value)
@@ -2154,7 +2164,7 @@ class Ui_MainWindow(object):
         self.label_ch10.setObjectName(u"label_ch10")
         self.label_ch10.setMinimumSize(QSize(61, 0))
         self.label_ch10.setMaximumSize(QSize(16777215, 30))
-        self.label_ch10.setFont(font4)
+        self.label_ch10.setFont(font5)
         self.label_ch10.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_26.addWidget(self.label_ch10)
@@ -2164,6 +2174,7 @@ class Ui_MainWindow(object):
         self.label_ch10_value.setMinimumSize(QSize(61, 0))
         self.label_ch10_value.setMaximumSize(QSize(16777215, 30))
         self.label_ch10_value.setFont(font4)
+        self.label_ch10_value.setStyleSheet(u"font:12pt")
         self.label_ch10_value.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_26.addWidget(self.label_ch10_value)
@@ -2206,7 +2217,7 @@ class Ui_MainWindow(object):
         self.label_ch11.setObjectName(u"label_ch11")
         self.label_ch11.setMinimumSize(QSize(61, 0))
         self.label_ch11.setMaximumSize(QSize(16777215, 30))
-        self.label_ch11.setFont(font4)
+        self.label_ch11.setFont(font5)
         self.label_ch11.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_27.addWidget(self.label_ch11)
@@ -2216,6 +2227,7 @@ class Ui_MainWindow(object):
         self.label_ch11_value.setMinimumSize(QSize(61, 0))
         self.label_ch11_value.setMaximumSize(QSize(16777215, 30))
         self.label_ch11_value.setFont(font4)
+        self.label_ch11_value.setStyleSheet(u"font:12pt")
         self.label_ch11_value.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_27.addWidget(self.label_ch11_value)
@@ -2258,7 +2270,7 @@ class Ui_MainWindow(object):
         self.label_ch12.setObjectName(u"label_ch12")
         self.label_ch12.setMinimumSize(QSize(61, 0))
         self.label_ch12.setMaximumSize(QSize(16777215, 30))
-        self.label_ch12.setFont(font4)
+        self.label_ch12.setFont(font5)
         self.label_ch12.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_28.addWidget(self.label_ch12)
@@ -2279,7 +2291,7 @@ class Ui_MainWindow(object):
         self.frame_ch13 = QFrame(self.frame_impedance_widgets_16)
         self.frame_ch13.setObjectName(u"frame_ch13")
         self.frame_ch13.setMaximumSize(QSize(80, 150))
-        self.frame_ch13.setStyleSheet(u"font:12pt")
+        self.frame_ch13.setStyleSheet(u"font:12px")
         self.frame_ch13.setFrameShape(QFrame.StyledPanel)
         self.frame_ch13.setFrameShadow(QFrame.Raised)
         self.verticalLayout_31 = QVBoxLayout(self.frame_ch13)
@@ -2304,7 +2316,7 @@ class Ui_MainWindow(object):
         self.label_ch13.setObjectName(u"label_ch13")
         self.label_ch13.setMinimumSize(QSize(61, 0))
         self.label_ch13.setMaximumSize(QSize(16777215, 30))
-        self.label_ch13.setFont(font4)
+        self.label_ch13.setFont(font5)
         self.label_ch13.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_31.addWidget(self.label_ch13)
@@ -2357,7 +2369,7 @@ class Ui_MainWindow(object):
         self.label_ch14.setObjectName(u"label_ch14")
         self.label_ch14.setMinimumSize(QSize(61, 0))
         self.label_ch14.setMaximumSize(QSize(16777215, 30))
-        self.label_ch14.setFont(font4)
+        self.label_ch14.setFont(font5)
         self.label_ch14.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_32.addWidget(self.label_ch14)
@@ -2410,7 +2422,7 @@ class Ui_MainWindow(object):
         self.label_ch15.setObjectName(u"label_ch15")
         self.label_ch15.setMinimumSize(QSize(61, 0))
         self.label_ch15.setMaximumSize(QSize(16777215, 30))
-        self.label_ch15.setFont(font4)
+        self.label_ch15.setFont(font5)
         self.label_ch15.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_33.addWidget(self.label_ch15)
@@ -2463,7 +2475,7 @@ class Ui_MainWindow(object):
         self.label_ch16.setObjectName(u"label_ch16")
         self.label_ch16.setMinimumSize(QSize(61, 0))
         self.label_ch16.setMaximumSize(QSize(16777215, 30))
-        self.label_ch16.setFont(font4)
+        self.label_ch16.setFont(font5)
         self.label_ch16.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_34.addWidget(self.label_ch16)
@@ -2493,15 +2505,15 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_35.addWidget(self.imp_mode, 0, Qt.AlignHCenter)
 
-        self.frame1 = QFrame(self.frame_impedance)
-        self.frame1.setObjectName(u"frame1")
-        self.frame1.setMaximumSize(QSize(16777215, 50))
-        self.horizontalLayout_11 = QHBoxLayout(self.frame1)
+        self.frame_ = QFrame(self.frame_impedance)
+        self.frame_.setObjectName(u"frame_")
+        self.frame_.setMaximumSize(QSize(16777215, 50))
+        self.horizontalLayout_11 = QHBoxLayout(self.frame_)
         self.horizontalLayout_11.setSpacing(5)
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
         self.horizontalLayout_11.setSizeConstraint(QLayout.SetMinAndMaxSize)
         self.horizontalLayout_11.setContentsMargins(0, 0, 0, 0)
-        self.btn_imp_meas = QPushButton(self.frame1)
+        self.btn_imp_meas = QPushButton(self.frame_)
         self.btn_imp_meas.setObjectName(u"btn_imp_meas")
         sizePolicy3.setHeightForWidth(self.btn_imp_meas.sizePolicy().hasHeightForWidth())
         self.btn_imp_meas.setSizePolicy(sizePolicy3)
@@ -2512,7 +2524,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_11.addWidget(self.btn_imp_meas)
 
-        self.imp_meas_info = QLabel(self.frame1)
+        self.imp_meas_info = QLabel(self.frame_)
         self.imp_meas_info.setObjectName(u"imp_meas_info")
         self.imp_meas_info.setMinimumSize(QSize(20, 20))
         self.imp_meas_info.setMaximumSize(QSize(20, 20))
@@ -2524,7 +2536,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11.addWidget(self.imp_meas_info)
 
 
-        self.verticalLayout_35.addWidget(self.frame1, 0, Qt.AlignHCenter)
+        self.verticalLayout_35.addWidget(self.frame_, 0, Qt.AlignHCenter)
 
         self.label_6 = QLabel(self.frame_impedance)
         self.label_6.setObjectName(u"label_6")
@@ -2729,9 +2741,9 @@ class Ui_MainWindow(object):
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'.SF NS Text'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+"</style></head><body style=\" font-family:'.SF NS Text'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt;\">Scan for nearby devices or directly input the name of your device</span></p></body></html>", None))
-        self.btn_scan.setText(QCoreApplication.translate("MainWindow", u"Scan nearby devices", None))
+        self.btn_scan.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
         self.btn_connect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Device Name: ", None))
         self.dev_name_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Explore_XXXX or XXXX", None))
@@ -2842,3 +2854,4 @@ class Ui_MainWindow(object):
         self.ft_label_temp_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.ft_label_version.setText(QCoreApplication.translate("MainWindow", u"v0.1", None))
     # retranslateUi
+
