@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/image">
-        <file>images/bluetooth_icon_151567.png</file>
         <file>images/MentalabLogo.png</file>
         <file>images/MentalabLogo_full.png</file>
         <file>images/MentalLabLogo5050.png</file>
@@ -263,5 +262,6 @@
         <file>icons/icon_settings.png</file>
         <file>icons/icons8-info-50 (1).png</file>
         <file>icons/info-icon.png</file>
+        <file>icons/pngfind.com-png-circle-1194554.png</file>
     </qresource>
 </RCC>

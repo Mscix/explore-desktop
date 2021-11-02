@@ -10,14 +10,14 @@ class PlotDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
         self.ui.setupUi(self)
-        # self.int_validator = QIntValidator()
         self.ui.lbl_warning.hide()
-        
-        self.s_rate = float(sr)
 
+        self.ui.cb_offset.setToolTip("Remove the DC offset of the signal based on the previous signal values")
+    
+        self.s_rate = float(sr)
         if current_filters is None:
             self.offset = False
-            self.notch = "50"
+            self.notch = ""
             self.lowpass = ""
             self.highpass = ""
         else:
@@ -26,8 +26,10 @@ class PlotDialog(QDialog):
             self.lowpass = str(current_filters["lowpass"])
             self.highpass = str(current_filters["highpass"])
 
+        # self.double_validator = QDoubleValidator(decimals=2)
+        
         # Add options to notch combobox
-        self.ui.value_notch.addItems(["50", "60"])
+        self.ui.value_notch.addItems(["", "50", "60"])
         
         # Set current values 
         self.ui.value_notch.setCurrentText(self.notch)
@@ -36,16 +38,18 @@ class PlotDialog(QDialog):
         self.ui.cb_offset.setChecked(self.offset)
 
         # Set validators (only accept doubles)
-        self.ui.value_highpass.setValidator(QDoubleValidator())
-        self.ui.value_lowpass.setValidator(QDoubleValidator())
+        regex = QRegularExpression("([0-9]+\.?[0-9]|\.[0-9])")
+        self.ui.value_highpass.setValidator(QRegularExpressionValidator(regex))
+        self.ui.value_lowpass.setValidator(QRegularExpressionValidator(regex))
+        # self.ui.value_lowpass.setValidator(QDoubleValidator(decimals=1))
 
         # Verify input with output message when editing is done
-        self.ui.value_lowpass.editingFinished.connect(lambda: self.verify_input())
-        self.ui.value_highpass.editingFinished.connect(lambda: self.verify_input())
+        # self.ui.value_lowpass.editingFinished.connect(lambda: self.verify_input())
+        # self.ui.value_highpass.editingFinished.connect(lambda: self.verify_input())
 
         # Verify input without output message when typing
-        self.ui.value_lowpass.textChanged.connect(lambda: self.verify_input(borderOnly=True))
-        self.ui.value_highpass.textChanged.connect(lambda: self.verify_input(borderOnly=True))
+        self.ui.value_lowpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
+        self.ui.value_highpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
 
     def verify_input(self, borderOnly=False):
         nyq_freq = self.s_rate / 2.
@@ -65,18 +69,23 @@ class PlotDialog(QDialog):
 
         bp_freq_warning = ("High cutoff frequency must be larger than low cutoff frequency.")
 
-        r_value = self.ui.value_highpass.text()
-        l_value = self.ui.value_lowpass.text()
+        r_value = "" if self.ui.value_highpass.text() in [None, 'None'] else self.ui.value_highpass.text()
+        l_value = "" if self.ui.value_lowpass.text() in [None, 'None'] else self.ui.value_lowpass.text()
+        print(r_value, l_value)
 
         r_stylesheet = ""
         l_stylesheet = ""
         lbl_txt = ""
 
         accepted = True
+        
+        if r_value == "." or l_value == ".":
+            accepted = False
+            return
 
         if r_value != "" and l_value == "": # lowpass
             if float(r_value) >= nyq_freq:
-                print(hc_freq_warning)
+                # print(hc_freq_warning)
                 lbl_txt = hc_freq_warning
                 r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
                 l_stylesheet = ""
@@ -136,13 +145,16 @@ class PlotDialog(QDialog):
 
 
     def exec(self):
-        super().exec()
-        return {
-            "offset": self.ui.cb_offset.isChecked(),
-            "notch": None if self.ui.value_notch.currentText() == "" == "" else int(self.ui.value_notch.currentText()),
-            "lowpass": None if self.ui.value_lowpass.text() == "" else float(self.ui.value_lowpass.text()),
-            "highpass": None if self.ui.value_highpass.text() == "" else float(self.ui.value_highpass.text())
-            }
+        ok = self.verify_input()
+        
+        if ok:
+            super().exec()
+            return {
+                "offset": self.ui.cb_offset.isChecked(),
+                "notch": None if self.ui.value_notch.currentText() == "" == "" else int(self.ui.value_notch.currentText()),
+                "lowpass": None if self.ui.value_lowpass.text() == "" else float(self.ui.value_lowpass.text()),
+                "highpass": None if self.ui.value_highpass.text() == "" else float(self.ui.value_highpass.text())
+                }
 
 
 class RecordingDialog(QDialog):

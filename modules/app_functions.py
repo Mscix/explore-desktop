@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor, QIntValidator
 from explorepy.stream_processor import TOPICS
 from pyqtgraph.Qt import App
+from scipy import signal
 # from scipy.ndimage.measurements import label
 from main import *
 import numpy as np
@@ -21,6 +22,7 @@ import mne
 from explorepy.tools import HeartRateEstimator
 from modules.workers import Worker
 from modules.workers import Thread
+import explorepy._exceptions as xpy_ex
 
 class AppFunctions(MainWindow):
 
@@ -101,13 +103,22 @@ class AppFunctions(MainWindow):
                 stream_processor.device_info["device_name"])
 
             # Set active channels
-            n_chan = stream_processor.device_info['adc_mask']
-            n_chan = [i for i in reversed(n_chan)]
+            chan = stream_processor.device_info['adc_mask']
+            chan = [i for i in reversed(chan)]
 
-            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], chan))
+            
+            # print("update frame dev")
+            # print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
+            # print(f"{self.chan_dict=}")
 
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setChecked(self.chan_dict[w.objectName().replace("cb_", "")])
+                if w.objectName().replace("cb_", "") not in self.chan_list:
+                    w.hide()
+
+            if self.n_chan < 16:
+                self.ui.frame_cb_channels_16.hide()
 
             self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
 
@@ -148,47 +159,88 @@ class AppFunctions(MainWindow):
 
         self.ui.ft_label_device_3.setText("Not connected")
         self.ui.ft_label_device_3.repaint()
-        # QApplication.processEvents()
+        # QApplication.processEvents()        
+
+    def get_device_from_le(self):
+
+        input_name = self.ui.dev_name_input.text()
+
+        if not input_name.startswith("Explore_") and len(input_name) == 4:
+            device_name = "Explore_" + input_name
+        elif input_name.startswith("Explore_"):
+            device_name = input_name
+        else:
+            device_name = ""
+
+        return device_name
+
+    def get_device_from_list(self):
+        try:
+            device_name = self.ui.list_devices.selectedItems()[0].text()
+        except IndexError:
+            device_name = ""
+            
+        return device_name
 
     def connect2device(self):
         """
-        Connect to the explore device
+        Connect to the explore device.
         """
         if self.is_connected is False:
-            try:
-                device_name = self.ui.list_devices.selectedItems()[0].text()
-                print(device_name)
-            except IndexError:
-                # TODO change to popup?
-                print("please select a device first")
+            device_name_le = AppFunctions.get_device_from_le(self)
+            device_name_list = AppFunctions.get_device_from_list(self)
+            
+            if device_name_le != "":
+                device_name = device_name_le
+            elif device_name_list != "":
+                device_name = device_name_list
+            else:
+                msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
+                QMessageBox.critical(self, "Error", msg)
+                return
 
             self.ui.ft_label_device_3.setText("Connecting ...")
             self.ui.ft_label_device_3.repaint()
-            QApplication.processEvents()
+            # QApplication.processEvents()
 
             with AppFunctions._wait_cursor():
                 try:
                     self.explorer.connect(device_name=device_name)
                     self.is_connected = True
-                # except DeviceNotFoundError:
-                except:
-                    # TODO change to popup?
-                    print("Could not find the device! Please make sure the device is on and in advertising mode.")
+                except xpy_ex.DeviceNotFoundError as e:
+                    msg = str(e)
+                    QMessageBox.critical(self, "Error", msg)
+                    return
+                except TypeError as e:
+                    msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
+                    QMessageBox.critical(self, "Error", msg)
+                    return
+                except AssertionError as e:
+                    msg = str(e)
+                    QMessageBox.critical(self, "Error", msg)
+                    return
+                except ValueError:
+                    msg = "Error opening socket.\nPlease make sure the bluetooth is on."
+                    QMessageBox.critical(self, "Error", msg)
+                    return
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", str(e))
+                    return
                 pass
 
         else:
-            self.explorer.disconnect()
-            self.is_connected = False
+            try:
+                self.explorer.disconnect()
+                self.is_connected = False
+            except AssertionError as e:
+                msg = str(e)
+                QMessageBox.critical(self, "Error", msg)
+            except Exception as e:
+                msg = str(e)
+                QMessageBox.critical(self, "Error", msg)
 
         print(self.is_connected)
-        # change footer & button text:            
-        AppFunctions.change_footer(self)
-        AppFunctions.change_btn_connect(self)
-        # if self.is_connected:
-        # AppFunctions.info_device(self)
-        AppFunctions.info_device(self)
-        # (un)hide settings frame
-        AppFunctions.update_frame_dev_settings(self)
+        AppFunctions._on_connection(self)
 
     def info_device(self):
         r"""
@@ -317,12 +369,18 @@ class AppFunctions(MainWindow):
             int_mask = int(mask, 2)
             self.explorer.set_channels(int_mask)
 
-            print(self.explorer.stream_processor.device_info['adc_mask'])
             n_chan = self.explorer.stream_processor.device_info['adc_mask']
             n_chan = [i for i in reversed(n_chan)]
+            
             self.chan_dict = dict(
                     zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+            
             self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            
+            print('changed')
+            print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
+            print(f"{self.chan_dict=}")
+            AppFunctions.init_imp(self)
 
         else:
             print("Same channel mask")
@@ -331,11 +389,16 @@ class AppFunctions(MainWindow):
         """
         Apply changes in device settings
         """
+        
+        AppFunctions._disconnect_signals(self)
+        print('disconnected signal')
+
         stream_processor = self.explorer.stream_processor
         with AppFunctions._wait_cursor():
             AppFunctions.change_active_channels(self)
             AppFunctions.change_sampling_rate(self)
             pass
+
         act_chan = ", ".join([ch for ch in self.chan_dict if self.chan_dict[ch]==1])
         title = "!"
         msg = (
@@ -344,6 +407,11 @@ class AppFunctions(MainWindow):
             f"\nActive Channels: {act_chan}"
         )
         QMessageBox.information(self, title, msg)
+
+        AppFunctions._connect_signals(self)
+        print("connected signal")
+
+        AppFunctions.init_plots(self)
 
     # ///// END SETTINGS PAGE FUNCTIONS /////
 
@@ -371,7 +439,11 @@ class AppFunctions(MainWindow):
         Get the value for the event code and mark it
         '''
         event_code = self.ui.value_event_code.text()
-        self.explorer.set_marker(int(event_code))
+        try:
+            self.explorer.set_marker(int(event_code))
+        except ValueError as e:
+            QMessageBox.critical(self, "Error", str(e))
+
 
         # Clean input text box
         self.ui.value_event_code.setText("")
@@ -380,6 +452,25 @@ class AppFunctions(MainWindow):
 
     # ////////////////////////////////////////
     # ///// START IMPEDANCE PAGE FUNCTIONS/////
+    def init_imp(self):
+        active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
+
+        if self.n_chan < 16:
+            self.ui.frame_impedance_widgets_16.hide()
+
+        for chan in Settings.CHAN_LIST:
+            frame_name = f"frame_{chan}"
+            try:
+                ch_frame = AppFunctions._get_widget_by_objName(self, frame_name)
+            except AttributeError:
+                print(chan, frame_name)
+                pass
+            if chan not in active_chan:
+            # if chan not in self.chan_list:
+                ch_frame.hide()
+            elif chan in active_chan and ch_frame.isHidden():
+                ch_frame.show()
+
 
     def disable_imp(self):
         if self.is_connected:
@@ -396,9 +487,12 @@ class AppFunctions(MainWindow):
         """
 
         stream_processor = self.explorer.stream_processor
-        n_chan = stream_processor.device_info['adc_mask']
-        self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+        # n_chan = stream_processor.device_info['adc_mask']
+        # self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+        print(self.chan_dict)
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
+        print(chan_list)
+        # chan_list = 
         data = {ch: ["", AppFunctions._impedance_stylesheet_wet(self, "")] for ch in chan_list}
 
         def callback(packet):
@@ -407,7 +501,7 @@ class AppFunctions(MainWindow):
             imp_values = packet_imp.get_impedances()
             for chan, value in zip(chan_list, imp_values):
                 # print(chan, value)
-                value = value/2
+                # value = value/2
                 # print(value)
                 if value < 5:
                     str_value = "<5"
@@ -428,6 +522,7 @@ class AppFunctions(MainWindow):
 
 
         if self.is_connected is False:
+            QMessageBox.critical(self, "Error", "Please connect an Explore device first")
             return
 
         else:
@@ -489,16 +584,6 @@ class AppFunctions(MainWindow):
     
 
     def push_lsl(self):
-        # worker = Worker(AppFunctions.push_lsl_worker)
-        # worker.signals.result.connect(lambda s:print(s))
-        # worker.signals.finished.connect(lambda : print("Done"))
-        # worker.signals.progress.connect(AppFunctions.progress_fn)
-        
-        # # Execute
-        # self.threadpool.start(worker)
-        # if self.run is False:
-        #     print("STOP")
-        #     self.threadpool.stop(worker)
         if self.th is None:
             self.th = Thread(explore=self.explorer, duration=self.ui.duration_push_lsl.value())
         
@@ -511,8 +596,6 @@ class AppFunctions(MainWindow):
             self.th.stop()
             self.th = None
             self.ui.btn_push_lsl.setText("Push")
-
-
 
     # ///// END INTEGRATION PAGE FUNCTIONS/////
 
@@ -532,10 +615,6 @@ class AppFunctions(MainWindow):
         stream_processor = self.explorer.stream_processor
         chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
-        # TODO: change if not testing
-        '''stream_processor.add_filter(
-                cutoff_freq=(.5, 30), filter_type='bandpass')
-        stream_processor.add_filter(cutoff_freq=50, filter_type='notch')'''
         AppFunctions._apply_filters(self)
 
         def callback(packet):
@@ -624,6 +703,18 @@ class AppFunctions(MainWindow):
 
     # #######################################################
     # ########### Start Init Plot Functions ################
+    def init_plots(self):
+        if self.ui.plot_orn.getItem(0, 0) != None:
+
+            self.ui.plot_exg.clear()
+            self.ui.plot_fft.clear()
+            self.ui.plot_orn.clear()
+            print("cleared plots")
+
+        AppFunctions.init_plot_exg(self)
+        AppFunctions.init_plot_orn(self)
+        AppFunctions.init_plot_fft(self)
+
     def init_plot_exg(self):
         # pw = self.ui.graphicsView #testinng
         n_chan_sp = self.explorer.stream_processor.device_info['adc_mask'].count(1)
@@ -644,7 +735,7 @@ class AppFunctions(MainWindow):
 
         pw.getAxis("left").setWidth(50)
         pw.showGrid(x=False, y=True, alpha=0.5)
-        pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)))
+        pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)), padding=0.01)
         # pw.setRange(yRange=(-0.5, n_chan+1))
         # pw.setRange(yRange=(-2, 1+2), xRange=(0, int(timescale)))
         pw.setLabel("bottom", "time (s)")
@@ -692,11 +783,12 @@ class AppFunctions(MainWindow):
         self.plot_gyro.getAxis("bottom").setStyle(showValues=False)
 
         for plt, lbl in zip(self.plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
-            plt.addLegend(horSpacing=20, colCount=3, brush="k")
+            plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0,-125))
+            # plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0,0))
             plt.getAxis("left").setWidth(80)
             plt.getAxis("left").setLabel(lbl)
             plt.showGrid(x=True, y=True, alpha=0.5)
-            plt.setXRange(0, timescale)
+            plt.setXRange(0, timescale, padding=0.01)
 
         self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name="accZ")
         self.curve_ay = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name="accY")
@@ -704,7 +796,7 @@ class AppFunctions(MainWindow):
 
         self.curve_gx = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[0], name="gyroX")
         self.curve_gy = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
-        self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="agyro")
+        self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="gyroZ")
 
         self.curve_mx = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX")
         self.curve_my = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY")
@@ -714,7 +806,7 @@ class AppFunctions(MainWindow):
 
         pw = self.ui.plot_fft
         pw.setBackground(Settings.PLOT_BACKGROUND)
-        pw.setXRange(0, 70)
+        pw.setXRange(0, 70, padding=0.01)
         pw.showGrid(x=True, y=True, alpha=0.5)
         pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0,-300))
         pw.setLabel('left', "Amplitude (uV)")
@@ -735,13 +827,17 @@ class AppFunctions(MainWindow):
         # if not np.isnan(np.sum(self.t_exg_plot)):
 
         n_new_points = len(data["t"])
+        # n_new_points = len(data["t"]) + 1
         idxs = np.arange(self.exg_pointer, self.exg_pointer+n_new_points)
 
         self.t_exg_plot.put(idxs, data["t"], mode="wrap")  # replace values with new points
         self.last_t = data["t"][-1]
 
         for i, ch in enumerate(self.exg_plot.keys()):
-            self.exg_plot[ch].put(idxs, data[ch], mode="wrap")
+            d = data[ch]
+            # d = np.concatenate((data[ch], np.array([np.NaN])))
+            self.exg_plot[ch].put(idxs, d, mode="wrap")
+            # self.exg_plot[ch][self.exg_pointer+n_new_points]=np.NaN
 
         self.exg_pointer += n_new_points
 
@@ -755,7 +851,7 @@ class AppFunctions(MainWindow):
             t_min = int(round(np.mean(data["t"])))
             # t_min = int(data["t"][-1])
             t_max = int(t_min + AppFunctions._get_timeScale(self))
-            self.ui.plot_exg.setXRange(t_min, t_max)
+            self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
             # Remove marker line and replot in the new axis
             for idx_t in range(len(self.mrk_plot["t"])):
@@ -773,8 +869,12 @@ class AppFunctions(MainWindow):
         else:
             self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
 
+        # connection = np.full(len(self.t_exg_plot), 1)
+        # connection[self.exg_pointer-1:self.exg_pointer] = 0
+
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
+            # curve.setData(self.t_exg_plot, self.exg_plot[ch], connect=connection)
             curve.setData(self.t_exg_plot, self.exg_plot[ch])
 
         # Remove reploted markers
@@ -840,7 +940,7 @@ class AppFunctions(MainWindow):
             # t_min = int(data["t"][-1])
             t_max = int(t_min + AppFunctions._get_timeScale(self))
             for plt in self.plots_orn_list:
-                plt.setXRange(t_min, t_max)
+                plt.setXRange(t_min, t_max, padding=0.01)
         # Position line
         if None in self.lines_orn:
             for i, plt in enumerate(self.plots_orn_list):
@@ -864,7 +964,7 @@ class AppFunctions(MainWindow):
 
         pw = self.ui.plot_fft
         pw.clear()
-        pw.setXRange(0, 70)
+        pw.setXRange(0, 70, padding=0.01)
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
         exg_data = np.array([self.exg_plot[key][~np.isnan(self.exg_plot[key])] for key in self.exg_plot.keys()])
@@ -1068,22 +1168,25 @@ class AppFunctions(MainWindow):
 
     def _reset_impedance(self):
         if self.is_connected:
-            stream_processor = self.explorer.stream_processor
-            n_chan = stream_processor.device_info['adc_mask']
-            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-            chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-            chan_dict = {ch: ["NA", AppFunctions._impedance_stylesheet_wet(self, "NA")] for ch in chan_list}
-
+            # stream_processor = self.explorer.stream_processor
+            # n_chan = stream_processor.device_info['adc_mask']
+            # self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+            active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
+            chan_dict = {ch: ["NA", AppFunctions._impedance_stylesheet_wet(self, "NA")] for ch in active_chan}
+            
             for chan in chan_dict.keys():
+                # print(chan_dict[chan])
                 new_stylesheet = chan_dict[chan][1]
                 frame_name = f"frame_{chan}_color"
                 ch_frame = AppFunctions._get_widget_by_objName(self, frame_name)
                 ch_frame.setStyleSheet(new_stylesheet)
+                QApplication.processEvents()
 
                 new_value = chan_dict[chan][0]
                 label_name = f"label_{chan}_value"
                 ch_label = AppFunctions._get_widget_by_objName(self, label_name)
                 ch_label.setText(new_value)
+                QApplication.processEvents()
         else:
             return
 
@@ -1228,9 +1331,9 @@ class AppFunctions(MainWindow):
         # Based on PyCorder approach
         t_min = self.last_t
         t_max = int(t_min + AppFunctions._get_timeScale(self))
-        self.ui.plot_exg.setXRange(t_min, t_max)
+        self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
         for plt in self.plots_orn_list:
-            plt.setXRange(t_min, t_max)
+            plt.setXRange(t_min, t_max, padding=0.01)
 
         new_size = AppFunctions._plot_points(self)
         self.exg_pointer = 0
@@ -1263,6 +1366,7 @@ class AppFunctions(MainWindow):
 
         if "ch1" not in self.exg_plot.keys():
             print('Heart rate estimation works only when channel 1 is enabled.')
+            QMessageBox.information(self, "!", 'Heart rate estimation works only when channel 1 is enabled.')
             return
 
         # first_chan = self.exg_plot.keys()[0]
@@ -1315,6 +1419,63 @@ class AppFunctions(MainWindow):
         # Update heart rate cell
         estimated_heart_rate = self.rr_estimator.heart_rate
         self.ui.value_heartRate.setText(str(estimated_heart_rate))
+
+    def _display_error(self, msg):
+        QMessageBox.critical(self, title="Error", text=msg)
+    
+    def _set_n_chan(self):
+        og_mask = self.explorer.stream_processor.device_info['adc_mask']
+        chan = og_mask.count(1)
+        if chan > 8:
+            self.n_chan = 16
+        elif chan > 4:
+            self.n_chan = 8
+        else:
+            test_mask = int("11111111", 2)
+            self.explorer.set_channels(test_mask)
+            new_mask = self.explorer.stream_processor.device_info['adc_mask']
+            if new_mask == og_mask: 
+                # if the mask is the same after "activating 8 chan the device is 4chan"
+                self.n_chan = 4
+            else:
+                self.n_chan = 8
+        print(f"{self.n_chan=}")
+
+    def _on_connection(self):
+        # set number of channels:
+        # self.n_chan = len(self.explorer.stream_processor.device_info['adc_mask'])
+        # AppFunctions._set_n_chan(self)
+        self.n_chan = 8
+        self.chan_list = Settings.CHAN_LIST[:self.n_chan]
+
+        # change footer & button text:            
+        AppFunctions.change_footer(self)
+        AppFunctions.change_btn_connect(self)
+
+        # if self.is_connected:
+        # AppFunctions.info_device(self)
+        AppFunctions.info_device(self)
+
+        # (un)hide settings frame
+        AppFunctions.update_frame_dev_settings(self)
+
+        # init plots and impedances
+        AppFunctions.init_plots(self)
+        AppFunctions.init_imp(self)
+
+    def _disconnect_signals(self):
+        self.signal_exg.disconnect(self._lambda_exg)
+        self.signal_orn.disconnect(self._lambda_orn)
+        self.signal_mkr.disconnect(self._lambda_marker)
+
+    def _connect_signals(self):
+        self.signal_exg.connect(self._lambda_exg)
+        self.signal_orn.connect(self._lambda_orn)
+        self.signal_mkr.connect(self._lambda_marker)
+
+
+            
+
     # ///// END FUNCTIONS/////
 
 

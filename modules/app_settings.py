@@ -107,7 +107,8 @@ background-color: #2B851A;"""
     EXG_VIS_SRATE = 125
     WIN_LENGTH = 10  # Seconds
     MODE_LIST = ['EEG', 'ECG']
-    CHAN_LIST = ['Ch1', 'Ch2', 'Ch3', 'Ch4', 'Ch5', 'Ch6', 'Ch7', 'Ch8']
+    CHAN_LIST = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
+        'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14', 'ch15', 'ch16']
     DEFAULT_SCALE = 10 ** 3  # Volt
     BATTERY_N_MOVING_AVERAGE = 60
     V_TH = [10, 5 * 10 ** 3]  # Noise threshold for ECG (microVolt)
