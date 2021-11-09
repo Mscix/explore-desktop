@@ -16,6 +16,7 @@ import time
 import numpy as np
 from datetime import datetime
 from modules.dialogs import RecordingDialog, PlotDialog
+from modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
 # from modules.app_settings import Settings
 # from modules.app_functions import AppFunctions, Plots
 # from modules.ui_functions import UIFunctions
@@ -25,7 +26,7 @@ from modules.dialogs import RecordingDialog, PlotDialog
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
 
-VERSION_APP = 'v0.16'
+VERSION_APP = 'v0.17'
 
 class MainWindow(QMainWindow):
     signal_exg = Signal(object)
@@ -62,8 +63,8 @@ class MainWindow(QMainWindow):
         # self.ui.frame_6.hide()
         self.ui.frame_impedance_widgets_16.hide()
         self.ui.imp_meas_info.setHidden(True)
-        self.ui.label_3.setHidden(True)
-        self.ui.label_7.setHidden(True)
+        self.ui.label_3.setHidden(self.file_names is None)
+        self.ui.label_7.setHidden(self.file_names is None)
 
         self.plotting_filters = None
         # self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
@@ -104,7 +105,7 @@ class MainWindow(QMainWindow):
         # Add app version to footer
         self.ui.ft_label_version.setText(VERSION_APP)
 
-        # Hide frame of device settings when launcinng app
+        # Hide frame of device settings when launching app
         self.ui.frame_device.hide()
         self.ui.line_2.hide()
 
@@ -113,6 +114,15 @@ class MainWindow(QMainWindow):
 
         # Initialize values
         AppFunctions.init_dropdowns(self)
+
+        # Apply stylesheets
+        self.ui.centralwidget.setStyleSheet(CENTRAL_STYLESHEET)
+        self.ui.main_body.setStyleSheet(MAINBODY_STYLESHEET)
+        self.ui.line.setStyleSheet(
+            """background-color: #FFFFFF;
+            border:none;""")
+        QFontDatabase.addApplicationFont("./modules/stylesheets/DMSans-Regular.ttf")
+
 
         # List devices when starting the app
         test = False
@@ -166,6 +176,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_reset_settings.clicked.connect(lambda: AppFunctions.reset_settings(self))
         self.ui.btn_apply_settings.clicked.connect(lambda: AppFunctions.change_settings(self))
         self.ui.btn_calibrate.clicked.connect(lambda: AppFunctions.calibrate_orn(self))
+        self.ui.n_chan.currentTextChanged.connect(lambda: AppFunctions._on_n_chan_change(self))
 
         # IMPEDANCE PAGE
         self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
@@ -207,23 +218,24 @@ class MainWindow(QMainWindow):
         # self.signal_mkr.connect(self._lambda_marker)
         AppFunctions._connect_signals(self)
 
-        # self.ui.btn_stream.hide()
-        # self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_signals(self))
-        # self.ui.btn_stream.clicked.connect(lambda: self.update_fft())
-        # self.ui.btn_stream.clicked.connect(lambda: self.update_heart_rate())
+        self.ui.btn_stream.hide()
+        self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_exg(self, stop=True))
+        self.ui.btn_stream.clicked.connect(lambda: self.update_fft())
+        self.ui.btn_stream.clicked.connect(lambda: self.update_heart_rate())
 
         # self.signal_exg.connect(lambda data: AppFunctions.plot_exg_moving(self, data))
         # self.signal_orn.connect(lambda data: AppFunctions.plot_orn_moving(self, data))
         # self.signal_mkr.connect(lambda data: AppFunctions.plot_marker_moving(self, data))
 
-        '''self.ui.label_7.linkActivated.connect(
+        self.ui.label_7.linkActivated.connect(
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
         )
 
         # Recorded data plotting page
         self.ui.label_3.linkActivated.connect(
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-        )'''
+        )
+        self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         self.ui.btn_stream_rec.clicked.connect(lambda: self.start_recorded_plots())
 
@@ -271,7 +283,8 @@ class MainWindow(QMainWindow):
             filter=file_types
             )
 
-        # self.myTextBox.setText(fileName)
+        files = ", ".join(self.file_names)
+        self.ui.le_data_path.setText(files)
         print(self.file_names)
 
     def plot_filters(self):
@@ -349,6 +362,7 @@ class MainWindow(QMainWindow):
         '''if self.file_names is None:
             QMessageBox.critical(self, "Error", "Import data first")'''
 
+        # if self.ui.cb_swiping.isChecked():
         if self.ui.cb_swipping_rec.isChecked():
             time_scale = self.ui.value_timeScale_rec.currentText()
         else:
@@ -363,10 +377,11 @@ class MainWindow(QMainWindow):
                 self.plot_exg_recorded = Plots("exg", self.file_names, exg_wdgt, time_scale)
                 plot_fft = Plots("fft", self.file_names, fft_wdgt, time_scale)
 
-            if any("exg" in s.lower() for s in self.file_names):
+            if any("orn" in s.lower() for s in self.file_names):
                 self.plot_orn_recorded = Plots("orn", self.file_names, orn_wdgt, time_scale)
 
-        if self.is_streaming is False and self.ui.cb_swipping.isChecked():
+        # if self.is_streaming is False and self.ui.cb_swiping.isChecked():
+        if self.is_streaming is False and self.ui.cb_swipping_rec.isChecked():
             self.ui.btn_stream_rec.setText("Stop Data Stream")
             self.ui.btn_stream_rec.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
             self.is_streaming = True
@@ -386,8 +401,11 @@ class MainWindow(QMainWindow):
             self.ui.btn_stream_rec.setText("Start Data Stream")
             self.ui.btn_stream_rec.setStyleSheet(Settings.START_BUTTON_STYLESHEET)
             self.is_streaming = False
-            self.timer_exg.stop()
-            self.timer_orn.stop()
+            try:
+                self.timer_exg.stop()
+                self.timer_orn.stop()
+            except AttributeError as e:
+                print(str(e))
 
     def changePage(self, btn_name):
         """
@@ -414,6 +432,8 @@ class MainWindow(QMainWindow):
 
         elif btn_name == "btn_plots":
             self.mode = "exg"
+            # self.ui.label_3.setHidden(self.file_names is None)
+            # self.ui.label_7.setHidden(self.file_names is None)
 
             if self.is_imp_measuring:
                 QMessageBox.information(self, "", "Impedance mode will be disabled")
@@ -423,27 +443,36 @@ class MainWindow(QMainWindow):
                 msg = "Please connect an Explore device or import data before attempting to visualize the data"
                 QMessageBox.information(self, "!", msg)
                 return
+            
             elif self.file_names is None:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+
+                if self.plotting_filters is None:
+                    self.plot_filters()
+
+                # if self.ui.plot_orn.getItem(0, 0) is None:
+                #     AppFunctions.init_plot_orn(self)
+                #     AppFunctions.init_plot_exg(self)
+                #     AppFunctions.init_plot_fft(self)
+
+                if not self.is_streaming:
+                    AppFunctions.emit_signals(self)
+                    self.update_fft()
+                    self.update_heart_rate()
+                    self.is_streaming = True
+
+                for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
+                    w.setEnabled(False)
+                    w.setToolTip("Changing channels during visualization is not allowed")
+                    w.setStyleSheet("color: gray")
+
             else:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
 
             # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plots)
             # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
 
-            if self.plotting_filters is None:
-                self.plot_filters()
-
-            # if self.ui.plot_orn.getItem(0, 0) is None:
-            #     AppFunctions.init_plot_orn(self)
-            #     AppFunctions.init_plot_exg(self)
-            #     AppFunctions.init_plot_fft(self)
-
-            if not self.is_streaming:
-                AppFunctions.emit_signals(self)
-                self.update_fft()
-                self.update_heart_rate()
-                self.is_streaming = True
+            
 
         elif btn_name == "btn_impedance":
             self.mode = "imp"

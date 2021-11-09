@@ -133,5 +133,6 @@ QMessageBox QLabel {
 
     TIME_RANGE_MENU = {"10 s": 10., "5 s": 5., "20 s": 20.}
     SAMPLING_RATES = [250, 500, 1000]
+    N_CHAN_LIST = ["4", "8"]
 
     PLOT_BACKGROUND = "#120b28"
