@@ -11,9 +11,9 @@ class PlotDialog(QDialog):
         self.ui = Ui_PlotDialog()
         self.ui.setupUi(self)
         self.ui.lbl_warning.hide()
-
         self.ui.cb_offset.setToolTip("Remove the DC offset of the signal based on the previous signal values")
-    
+        self.setWindowTitle("Visualization Settings")
+
         self.s_rate = float(sr)
         if current_filters is None:
             self.offset = False

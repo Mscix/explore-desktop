@@ -91,6 +91,16 @@ background-color: #2B851A;"""
         "na": "color: #FFFFFF"
     }
 
+    POPUP_STYLESHEET = """
+QMessageBox {
+background-color: rgb(28, 30, 42);
+}
+
+QMessageBox QLabel {
+    color: rgb(200, 200, 200);
+}
+    """
+
     EXG_LINE_COLOR = "#42C4F7"
 
     FFT_LINE_COLORS = [
@@ -123,5 +133,6 @@ background-color: #2B851A;"""
 
     TIME_RANGE_MENU = {"10 s": 10., "5 s": 5., "20 s": 20.}
     SAMPLING_RATES = [250, 500, 1000]
+    N_CHAN_LIST = ["4", "8"]
 
     PLOT_BACKGROUND = "#120b28"
