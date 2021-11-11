@@ -672,17 +672,19 @@ class AppFunctions(MainWindow):
     
 
     def push_lsl(self):
-        if self.th is None:
-            self.th = Thread(explore=self.explorer, duration=None)
+        # if self.th is None:
+        #     self.th = Thread(explore=self.explorer, duration=None)
         
         if self.is_pushing is False:
             self.is_pushing = True
-            self.th.start()
+            # self.th.start()
+            self.explorer.push2lsl(duration=None, block=False)
             self.ui.btn_push_lsl.setText("Stop")
         else:
             self.is_pushing = False
-            self.th.stop()
-            self.th = None
+            self.explorer.stop_lsl()
+            # self.th.stop()
+            # self.th = None
             self.ui.btn_push_lsl.setText("Push")
 
     # ///// END INTEGRATION PAGE FUNCTIONS/////
