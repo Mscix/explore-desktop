@@ -442,15 +442,21 @@ class VisualizationFunctions(AppFunctions):
     # Moving Plot Functions
     #########################
     def plot_exg_moving(self, data):
+        
+        # max_points = 100
+        max_points = AppFunctions._plot_points(self) 
+        # if len(self.t_exg_plot)>max_points:
 
-        max_points = AppFunctions._plot_points(self)
-
-        if len(self.t_exg_plot) > max_points:
+        time_scale = AppFunctions._get_timeScale(self)
+        # if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
+        if len(self.t_exg_plot)>max_points:
+            # self.plot_ch8.clear()
+            # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
             new_points = len(data['t'])
             self.t_exg_plot = self.t_exg_plot[new_points:]
             for ch in self.exg_plot.keys():
                 self.exg_plot[ch] = self.exg_plot[ch][new_points:]
-
+            
             # Remove marker line
             for idx_t in range(len(self.mrk_plot["t"])):
                 if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
@@ -468,6 +474,7 @@ class VisualizationFunctions(AppFunctions):
                 self.r_peak["t"].remove(self.r_peak["t"][idx_t])
                 self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
                 self.r_peak["points"].remove(self.r_peak["points"][idx_t])
+                    
 
             # Update axis
             if len(self.t_exg_plot) - max_points > 0:
@@ -475,7 +482,7 @@ class VisualizationFunctions(AppFunctions):
                 self.t_exg_plot = self.t_exg_plot[extra:]
                 for ch in self.exg_plot.keys():
                     self.exg_plot[ch] = self.exg_plot[ch][extra:]
-
+                    
         self.t_exg_plot.extend(data["t"])
         for ch in self.exg_plot.keys():
             self.exg_plot[ch].extend(data[ch])
@@ -484,11 +491,12 @@ class VisualizationFunctions(AppFunctions):
             curve.setData(self.t_exg_plot, self.exg_plot[ch])
 
     def plot_orn_moving(self, data):
-        """
-        Plot moving ORN
-        """
-        max_points = self.plot_points(self)
-        if len(self.t_orn_plot) > max_points:
+        
+        time_scale = AppFunctions._get_timeScale(self)
+
+        max_points = AppFunctions._plot_points(self) / 7 #/ (2*7)
+        if len(self.t_orn_plot)>max_points:
+        # if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
             self.t_orn_plot = self.t_orn_plot[1:]
             for k in self.orn_plot.keys():
                 self.orn_plot[k] = self.orn_plot[k][1:]
@@ -518,7 +526,12 @@ class VisualizationFunctions(AppFunctions):
         self.mrk_plot["code"].append(data[1])
 
         pen_marker = pg.mkPen(color='#7AB904', dash=[4,4])
-
+        
+        # lines = []
+        '''for plt in self.plots_list:
+        # plt = self.plot_ch8
+            line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
+            lines.append(line)'''
         line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
         # lines.append(line)
         # self.mrk_plot["line"].append(lines)

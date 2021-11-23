@@ -1,7 +1,7 @@
 from PySide6.QtCore import QRegularExpression
 from PySide6.QtGui import QRegularExpressionValidator
-from modules.dialog_plot_settings import Ui_Dialog as Ui_PlotDialog
-from modules.dialog_recording_settings import Ui_Dialog as Ui_RecordingDialog
+from modules.ui.dialog_plot_settings import Ui_Dialog as Ui_PlotDialog
+from modules.ui.dialog_recording_settings import Ui_Dialog as Ui_RecordingDialog
 from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QFileDialog
 import sys
 

@@ -1,5 +1,4 @@
-from modules.app_functions2 import AppFunctions
-from modules.helpers import display_msg
+from modules.app_functions import AppFunctions
 
 
 class LSLFunctions(AppFunctions):
@@ -9,7 +8,7 @@ class LSLFunctions(AppFunctions):
 
     def push_lsl(self):
         if self.is_connected is False:
-            display_msg(msg_text="Please connect an Explore device first")
+            self.exg_plot_datadisplay_msg(msg_text="Please connect an Explore device first")
             return
 
         # spinbox_val = self.ui.spinBox.value()

@@ -1,42 +1,30 @@
-# This Python file uses the following encoding: utf-8
-import os
-from pathlib import Path
 import sys
-
-
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton, QFileDialog
-from PySide6.QtCore import QTimer, Qt, Signal, Slot
-from PySide6.QtGui import QFontDatabase, QIcon, QIntValidator
-import explorepy as xpy
-# xpy.set_bt_interface("pybluez")
-
-from modules import *
-import time
-import numpy as np
 from datetime import datetime
-from modules import bt_functions
-from modules.dialogs import RecordingDialog, PlotDialog
-from modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
-from modules.app_settings import Settings
-# from modules.app_functions import LSLFunctions
-# from modules.ui_functions import UIFunctions
-from modules.ui_main_window import Ui_MainWindow
-from modules.lsl_functions import LSLFunctions
-from modules.bt_functions import BTFunctions
-from modules.config_functions import ConfigFunctions
-from modules.imp_functions import IMPFunctions
-from modules.app_functions import AppFunctions as F
-from modules.visualization_functions import VisualizationFunctions
+import numpy as np
+
+from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QMessageBox, QPushButton, QFileDialog, QSizeGrip
+from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, Qt, Signal, QTimer, Slot
+from PySide6.QtGui import QColor, QIcon, QFontDatabase, QIntValidator
+import explorepy as xpy
+
+# from exploregui.modules import *
+
+from exploregui.modules.dialogs import RecordingDialog  # , PlotDialog
+from exploregui.modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
+# from exploregui.modules import Ui_MainWindow, Settings, AppFunctions, Plots
+from exploregui.modules import Settings, Ui_MainWindow
+from exploregui.modules import AppFunctions, BTFunctions, ConfigFunctions, VisualizationFunctions, IMPFunctions, LSLFunctions
+
+
 # pyside6-uic ui_main_window.ui > ui_main_window.py
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
 
-VERSION_APP = 'v0.17'
-
+VERSION_APP = 'v0.19'
+WINDOW_SIZE = False
 
 class MainWindow(QMainWindow):
     signal_exg = Signal(object)
-    # signal_fft = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
     signal_mkr = Signal(object)
@@ -48,7 +36,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("images/MentalabLogo.png"))
 
         self.explorer = xpy.Explore()
-        self.funct = F(self.ui, self.explorer)
+        self.funct = AppFunctions(self.ui, self.explorer)
         self.LSL_funct = LSLFunctions(self.ui, self.explorer)
         self.BT_funct = BTFunctions(self.ui, self.explorer)
         self.config_funct = ConfigFunctions(self.ui, self.explorer)
@@ -130,7 +118,7 @@ class MainWindow(QMainWindow):
         self.ui.line_2.hide()
 
         # Set UI definitions (close, restore, etc)
-        UIFunctions.ui_definitions(self)
+        self.ui_definitions()
 
         # Initialize values
         self.init_dropdowns()
@@ -145,37 +133,37 @@ class MainWindow(QMainWindow):
 
 
         # List devices when starting the app
-        test = False
-        if test:
-            # pass
-            self.explorer.connect(device_name="Explore_CA18")
-            # self.explorer.connect(device_name="Explore_CA4C")
-            # self.explorer.connect(device_name="Explore_CA07")
-            self.is_connected = True
-            # self.n_chan = 4
-            self.n_chan = len(self.explorer.stream_processor.device_info['adc_mask'])
-            self.chan_list = Settings.CHAN_LIST[:self.n_chan]
+        # test = False
+        # if test:
+        #     # pass
+        #     self.explorer.connect(device_name="Explore_CA18")
+        #     # self.explorer.connect(device_name="Explore_CA4C")
+        #     # self.explorer.connect(device_name="Explore_CA07")
+        #     self.is_connected = True
+        #     # self.n_chan = 4
+        #     self.n_chan = len(self.explorer.stream_processor.device_info['adc_mask'])
+        #     self.chan_list = Settings.CHAN_LIST[:self.n_chan]
 
-            AppFunctions.info_device(self)
-            AppFunctions.update_frame_dev_settings(self)
-            stream_processor = self.explorer.stream_processor
-            n_chan = stream_processor.device_info['adc_mask']
-            n_chan = [i for i in reversed(n_chan)]
-            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-            # self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-            self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-            # AppFunctions.init_plot_exg(self)
-            # AppFunctions.init_plot_orn(self)
-            # AppFunctions.init_plot_fft(self)
-            AppFunctions.init_plots(self)
-            AppFunctions.init_imp(self)
+        #     AppFunctions.info_device(self)
+        #     AppFunctions.update_frame_dev_settings(self)
+        #     stream_processor = self.explorer.stream_processor
+        #     n_chan = stream_processor.device_info['adc_mask']
+        #     n_chan = [i for i in reversed(n_chan)]
+        #     self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
+        #     # self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+        #     self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+        #     # AppFunctions.init_plot_exg(self)
+        #     # AppFunctions.init_plot_orn(self)
+        #     # AppFunctions.init_plot_fft(self)
+        #     AppFunctions.init_plots(self)
+        #     AppFunctions.init_imp(self)
 
 
         '''else:
             AppFunctions.scan_devices(self)'''
 
         # Slidable left panel
-        self.ui.btn_left_menu_toggle.clicked.connect(lambda: UIFunctions.slideLeftMenu(self))
+        self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slideLeftMenu())
 
         # Stacked pages - default open home
         # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
@@ -457,6 +445,9 @@ class MainWindow(QMainWindow):
             except AttributeError as e:
                 print(str(e))
 
+    #########################
+    # UI Functions
+    #########################
     def changePage(self, btn_name):
         """
         Change the active page when the object is clicked
@@ -526,6 +517,23 @@ class MainWindow(QMainWindow):
             self.imp_functions.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_integration)
 
+    def slideLeftMenu(self, enable=True):
+        # Get current left menu width
+        width = self.ui.left_side_menu.width()
+        if width == Settings.LEFT_MENU_MIN:
+            new_width = Settings.LEFT_MENU_MAX
+        else:
+            new_width = Settings.LEFT_MENU_MIN
+
+        # Animate transition
+        self.animation = QPropertyAnimation(
+            self.ui.left_side_menu, b"minimumWidth")
+        self.animation.setDuration(250)
+        self.animation.setStartValue(width)
+        self.animation.setEndValue(new_width)
+        self.animation.setEasingCurve(QEasingCurve.InOutQuart)
+        self.animation.start()
+
     def leftMenuButtonClicked(self):
         """
         Change style of the button clicked and move to the selected page
@@ -556,11 +564,83 @@ class MainWindow(QMainWindow):
         '''
         self.clickPosition = event.globalPosition().toPoint()
 
+    @Slot()
+    def restore_or_maximize(self):
+        # Global window state
+        global WINDOW_SIZE
+        win_status = WINDOW_SIZE
 
-    '''def resizeEvent(self, event):
-        # Update Size Grips
-        UIFunctions.resize_grips(self)'''
+        if not win_status:
+            WINDOW_SIZE = True
+            self.showMaximized()
+            # Update button icon
+            self.ui.btn_restore.setIcon(QIcon(
+                u":icons/icons/cil-window-restore.png"))
 
+        else:
+            WINDOW_SIZE = False
+            self.showNormal()  # normal is 800x400
+            # Update button icon
+            self.ui.btn_restore.setIcon(QIcon(
+                u":icons/icons/icon_maximize.png"))
+
+    @Slot()
+    def on_close(self):
+        self.stop_processes()
+        self.close()
+
+    def ui_definitions(self):
+        # Double click onn bar to maximize/restore the window
+        def doubleClickMaximize(e):
+            if e.type() == QEvent.MouseButtonDblClick:
+                QTimer.singleShot(
+                    250, lambda: self.restore_or_maximize())
+        self.ui.main_header.mouseDoubleClickEvent = doubleClickMaximize
+
+        # Move Winndow poisitionn
+        def moveWindow(e):
+            '''
+            Move window on mouse drag event on the title bar
+            '''
+            # if maximized restore to normal
+            if WINDOW_SIZE:
+                self.restore_or_maximize()
+
+            if e.buttons() == Qt.LeftButton:
+                # Move window:
+                self.move(self.pos() + e.globalPosition().toPoint() - self.clickPosition)
+                self.clickPosition = e.globalPosition().toPoint()
+                e.accept()
+
+        if Settings.CUSTOM_TITLE_BAR:
+            # Add click/move/drag event to the top header to move the window
+            self.ui.main_header.mouseMoveEvent = moveWindow
+        else:
+            self.ui.top_right_btns.hide()
+
+        # Drop Shadow
+        self.shadow = QGraphicsDropShadowEffect()
+        self.shadow.setBlurRadius(17)
+        self.shadow.setXOffset(0)
+        self.shadow.setYOffset(0)
+        self.shadow.setColor(QColor(0, 0, 0, 150))
+        self.ui.centralwidget.setGraphicsEffect(self.shadow)
+
+        # Resize winndow
+        self.sizegrip = QSizeGrip(self.ui.frame_size_grip)
+        self.sizegrip.setStyleSheet("width: 20px; height: 20px; margin 0px; padding: 0px;")
+
+        # Button click events:
+        # Minimize
+        self.ui.btn_minimize.clicked.connect(lambda: self.showMinimized())
+        # Restore/Maximize
+        self.ui.btn_restore.clicked.connect(lambda: self.restore_or_maximize())
+        # Restore/Maximize
+        self.ui.btn_close.clicked.connect(lambda: self.on_close())
+
+    #########################
+    # other Functions
+    #########################
     def init_dropdowns(self):
         '''
         Initilize the GUI dropdowns with the values specified above
@@ -593,6 +673,19 @@ class MainWindow(QMainWindow):
         self.ui.cb_swipping_rec.setChecked(True)
 
         self.ui.imp_mode.addItems(["Wet electrodes", "Dry electrodes"])
+
+    def stop_processes(self):
+        if self.is_recording:
+            self.stop_record()
+            self.is_recording = False
+        if self.is_started:
+            pass
+        if self.LSL_funct.get_pushing_status():
+            self.explorer.stop_lsl()
+            self.LSL_funct.is_pushing = False
+            self.ui.btn_push_lsl.setText("Push")
+        if self.imp_functions.get_imp_status():
+            self.imp_functions.disable_imp()
 
 
 if __name__ == "__main__":

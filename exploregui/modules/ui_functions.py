@@ -2,11 +2,10 @@
 # MAIN FILE
 # ///////////////////////////////////////////////////////////////
 
-from PySide6.QtCore import QEvent
+from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, QTimer, Qt
 from PySide6.QtGui import QColor, QIcon
-from PySide6.QtWidgets import QGraphicsDropShadowEffect, QSizeGrip
-from main import *
-from modules .app_settings import Settings
+from PySide6.QtWidgets import QGraphicsDropShadowEffect, QMainWindow, QSizeGrip
+from exploregui.modules.app_settings import Settings
 
 '''
 # GLOBALS
@@ -20,7 +19,10 @@ GLOBAL_TITLE_BAR = True
 WINDOW_SIZE = False
 
 
-class UIFunctions(MainWindow):
+class UIFunctions():
+    def __init__(self, parent):
+        super().__init__(parent)
+        # self.ui = ui
 
     # Restore or maximize window
     def restore_or_maximize(self):
@@ -75,7 +77,7 @@ class UIFunctions(MainWindow):
         def doubleClickMaximize(e):
             if e.type() == QEvent.MouseButtonDblClick:
                 QTimer.singleShot(
-                    250, lambda: UIFunctions.restore_or_maximize(self))
+                    250, lambda: self.restore_or_maximize())
         self.ui.main_header.mouseDoubleClickEvent = doubleClickMaximize
 
         # Move Winndow poisitionn
@@ -84,13 +86,13 @@ class UIFunctions(MainWindow):
             Move window on mouse drag event on the title bar
             '''
             # if maximized restore to normal
-            if UIFunctions.getWindowStatus(self):
-                UIFunctions.restore_or_maximize(self)
+            if self.getWindowStatus():
+                self.restore_or_maximize()
 
             if e.buttons() == Qt.LeftButton:
                 # Move window:
-                self.move(self.pos() + e.globalPosition().toPoint() - self.clickPosition)
                 self.clickPosition = e.globalPosition().toPoint()
+                self.move(self.pos() + e.globalPosition().toPoint() - self.clickPosition)
                 e.accept()
 
         if Settings.CUSTOM_TITLE_BAR:
@@ -100,7 +102,7 @@ class UIFunctions(MainWindow):
             self.ui.top_right_btns.hide()
 
         # Drop Shadow
-        self.shadow = QGraphicsDropShadowEffect(self)
+        self.shadow = QGraphicsDropShadowEffect()
         self.shadow.setBlurRadius(17)
         self.shadow.setXOffset(0)
         self.shadow.setYOffset(0)
@@ -116,10 +118,10 @@ class UIFunctions(MainWindow):
         self.ui.btn_minimize.clicked.connect(lambda: self.showMinimized())
         # Restore/Maximize
         self.ui.btn_restore.clicked.connect(
-            lambda: UIFunctions.restore_or_maximize(self))
+            lambda: self.restore_or_maximize())
         # Restore/Maximize
         self.ui.btn_close.clicked.connect(lambda: self.close())
-    
+
     '''def resize_grips(self):
         # if Settings.ENABLE_CUSTOM_TITLE_BAR:
         self.left_grip.setGeometry(0, 10, 10, self.height())
