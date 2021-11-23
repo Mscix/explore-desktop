@@ -24,6 +24,7 @@ from modules.workers import Worker
 from modules.workers import Thread
 import explorepy._exceptions as xpy_ex
 
+
 class AppFunctions(MainWindow):
 
     def __init__(self):
@@ -32,7 +33,7 @@ class AppFunctions(MainWindow):
     # ///////////////////////////////////
     # ///// START GENERAL FUNCTIONS/////
 
-    def init_dropdowns(self):
+    """def init_dropdowns(self):
         '''
         Initilize the GUI dropdowns with the values specified above
         '''
@@ -64,8 +65,8 @@ class AppFunctions(MainWindow):
         self.ui.cb_swipping_rec.setChecked(True)
 
         self.ui.imp_mode.addItems(["Wet electrodes", "Dry electrodes"])
-
-    def change_footer(self):
+    """
+    '''def change_footer(self):
         """
         Change the fields for device and firmware in the GUI footer
         """
@@ -85,23 +86,23 @@ class AppFunctions(MainWindow):
         AppFunctions._update_device_name(self, new_value=device_lbl)
         AppFunctions._update_firmware(self, new_value=firmware)
         # self.ui.ft_label_device_3.setText(device_lbl)
-        # self.ui.ft_label_firmware_value.setText(firmware)
+        # self.ui.ft_label_firmware_value.setText(firmware)'''
 
     # ///// END GENERAL FUNCTIONS/////
 
     # //////////////////// ///////////////
     # ///// START FUNCTIONS SETTINGS PAGE /////
 
-    def change_btn_connect(self):
+    """def change_btn_connect(self):
         '''
         Change connect buttonn to Connect/Disconnect depending on explore status
         '''
         if self.is_connected:
             self.ui.btn_connect.setText("Disconnect")
         else:
-            self.ui.btn_connect.setText("Connect")
+            self.ui.btn_connect.setText("Connect")"""
 
-    def update_frame_dev_settings(self):
+    '''def update_frame_dev_settings(self):
         """
         Update the frame with the device settings.
         Only shown if a device is connected
@@ -154,8 +155,8 @@ class AppFunctions(MainWindow):
         else:
             self.ui.frame_device.hide()
             self.ui.line_2.hide()
-
-    def scan_devices(self):
+    '''
+    '''def scan_devices(self):
         """"
         Scans for available explore devices.
         """
@@ -179,9 +180,9 @@ class AppFunctions(MainWindow):
 
         self.ui.ft_label_device_3.setText("Not connected")
         self.ui.ft_label_device_3.repaint()
-        # QApplication.processEvents()        
+        # QApplication.processEvents()  '''      
 
-    def get_device_from_le(self):
+    '''def get_device_from_le(self):
 
         input_name = self.ui.dev_name_input.text()
 
@@ -270,8 +271,9 @@ class AppFunctions(MainWindow):
 
         print(self.is_connected)
         AppFunctions._on_connection(self)
+    '''
 
-    def info_device(self):
+    '''def info_device(self):
         r"""
         Update device information
         """
@@ -313,8 +315,8 @@ class AppFunctions(MainWindow):
 
         self.explorer.stream_processor.subscribe(callback=callback, topic=TOPICS.device_info)
         self.explorer.stream_processor.subscribe(callback=callback, topic=TOPICS.env)
-
-    def format_memory(self):
+    '''
+    '''def format_memory(self):
         r"""
         Display a popup asking for confirmation.
         If yes, memory is formatted.
@@ -497,29 +499,29 @@ class AppFunctions(MainWindow):
         AppFunctions._set_n_chan(self)
         print()
         AppFunctions.update_frame_dev_settings(self)
-
+    '''
     # ///// END SETTINGS PAGE FUNCTIONS /////
 
     # //////////////////// ///////////////
     # ///// START PLOT PAGE FUNCTIONS/////
 
-    def start_stop_streaming(self):
-        '''
-        Start or stop acquiring signal
-        '''
-        # if self.is_connected:
-        if self.is_streaming is False:
-            self.ui.btn_stream.setText("Stop Data Stream")
-            print(Settings.START_BUTTON_STYLESHEET)
-            self.ui.btn_stream.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
-            self.explorer.acquire()
-            self.is_streaming = True
-        else:
-            self.ui.btn_stream.setText("Start Data Stream")
-            self.ui.btn_stream.setStyleSheet(Settings.START_BUTTON_STYLESHEET)
-            self.is_streaming = False
+    # def start_stop_streaming(self):
+    #     '''
+    #     Start or stop acquiring signal
+    #     '''
+    #     # if self.is_connected:
+    #     if self.is_streaming is False:
+    #         self.ui.btn_stream.setText("Stop Data Stream")
+    #         print(Settings.START_BUTTON_STYLESHEET)
+    #         self.ui.btn_stream.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
+    #         self.explorer.acquire()
+    #         self.is_streaming = True
+    #     else:
+    #         self.ui.btn_stream.setText("Start Data Stream")
+    #         self.ui.btn_stream.setStyleSheet(Settings.START_BUTTON_STYLESHEET)
+    #         self.is_streaming = False
 
-    def set_marker(self):
+    """def set_marker(self):
         '''
         Get the value for the event code and mark it
         '''
@@ -532,13 +534,13 @@ class AppFunctions(MainWindow):
 
 
         # Clean input text box
-        self.ui.value_event_code.setText("")
+        self.ui.value_event_code.setText("")"""
 
     # ///// END PLOT PAGE FUNCTIONS/////
 
     # ////////////////////////////////////////
     # ///// START IMPEDANCE PAGE FUNCTIONS/////
-    def init_imp(self):
+    '''def init_imp(self):
         active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
         if self.n_chan < 16:
@@ -547,7 +549,7 @@ class AppFunctions(MainWindow):
         for chan in Settings.CHAN_LIST:
             frame_name = f"frame_{chan}"
             try:
-                ch_frame = AppFunctions._get_widget_by_objName(self, frame_name)
+                ch_frame = AppFunctions.get_widget_by_objName(self, frame_name)
             except AttributeError:
                 print(chan, frame_name)
                 pass
@@ -626,9 +628,9 @@ class AppFunctions(MainWindow):
             else:
             #    self.signal_imp.disconnect()
                AppFunctions.disable_imp(self)
-
+    '''
     # ///// END IMPEDANCE PAGE FUNCTIONS/////
-    def _verify_samplingRate(self):
+    """def _verify_samplingRate(self):
         self.explorer._check_connection()
         sr = int(AppFunctions._get_samplingRate(self))
         if sr != 250:
@@ -648,51 +650,12 @@ class AppFunctions(MainWindow):
                 ok = False
         else:
             ok = True
-        return ok
-    # ////////////////////////////////////////
-    # ///// START INTEGRATION PAGE FUNCTIONS/////
-
-    def push_lsl_worker(self, progress_callback):
-        # TODO theres an error in explrorepy
-        # duration = self.ui.duration_push_lsl.value()
-        # self.explorer.push2lsl(duration=duration)
-        
-        if self.is_pushing is False:
-            self.is_pushing = True
-            while self.run:
-                time.sleep(1)
-                from datetime import datetime
-                now = datetime.now()
-                dt_string = now.strftime("%H_%M_%S")
-                print("push_lsl: ", dt_string)
-                progress_callback.emit(dt_string)
-        else:
-            self.is_pushing = False
-            self.run = False
-    
-
-    def push_lsl(self):
-        # if self.th is None:
-        #     self.th = Thread(explore=self.explorer, duration=None)
-        
-        if self.is_pushing is False:
-            self.is_pushing = True
-            # self.th.start()
-            self.explorer.push2lsl(duration=None, block=False)
-            self.ui.btn_push_lsl.setText("Stop")
-        else:
-            self.is_pushing = False
-            self.explorer.stop_lsl()
-            # self.th.stop()
-            # self.th = None
-            self.ui.btn_push_lsl.setText("Push")
-
-    # ///// END INTEGRATION PAGE FUNCTIONS/////
+        return ok"""
 
     # ////////////////////////////////////////
     # ///// START PLOTTING FUNCTIONS/////
     # ########### Start Emit Signals Functions ################
-    def emit_signals(self):
+    '''def emit_signals(self):
         AppFunctions.emit_orn(self)
         AppFunctions.emit_exg(self)
         AppFunctions.emit_marker(self)
@@ -758,10 +721,7 @@ class AppFunctions(MainWindow):
 
         AppFunctions._apply_filters(self)
         stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
-        
 
-
-    
     def emit_orn(self):
         """"
         Get orientation data
@@ -785,10 +745,8 @@ class AppFunctions(MainWindow):
             self.signal_orn.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.raw_orn, callback=callback)
-    
+
     def emit_marker(self):
-        '''
-        '''
         stream_processor = self.explorer.stream_processor
 
         def callback(packet):
@@ -797,23 +755,25 @@ class AppFunctions(MainWindow):
                 self._vis_time_offset = timestamp[0]
             time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
 
-            '''new_data = dict(zip(
-                ['marker', 't', 'code'],
-                [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
-                    np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))'''
+            # new_data = dict(zip(
+            #     ['marker', 't', 'code'],
+            #     [np.array([0.01, self.n_chan + 0.99, None], dtype=np.double),
+            #         np.array([timestamp[0], timestamp[0], None], dtype=np.double)]))
 
             data = [time_vector[0], self.ui.value_event_code.text()]
             self.signal_mkr.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
-
+    '''
     # ########### End Emit Signals Functions ################
 
     # #######################################################
     # ########### Start Init Plot Functions ################
-    def init_plots(self):
+    '''def init_plots(self):
+        """
+        Initialize EXG, ORN and FFT plots
+        """
         if self.ui.plot_orn.getItem(0, 0) != None:
-
             self.ui.plot_exg.clear()
             self.ui.plot_fft.clear()
             self.ui.plot_orn.clear()
@@ -920,12 +880,12 @@ class AppFunctions(MainWindow):
         pw.setLabel('left', "Amplitude (uV)")
         pw.setLabel('bottom', "Frequency (Hz)")
         pw.setLogMode(x=False, y=True)
-
+    '''
     # ########### End Init Plot Functions ################
 
     # #######################################################
     # ########### Start Swiping Plot Functions ################
-    def plot_exg(self, data):
+    '''def plot_exg(self, data):
 
         # max_points = 100
         max_points = AppFunctions._plot_points(self)
@@ -1017,7 +977,7 @@ class AppFunctions(MainWindow):
 
     def plot_orn(self, data):
 
-        '''time_scale = AppFunctions._get_timeScale(self)
+        """time_scale = AppFunctions._get_timeScale(self)
 
         max_points = AppFunctions._plot_points(self) / (7)
         if len(self.t_orn_plot)>max_points:
@@ -1033,7 +993,7 @@ class AppFunctions(MainWindow):
 
         self.t_orn_plot.extend(data["t"])
         for k in self.orn_plot.keys():
-            self.orn_plot[k].extend(data[k])'''
+            self.orn_plot[k].extend(data[k])"""
         n_new_points = len(data["t"])
         idxs = np.arange(self.orn_pointer, self.orn_pointer+n_new_points)
 
@@ -1102,7 +1062,7 @@ class AppFunctions(MainWindow):
             key = list(data.keys())[i]
             if key != "f":
                 pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
-
+    '''
     # ########### End Swipping Plot Functions ################
 
     # #######################################################
@@ -1209,7 +1169,7 @@ class AppFunctions(MainWindow):
     # ////////////////////////////////////////
     # ///// START HELPER FUNCTIONS/////
 
-    def _battery_stylesheet(self, value):
+    '''def _battery_stylesheet(self, value):
         if isinstance(value, str):
             stylesheet = Settings.BATTERY_STYLESHEETS["na"]
         elif value > 60:
@@ -1275,20 +1235,20 @@ class AppFunctions(MainWindow):
 
     def _update_firmware(self, new_value):
         self.ui.ft_label_firmware_value.setText(new_value)
-
-    def _update_impedance(self, chan_dict):
+    '''
+    '''def _update_impedance(self, chan_dict):
         for chan in chan_dict.keys():
             new_stylesheet = chan_dict[chan][1]
             frame_name = f"frame_{chan}_color"
-            ch_frame = AppFunctions._get_widget_by_objName(self, frame_name)
+            ch_frame = AppFunctions.get_widget_by_objName(self, frame_name)
             ch_frame.setStyleSheet(new_stylesheet)
 
             new_value = chan_dict[chan][0]
             label_name = f"label_{chan}_value"
-            ch_label = AppFunctions._get_widget_by_objName(self, label_name)
+            ch_label = AppFunctions.get_widget_by_objName(self, label_name)
             ch_label.setText(new_value)
-
-    def _reset_impedance(self):
+    '''
+    '''def _reset_impedance(self):
         if self.is_connected:
             # stream_processor = self.explorer.stream_processor
             # n_chan = stream_processor.device_info['adc_mask']
@@ -1300,19 +1260,19 @@ class AppFunctions(MainWindow):
                 # print(chan_dict[chan])
                 new_stylesheet = chan_dict[chan][1]
                 frame_name = f"frame_{chan}_color"
-                ch_frame = AppFunctions._get_widget_by_objName(self, frame_name)
+                ch_frame = AppFunctions.get_widget_by_objName(self, frame_name)
                 ch_frame.setStyleSheet(new_stylesheet)
                 QApplication.processEvents()
 
                 new_value = chan_dict[chan][0]
                 label_name = f"label_{chan}_value"
-                ch_label = AppFunctions._get_widget_by_objName(self, label_name)
+                ch_label = AppFunctions.get_widget_by_objName(self, label_name)
                 ch_label.setText(new_value)
                 QApplication.processEvents()
         else:
             return
 
-    def _get_widget_by_objName(self, name):
+    def get_widget_by_objName(self, name):
         widgets = QApplication.instance().allWidgets()
         for x in widgets:
             # print(x)
@@ -1345,7 +1305,7 @@ class AppFunctions(MainWindow):
         # points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
         # points = Settings.EXG_VIS_SRATE * time_scale
         return int(points)
-
+'''
     def _apply_filters(self):
         stream_processor = self.explorer.stream_processor
         notch_freq = self.plotting_filters["notch"]
@@ -1365,8 +1325,8 @@ class AppFunctions(MainWindow):
 
         print(self.plotting_filters)
 
-    def _check_filters_new_sr(self):
-        
+    '''def _check_filters_new_sr(self):
+ 
         if self.plotting_filters is None:
             return
 
@@ -1408,9 +1368,9 @@ class AppFunctions(MainWindow):
         if warning != "":
             print(warning)
             AppFunctions._display_msg(self, msg_text=warning, type="info")
-        
+    '''    
 
-    def _change_scale(self):
+    '''def _change_scale(self):
         old = Settings.SCALE_MENU[self.y_string]
         new = Settings.SCALE_MENU[self.ui.value_yAxis.currentText()]
 
@@ -1433,30 +1393,30 @@ class AppFunctions(MainWindow):
                 self.exg_plot[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
 
         self.r_peak['r_peak'] = (np.array(self.r_peak['r_peak']) - self.offsets[0]) * \
-            (old_unit / self.y_unit) + self.offsets[0]
+            (old_unit / self.y_unit) + self.offsets[0]'''
 
-    @contextmanager
+    '''@contextmanager
     def _wait_cursor():
         try:
             QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
             yield
         finally:
-            QApplication.restoreOverrideCursor()
+            QApplication.restoreOverrideCursor()'''
 
-    def _plot_tabs(self):
-        # exg = 0, orn = 1, fft = 2
-        tab_idx = int(self.ui.tabWidget.currentIndex())
-        if tab_idx == 0:
-            self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
-            self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
+    # def _plot_tabs(self):
+    #     # exg = 0, orn = 1, fft = 2
+    #     tab_idx = int(self.ui.tabWidget.currentIndex())
+    #     if tab_idx == 0:
+    #         self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
+    #         self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))
 
-        elif tab_idx == 1:
-            self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
+    #     elif tab_idx == 1:
+    #         self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
 
-        elif tab_idx == 2:
-            self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
+    #     elif tab_idx == 2:
+    #         self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
 
-    def _change_timescale(self):
+    '''def _change_timescale(self):
         """current_size = len(self.t_exg_plot)
         new_size = AppFunctions._plot_points(self)
         ts = AppFunctions._get_timeScale(self)
@@ -1511,8 +1471,9 @@ class AppFunctions(MainWindow):
         self.orn_pointer = 0
         self.t_orn_plot = np.array([np.NaN]*new_size_orn)
         self.orn_plot = {k: np.array([np.NaN]*new_size_orn) for k in Settings.ORN_LIST}
+        '''
 
-    def get_fft(exg, s_rate):
+    '''def get_fft(exg, s_rate):
         """
         Compute FFT
         Args:
@@ -1526,8 +1487,9 @@ class AppFunctions(MainWindow):
         fft_content = np.abs(fft_content[:, range(int(n_point / 2))])
         fft_content = gaussian_filter1d(fft_content, 1)
         return fft_content[:, 1:], freq[1:]
+    '''
 
-    def _plot_heart_rate(self):
+    '''def _plot_heart_rate(self):
         if self.ui.value_signal.currentText() == "EEG":
             return
 
@@ -1544,10 +1506,6 @@ class AppFunctions(MainWindow):
 
         if self.rr_estimator is None:
             self.rr_estimator = HeartRateEstimator(fs=exg_fs)
-            
-            '''# Init R-peaks plot
-            self.exg_plot.circle(x='t', y='r_peak', source=self._r_peak_source,
-                                 fill_color="red", size=8)'''
 
         ecg_data = (np.array(self.exg_plot['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
         # ecg_data = (np.array(self.exg_plot[first_chan])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
@@ -1577,9 +1535,9 @@ class AppFunctions(MainWindow):
                 peak = np.array([self.r_peak['r_peak'][idx]])
                 point = pg.PlotCurveItem(t, peak, 
                         pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)
-                '''self.ui.plot_exg.plot(t, peak, 
+                """self.ui.plot_exg.plot(t, peak, 
                         pen = None, symbolBrush =(200, 0, 0), symbol ='o', symbolSize = 8)
-                '''
+                """
                 self.ui.plot_exg.addItem(point)
                 self.r_peak["points"].extend([point])
             # print(dict(zip(['r_peak', 't'], [peaks_val, peaks_time])))"""
@@ -1588,8 +1546,9 @@ class AppFunctions(MainWindow):
         # Update heart rate cell
         estimated_heart_rate = self.rr_estimator.heart_rate
         self.ui.value_heartRate.setText(str(estimated_heart_rate))
+    '''
 
-    def _display_msg(self, msg_text, title=None, type="error"):
+    '''def _display_msg(self, msg_text, title=None, type="error"):
         # msg = QMessageBox.critical(self, title="Error", text=msg)
         msg = QMessageBox()
         msg.setText(msg_text)
@@ -1609,9 +1568,9 @@ class AppFunctions(MainWindow):
         msg.setWindowTitle(wdw_title)
         response = msg.exec()
         return response
+    '''
     
-
-    def _set_n_chan(self):
+    '''def _set_n_chan(self):
 
         self.n_chan = int(self.ui.n_chan.currentText())
         self.chan_list = Settings.CHAN_LIST[:self.n_chan]
@@ -1654,7 +1613,7 @@ class AppFunctions(MainWindow):
         # init plots and impedances
         AppFunctions.init_plots(self)
         AppFunctions.init_imp(self)
-
+    '''
     def _disconnect_signals(self):
         self.signal_exg.disconnect(self._lambda_exg)
         self.signal_orn.disconnect(self._lambda_orn)

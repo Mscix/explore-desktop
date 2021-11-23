@@ -5,28 +5,34 @@ import sys
 
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QPushButton, QFileDialog
-from PySide6.QtCore import QTimer, Qt, Signal, QTimer
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import QTimer, Qt, Signal, Slot
+from PySide6.QtGui import QFontDatabase, QIcon, QIntValidator
 import explorepy as xpy
 # xpy.set_bt_interface("pybluez")
-# from pyqtgraph.Qt import App
-# from pyqtgraph.functions import disconnect
+
 from modules import *
 import time
 import numpy as np
 from datetime import datetime
+from modules import bt_functions
 from modules.dialogs import RecordingDialog, PlotDialog
 from modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
-# from modules.app_settings import Settings
-# from modules.app_functions import AppFunctions, Plots
+from modules.app_settings import Settings
+# from modules.app_functions import LSLFunctions
 # from modules.ui_functions import UIFunctions
-# from modules.ui_main_window import Ui_MainWindow
-
+from modules.ui_main_window import Ui_MainWindow
+from modules.lsl_functions import LSLFunctions
+from modules.bt_functions import BTFunctions
+from modules.config_functions import ConfigFunctions
+from modules.imp_functions import IMPFunctions
+from modules.app_functions2 import AppFunctions as F
+from modules.visualization_functions import VisualizationFunctions
 # pyside6-uic ui_main_window.ui > ui_main_window.py
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
 
 VERSION_APP = 'v0.17'
+
 
 class MainWindow(QMainWindow):
     signal_exg = Signal(object)
@@ -42,22 +48,36 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("images/MentalabLogo.png"))
 
         self.explorer = xpy.Explore()
-        self.is_connected = self.explorer.is_connected
+        self.funct = F(self.ui, self.explorer)
+        self.LSL_funct = LSLFunctions(self.ui, self.explorer)
+        self.BT_funct = BTFunctions(self.ui, self.explorer)
+        self.config_funct = ConfigFunctions(self.ui, self.explorer)
+        self.imp_functions = IMPFunctions(self.ui, self.explorer, self.signal_imp)
+        self.vis_funct = VisualizationFunctions(
+            self.ui, self.explorer,
+            {"exg": self.signal_exg, "mkr": self.signal_mkr, "orn": self.signal_orn}
+            )
+        # self.config_funct = self.funct.config_funct
+
+        # Defined in connect_clicked
+        # self.is_connected = self.explorer.is_connected
+        # self.chan_dict = {}
+        # self.n_chan = 8
+        # self.chan_list = Settings.CHAN_LIST[:self.n_chan]
+
+        # self.t_exg_plot = np.array([np.NaN]*2500)
+        # self.exg_plot = {}
+
+        #########
+
         self.is_streaming = False
-        self.battery_percent_list = []
-        self.chan_dict = {}
-        self.mode = "home"
+        # self.battery_percent_list = []
         self.is_recording = False
-        self.is_imp_measuring = False
+        # self.is_imp_measuring = False
         self.file_names = None
         self.is_started = False
 
-        self.n_chan = 8
-        self.chan_list = Settings.CHAN_LIST[:self.n_chan]
-
-        self.is_pushing = False
-        self.run = True
-        self.th = None
+        # self.is_pushing = False
         
         # self.ui.duration_push_lsl.hide()
         # self.ui.frame_6.hide()
@@ -66,38 +86,38 @@ class MainWindow(QMainWindow):
         self.ui.label_3.setHidden(self.file_names is None)
         self.ui.label_7.setHidden(self.file_names is None)
 
-        self.plotting_filters = None
+        # self.plotting_filters = None
         # self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
 
-        self.downsampling = False
-        self.t_exg_plot = np.array([np.NaN]*2500)
-        self.exg_pointer = 0
-        self.exg_plot = {}
-        self.mrk_plot = {"t": [], "code": [], "line": []}
-        self.mrk_replot = {"t": [], "code": [], "line": []}
+        # self.downsampling = False
+        # self.exg_pointer = 0
+        
+        # self.mrk_plot = {"t": [], "code": [], "line": []}
+        # self.mrk_replot = {"t": [], "code": [], "line": []}
 
-        self.orn_plot = {k: np.array([np.NaN]*200) for k in Settings.ORN_LIST}
-        self.t_orn_plot = np.array([np.NaN]*200)
-        self.orn_pointer = 0
+        # self.orn_plot = {k: np.array([np.NaN]*200) for k in Settings.ORN_LIST}
+        # self.t_orn_plot = np.array([np.NaN]*200)
+        # self.orn_pointer = 0
 
+        # self._vis_time_offset = None
+        # self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
+        #                             "baseline": 0}
 
-        self._vis_time_offset = None
-        self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
-                                    "baseline": 0}
-        self.y_unit = Settings.DEFAULT_SCALE
-        self.y_string = "1 mV"
-        self.line = None
+        # self.y_unit = Settings.DEFAULT_SCALE
+        # self.y_string = "1 mV"
 
-        self.lines_orn = [None, None, None]
-        self.last_t = 0
-        self.last_t_orn = 0
+        # self.line = None
 
-        self.rr_estimator = None
-        self.r_peak = {"t": [], "r_peak": [], "points": []}
+        # self.lines_orn = [None, None, None]
+        # self.last_t = 0
+        # self.last_t_orn = 0
 
-        self._lambda_exg = lambda data: AppFunctions.plot_exg(self, data)
-        self._lambda_orn = lambda data: AppFunctions.plot_orn(self, data)
-        self._lambda_marker = lambda data: AppFunctions.plot_marker(self, data)
+        # self.rr_estimator = None
+        # self.r_peak = {"t": [], "r_peak": [], "points": []}
+
+        # self._lambda_exg = lambda data: self.vis_funct.plot_exg(data)
+        # self._lambda_orn = lambda data: AppFunctions.plot_orn(data)
+        # self._lambda_marker = lambda data: AppFunctions.plot_marker(data)
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -113,7 +133,7 @@ class MainWindow(QMainWindow):
         UIFunctions.ui_definitions(self)
 
         # Initialize values
-        AppFunctions.init_dropdowns(self)
+        self.init_dropdowns()
 
         # Apply stylesheets
         self.ui.centralwidget.setStyleSheet(CENTRAL_STYLESHEET)
@@ -168,26 +188,26 @@ class MainWindow(QMainWindow):
             w.clicked.connect(self.leftMenuButtonClicked)
 
         # SETTINNGS PAGE BUTTONS
-        self.ui.btn_connect.clicked.connect(lambda: AppFunctions.connect2device(self))
-        self.ui.dev_name_input.returnPressed.connect(lambda: AppFunctions.connect2device(self))
-        self.ui.btn_scan.clicked.connect(lambda: AppFunctions.scan_devices(self))
-        self.ui.btn_import_data.clicked.connect(lambda: self.import_recorded_data())
-        self.ui.btn_format_memory.clicked.connect(lambda: AppFunctions.format_memory(self))
-        self.ui.btn_reset_settings.clicked.connect(lambda: AppFunctions.reset_settings(self))
-        self.ui.btn_apply_settings.clicked.connect(lambda: AppFunctions.change_settings(self))
-        self.ui.btn_calibrate.clicked.connect(lambda: AppFunctions.calibrate_orn(self))
-        self.ui.n_chan.currentTextChanged.connect(lambda: AppFunctions._on_n_chan_change(self))
+        self.ui.btn_connect.clicked.connect(lambda: self.connect_clicked())
+        self.ui.dev_name_input.returnPressed.connect(lambda: self.connect_clicked())
+        self.ui.btn_scan.clicked.connect(lambda: self.BT_funct.scan_devices())
+
+        # self.ui.btn_import_data.clicked.connect(lambda: self.import_recorded_data())
+        self.ui.btn_format_memory.clicked.connect(lambda: self.config_funct.format_memory())
+        self.ui.btn_reset_settings.clicked.connect(lambda: self.config_funct.reset_settings())
+        self.ui.btn_apply_settings.clicked.connect(lambda: self.settings_changed())
+        self.ui.btn_calibrate.clicked.connect(lambda: self.config_funct.calibrate_orn())
+        self.ui.n_chan.currentTextChanged.connect(lambda: self.n_chan_changed())
 
         # IMPEDANCE PAGE
         self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
-        self.ui.btn_imp_meas.clicked.connect(lambda: AppFunctions.emit_imp(self))
-        self.signal_imp.connect(lambda data: AppFunctions._update_impedance(self, data))
-        # self.ui.label_6.linkActivated.connect(lambda: AppFunctions.disable_imp(self))
+        self.signal_imp.connect(self.imp_functions.update_impedance)
+        self.ui.btn_imp_meas.clicked.connect(lambda: self.imp_meas_clicked())
         self.ui.label_6.setHidden(True)
 
         # PLOTTING PAGE
         self.ui.btn_record.clicked.connect(self.start_record)
-        self.ui.btn_plot_filters.clicked.connect(lambda: self.plot_filters())
+        self.ui.btn_plot_filters.clicked.connect(lambda: self.vis_funct.popup_filters())
 
         self.ui.btn_marker.setEnabled(False)
         self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
@@ -197,31 +217,20 @@ class MainWindow(QMainWindow):
             )
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
-        self.ui.btn_marker.clicked.connect(lambda: AppFunctions.set_marker(self))
-        self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
+        self.ui.btn_marker.clicked.connect(lambda: self.vis_funct.set_marker())
+        # self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
 
+        self.ui.value_yAxis.currentTextChanged.connect(lambda: self.vis_funct.change_scale())
+        self.ui.value_timeScale.currentTextChanged.connect(lambda: self.vis_funct.change_timescale())
 
-        # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
-        self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
-        # self.ui.btn_marker.clicked.connect(lambda: self.ui.value_event_code.setText(""))
-
-        self.ui.value_yAxis.currentTextChanged.connect(lambda: AppFunctions._change_scale(self))
-        self.ui.value_timeScale.currentTextChanged.connect(lambda: AppFunctions._change_timescale(self))
-
-        '''self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
-        # self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
-        self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        self.signal_mkr.connect(lambda data: AppFunctions.plot_marker(self, data))'''
-
-        # self.signal_exg.connect(self._lambda_exg)
-        # self.signal_orn.connect(self._lambda_orn)
-        # self.signal_mkr.connect(self._lambda_marker)
-        AppFunctions._connect_signals(self)
+        self.signal_exg.connect(self.vis_funct.plot_exg)
+        self.signal_orn.connect(self.vis_funct.plot_orn)
+        self.signal_mkr.connect(self.vis_funct.plot_mkr)
 
         self.ui.btn_stream.hide()
-        self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_exg(self, stop=True))
-        self.ui.btn_stream.clicked.connect(lambda: self.update_fft())
-        self.ui.btn_stream.clicked.connect(lambda: self.update_heart_rate())
+        # self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_exg(self, stop=True))
+        # self.ui.btn_stream.clicked.connect(lambda: self.update_fft())
+        # self.ui.btn_stream.clicked.connect(lambda: self.update_heart_rate())
 
         # self.signal_exg.connect(lambda data: AppFunctions.plot_exg_moving(self, data))
         # self.signal_orn.connect(lambda data: AppFunctions.plot_orn_moving(self, data))
@@ -240,7 +249,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_stream_rec.clicked.connect(lambda: self.start_recorded_plots())
 
         # INTEGRATION PAGE
-        self.ui.btn_push_lsl.clicked.connect(lambda: AppFunctions.push_lsl(self))
+        self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
 
         # /////////////////////////////// START TESTING ///////////////////////
         '''self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
@@ -256,17 +265,58 @@ class MainWindow(QMainWindow):
         # self.ui.pushButton_3.clicked.connect(lambda: self.ui.graphicsView.clear())'''
 
         # /////////////////////////////// END TESTING ///////////////////////
+    @Slot()
+    def connect_clicked(self):
+        self.BT_funct.connect2device()
+        self.vis_funct.init_plots()
+        self.is_connected = self.BT_funct.get_is_connected()
+
+        if self.is_connected:
+            self.chan_dict = self.BT_funct.get_chan_dict()
+            self.chan_list = self.BT_funct.get_chan_list()
+            self.n_chan = len(self.chan_list)
+            self.t_exg_plot, self.exg_plot = self.BT_funct.get_exg_plot_data()
+        else:
+            self.chan_dict = {}
+            self.n_chan = 8
+            self.chan_list = Settings.CHAN_LIST[:self.n_chan]
+            self.t_exg_plot = np.array([np.NaN]*2500)
+            self.exg_plot = {}
+
+    @Slot()
+    def n_chan_changed(self):
+        self.BT_funct.set_n_chan()
+        self.BT_funct.update_frame_dev_settings()
+
+    @Slot()
+    def settings_changed(self):
+        self.config_funct.change_settings()
+        self.t_exg_plot, self.exg_plot = self.config_funct.get_exg_plot_data()
+        self.chan_dict = self.config_funct.get_chan_dict()
+        print(f"{len(self.config_funct.get_exg_plot_data()[0])=}")
+        print(f"{len(self.BT_funct.get_exg_plot_data()[0])=}")
+        print(f"{len(self.funct.get_exg_plot_data()[0])=}")
+
+        print(f"{self.config_funct.get_chan_dict()=}")
+        print(f"{self.BT_funct.get_chan_dict()=}")
+        print(f"{self.funct.get_chan_dict()=}")
+
+    @Slot()
+    def imp_meas_clicked(self):
+        # self.chan_dict = self.BT_funct.get_chan_dict()
+        # self.is_connected = self.BT_funct.get_is_connected()
+        self.imp_functions.emit_imp()
 
     def update_fft(self):
         self.timer_fft = QTimer(self)
         self.timer_fft.setInterval(2000)
-        self.timer_fft.timeout.connect(lambda: AppFunctions.plot_fft(self))
+        self.timer_fft.timeout.connect(lambda: self.vis_funct.plot_fft())
         self.timer_fft.start()
 
     def update_heart_rate(self):
         self.timer_hr = QTimer(self)
         self.timer_hr.setInterval(2000)
-        self.timer_hr.timeout.connect(lambda: AppFunctions._plot_heart_rate(self))
+        self.timer_hr.timeout.connect(lambda: self.vis_funct.plot_heart_rate())
         self.timer_hr.start()
 
     def import_recorded_data(self):
@@ -287,7 +337,7 @@ class MainWindow(QMainWindow):
         self.ui.le_data_path.setText(files)
         print(self.file_names)
 
-    def plot_filters(self):
+    """def plot_filters(self):
         '''
         Open plot filter dialog and apply filters
         '''
@@ -298,7 +348,7 @@ class MainWindow(QMainWindow):
         AppFunctions._apply_filters(self)
         # self.loading = LoadingScreen()
         if wait:
-            time.sleep(1.5)
+            time.sleep(1.5)"""
 
     def start_timer_recorder(self):
         '''
@@ -413,77 +463,67 @@ class MainWindow(QMainWindow):
         Args:
             btn_name
         """
+        self.is_imp_measuring = self.imp_functions.get_imp_status()
         # btn = self.sender()
         # btn_name = btn.objectName()
 
         if btn_name == "btn_home":
-            self.mode = "home"
+            self.imp_functions.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
-            # if self.is_imp_measuring:
-            #     self.explorer.stream_processor.disable_imp()
 
         elif btn_name == "btn_settings":
-            self.mode = "settings"
-            if self.is_imp_measuring:
-                QMessageBox.information(self, "", "Impedance mode will be disabled")
-                AppFunctions.disable_imp(self)
-
+            self.imp_functions.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_plots":
-            self.mode = "exg"
             # self.ui.label_3.setHidden(self.file_names is None)
             # self.ui.label_7.setHidden(self.file_names is None)
 
-            if self.is_imp_measuring:
-                QMessageBox.information(self, "", "Impedance mode will be disabled")
-                AppFunctions.disable_imp(self)
+            self.imp_functions.check_is_imp()
 
-            if self.is_connected is False and self.file_names is None:
+            if self.funct.is_connected is False and self.file_names is None:
                 msg = "Please connect an Explore device or import data before attempting to visualize the data"
                 QMessageBox.information(self, "!", msg)
                 return
-            
+
             elif self.file_names is None:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+                if self.funct.plotting_filters is None:
+                    filt = self.vis_funct.popup_filters()
 
-                if self.plotting_filters is None:
-                    self.plot_filters()
-
-                # if self.ui.plot_orn.getItem(0, 0) is None:
-                #     AppFunctions.init_plot_orn(self)
-                #     AppFunctions.init_plot_exg(self)
-                #     AppFunctions.init_plot_fft(self)
-
-                if not self.is_streaming:
-                    AppFunctions.emit_signals(self)
+                if not self.is_streaming and filt:
+                    self.vis_funct.emit_signals()
                     self.update_fft()
                     self.update_heart_rate()
                     self.is_streaming = True
 
-                for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
-                    w.setEnabled(False)
-                    w.setToolTip("Changing channels during visualization is not allowed")
-                    w.setStyleSheet("color: gray")
+                if filt is False:
+                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+
+                # for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
+                #     w.setEnabled(False)
+                #     w.setToolTip("Changing channels during visualization is not allowed")
+                #     w.setStyleSheet("color: gray")
 
             else:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
 
-            # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plots)
-            # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
-
-            
-
         elif btn_name == "btn_impedance":
-            self.mode = "imp"
+            if self.funct.is_connected is False:
+                msg = "Please connect an Explore device to visualize the impedances."
+                self.funct.display_msg(msg_text=msg, type="info")
+                return
+
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_impedance)
-            AppFunctions._reset_impedance(self)
+            self.imp_functions.reset_impedance()
 
         elif btn_name == "btn_integration":
-            self.mode = "integration"
-            if self.is_imp_measuring:
-                QMessageBox.information(self, "", "Impedance mode will be disabled")
-                AppFunctions.disable_imp(self)
+            if self.funct.is_connected is False:
+                msg = "Please connect an Explore device to push the data."
+                self.funct.display_msg(msg_text=msg, type="info")
+                return
+
+            self.imp_functions.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_integration)
 
     def leftMenuButtonClicked(self):
@@ -514,11 +554,45 @@ class MainWindow(QMainWindow):
         Get mouse current position to move the window
         Args: mouse press event
         '''
-        self.clickPosition = event.globalPos()
+        self.clickPosition = event.globalPosition().toPoint()
+
 
     '''def resizeEvent(self, event):
         # Update Size Grips
         UIFunctions.resize_grips(self)'''
+
+    def init_dropdowns(self):
+        '''
+        Initilize the GUI dropdowns with the values specified above
+        '''
+
+        # value number of channels:
+        self.ui.n_chan.addItems(Settings.N_CHAN_LIST)
+        self.ui.n_chan.setCurrentText("8")
+
+        # value_signal_type
+        self.ui.value_signal.addItems(Settings.MODE_LIST)
+        self.ui.value_signal_rec.addItems(Settings.MODE_LIST)
+
+        # value_yaxis
+        self.ui.value_yAxis.addItems(Settings.SCALE_MENU.keys())
+        self.ui.value_yAxis.setCurrentText("1 mV")
+
+        self.ui.value_yAxis_rec.addItems(Settings.SCALE_MENU.keys())
+        self.ui.value_yAxis_rec.setCurrentText("1 mV")
+
+        # value_time_scale
+        self.ui.value_timeScale.addItems(Settings.TIME_RANGE_MENU.keys())
+        self.ui.value_timeScale_rec.addItems(Settings.TIME_RANGE_MENU.keys())
+
+        # value_sampling_rate
+        self.ui.value_sampling_rate.addItems([str(int(sr)) for sr in Settings.SAMPLING_RATES])
+
+        self.ui.value_event_code.setValidator(QIntValidator(8, 65535))
+
+        self.ui.cb_swipping_rec.setChecked(True)
+
+        self.ui.imp_mode.addItems(["Wet electrodes", "Dry electrodes"])
 
 
 if __name__ == "__main__":

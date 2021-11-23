@@ -2,7 +2,11 @@
 # MAIN FILE
 # ///////////////////////////////////////////////////////////////
 
+from PySide6.QtCore import QEvent
+from PySide6.QtGui import QColor, QIcon
+from PySide6.QtWidgets import QGraphicsDropShadowEffect, QSizeGrip
 from main import *
+from modules .app_settings import Settings
 
 '''
 # GLOBALS
@@ -85,8 +89,8 @@ class UIFunctions(MainWindow):
 
             if e.buttons() == Qt.LeftButton:
                 # Move window:
-                self.move(self.pos() + e.globalPos() - self.clickPosition)
-                self.clickPosition = e.globalPos()
+                self.move(self.pos() + e.globalPosition().toPoint() - self.clickPosition)
+                self.clickPosition = e.globalPosition().toPoint()
                 e.accept()
 
         if Settings.CUSTOM_TITLE_BAR:
