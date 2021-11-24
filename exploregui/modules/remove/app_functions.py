@@ -11,7 +11,7 @@ from scipy import signal
 # from scipy.ndimage.measurements import label
 from main import *
 import numpy as np
-from modules.app_settings import Settings
+from exploregui.modules.app_settings import Settings
 from explorepy.tools import bt_scan
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
@@ -21,7 +21,7 @@ from contextlib import contextmanager
 import pyqtgraph as pg
 import mne
 from explorepy.tools import HeartRateEstimator
-from modules.workers import Thread
+from exploregui.modules.workers import Thread
 import explorepy._exceptions as xpy_ex
 import copy
 

@@ -5,9 +5,9 @@ from explorepy.stream_processor import TOPICS
 from explorepy.tools import HeartRateEstimator
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter1d
-from modules.app_functions import AppFunctions
-from modules.app_settings import Settings
-from modules.dialogs import PlotDialog
+from exploregui.modules.app_functions import AppFunctions
+from exploregui.modules.app_settings import Settings
+from exploregui.modules.dialogs import PlotDialog
 import pyqtgraph as pg
 
 

@@ -2,8 +2,8 @@ from contextlib import contextmanager
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QApplication, QMessageBox
-from modules.app_settings import Settings
-# from modules.bt_functions import BTFunctions
+from exploregui.modules.app_settings import Settings
+# from exploregui.modules.bt_functions import BTFunctions
 
 import numpy as np
 

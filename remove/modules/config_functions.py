@@ -1,7 +1,7 @@
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QCheckBox, QMessageBox
-from modules.app_functions import AppFunctions
-from modules.app_settings import Settings
+from exploregui.modules.app_functions import AppFunctions
+from exploregui.modules.app_settings import Settings
 import numpy as np
 
 

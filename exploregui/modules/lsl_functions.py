@@ -1,4 +1,4 @@
-from modules.app_functions import AppFunctions
+from exploregui.modules.app_functions import AppFunctions
 
 
 class LSLFunctions(AppFunctions):

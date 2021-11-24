@@ -10,23 +10,23 @@ from PySide6.QtGui import QFontDatabase, QIcon, QIntValidator
 import explorepy as xpy
 # xpy.set_bt_interface("pybluez")
 
-from modules import *
+from exploregui.modules import *
 import time
 import numpy as np
 from datetime import datetime
-from modules import bt_functions
-from modules.dialogs import RecordingDialog, PlotDialog
-from modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
-from modules.app_settings import Settings
-# from modules.app_functions import LSLFunctions
-# from modules.ui_functions import UIFunctions
-from modules.ui_main_window import Ui_MainWindow
-from modules.lsl_functions import LSLFunctions
-from modules.bt_functions import BTFunctions
-from modules.config_functions import ConfigFunctions
-from modules.imp_functions import IMPFunctions
-from modules.app_functions import AppFunctions as F
-from modules.visualization_functions import VisualizationFunctions
+from exploregui.modules import bt_functions
+from exploregui.modules.dialogs import RecordingDialog, PlotDialog
+from exploregui.modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
+from exploregui.modules.app_settings import Settings
+# from exploregui.modules.app_functions import LSLFunctions
+# from exploregui.modules.ui_functions import UIFunctions
+from exploregui.modules.ui_main_window import Ui_MainWindow
+from exploregui.modules.lsl_functions import LSLFunctions
+from exploregui.modules.bt_functions import BTFunctions
+from exploregui.modules.config_functions import ConfigFunctions
+from exploregui.modules.imp_functions import IMPFunctions
+from exploregui.modules.app_functions import AppFunctions as F
+from exploregui.modules.visualization_functions import VisualizationFunctions
 # pyside6-uic ui_main_window.ui > ui_main_window.py
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py

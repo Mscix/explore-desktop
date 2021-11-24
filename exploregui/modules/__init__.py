@@ -1,6 +1,6 @@
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import *
+# from PySide6.QtCore import *
+# from PySide6.QtGui import *
+# from PySide6.QtWidgets import *
 
 # GUI FILE
 from .ui.ui_main_window import Ui_MainWindow
@@ -20,3 +20,4 @@ from .bt_functions import BTFunctions
 from .config_functions import ConfigFunctions
 from .imp_functions import IMPFunctions
 from .visualization_functions import VisualizationFunctions
+from .recording_functions import RecordFunctions

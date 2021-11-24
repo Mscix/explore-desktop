@@ -13,7 +13,8 @@ from exploregui.modules.dialogs import RecordingDialog  # , PlotDialog
 from exploregui.modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
 # from exploregui.modules import Ui_MainWindow, Settings, AppFunctions, Plots
 from exploregui.modules import Settings, Ui_MainWindow
-from exploregui.modules import AppFunctions, BTFunctions, ConfigFunctions, VisualizationFunctions, IMPFunctions, LSLFunctions
+from exploregui.modules import AppFunctions, BTFunctions, ConfigFunctions, VisualizationFunctions
+from exploregui.modules import IMPFunctions, LSLFunctions, RecordFunctions
 
 
 # pyside6-uic ui_main_window.ui > ui_main_window.py
@@ -22,6 +23,7 @@ from exploregui.modules import AppFunctions, BTFunctions, ConfigFunctions, Visua
 
 VERSION_APP = 'v0.19'
 WINDOW_SIZE = False
+
 
 class MainWindow(QMainWindow):
     signal_exg = Signal(object)
@@ -33,19 +35,19 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowIcon(QIcon("images/MentalabLogo.png"))
+        self.setWindowIcon(QIcon("exploregui/images/MentalabLogo.png"))
 
         self.explorer = xpy.Explore()
         self.funct = AppFunctions(self.ui, self.explorer)
         self.LSL_funct = LSLFunctions(self.ui, self.explorer)
         self.BT_funct = BTFunctions(self.ui, self.explorer)
         self.config_funct = ConfigFunctions(self.ui, self.explorer)
-        self.imp_functions = IMPFunctions(self.ui, self.explorer, self.signal_imp)
+        self.imp_funct = IMPFunctions(self.ui, self.explorer, self.signal_imp)
         self.vis_funct = VisualizationFunctions(
             self.ui, self.explorer,
             {"exg": self.signal_exg, "mkr": self.signal_mkr, "orn": self.signal_orn}
             )
-        # self.config_funct = self.funct.config_funct
+        self.record_funct = RecordFunctions(self.ui, self.explorer)
 
         # Defined in connect_clicked
         # self.is_connected = self.explorer.is_connected
@@ -189,12 +191,12 @@ class MainWindow(QMainWindow):
 
         # IMPEDANCE PAGE
         self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
-        self.signal_imp.connect(self.imp_functions.update_impedance)
+        self.signal_imp.connect(self.imp_funct.update_impedance)
         self.ui.btn_imp_meas.clicked.connect(lambda: self.imp_meas_clicked())
         self.ui.label_6.setHidden(True)
 
         # PLOTTING PAGE
-        self.ui.btn_record.clicked.connect(self.start_record)
+        self.ui.btn_record.clicked.connect(lambda: self.record_funct.on_record())
         self.ui.btn_plot_filters.clicked.connect(lambda: self.vis_funct.popup_filters())
 
         self.ui.btn_marker.setEnabled(False)
@@ -293,7 +295,7 @@ class MainWindow(QMainWindow):
     def imp_meas_clicked(self):
         # self.chan_dict = self.BT_funct.get_chan_dict()
         # self.is_connected = self.BT_funct.get_is_connected()
-        self.imp_functions.emit_imp()
+        self.imp_funct.emit_imp()
 
     def update_fft(self):
         self.timer_fft = QTimer(self)
@@ -338,7 +340,7 @@ class MainWindow(QMainWindow):
         if wait:
             time.sleep(1.5)"""
 
-    def start_timer_recorder(self):
+    """def start_timer_recorder(self):
         '''
         Start timer to display recording time
         '''
@@ -391,7 +393,7 @@ class MainWindow(QMainWindow):
             QApplication.processEvents()
             self.is_recording = False
             self.timer.stop()
-
+    """
     def start_recorded_plots(self):
         '''
         Start plotting recorded data
@@ -454,23 +456,23 @@ class MainWindow(QMainWindow):
         Args:
             btn_name
         """
-        self.is_imp_measuring = self.imp_functions.get_imp_status()
+        self.is_imp_measuring = self.imp_funct.get_imp_status()
         # btn = self.sender()
         # btn_name = btn.objectName()
 
         if btn_name == "btn_home":
-            self.imp_functions.check_is_imp()
+            self.imp_funct.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
 
         elif btn_name == "btn_settings":
-            self.imp_functions.check_is_imp()
+            self.imp_funct.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_plots":
             # self.ui.label_3.setHidden(self.file_names is None)
             # self.ui.label_7.setHidden(self.file_names is None)
 
-            self.imp_functions.check_is_imp()
+            self.imp_funct.check_is_imp()
 
             if self.funct.is_connected is False and self.file_names is None:
                 msg = "Please connect an Explore device or import data before attempting to visualize the data"
@@ -506,7 +508,7 @@ class MainWindow(QMainWindow):
                 return
 
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_impedance)
-            self.imp_functions.reset_impedance()
+            self.imp_funct.reset_impedance()
 
         elif btn_name == "btn_integration":
             if self.funct.is_connected is False:
@@ -514,7 +516,7 @@ class MainWindow(QMainWindow):
                 self.funct.display_msg(msg_text=msg, type="info")
                 return
 
-            self.imp_functions.check_is_imp()
+            self.imp_funct.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_integration)
 
     def slideLeftMenu(self, enable=True):
@@ -675,17 +677,17 @@ class MainWindow(QMainWindow):
         self.ui.imp_mode.addItems(["Wet electrodes", "Dry electrodes"])
 
     def stop_processes(self):
-        if self.is_recording:
-            self.stop_record()
-            self.is_recording = False
+        if self.record_funct.is_recording:
+            self.record_funct.stop_record()
+            self.record_funct.is_recording = False
         if self.is_started:
             pass
         if self.LSL_funct.get_pushing_status():
             self.explorer.stop_lsl()
             self.LSL_funct.is_pushing = False
             self.ui.btn_push_lsl.setText("Push")
-        if self.imp_functions.get_imp_status():
-            self.imp_functions.disable_imp()
+        if self.imp_funct.get_imp_status():
+            self.imp_funct.disable_imp()
 
 
 if __name__ == "__main__":
