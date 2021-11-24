@@ -1,5 +1,6 @@
 import sys
 from datetime import datetime
+from typing_extensions import ParamSpecArgs
 import numpy as np
 
 from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QMessageBox, QPushButton, QFileDialog, QSizeGrip
@@ -49,65 +50,16 @@ class MainWindow(QMainWindow):
         self.config_funct = ConfigFunctions(self.ui, self.explorer, self.vis_funct)
         self.record_funct = RecordFunctions(self.ui, self.explorer)
 
-        # Defined in connect_clicked
-        # self.is_connected = self.explorer.is_connected
-        # self.chan_dict = {}
-        # self.n_chan = 8
-        # self.chan_list = Settings.CHAN_LIST[:self.n_chan]
-
-        # self.t_exg_plot = np.array([np.NaN]*2500)
-        # self.exg_plot = {}
-
-        #########
-
         self.is_streaming = False
-        # self.battery_percent_list = []
-        self.is_recording = False
-        # self.is_imp_measuring = False
+        # self.is_recording = False
         self.file_names = None
         self.is_started = False
 
-        # self.is_pushing = False
-        
         # self.ui.duration_push_lsl.hide()
         # self.ui.frame_6.hide()
-        self.ui.frame_impedance_widgets_16.hide()
-        self.ui.imp_meas_info.setHidden(True)
+
         self.ui.label_3.setHidden(self.file_names is None)
         self.ui.label_7.setHidden(self.file_names is None)
-
-        # self.plotting_filters = None
-        # self.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
-
-        # self.downsampling = False
-        # self.exg_pointer = 0
-        
-        # self.mrk_plot = {"t": [], "code": [], "line": []}
-        # self.mrk_replot = {"t": [], "code": [], "line": []}
-
-        # self.orn_plot = {k: np.array([np.NaN]*200) for k in Settings.ORN_LIST}
-        # self.t_orn_plot = np.array([np.NaN]*200)
-        # self.orn_pointer = 0
-
-        # self._vis_time_offset = None
-        # self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
-        #                             "baseline": 0}
-
-        # self.y_unit = Settings.DEFAULT_SCALE
-        # self.y_string = "1 mV"
-
-        # self.line = None
-
-        # self.lines_orn = [None, None, None]
-        # self.last_t = 0
-        # self.last_t_orn = 0
-
-        # self.rr_estimator = None
-        # self.r_peak = {"t": [], "r_peak": [], "points": []}
-
-        # self._lambda_exg = lambda data: self.vis_funct.plot_exg(data)
-        # self._lambda_orn = lambda data: AppFunctions.plot_orn(data)
-        # self._lambda_marker = lambda data: AppFunctions.plot_marker(data)
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -140,7 +92,6 @@ class MainWindow(QMainWindow):
         # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
         # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-        # AppFunctions.emit_signals(self)
 
         # Stacked pages - navigation
         for w in self.ui.left_side_menu.findChildren(QPushButton):
@@ -159,6 +110,9 @@ class MainWindow(QMainWindow):
         self.ui.n_chan.currentTextChanged.connect(lambda: self.n_chan_changed())
 
         # IMPEDANCE PAGE
+        self.ui.frame_impedance_widgets_16.hide()
+        self.ui.imp_meas_info.setHidden(False)
+
         self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
         self.signal_imp.connect(self.imp_funct.update_impedance)
         self.ui.btn_imp_meas.clicked.connect(lambda: self.imp_meas_clicked())
@@ -217,20 +171,15 @@ class MainWindow(QMainWindow):
     @Slot()
     def connect_clicked(self):
         self.BT_funct.connect2device()
+        self.funct.is_connected = self.BT_funct.is_connected
+        print(f"{self.BT_funct.is_connected=}")
+        print(f"{self.funct.is_connected=}")
         self.vis_funct.init_plots()
-        self.is_connected = self.BT_funct.get_is_connected()
+        self.is_connected = self.funct.get_is_connected()
 
-        if self.is_connected:
-            self.chan_dict = self.BT_funct.get_chan_dict()
-            self.chan_list = self.BT_funct.get_chan_list()
-            self.n_chan = len(self.chan_list)
-            self.t_exg_plot, self.exg_plot = self.BT_funct.get_exg_plot_data()
-        else:
-            self.chan_dict = {}
-            self.n_chan = 8
-            self.chan_list = Settings.CHAN_LIST[:self.n_chan]
-            self.t_exg_plot = np.array([np.NaN]*2500)
-            self.exg_plot = {}
+        if self.funct.get_is_connected() is False:
+            self.stop_processes()
+            self.reset_vars()
 
     @Slot()
     def n_chan_changed(self):
@@ -576,7 +525,16 @@ class MainWindow(QMainWindow):
         if self.imp_funct.get_imp_status():
             self.imp_funct.disable_imp()
 
+    def reset_vars(self):
+        self.is_streaming = False
+        self.funct.reset_vars()
+        self.BT_funct.reset_bt_vars()
+        self.vis_funct.reset_vis_vars()
+        self.record_funct.reset_record_vars()
+        self.imp_funct.reset_imp_vars()
+        self.LSL_funct.reset_lsl_vars()
 
+  
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()

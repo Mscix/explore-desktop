@@ -182,3 +182,6 @@ class IMPFunctions(AppFunctions):
         else:
             ok = True
         return ok
+
+    def reset_imp_vars(self):
+        self.is_imp_measuring = False

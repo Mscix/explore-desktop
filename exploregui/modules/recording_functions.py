@@ -81,3 +81,6 @@ class RecordFunctions(AppFunctions):
             self.ui.label_recording_time.setText(strtime)
         else:
             self.stop_record()
+
+    def reset_record_vars(self):
+        self.is_recording = False

@@ -322,6 +322,17 @@ class VisualizationFunctions(AppFunctions):
                     ]
                     self.plot_mkr(new_data, replot=True)
 
+            # Remove rr peaks
+            id2remove = []
+            for idx_t in range(len(self.r_peak["t"])):
+                if self.r_peak["t"][idx_t][0] < self.t_exg_plot[0]:
+                    self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
+                    id2remove.append(idx_t)
+            for idx_t in id2remove:
+                self.r_peak["t"].remove(self.r_peak["t"][idx_t])
+                self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
+                self.r_peak["points"].remove(self.r_peak["points"][idx_t])
+
         # Position line:
         if self.line is not None:
             self.line.setPos(data["t"][-1])
@@ -688,3 +699,26 @@ class VisualizationFunctions(AppFunctions):
             if wait:
                 time.sleep(1.5)
             return True
+
+    def reset_vis_vars(self):
+        self._vis_time_offset = None
+        self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
+                                    "baseline": 0}
+
+        self.y_unit = Settings.DEFAULT_SCALE
+        self.y_string = "1 mV"
+        self.ui.value_yAxis.setCurrentText(self.y_string)
+        self.last_t = 0
+
+        self.line = None
+        self.exg_pointer = 0
+        self.mrk_plot = {"t": [], "code": [], "line": []}
+        self.mrk_replot = {"t": [], "code": [], "line": []}
+
+        self.lines_orn = [None, None, None]
+        self.orn_pointer = 0
+        self.orn_plot = {k: np.array([np.NaN]*200) for k in Settings.ORN_LIST}
+        self.t_orn_plot = np.array([np.NaN]*200)
+
+        self.rr_estimator = None
+        self.r_peak = {"t": [], "r_peak": [], "points": []}

@@ -18,7 +18,7 @@ class BTFunctions(AppFunctions):
         super().__init__(ui, explorer)
         # self.ui = ui
         # self.explorer = explorer
-        self.battery_percent_list = []
+        self._battery_percent_list = []
 
     #########################
     # Scan/Connect Functions
@@ -265,10 +265,10 @@ class BTFunctions(AppFunctions):
                     # print("\n\ntemperature", new_info[key])
 
                 elif key == "battery":
-                    self.battery_percent_list.append(new_info[key][0])
-                    if len(self.battery_percent_list) > Settings.BATTERY_N_MOVING_AVERAGE:
-                        del self.battery_percent_list[0]
-                    value = int(np.mean(self.battery_percent_list))
+                    self._battery_percent_list.append(new_info[key][0])
+                    if len(self._battery_percent_list) > Settings.BATTERY_N_MOVING_AVERAGE:
+                        del self._battery_percent_list[0]
+                    value = int(np.mean(self._battery_percent_list))
                     value = 1 if value < 1 else value
                     new_value = value if self.is_connected else "NA"
                     stylesheet = self._battery_stylesheet(value=new_value)
@@ -323,3 +323,10 @@ class BTFunctions(AppFunctions):
 
     def _update_firmware(self, new_value):
         self.ui.ft_label_firmware_value.setText(new_value)
+
+    #########################
+    # Reset Functions
+    #########################
+
+    def reset_bt_vars(self):
+        self._battery_percent_list = []

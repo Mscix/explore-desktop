@@ -36,3 +36,6 @@ class LSLFunctions(AppFunctions):
 
     def set_pushing_status(self, value: bool):
         self.is_pushing = value
+
+    def reset_lsl_vars(self):
+        self.is_pushing = False

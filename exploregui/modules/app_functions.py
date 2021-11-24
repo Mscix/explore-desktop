@@ -16,8 +16,6 @@ class AppFunctions():
     chan_list = Settings.CHAN_LIST[:n_chan]
     plotting_filters = None
 
-    # is_imp_measuring = False
-
     def __init__(self, ui, explorer) -> None:
         self.ui = ui
         self.explorer = explorer
@@ -167,3 +165,14 @@ class AppFunctions():
 
     def set_imp_status(self, value: bool):
         self.is_imp_measuring = value
+
+    #########################
+    # Set/Get Functions
+    #########################
+    def reset_vars(self):
+        self.chan_dict = {}
+        self.is_connected = False
+        self.exg_plot_data = [np.array([np.NaN]*2500), {}]
+        self.n_chan = 8
+        self.chan_list = Settings.CHAN_LIST[:self.n_chan]
+        self.plotting_filters = None
