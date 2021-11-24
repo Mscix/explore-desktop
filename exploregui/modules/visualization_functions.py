@@ -141,8 +141,8 @@ class VisualizationFunctions(AppFunctions):
         # Add legend, axis label and grid to all the plots
         timescale = int(self.get_timeScale())
         for plt, lbl in zip(self.plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
-            plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0, -125))
-            # plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0,0))
+            # plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0, -125))
+            plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0,0))
             plt.getAxis("left").setWidth(80)
             plt.getAxis("left").setLabel(lbl)
             plt.showGrid(x=True, y=True, alpha=0.5)
@@ -345,6 +345,7 @@ class VisualizationFunctions(AppFunctions):
         else:
             self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
 
+        # Add nans between new and old data
         exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
         for ch in exg_plot_nan.keys():
             exg_plot_nan[ch][self.exg_pointer-1:self.exg_pointer+9] = np.NaN
@@ -420,16 +421,20 @@ class VisualizationFunctions(AppFunctions):
                     self.lines_orn = [None, None, None]
                     # pass
 
+        orn_plot_nan = copy.deepcopy(self.orn_plot)
+        for k in orn_plot_nan.keys():
+            orn_plot_nan[k][self.orn_pointer-1:self.orn_pointer+1] = np.NaN
+
         # Paint curves
-        self.curve_ax.setData(self.t_orn_plot, self.orn_plot["accX"])
-        self.curve_ay.setData(self.t_orn_plot, self.orn_plot["accY"])
-        self.curve_az.setData(self.t_orn_plot, self.orn_plot["accZ"])
-        self.curve_gx.setData(self.t_orn_plot, self.orn_plot["gyroX"])
-        self.curve_gy.setData(self.t_orn_plot, self.orn_plot["gyroY"])
-        self.curve_gz.setData(self.t_orn_plot, self.orn_plot["gyroZ"])
-        self.curve_mx.setData(self.t_orn_plot, self.orn_plot["magX"])
-        self.curve_my.setData(self.t_orn_plot, self.orn_plot["magY"])
-        self.curve_mz.setData(self.t_orn_plot, self.orn_plot["magZ"])
+        self.curve_ax.setData(self.t_orn_plot, orn_plot_nan["accX"], connect="finite")
+        self.curve_ay.setData(self.t_orn_plot, orn_plot_nan["accY"], connect="finite")
+        self.curve_az.setData(self.t_orn_plot, orn_plot_nan["accZ"], connect="finite")
+        self.curve_gx.setData(self.t_orn_plot, orn_plot_nan["gyroX"], connect="finite")
+        self.curve_gy.setData(self.t_orn_plot, orn_plot_nan["gyroY"], connect="finite")
+        self.curve_gz.setData(self.t_orn_plot, orn_plot_nan["gyroZ"], connect="finite")
+        self.curve_mx.setData(self.t_orn_plot, orn_plot_nan["magX"], connect="finite")
+        self.curve_my.setData(self.t_orn_plot, orn_plot_nan["magY"], connect="finite")
+        self.curve_mz.setData(self.t_orn_plot, orn_plot_nan["magZ"], connect="finite")
 
     @Slot()
     def plot_fft(self):
