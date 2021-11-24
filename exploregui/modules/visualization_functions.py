@@ -1,4 +1,3 @@
-
 import time
 from PySide6.QtCore import Slot
 from explorepy.stream_processor import TOPICS
@@ -9,6 +8,7 @@ from exploregui.modules.app_functions import AppFunctions
 from exploregui.modules.app_settings import Settings
 from exploregui.modules.dialogs import PlotDialog
 import pyqtgraph as pg
+import copy
 
 
 class VisualizationFunctions(AppFunctions):
@@ -50,6 +50,7 @@ class VisualizationFunctions(AppFunctions):
             self.ui.plot_exg.clear()
             self.ui.plot_fft.clear()
             self.ui.plot_orn.clear()
+            self.line = None
             print("cleared plots")
 
         self.init_plot_exg()
@@ -291,11 +292,12 @@ class VisualizationFunctions(AppFunctions):
         self.last_t = data["t"][-1]
 
         # for i, ch in enumerate(self.exg_plot.keys()):
-        for i, ch in enumerate(self.exg_plot_data[1].keys()):
-            d = data[ch]
-            # d = np.concatenate((data[ch], np.array([np.NaN])))
+        for ch in self.exg_plot_data[1].keys():
+            try:
+                d = data[ch]
+            except KeyError as e:
+                d = np.array([np.NaN for i in range(n_new_points)])
             self.exg_plot_data[1][ch].put(idxs, d, mode="wrap")
-            # self.exg_plot[ch][self.exg_pointer+n_new_points]=np.NaN
 
         self.exg_pointer += n_new_points
 
@@ -307,7 +309,6 @@ class VisualizationFunctions(AppFunctions):
             self.exg_plot_data[0][self.exg_pointer:] += self.get_timeScale()
 
             t_min = int(round(np.mean(data["t"])))
-            # t_min = int(data["t"][-1])
             t_max = int(t_min + self.get_timeScale())
             self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
@@ -328,14 +329,15 @@ class VisualizationFunctions(AppFunctions):
         else:
             self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
 
-        # connection = np.full(len(self.t_exg_plot), 1)
-        # connection[self.exg_pointer-1:self.exg_pointer] = 0
+        exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
+        for ch in exg_plot_nan.keys():
+            exg_plot_nan[ch][self.exg_pointer-1:self.exg_pointer+9] = np.NaN
 
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
-            # curve.setData(self.t_exg_plot, self.exg_plot[ch], connect=connection)
             # curve.setData(self.t_exg_plot, self.exg_plot[ch])
-            curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch])
+            # curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch])
+            curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect="finite")
 
         # Remove reploted markers
         for idx_t in range(len(self.mrk_replot["t"])):
@@ -442,7 +444,7 @@ class VisualizationFunctions(AppFunctions):
     # Moving Plot Functions
     #########################
     def plot_exg_moving(self, data):
-        
+
         # max_points = 100
         max_points = AppFunctions._plot_points(self) 
         # if len(self.t_exg_plot)>max_points:
@@ -467,7 +469,7 @@ class VisualizationFunctions(AppFunctions):
             # Remove rr peaks
             id2remove = []
             for idx_t in range(len(self.r_peak["t"])):
-                if self.r_peak["t"][idx_t][0]  < self.t_exg_plot[0]:
+                if self.r_peak["t"][idx_t][0] < self.t_exg_plot[0]:
                     self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
                     id2remove.append(idx_t)
             for idx_t in id2remove:
@@ -526,7 +528,7 @@ class VisualizationFunctions(AppFunctions):
         self.mrk_plot["code"].append(data[1])
 
         pen_marker = pg.mkPen(color='#7AB904', dash=[4,4])
-        
+ 
         # lines = []
         '''for plt in self.plots_list:
         # plt = self.plot_ch8

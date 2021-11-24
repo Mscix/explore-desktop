@@ -41,12 +41,12 @@ class MainWindow(QMainWindow):
         self.funct = AppFunctions(self.ui, self.explorer)
         self.LSL_funct = LSLFunctions(self.ui, self.explorer)
         self.BT_funct = BTFunctions(self.ui, self.explorer)
-        self.config_funct = ConfigFunctions(self.ui, self.explorer)
         self.imp_funct = IMPFunctions(self.ui, self.explorer, self.signal_imp)
         self.vis_funct = VisualizationFunctions(
             self.ui, self.explorer,
             {"exg": self.signal_exg, "mkr": self.signal_mkr, "orn": self.signal_orn}
             )
+        self.config_funct = ConfigFunctions(self.ui, self.explorer, self.vis_funct)
         self.record_funct = RecordFunctions(self.ui, self.explorer)
 
         # Defined in connect_clicked
@@ -208,22 +208,12 @@ class MainWindow(QMainWindow):
         self.ui.btn_stream_rec.clicked.connect(lambda: self.start_recorded_plots())
 
         # INTEGRATION PAGE
+        self.ui.spinBox.hide()
+        self.ui.checkBox.hide()
+        self.ui.label_13.setHidden(True)
+        self.ui.checkBox.stateChanged.connect(lambda: self.LSL_funct.enable_lsl_duration())
         self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
 
-        # /////////////////////////////// START TESTING ///////////////////////
-        '''self.signal_exg.connect(lambda data: AppFunctions.plot_exg(self, data))
-        # self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_exg(self))
-        self.signal_fft.connect(lambda data: AppFunctions.plot_fft(self, data))
-        # self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_fft(self))
-        self.signal_orn.connect(lambda data: AppFunctions.plot_orn(self, data))
-        self.ui.pushButton_2.clicked.connect(lambda: AppFunctions.emit_orn(self))
-        from datetime import datetime
-        now = datetime.now()
-        dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
-        self.ui.pushButton_3.clicked.connect(lambda: self.df.to_csv(f"output_{dt_string}.csv"))
-        # self.ui.pushButton_3.clicked.connect(lambda: self.ui.graphicsView.clear())'''
-
-        # /////////////////////////////// END TESTING ///////////////////////
     @Slot()
     def connect_clicked(self):
         self.BT_funct.connect2device()
@@ -252,13 +242,6 @@ class MainWindow(QMainWindow):
         self.config_funct.change_settings()
         self.t_exg_plot, self.exg_plot = self.config_funct.get_exg_plot_data()
         self.chan_dict = self.config_funct.get_chan_dict()
-        print(f"{len(self.config_funct.get_exg_plot_data()[0])=}")
-        print(f"{len(self.BT_funct.get_exg_plot_data()[0])=}")
-        print(f"{len(self.funct.get_exg_plot_data()[0])=}")
-
-        print(f"{self.config_funct.get_chan_dict()=}")
-        print(f"{self.BT_funct.get_chan_dict()=}")
-        print(f"{self.funct.get_chan_dict()=}")
 
     @Slot()
     def imp_meas_clicked(self):
@@ -296,73 +279,6 @@ class MainWindow(QMainWindow):
         self.ui.le_data_path.setText(files)
         print(self.file_names)
 
-    """def plot_filters(self):
-        '''
-        Open plot filter dialog and apply filters
-        '''
-        wait = True if self.plotting_filters is None else False
-        sr = self.explorer.stream_processor.device_info['sampling_rate']
-        dialog = PlotDialog(sr=sr, current_filters=self.plotting_filters)
-        self.plotting_filters = dialog.exec()
-        AppFunctions._apply_filters(self)
-        # self.loading = LoadingScreen()
-        if wait:
-            time.sleep(1.5)"""
-
-    """def start_timer_recorder(self):
-        '''
-        Start timer to display recording time
-        '''
-        print("clicked")
-        self.start_time = datetime.now()
-
-        self.timer = QTimer(self)
-        self.timer.setInterval(1000)
-        self.timer.timeout.connect(lambda: self.displayTime())
-        self.timer.start()
-
-    def displayTime(self):
-        '''
-        Display recording time in label
-        '''
-        time = datetime.now() - self.start_time
-        strtime = str(time).split(".")[0]
-        self.ui.label_recording_time.setText(strtime)
-
-    def start_record(self):
-        '''
-        Start/Stop signal recording
-        '''
-        if self.is_recording is False:
-            dialog = RecordingDialog()
-            data = dialog.exec()
-            print(data)
-
-            file_name = data["file_path"]
-            file_type = data["file_type"]
-            duration = data["duration"] if data["duration"] != 0 else None
-
-            self.ui.btn_record.setIcon(QIcon(
-                u":icons/icons/icon_maximize.png"))
-            self.ui.btn_record.setText("Stop")
-            QApplication.processEvents()
-
-            self.explorer.record_data(
-                file_name=file_name,
-                file_type=file_type,
-                duration=duration)
-            self.is_recording = True
-            self.start_timer_recorder()
-
-        else:
-            self.explorer.stop_recording()
-            self.ui.btn_record.setIcon(QIcon(
-                    u":icons/icons/cil-circle.png"))
-            self.ui.btn_record.setText("Record")
-            QApplication.processEvents()
-            self.is_recording = False
-            self.timer.stop()
-    """
     def start_recorded_plots(self):
         '''
         Start plotting recorded data
@@ -442,7 +358,8 @@ class MainWindow(QMainWindow):
             # self.ui.label_7.setHidden(self.file_names is None)
 
             self.imp_funct.check_is_imp()
-            print(f"{self.funct.is_connected=}")
+            filt = True
+
             if self.funct.is_connected is False and self.file_names is None:
                 msg = "Please connect an Explore device or import data before attempting to visualize the data"
                 QMessageBox.information(self, "!", msg)
@@ -453,14 +370,15 @@ class MainWindow(QMainWindow):
                 if self.funct.plotting_filters is None:
                     filt = self.vis_funct.popup_filters()
 
+                if filt is False:
+                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+                    return
+
                 if not self.is_streaming and filt:
                     self.vis_funct.emit_signals()
                     self.update_fft()
                     self.update_heart_rate()
                     self.is_streaming = True
-
-                if filt is False:
-                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
                 # for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 #     w.setEnabled(False)

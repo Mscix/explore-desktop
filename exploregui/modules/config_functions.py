@@ -6,8 +6,9 @@ import numpy as np
 
 
 class ConfigFunctions(AppFunctions):
-    def __init__(self, ui, explorer):
+    def __init__(self, ui, explorer, vis_functions):
         super().__init__(ui, explorer)
+        self.vis_functions = vis_functions
 
     @Slot()
     def format_memory(self):
@@ -82,21 +83,25 @@ class ConfigFunctions(AppFunctions):
         Change the sampling rate
         """
 
-        # AppFunctions._check_filters_new_sr(self)
-
         sr = self.explorer.stream_processor.device_info['sampling_rate']
         str_value = self.ui.value_sampling_rate.currentText()
         value = int(str_value)
         if int(sr) != value:
+            if self.plotting_filters is not None:
+                self.check_filters_new_sr()
+
             print(
                 "Old Sampling rate: ",
                 self.explorer.stream_processor.device_info['sampling_rate'])
+
             self.explorer.set_sampling_rate(sampling_rate=value)
+
             print(
                 "New Sampling rate: ",
                 self.explorer.stream_processor.device_info['sampling_rate'])
         else:
             print("Same sampling rate")
+            return
 
     def change_active_channels(self):
         """
@@ -113,6 +118,10 @@ class ConfigFunctions(AppFunctions):
         active_chan = [i for i in reversed(active_chan)]
 
         if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
+            if AppFunctions.plotting_filters is not None:
+                self.vis_functions._baseline_corrector["baseline"] = None
+                self.explorer.stream_processor.remove_filters()
+
             mask = "".join(active_chan)
             int_mask = int(mask, 2)
             try:
@@ -126,14 +135,21 @@ class ConfigFunctions(AppFunctions):
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             AppFunctions.chan_dict = self.chan_dict
 
+            # points = self.plot_points()
+            # self.exg_plot_data[1] = {ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            # AppFunctions.exg_plot_data = self.exg_plot_data
             # print('changed')
             # print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
             # print(f"{self.chan_dict=}")
-
+            self.vis_functions.offsets = np.arange(1, n_chan.count(1) + 1)[:, np.newaxis].astype(float)
+            self.vis_functions._baseline_corrector["baseline"] = None
+            if self.plotting_filters is not None:
+                self.apply_filters()
             self.init_imp()
 
         else:
             print("Same channel mask")
+            return
 
     @Slot()
     def change_settings(self):
@@ -165,17 +181,14 @@ class ConfigFunctions(AppFunctions):
         )
         self.display_msg(msg_text=msg, type="info")
 
-        # AppFunctions.init_plots(self)
+        self.vis_functions.init_plots()
 
-    # def on_n_chan_change(self):
-    #     self.set_n_chan()
-    #     self.update_frame_dev_settings()
-
-    def _check_filters_new_sr(self):
+    def check_filters_new_sr(self):
 
         if self.plotting_filters is None:
             return
 
+        reapply = False
         # r_value = self.plotting_filters["highpass"]
         # l_value = self.plotting_filters["lowpass"]
 
@@ -205,11 +218,16 @@ class ConfigFunctions(AppFunctions):
         if (l_value != "") and (float(l_value) / nyq_freq <= 0.003):
             warning += lc_freq_warning
             self.plotting_filters["lowpass"] = min_lc_freq
+            reapply = True
 
         if (r_value != "") and (float(r_value) >= nyq_freq):
             warning += hc_freq_warning
             self.plotting_filters["highpass"] = max_hc_freq
+            reapply = True
 
-        AppFunctions._apply_filters(self)
+        if reapply:
+            self.apply_filters()
+            AppFunctions.plotting_filters = self.plotting_filters
+
         if warning != "":
             self.display_msg(msg_text=warning, type="info")
