@@ -133,37 +133,6 @@ class MainWindow(QMainWindow):
             border:none;""")
         QFontDatabase.addApplicationFont("./modules/stylesheets/DMSans-Regular.ttf")
 
-
-        # List devices when starting the app
-        # test = False
-        # if test:
-        #     # pass
-        #     self.explorer.connect(device_name="Explore_CA18")
-        #     # self.explorer.connect(device_name="Explore_CA4C")
-        #     # self.explorer.connect(device_name="Explore_CA07")
-        #     self.is_connected = True
-        #     # self.n_chan = 4
-        #     self.n_chan = len(self.explorer.stream_processor.device_info['adc_mask'])
-        #     self.chan_list = Settings.CHAN_LIST[:self.n_chan]
-
-        #     AppFunctions.info_device(self)
-        #     AppFunctions.update_frame_dev_settings(self)
-        #     stream_processor = self.explorer.stream_processor
-        #     n_chan = stream_processor.device_info['adc_mask']
-        #     n_chan = [i for i in reversed(n_chan)]
-        #     self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
-        #     # self.exg_plot = {ch:[] for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-        #     self.exg_plot = {ch: np.array([np.NaN]*2500) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-        #     # AppFunctions.init_plot_exg(self)
-        #     # AppFunctions.init_plot_orn(self)
-        #     # AppFunctions.init_plot_fft(self)
-        #     AppFunctions.init_plots(self)
-        #     AppFunctions.init_imp(self)
-
-
-        '''else:
-            AppFunctions.scan_devices(self)'''
-
         # Slidable left panel
         self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slideLeftMenu())
 
@@ -473,7 +442,7 @@ class MainWindow(QMainWindow):
             # self.ui.label_7.setHidden(self.file_names is None)
 
             self.imp_funct.check_is_imp()
-
+            print(f"{self.funct.is_connected=}")
             if self.funct.is_connected is False and self.file_names is None:
                 msg = "Please connect an Explore device or import data before attempting to visualize the data"
                 QMessageBox.information(self, "!", msg)

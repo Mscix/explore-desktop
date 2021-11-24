@@ -7,7 +7,8 @@ with open('README.md') as readme_file:
 requirements = ['PySide6>=6.1.2',
                 'pandas',
                 'pyqtgraph',
-                'mne'
+                'mne',
+                'explorepy'
                 ]
 
 test_requirements = []
