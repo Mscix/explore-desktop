@@ -1,22 +1,15 @@
 import sys
-from datetime import datetime
-from typing_extensions import ParamSpecArgs
-import numpy as np
 
-from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QMessageBox, QPushButton, QFileDialog, QSizeGrip
+from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QMessageBox, QPushButton, QSizeGrip
 from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, Qt, Signal, QTimer, Slot
 from PySide6.QtGui import QColor, QIcon, QFontDatabase, QIntValidator
+
 import explorepy as xpy
 
-# from exploregui.modules import *
-
-from exploregui.modules.dialogs import RecordingDialog  # , PlotDialog
 from exploregui.modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
-# from exploregui.modules import Ui_MainWindow, Settings, AppFunctions, Plots
 from exploregui.modules import Settings, Ui_MainWindow
 from exploregui.modules import AppFunctions, BTFunctions, ConfigFunctions, VisualizationFunctions
 from exploregui.modules import IMPFunctions, LSLFunctions, RecordFunctions
-
 
 # pyside6-uic ui_main_window.ui > ui_main_window.py
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
@@ -219,76 +212,76 @@ class MainWindow(QMainWindow):
         self.timer_hr.timeout.connect(lambda: self.vis_funct.plot_heart_rate())
         self.timer_hr.start()
 
-    def import_recorded_data(self):
-        '''
-        Open file dialog to select file to import
-        '''
-        file_types = "CSV files(*.csv);;EDF files (*.edf);;BIN files (*.BIN)"
-        dialog = QFileDialog()
-        dialog.setFileMode(QFileDialog.ExistingFiles)
-        self.file_names, _ = dialog.getOpenFileNames(
-            self,
-            "Select Files to import",
-            "",
-            filter=file_types
-            )
+    # def import_recorded_data(self):
+    #     '''
+    #     Open file dialog to select file to import
+    #     '''
+    #     file_types = "CSV files(*.csv);;EDF files (*.edf);;BIN files (*.BIN)"
+    #     dialog = QFileDialog()
+    #     dialog.setFileMode(QFileDialog.ExistingFiles)
+    #     self.file_names, _ = dialog.getOpenFileNames(
+    #         self,
+    #         "Select Files to import",
+    #         "",
+    #         filter=file_types
+    #         )
 
-        files = ", ".join(self.file_names)
-        self.ui.le_data_path.setText(files)
-        print(self.file_names)
+    #     files = ", ".join(self.file_names)
+    #     self.ui.le_data_path.setText(files)
+    #     print(self.file_names)
 
-    def start_recorded_plots(self):
-        '''
-        Start plotting recorded data
-        '''
+    # def start_recorded_plots(self):
+    #     '''
+    #     Start plotting recorded data
+    #     '''
 
-        '''if self.file_names is None:
-            QMessageBox.critical(self, "Error", "Import data first")'''
+    #     '''if self.file_names is None:
+    #         QMessageBox.critical(self, "Error", "Import data first")'''
 
-        # if self.ui.cb_swiping.isChecked():
-        if self.ui.cb_swipping_rec.isChecked():
-            time_scale = self.ui.value_timeScale_rec.currentText()
-        else:
-            time_scale = None
+    #     # if self.ui.cb_swiping.isChecked():
+    #     if self.ui.cb_swipping_rec.isChecked():
+    #         time_scale = self.ui.value_timeScale_rec.currentText()
+    #     else:
+    #         time_scale = None
 
-        if self.is_started is False:
-            self.is_started = True
-            exg_wdgt = self.ui.plot_exg_rec
-            orn_wdgt = self.ui.plot_orn_rec
-            fft_wdgt = self.ui.plot_fft_rec
-            if any("exg" in s.lower() for s in self.file_names):
-                self.plot_exg_recorded = Plots("exg", self.file_names, exg_wdgt, time_scale)
-                plot_fft = Plots("fft", self.file_names, fft_wdgt, time_scale)
+    #     if self.is_started is False:
+    #         self.is_started = True
+    #         exg_wdgt = self.ui.plot_exg_rec
+    #         orn_wdgt = self.ui.plot_orn_rec
+    #         fft_wdgt = self.ui.plot_fft_rec
+    #         if any("exg" in s.lower() for s in self.file_names):
+    #             self.plot_exg_recorded = Plots("exg", self.file_names, exg_wdgt, time_scale)
+    #             plot_fft = Plots("fft", self.file_names, fft_wdgt, time_scale)
 
-            if any("orn" in s.lower() for s in self.file_names):
-                self.plot_orn_recorded = Plots("orn", self.file_names, orn_wdgt, time_scale)
+    #         if any("orn" in s.lower() for s in self.file_names):
+    #             self.plot_orn_recorded = Plots("orn", self.file_names, orn_wdgt, time_scale)
 
-        # if self.is_streaming is False and self.ui.cb_swiping.isChecked():
-        if self.is_streaming is False and self.ui.cb_swipping_rec.isChecked():
-            self.ui.btn_stream_rec.setText("Stop Data Stream")
-            self.ui.btn_stream_rec.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
-            self.is_streaming = True
-            QApplication.processEvents()
+    #     # if self.is_streaming is False and self.ui.cb_swiping.isChecked():
+    #     if self.is_streaming is False and self.ui.cb_swipping_rec.isChecked():
+    #         self.ui.btn_stream_rec.setText("Stop Data Stream")
+    #         self.ui.btn_stream_rec.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
+    #         self.is_streaming = True
+    #         QApplication.processEvents()
 
-            self.timer_exg = QTimer()
-            self.timer_exg.setInterval(1)
-            self.timer_exg.timeout.connect(lambda: self.plot_exg_recorded.update_plot_exg())
-            self.timer_exg.start()
+    #         self.timer_exg = QTimer()
+    #         self.timer_exg.setInterval(1)
+    #         self.timer_exg.timeout.connect(lambda: self.plot_exg_recorded.update_plot_exg())
+    #         self.timer_exg.start()
 
-            self.timer_orn = QTimer()
-            self.timer_orn.setInterval(50)
-            self.timer_orn.timeout.connect(lambda: self.plot_orn_recorded.update_plot_orn())
-            self.timer_orn.start()
+    #         self.timer_orn = QTimer()
+    #         self.timer_orn.setInterval(50)
+    #         self.timer_orn.timeout.connect(lambda: self.plot_orn_recorded.update_plot_orn())
+    #         self.timer_orn.start()
 
-        else:
-            self.ui.btn_stream_rec.setText("Start Data Stream")
-            self.ui.btn_stream_rec.setStyleSheet(Settings.START_BUTTON_STYLESHEET)
-            self.is_streaming = False
-            try:
-                self.timer_exg.stop()
-                self.timer_orn.stop()
-            except AttributeError as e:
-                print(str(e))
+    #     else:
+    #         self.ui.btn_stream_rec.setText("Start Data Stream")
+    #         self.ui.btn_stream_rec.setStyleSheet(Settings.START_BUTTON_STYLESHEET)
+    #         self.is_streaming = False
+    #         try:
+    #             self.timer_exg.stop()
+    #             self.timer_orn.stop()
+    #         except AttributeError as e:
+    #             print(str(e))
 
     #########################
     # UI Functions
