@@ -11,7 +11,7 @@ class LSLFunctions(AppFunctions):
             self.exg_plot_datadisplay_msg(msg_text="Please connect an Explore device first")
             return
 
-        # spinbox_val = self.ui.spinBox.value()
+        # spinbox_val = self.ui.lsl_duration_value.value()
         # duration = None if spinbox_val == 0 else spinbox_val
 
         if self.is_pushing is False:
@@ -24,11 +24,11 @@ class LSLFunctions(AppFunctions):
             self.ui.btn_push_lsl.setText("Push")
 
     def enable_lsl_duration(self):
-        enable = self.ui.checkBox.isChecked()
+        enable = self.ui.cb_lsl_duration.isChecked()
         # if self.ui.cb_lsl_duration.isChecked():
         self.ui.label_13.setEnabled(enable)
         # self.ui.label_lsl_duration.setEnabled(enable)
-        self.ui.spinBox.setEnabled(enable)
+        self.ui.lsl_duration_value.setEnabled(enable)
         # self.ui.lsl_duration_.setEnabled(enable)
 
     def get_pushing_status(self):

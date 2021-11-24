@@ -97,7 +97,16 @@ class MainWindow(QMainWindow):
         for w in self.ui.left_side_menu.findChildren(QPushButton):
             w.clicked.connect(self.leftMenuButtonClicked)
 
+        # Check connection every 2 seconds
+        self.check_connection()
+
         # SETTINNGS PAGE BUTTONS
+        # hide import data:
+        self.ui.btn_import_data.hide()
+        self.ui.le_data_path.hide()
+        self.ui.label_8.setHidden(True)
+        self.ui.line.hide()
+
         self.ui.btn_connect.clicked.connect(lambda: self.connect_clicked())
         self.ui.dev_name_input.returnPressed.connect(lambda: self.connect_clicked())
         self.ui.btn_scan.clicked.connect(lambda: self.BT_funct.scan_devices())
@@ -162,10 +171,10 @@ class MainWindow(QMainWindow):
         self.ui.btn_stream_rec.clicked.connect(lambda: self.start_recorded_plots())
 
         # INTEGRATION PAGE
-        self.ui.spinBox.hide()
-        self.ui.checkBox.hide()
-        self.ui.label_13.setHidden(True)
-        self.ui.checkBox.stateChanged.connect(lambda: self.LSL_funct.enable_lsl_duration())
+        self.ui.lsl_duration_value.hide()
+        self.ui.cb_lsl_duration.hide()
+        self.ui.label_lsl_duration.setHidden(True)
+        self.ui.cb_lsl_duration.stateChanged.connect(lambda: self.LSL_funct.enable_lsl_duration())
         self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
 
     @Slot()
@@ -534,7 +543,56 @@ class MainWindow(QMainWindow):
         self.imp_funct.reset_imp_vars()
         self.LSL_funct.reset_lsl_vars()
 
-  
+    #########################
+    # Connection Functions
+    #########################
+    def print_connection(self):
+        # print("connection explore: ", self.explorer.is_connected)
+
+        reconnecting_label = "Reconnecting ..."
+        not_connected_label = "Not connected"
+        connected_label = f"Connected to {self.explorer.device_name}"
+
+        if self.explorer.is_connected:
+            sp_connected = self.explorer.stream_processor.is_connected
+            reconnecting = self.explorer.stream_processor.parser._is_reconnecting
+            label_text = self.ui.ft_label_device_3.text()
+            # print("connection streamprocessor: ", sp_connected)
+            # print("connection parser: ", reconnecting)
+            # print("\n")
+
+            if sp_connected and reconnecting:
+                # print("Reconnecting")
+                if label_text != reconnecting_label:
+                    self.ui.ft_label_device_3.setText(reconnecting_label)
+                    self.ui.ft_label_device_3.repaint()
+            elif sp_connected and reconnecting is False:
+                # print("Connected")
+                if label_text != connected_label:
+                    self.ui.ft_label_device_3.setText(connected_label)
+                    self.ui.ft_label_device_3.repaint()
+            elif sp_connected is False and reconnecting is False:
+                # print("Disconnected")
+                if label_text != not_connected_label:
+                    self.ui.ft_label_device_3.setText(not_connected_label)
+                    self.ui.ft_label_device_3.repaint()
+                    self.funct.is_connected = False
+                    self.BT_funct.is_connected = False
+                    # self.stop_processes()
+                    self.reset_vars()
+                    self.BT_funct.update_frame_dev_settings()
+                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+
+        else:
+            return
+
+    def check_connection(self):
+        self.timer_con = QTimer(self)
+        self.timer_con.setInterval(2000)
+        self.timer_con.timeout.connect(lambda: self.print_connection())
+        self.timer_con.start()
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()

@@ -30,7 +30,7 @@ class Ui_Dialog(object):
 "	color: #FFF;\n"
 "}\n"
 "\n"
-"QLabel#label_4{\n"
+"QLabe#label_4l{\n"
 "	font: italic 9pt \"DM Sans\";\n"
 "}\n"
 "\n"
@@ -75,12 +75,12 @@ class Ui_Dialog(object):
 "}\n"
 "\n"
 "QPushButton:hover{\n"
-"	background-color: rgb(61, 64, 89);\n"
+"	background-color: rgb("
+                        "61, 64, 89);\n"
 "}\n"
 "\n"
 "QPushButton:pressed{\n"
-"	background-c"
-                        "olor: rgb(101, 106, 141);\n"
+"	background-color: rgb(101, 106, 141);\n"
 "	border:  2px solid rgb(61, 64, 89);\n"
 "}\n"
 "")
@@ -149,9 +149,9 @@ class Ui_Dialog(object):
         self.label_4.setObjectName(u"label_4")
         font = QFont()
         font.setFamilies([u"DM Sans"])
-        font.setPointSize(9)
+        font.setPointSize(11)
         font.setBold(False)
-        font.setItalic(True)
+        font.setItalic(False)
         self.label_4.setFont(font)
 
         self.verticalLayout.addWidget(self.label_4)
@@ -182,7 +182,7 @@ class Ui_Dialog(object):
         self.rdbtn_csv.setText(QCoreApplication.translate("Dialog", u"csv", None))
         self.rdbtn_edf.setText(QCoreApplication.translate("Dialog", u"edf", None))
         self.lbl_step1.setText(QCoreApplication.translate("Dialog", u"2. Select the folder and name to store the file:", None))
-        self.btn_browse.setText(QCoreApplication.translate("Dialog", u"Broswe", None))
+        self.btn_browse.setText(QCoreApplication.translate("Dialog", u"Browse", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"3. Select recording time (s):", None))
         self.label_4.setText(QCoreApplication.translate("Dialog", u"If recording time is 0, the default (3600 sec) will be used", None))
     # retranslateUi

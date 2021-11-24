@@ -15,7 +15,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget{
-	font: 11pt &quot;DM Sans&quot;;
+	font: 13pt &quot;DM Sans&quot;;
 }
 
 QDialog{
@@ -24,10 +24,6 @@ QDialog{
 
 QLabel{
 	color: #FFF;
-}
-
-QLabe#label_4l{
-	font: italic 9pt &quot;DM Sans&quot;;
 }
 
 QCheckBox{
@@ -65,8 +61,8 @@ QPushButton{
 	border: 2px solid rgb(84, 89, 124);
 	padding: 5px;
 	border-radius: 5px;
-	width: 75px;
-	height: 15px;
+	width: 65px;
+	heigth: 20px;
 
 }
 
@@ -129,7 +125,7 @@ QPushButton:pressed{
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="text">
-          <string>Browse</string>
+          <string>Broswe</string>
          </property>
         </widget>
        </item>
@@ -154,7 +150,7 @@ QPushButton:pressed{
        <property name="font">
         <font>
          <family>DM Sans</family>
-         <pointsize>11</pointsize>
+         <pointsize>13</pointsize>
          <weight>50</weight>
          <italic>false</italic>
          <bold>false</bold>

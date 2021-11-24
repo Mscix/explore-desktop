@@ -3,27 +3,21 @@
 ################################################################################
 ## Form generated from reading UI file 'ui_main_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.2.1
+## Created by: Qt User Interface Compiler version 6.1.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
-    QCursor, QFont, QFontDatabase, QGradient,
-    QIcon, QImage, QKeySequence, QLinearGradient,
-    QPainter, QPalette, QPixmap, QRadialGradient,
-    QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
-    QHBoxLayout, QLabel, QLayout, QLineEdit,
-    QListWidget, QListWidgetItem, QMainWindow, QPushButton,
-    QSizePolicy, QSpacerItem, QSpinBox, QSplitter,
-    QStackedWidget, QTabWidget, QVBoxLayout, QWidget)
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
 
-from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
-from exploregui import app_resources_rc
+from pyqtgraph import PlotWidget
+from pyqtgraph import GraphicsLayoutWidget
+
+import app_resources_rc
+import app_resources_rc
+import app_resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -85,7 +79,6 @@ class Ui_MainWindow(object):
 "QCheckBox{\n"
 "	color: #fff;	\n"
 "	background-color: transparent;\n"
-"	border-color: #fff;	\n"
 "\n"
 "}\n"
 "\n"
@@ -609,16 +602,9 @@ class Ui_MainWindow(object):
 "\n"
 "QCheckBox{\n"
 "	color: #fff;	\n"
-# "	background-color: transparent;\n"
+"	background-color: transparent;\n"
 "\n"
-"}"
-# "\n"
-# "QCheckBox::indicator{\n"
-# "	border-color: #fff;	\n"
-# # "	background-color: transparent;\n"
-# "\n"
-# "}"
-)
+"}")
         self.frame_integration.setFrameShape(QFrame.StyledPanel)
         self.frame_integration.setFrameShadow(QFrame.Raised)
         self.verticalLayout_36 = QVBoxLayout(self.frame_integration)
@@ -650,25 +636,32 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.label_11)
 
-        self.checkBox = QCheckBox(self.frame_integration)
-        self.checkBox.setObjectName(u"checkBox")
+        self.empty_frame_5 = QFrame(self.frame_integration)
+        self.empty_frame_5.setObjectName(u"empty_frame_5")
+        self.empty_frame_5.setFrameShape(QFrame.StyledPanel)
+        self.empty_frame_5.setFrameShadow(QFrame.Raised)
 
-        self.verticalLayout_3.addWidget(self.checkBox)
+        self.verticalLayout_3.addWidget(self.empty_frame_5)
+
+        self.cb_lsl_duration = QCheckBox(self.frame_integration)
+        self.cb_lsl_duration.setObjectName(u"cb_lsl_duration")
+
+        self.verticalLayout_3.addWidget(self.cb_lsl_duration)
 
         self.horizontalLayout_13 = QHBoxLayout()
         self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
-        self.label_13 = QLabel(self.frame_integration)
-        self.label_13.setObjectName(u"label_13")
-        self.label_13.setEnabled(False)
+        self.label_lsl_duration = QLabel(self.frame_integration)
+        self.label_lsl_duration.setObjectName(u"label_lsl_duration")
+        self.label_lsl_duration.setEnabled(False)
 
-        self.horizontalLayout_13.addWidget(self.label_13)
+        self.horizontalLayout_13.addWidget(self.label_lsl_duration)
 
-        self.spinBox = QSpinBox(self.frame_integration)
-        self.spinBox.setObjectName(u"spinBox")
-        self.spinBox.setEnabled(False)
-        self.spinBox.setMaximumSize(QSize(150, 16777215))
+        self.lsl_duration_value = QSpinBox(self.frame_integration)
+        self.lsl_duration_value.setObjectName(u"lsl_duration_value")
+        self.lsl_duration_value.setEnabled(False)
+        self.lsl_duration_value.setMaximumSize(QSize(150, 16777215))
 
-        self.horizontalLayout_13.addWidget(self.spinBox)
+        self.horizontalLayout_13.addWidget(self.lsl_duration_value)
 
         self.empty_frame_4 = QFrame(self.frame_integration)
         self.empty_frame_4.setObjectName(u"empty_frame_4")
@@ -698,6 +691,7 @@ class Ui_MainWindow(object):
         self.btn_push_lsl.setObjectName(u"btn_push_lsl")
         self.btn_push_lsl.setMinimumSize(QSize(100, 30))
         self.btn_push_lsl.setMaximumSize(QSize(100, 30))
+        self.btn_push_lsl.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.verticalLayout_3.addWidget(self.btn_push_lsl, 0, Qt.AlignHCenter)
 
@@ -1419,19 +1413,18 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_34 = QHBoxLayout()
         self.horizontalLayout_34.setObjectName(u"horizontalLayout_34")
-        self.verticalLayout_20 = QVBoxLayout()
-        self.verticalLayout_20.setSpacing(0)
-        self.verticalLayout_20.setObjectName(u"verticalLayout_20")
+        self.label_13 = QLabel(self.page_plotsNoWidget)
+        self.label_13.setObjectName(u"label_13")
+
+        self.horizontalLayout_34.addWidget(self.label_13)
+
         self.value_event_code = QLineEdit(self.page_plotsNoWidget)
         self.value_event_code.setObjectName(u"value_event_code")
-        self.value_event_code.setMaximumSize(QSize(75, 30))
+        self.value_event_code.setMaximumSize(QSize(85, 30))
         self.value_event_code.setFont(font3)
         self.value_event_code.setStyleSheet(u"font: 11pt ")
 
-        self.verticalLayout_20.addWidget(self.value_event_code)
-
-
-        self.horizontalLayout_34.addLayout(self.verticalLayout_20)
+        self.horizontalLayout_34.addWidget(self.value_event_code)
 
         self.btn_marker = QPushButton(self.page_plotsNoWidget)
         self.btn_marker.setObjectName(u"btn_marker")
@@ -1446,7 +1439,7 @@ class Ui_MainWindow(object):
 
         self.frame_3 = QFrame(self.page_plotsNoWidget)
         self.frame_3.setObjectName(u"frame_3")
-        self.frame_3.setMinimumSize(QSize(450, 0))
+        self.frame_3.setMinimumSize(QSize(250, 0))
         self.frame_3.setFrameShape(QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QFrame.Raised)
 
@@ -2765,9 +2758,17 @@ class Ui_MainWindow(object):
         self.horizontalLayout_28.setContentsMargins(0, 0, 0, 0)
         self.ft_label_device_3 = QLabel(self.main_footer)
         self.ft_label_device_3.setObjectName(u"ft_label_device_3")
+        self.ft_label_device_3.setFont(font2)
         self.ft_label_device_3.setStyleSheet(u"")
 
         self.horizontalLayout_28.addWidget(self.ft_label_device_3)
+
+        self.empty_frame_6 = QFrame(self.main_footer)
+        self.empty_frame_6.setObjectName(u"empty_frame_6")
+        self.empty_frame_6.setFrameShape(QFrame.StyledPanel)
+        self.empty_frame_6.setFrameShadow(QFrame.Raised)
+
+        self.horizontalLayout_28.addWidget(self.empty_frame_6)
 
         self.horizontalLayout_25 = QHBoxLayout()
         self.horizontalLayout_25.setObjectName(u"horizontalLayout_25")
@@ -2850,7 +2851,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(3)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -2882,8 +2883,8 @@ class Ui_MainWindow(object):
         self.integration_title.setText(QCoreApplication.translate("MainWindow", u"INTEGRATION", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Push to LSL</span></p></body></html>", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Stream data from other software such as OpenVibe or other programming languages. </p><p>It will create three LSL streams for ExG, Orientation and markers. </p></body></html>", None))
-        self.checkBox.setText(QCoreApplication.translate("MainWindow", u"Set duration (the default stream duration is 3600 seconds.)", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Duration (s):", None))
+        self.cb_lsl_duration.setText(QCoreApplication.translate("MainWindow", u"Set duration (the default stream duration is 3600 seconds.)", None))
+        self.label_lsl_duration.setText(QCoreApplication.translate("MainWindow", u"Duration (s):", None))
         self.btn_push_lsl.setText(QCoreApplication.translate("MainWindow", u"Push", None))
         self.settings_log.setText("")
         self.settings_title.setText(QCoreApplication.translate("MainWindow", u"SETTINGS", None))
@@ -2891,8 +2892,9 @@ class Ui_MainWindow(object):
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Segoe UI'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Scan for nearby devices or directly input the name of your device</p></body></html>", None))
+"</style></head><body style=\" font-family:'DM Sans'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Segoe UI';\">Press the button on your device to turn it on.</span></p>\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Segoe UI';\">Scan the paired devices or directly input the name of your device.</span></p></body></html>", None))
         self.btn_scan.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
         self.btn_connect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Device Name: ", None))
@@ -2923,6 +2925,7 @@ class Ui_MainWindow(object):
         self.btn_stream.setText(QCoreApplication.translate("MainWindow", u"Start Data Stream", None))
         self.btn_record.setText(QCoreApplication.translate("MainWindow", u" Record", None))
         self.label_recording_time.setText(QCoreApplication.translate("MainWindow", u"00:00:00", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Set marker (8 - 65535)", None))
         self.value_event_code.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Event Code", None))
         self.btn_marker.setText(QCoreApplication.translate("MainWindow", u" Set", None))
         self.btn_plot_filters.setText(QCoreApplication.translate("MainWindow", u"Filters", None))
@@ -2988,7 +2991,7 @@ class Ui_MainWindow(object):
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"TESTING PLOTS", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Draw", None))
         self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
-        self.ft_label_device_3.setText(QCoreApplication.translate("MainWindow", u"Not connnected", None))
+        self.ft_label_device_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Not connected</span></p></body></html>", None))
         self.ft_label_firmware.setText(QCoreApplication.translate("MainWindow", u"Firmware Version ", None))
         self.ft_label_firmware_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.ft_label_battery.setText(QCoreApplication.translate("MainWindow", u"Battery %", None))
