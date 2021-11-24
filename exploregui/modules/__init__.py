@@ -3,7 +3,7 @@
 # from PySide6.QtWidgets import *
 
 # GUI FILE
-from .ui.ui_main_window import Ui_MainWindow
+from .ui import Ui_MainWindow, Ui_PlotDialog, Ui_RecordingDialog
 
 # APP SETTINGS
 from . app_settings import Settings
