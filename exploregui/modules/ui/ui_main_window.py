@@ -15,9 +15,8 @@ from PySide6.QtWidgets import *
 from pyqtgraph import PlotWidget
 from pyqtgraph import GraphicsLayoutWidget
 
-import app_resources_rc
-import app_resources_rc
-import app_resources_rc
+from exploregui import app_resources_rc
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -1411,6 +1410,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_35.addWidget(self.frame_4)
 
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_35.addItem(self.horizontalSpacer_6)
+
         self.horizontalLayout_34 = QHBoxLayout()
         self.horizontalLayout_34.setObjectName(u"horizontalLayout_34")
         self.label_13 = QLabel(self.page_plotsNoWidget)
@@ -1437,13 +1440,9 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_35.addLayout(self.horizontalLayout_34)
 
-        self.frame_3 = QFrame(self.page_plotsNoWidget)
-        self.frame_3.setObjectName(u"frame_3")
-        self.frame_3.setMinimumSize(QSize(250, 0))
-        self.frame_3.setFrameShape(QFrame.StyledPanel)
-        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_35.addWidget(self.frame_3)
+        self.horizontalLayout_35.addItem(self.horizontalSpacer_5)
 
         self.btn_plot_filters = QPushButton(self.page_plotsNoWidget)
         self.btn_plot_filters.setObjectName(u"btn_plot_filters")
@@ -2752,23 +2751,20 @@ class Ui_MainWindow(object):
         self.main_footer.setStyleSheet(u"")
         self.main_footer.setFrameShape(QFrame.StyledPanel)
         self.main_footer.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_28 = QHBoxLayout(self.main_footer)
-        self.horizontalLayout_28.setSpacing(0)
-        self.horizontalLayout_28.setObjectName(u"horizontalLayout_28")
-        self.horizontalLayout_28.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_14 = QHBoxLayout(self.main_footer)
+        self.horizontalLayout_14.setSpacing(0)
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.horizontalLayout_14.setContentsMargins(0, 0, 0, 0)
         self.ft_label_device_3 = QLabel(self.main_footer)
         self.ft_label_device_3.setObjectName(u"ft_label_device_3")
         self.ft_label_device_3.setFont(font2)
         self.ft_label_device_3.setStyleSheet(u"")
 
-        self.horizontalLayout_28.addWidget(self.ft_label_device_3)
+        self.horizontalLayout_14.addWidget(self.ft_label_device_3)
 
-        self.empty_frame_6 = QFrame(self.main_footer)
-        self.empty_frame_6.setObjectName(u"empty_frame_6")
-        self.empty_frame_6.setFrameShape(QFrame.StyledPanel)
-        self.empty_frame_6.setFrameShadow(QFrame.Raised)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_28.addWidget(self.empty_frame_6)
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_2)
 
         self.horizontalLayout_25 = QHBoxLayout()
         self.horizontalLayout_25.setObjectName(u"horizontalLayout_25")
@@ -2784,7 +2780,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_25.addWidget(self.ft_label_firmware_value)
 
 
-        self.horizontalLayout_28.addLayout(self.horizontalLayout_25)
+        self.horizontalLayout_14.addLayout(self.horizontalLayout_25)
+
+        self.horizontalSpacer = QSpacerItem(135, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer)
 
         self.horizontalLayout_26 = QHBoxLayout()
         self.horizontalLayout_26.setSpacing(0)
@@ -2802,7 +2802,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_26.addWidget(self.ft_label_battery_value)
 
 
-        self.horizontalLayout_28.addLayout(self.horizontalLayout_26)
+        self.horizontalLayout_14.addLayout(self.horizontalLayout_26)
+
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_3)
 
         self.horizontalLayout_27 = QHBoxLayout()
         self.horizontalLayout_27.setSpacing(10)
@@ -2819,14 +2823,18 @@ class Ui_MainWindow(object):
         self.horizontalLayout_27.addWidget(self.ft_label_temp_value)
 
 
-        self.horizontalLayout_28.addLayout(self.horizontalLayout_27)
+        self.horizontalLayout_14.addLayout(self.horizontalLayout_27)
+
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_4)
 
         self.ft_label_version = QLabel(self.main_footer)
         self.ft_label_version.setObjectName(u"ft_label_version")
         self.ft_label_version.setStyleSheet(u"")
         self.ft_label_version.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
-        self.horizontalLayout_28.addWidget(self.ft_label_version)
+        self.horizontalLayout_14.addWidget(self.ft_label_version)
 
         self.frame_size_grip = QFrame(self.main_footer)
         self.frame_size_grip.setObjectName(u"frame_size_grip")
@@ -2836,7 +2844,7 @@ class Ui_MainWindow(object):
         self.frame_size_grip.setFrameShape(QFrame.NoFrame)
         self.frame_size_grip.setFrameShadow(QFrame.Raised)
 
-        self.horizontalLayout_28.addWidget(self.frame_size_grip, 0, Qt.AlignBottom)
+        self.horizontalLayout_14.addWidget(self.frame_size_grip)
 
 
         self.verticalLayout_4.addWidget(self.main_footer)

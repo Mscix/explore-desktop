@@ -74,6 +74,9 @@ class VisualizationFunctions(AppFunctions):
         pw = self.ui.plot_exg
         pw.setBackground(Settings.PLOT_BACKGROUND)
 
+        # Disable zoom
+        pw.setMouseEnabled(x=False, y=False)
+
         # Add chan ticks to y axis
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
         ticks = [(idx+1, ch) for idx, ch in enumerate(self.active_chan)]
@@ -144,6 +147,7 @@ class VisualizationFunctions(AppFunctions):
             plt.getAxis("left").setLabel(lbl)
             plt.showGrid(x=True, y=True, alpha=0.5)
             plt.setXRange(0, timescale, padding=0.01)
+            plt.setMouseEnabled(x=False, y=False)
 
         # Initialize curves for each plot
         self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name="accZ")
@@ -170,6 +174,7 @@ class VisualizationFunctions(AppFunctions):
         pw.setLabel('left', "Amplitude (uV)")
         pw.setLabel('bottom', "Frequency (Hz)")
         pw.setLogMode(x=False, y=True)
+        pw.setMouseEnabled(x=False, y=False)
 
     #########################
     # Emit Functions

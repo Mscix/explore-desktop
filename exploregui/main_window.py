@@ -14,6 +14,7 @@ from exploregui.modules import IMPFunctions, LSLFunctions, RecordFunctions
 # pyside6-uic ui_main_window.ui > ui_main_window.py
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
+# from exploregui import app_resources_rc
 
 VERSION_APP = 'v0.19'
 WINDOW_SIZE = False
@@ -176,12 +177,13 @@ class MainWindow(QMainWindow):
         self.funct.is_connected = self.BT_funct.is_connected
         print(f"{self.BT_funct.is_connected=}")
         print(f"{self.funct.is_connected=}")
-        self.vis_funct.init_plots()
         self.is_connected = self.funct.get_is_connected()
 
         if self.funct.get_is_connected() is False:
             self.stop_processes()
             self.reset_vars()
+        else:
+            self.vis_funct.init_plots()
 
     @Slot()
     def n_chan_changed(self):
