@@ -2486,6 +2486,19 @@ background-color: rgb(49, 52, 86)</string>
                  </widget>
                 </item>
                 <item>
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_34">
                   <item>
                    <widget class="QLabel" name="label_13">
@@ -2544,20 +2557,17 @@ background-color: rgb(49, 52, 86)</string>
                  </layout>
                 </item>
                 <item>
-                 <widget class="QFrame" name="frame_3">
-                  <property name="minimumSize">
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
                    <size>
-                    <width>250</width>
-                    <height>0</height>
+                    <width>40</width>
+                    <height>20</height>
                    </size>
                   </property>
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Raised</enum>
-                  </property>
-                 </widget>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QPushButton" name="btn_plot_filters">
@@ -5563,7 +5573,7 @@ border-radius: 5px;
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_28">
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
              <property name="spacing">
               <number>0</number>
              </property>
@@ -5599,14 +5609,17 @@ border-radius: 5px;
               </widget>
              </item>
              <item>
-              <widget class="QFrame" name="empty_frame_6">
-               <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
                </property>
-              </widget>
+              </spacer>
              </item>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_25">
@@ -5628,6 +5641,19 @@ border-radius: 5px;
                 </widget>
                </item>
               </layout>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>135</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_26">
@@ -5657,6 +5683,19 @@ border-radius: 5px;
               </layout>
              </item>
              <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
               <layout class="QHBoxLayout" name="horizontalLayout_27">
                <property name="spacing">
                 <number>10</number>
@@ -5681,6 +5720,19 @@ border-radius: 5px;
               </layout>
              </item>
              <item>
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
               <widget class="QLabel" name="ft_label_version">
                <property name="styleSheet">
                 <string notr="true"/>
@@ -5693,7 +5745,7 @@ border-radius: 5px;
                </property>
               </widget>
              </item>
-             <item alignment="Qt::AlignBottom">
+             <item>
               <widget class="QFrame" name="frame_size_grip">
                <property name="minimumSize">
                 <size>

@@ -17,12 +17,12 @@ from pyqtgraph import GraphicsLayoutWidget
 
 from exploregui import app_resources_rc
 
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1116, 691)
+        MainWindow.setMinimumSize(QSize(800, 600))
         self.actionExport_Metadata = QAction(MainWindow)
         self.actionExport_Metadata.setObjectName(u"actionExport_Metadata")
         self.actionDocumentation = QAction(MainWindow)
@@ -469,14 +469,9 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_29.addWidget(self.btns_left_menu, 0, Qt.AlignTop)
 
-        self.left_menu_frame = QFrame(self.left_side_menu)
-        self.left_menu_frame.setObjectName(u"left_menu_frame")
-        self.left_menu_frame.setMinimumSize(QSize(0, 600))
-        self.left_menu_frame.setStyleSheet(u"")
-        self.left_menu_frame.setFrameShape(QFrame.StyledPanel)
-        self.left_menu_frame.setFrameShadow(QFrame.Raised)
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.verticalLayout_29.addWidget(self.left_menu_frame)
+        self.verticalLayout_29.addItem(self.verticalSpacer_2)
 
 
         self.horizontalLayout.addWidget(self.left_side_menu)
@@ -2673,14 +2668,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_11.addWidget(self.btn_imp_meas)
 
-        self.imp_meas_info = QLabel(self.frame_)
+        self.imp_meas_info = QPushButton(self.frame_)
         self.imp_meas_info.setObjectName(u"imp_meas_info")
-        self.imp_meas_info.setMinimumSize(QSize(20, 20))
         self.imp_meas_info.setMaximumSize(QSize(20, 20))
-        self.imp_meas_info.setCursor(QCursor(Qt.ArrowCursor))
-        self.imp_meas_info.setStyleSheet(u"")
-        self.imp_meas_info.setPixmap(QPixmap(u":/icons/icons/pngfind.com-png-circle-1194554.png"))
-        self.imp_meas_info.setScaledContents(True)
+        self.imp_meas_info.setCursor(QCursor(Qt.PointingHandCursor))
+        self.imp_meas_info.setStyleSheet(u"background-color: transparent;\n"
+"border: none;\n"
+"color: #FFF;")
+        icon5 = QIcon()
+        icon5.addFile(u":/icons/icons/pngfind.com-png-circle-1194554.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.imp_meas_info.setIcon(icon5)
+        self.imp_meas_info.setIconSize(QSize(20, 20))
 
         self.horizontalLayout_11.addWidget(self.imp_meas_info)
 
@@ -2782,12 +2780,14 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_14.addLayout(self.horizontalLayout_25)
 
-        self.horizontalSpacer = QSpacerItem(135, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(133, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_14.addItem(self.horizontalSpacer)
 
         self.horizontalLayout_26 = QHBoxLayout()
-        self.horizontalLayout_26.setSpacing(0)
+#ifndef Q_OS_MAC
+        self.horizontalLayout_26.setSpacing(-1)
+#endif
         self.horizontalLayout_26.setObjectName(u"horizontalLayout_26")
         self.ft_label_battery = QLabel(self.main_footer)
         self.ft_label_battery.setObjectName(u"ft_label_battery")
@@ -2859,7 +2859,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(5)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -2990,9 +2990,6 @@ class Ui_MainWindow(object):
         self.btn_imp_meas.setToolTip("")
 #endif // QT_CONFIG(tooltip)
         self.btn_imp_meas.setText(QCoreApplication.translate("MainWindow", u"Measure Impedances", None))
-#if QT_CONFIG(tooltip)
-        self.imp_meas_info.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Sum of impedances of REF and inndividual channels divided by 2</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.imp_meas_info.setText("")
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Please restart the device after you have finished measuring impedances or <a href=\"www.mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">click here</span></a></p></body></html>", None))
         self.btn_scan_2.setText(QCoreApplication.translate("MainWindow", u"Scan nearby devices", None))

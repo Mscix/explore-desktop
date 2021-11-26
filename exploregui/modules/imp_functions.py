@@ -37,7 +37,7 @@ class IMPFunctions(AppFunctions):
             imp_values = packet.get_impedances()
             for chan, value in zip(active_chan, imp_values):
                 # print(chan, value)
-                # value = value/2
+                value = value/2
                 # print(value)
                 if value < 5:
                     str_value = "<5 K\u03A9"

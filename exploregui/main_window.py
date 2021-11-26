@@ -2,7 +2,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QMessageBox, QPushButton, QSizeGrip
 from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, Qt, Signal, QTimer, Slot
-from PySide6.QtGui import QColor, QIcon, QFontDatabase, QIntValidator
+from PySide6.QtGui import QColor, QFont, QIcon, QFontDatabase, QIntValidator
 
 import explorepy as xpy
 
@@ -52,6 +52,10 @@ class MainWindow(QMainWindow):
         # self.ui.duration_push_lsl.hide()
         # self.ui.frame_6.hide()
 
+        bold_font = QFont()
+        bold_font.setBold(True)
+        self.ui.ft_label_device_3.setFont(bold_font)
+        self.ui.ft_label_device_3.setStyleSheet("font-weight: bold")
         self.ui.label_3.setHidden(self.file_names is None)
         self.ui.label_7.setHidden(self.file_names is None)
 
@@ -116,7 +120,8 @@ class MainWindow(QMainWindow):
         self.ui.frame_impedance_widgets_16.hide()
         self.ui.imp_meas_info.setHidden(False)
 
-        self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
+        self.ui.imp_meas_info.clicked.connect(lambda: self.imp_info_clicked())
+        # self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
         self.signal_imp.connect(self.imp_funct.update_impedance)
         self.ui.btn_imp_meas.clicked.connect(lambda: self.imp_meas_clicked())
         self.ui.label_6.setHidden(True)
@@ -175,8 +180,8 @@ class MainWindow(QMainWindow):
     def connect_clicked(self):
         self.BT_funct.connect2device()
         self.funct.is_connected = self.BT_funct.is_connected
-        print(f"{self.BT_funct.is_connected=}")
-        print(f"{self.funct.is_connected=}")
+        # print(f"{self.BT_funct.is_connected=}")
+        # print(f"{self.funct.is_connected=}")
         self.is_connected = self.funct.get_is_connected()
 
         if self.funct.get_is_connected() is False:
@@ -213,6 +218,16 @@ class MainWindow(QMainWindow):
         self.timer_hr.setInterval(2000)
         self.timer_hr.timeout.connect(lambda: self.vis_funct.plot_heart_rate())
         self.timer_hr.start()
+
+    @Slot()
+    def imp_info_clicked(self):
+        imp_msg = (
+            "NOTE: The impedance value displayed for each channel also depends on"
+            " the impedance of the reference electrode.\n\n"
+            "If all channel’s impedances are high, try cleaning the skin under the reference electrode more thoroughly"
+            " (e.g. with alcohol, abrasive gel, EEG gel)"
+        )
+        self.funct.display_msg(imp_msg, type="info")
 
     # def import_recorded_data(self):
     #     '''
