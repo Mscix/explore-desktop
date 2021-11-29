@@ -45,16 +45,21 @@ class PlotDialog(QDialog):
             lambda: self.cancelEvent())
 
         self.s_rate = float(sr)
-        if current_filters is None:
-            self.offset = False
-            self.notch = ""
-            self.lowpass = ""
-            self.highpass = ""
+        if current_filters is None:  # default values
+            self.offset = True
+            self.notch = "50"
+            self.lowpass = "1"
+            self.highpass = "30"
         else:
             self.offset = current_filters["offset"]
             self.notch = str(current_filters["notch"])
             self.lowpass = str(current_filters["lowpass"])
             self.highpass = str(current_filters["highpass"])
+
+        if self.highpass == "None":
+            self.highpass = ""
+        if self.lowpass == "None":
+            self.lowpass = ""
 
         # self.double_validator = QDoubleValidator(decimals=2)
 
