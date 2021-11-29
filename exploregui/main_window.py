@@ -84,6 +84,8 @@ class MainWindow(QMainWindow):
             """background-color: #FFFFFF;
             border:none;""")
         QFontDatabase.addApplicationFont("./modules/stylesheets/DMSans-Regular.ttf")
+        self.funct.lineedit_stylesheet()
+
 
         # Slidable left panel
         self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slideLeftMenu())
@@ -107,6 +109,7 @@ class MainWindow(QMainWindow):
         self.ui.label_8.setHidden(True)
         self.ui.line.hide()
 
+        self.ui.dev_name_input.textChanged.connect(lambda: self.funct.lineedit_stylesheet())
         self.ui.btn_connect.clicked.connect(lambda: self.connect_clicked())
         self.ui.dev_name_input.returnPressed.connect(lambda: self.connect_clicked())
         self.ui.btn_scan.clicked.connect(lambda: self.BT_funct.scan_devices())

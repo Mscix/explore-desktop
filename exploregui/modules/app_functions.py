@@ -44,6 +44,20 @@ class AppFunctions():
     #########################
     # Aux Functions
     #########################
+    def lineedit_stylesheet(self):
+
+        if self.ui.dev_name_input.text() == "":
+            color = "#B4B4B4"
+        else:
+            color = "#FFFFFF"
+
+        stylesheet = f"""
+        QLineEdit{{
+            color: {color};
+            border: 1px solid rgb(84, 89, 124);
+        }}"""
+
+        self.ui.dev_name_input.setStyleSheet(stylesheet)
 
     def get_widget_by_objName(self, name):
         # widgets = page.allWidgets()
