@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QApplication
 from exploregui.modules.app_functions import AppFunctions
 from exploregui.modules.dialogs import RecordingDialog
 from datetime import datetime
-
+import os
 
 class RecordFunctions(AppFunctions):
     """
@@ -32,13 +32,17 @@ class RecordFunctions(AppFunctions):
         print(data)
 
         file_name = data["file_path"]
+        if os.path.isfile(file_name+"_ExG.csv"):
+            file_name += datetime.now().strftime("_%d%b%Y_%H%M")
         file_type = data["file_type"]
+
         record_duration = data["duration"] if data["duration"] != 0 else None
 
         self.explorer.record_data(
             file_name=file_name,
             file_type=file_type,
             duration=record_duration)
+
         self.is_recording = True
         self.start_timer_recorder(duration=record_duration)
 
