@@ -193,9 +193,9 @@ class VisualizationFunctions(AppFunctions):
         """
 
         stream_processor = self.explorer.stream_processor
-        chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
         def callback(packet):
+            self.chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
             exg_fs = stream_processor.device_info['sampling_rate']
             timestamp, exg = packet.get_data(exg_fs)
 
@@ -216,11 +216,21 @@ class VisualizationFunctions(AppFunctions):
                 if self._baseline_corrector["baseline"] is None:
                     self._baseline_corrector["baseline"] = samples_avg
                 else:
-                    self._baseline_corrector["baseline"] -= (
-                                (self._baseline_corrector["baseline"] - samples_avg) / self._baseline_corrector["MA_length"] *
-                                exg.shape[1])
+                    try:
+                        self._baseline_corrector["baseline"] = \
+                            self._baseline_corrector["baseline"] - \
+                            (
+                                (self._baseline_corrector["baseline"] - samples_avg) / self._baseline_corrector["MA_length"]
+                                * exg.shape[1]
+                            )
+                    except ValueError:
+                        print("Value error 227")
+                        print(f"{samples_avg.shape=}")
+                        print(f"{exg.shape=}")
+                        print(f"{self._baseline_corrector=}")
+                        self._baseline_corrector["baseline"] = samples_avg
 
-                exg -= self._baseline_corrector["baseline"][:, np.newaxis]
+                exg = exg - self._baseline_corrector["baseline"][:, np.newaxis]
             else:
                 self._baseline_corrector["baseline"] = None
 
@@ -229,7 +239,7 @@ class VisualizationFunctions(AppFunctions):
                 exg = self.offsets + exg / self.y_unit
             # exg /= self.y_unit
 
-                data = dict(zip(chan_list, exg))
+                data = dict(zip(self.active_chan, exg))
                 data['t'] = time_vector
                 self.signal_exg.emit(data)
 
@@ -302,6 +312,8 @@ class VisualizationFunctions(AppFunctions):
                 d = data[ch]
             except KeyError as e:
                 d = np.array([np.NaN for i in range(n_new_points)])
+                # print("key error line 305: ", str(e))
+                # print(f"{data.keys()=}")
             self.exg_plot_data[1][ch].put(idxs, d, mode="wrap")
 
         self.exg_pointer += n_new_points
@@ -353,7 +365,12 @@ class VisualizationFunctions(AppFunctions):
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
             # curve.setData(self.t_exg_plot, self.exg_plot[ch])
-            curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch])
+            try:
+                curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch], connect="finite")
+            except KeyError:
+                print("key error line 371")
+                print(f"{self.active_chan=}")
+                print(f"{self.exg_plot_data[1].keys()=}")
             # curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect="finite")
 
         # Remove reploted markers
@@ -446,13 +463,14 @@ class VisualizationFunctions(AppFunctions):
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
         # exg_data = np.array([self.exg_plot[key][~np.isnan(self.exg_plot[key])] for key in self.exg_plot.keys()])
         exg_data = np.array(
-            [self.exg_plot_data[1][key][~np.isnan(self.exg_plot_data[1][key])] for key in self.exg_plot_data[1].keys()])
+            [self.exg_plot_data[1][key][~np.isnan(self.exg_plot_data[1][key])] for key in self.exg_plot_data[1].keys()],
+            dtype=object)
 
         if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
-            print(exg_data.shape)
-            print(self.exg_plot_data[1].keys())
-            print(exg_data)
-            print()
+            # print(exg_data.shape)
+            # print(self.exg_plot_data[1].keys())
+            # print(exg_data)
+            # print()
             return
 
         fft_content, freq = self.get_fft(exg_data, exg_fs)

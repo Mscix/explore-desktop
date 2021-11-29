@@ -335,7 +335,7 @@ class MainWindow(QMainWindow):
 
             if self.funct.is_connected is False and self.file_names is None:
                 msg = "Please connect an Explore device or import data before attempting to visualize the data"
-                QMessageBox.information(self, "!", msg)
+                self.funct.display_msg(msg_text=msg, type="info")
                 return
 
             elif self.file_names is None:
@@ -595,7 +595,10 @@ class MainWindow(QMainWindow):
                     self.BT_funct.is_connected = False
                     # self.stop_processes()
                     self.reset_vars()
-                    self.BT_funct.update_frame_dev_settings()
+                    self.BT_funct.on_connection()
+                    # self.BT_funct.update_frame_dev_settings()
+                    # self.BT_funct.change_btn_connect()
+                    # self.BT_funct.change_footer()
                     self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         else:
