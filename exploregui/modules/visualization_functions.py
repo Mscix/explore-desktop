@@ -605,12 +605,14 @@ class VisualizationFunctions(AppFunctions):
         """
         Get the value for the event code from the GUI and set the event.
         """
-        event_code = self.ui.value_event_code.text()
+        event_code = int(self.ui.value_event_code.text())
+        if event_code > 65535 or event_code < 8:
+            self.display_msg(msg_text="Marker code value is not valid")
+            return
         try:
-            self.explorer.set_marker(int(event_code))
+            self.explorer.set_marker(event_code)
         except ValueError as e:
             self.display_msg(msg_text=str(e))
-            # QMessageBox.critical(self, "Error", str(e))
 
         # Clean input text box
         self.ui.value_event_code.setText("")
