@@ -178,20 +178,35 @@ class BTFunctions(AppFunctions):
         Change the fields for device and firmware in the GUI footer
         """
         if self.is_connected:
+            self.ui.ft_label_firmware.setHidden(False)
+            self.ui.ft_label_firmware_value.setHidden(False)
+            self.ui.ft_label_battery.setHidden(False)
+            self.ui.ft_label_battery_value.setHidden(False)
+            self.ui.ft_label_temp.setHidden(False)
+            self.ui.ft_label_temp_value.setHidden(False)
+
             dev_name = self.explorer.stream_processor.device_info[
                 "device_name"]
             device_lbl = f"Connected to {dev_name}"
             firmware = self.explorer.stream_processor.device_info[
                 "firmware_version"]
+            self._update_device_name(new_value=device_lbl)
+            self._update_firmware(new_value=firmware)
         else:
             device_lbl = "Not connected"
-            firmware = "NA"
-            stylesheet = self._battery_stylesheet(value="NA")
-            self._update_battery("NA", new_stylesheet=stylesheet)
-            self._update_temperature("NA")
+            self._update_device_name(new_value=device_lbl)
 
-        self._update_device_name(new_value=device_lbl)
-        self._update_firmware(new_value=firmware)
+            self.ui.ft_label_firmware.setHidden(True)
+            self.ui.ft_label_firmware_value.setHidden(True)
+            self.ui.ft_label_battery.setHidden(True)
+            self.ui.ft_label_battery_value.setHidden(True)
+            self.ui.ft_label_temp.setHidden(True)
+            self.ui.ft_label_temp_value.setHidden(True)
+            # stylesheet = self._battery_stylesheet(value="NA")
+            # self._update_battery("NA", new_stylesheet=stylesheet)
+            # self._update_temperature("NA")
+
+        
 
     def update_frame_dev_settings(self):
         """

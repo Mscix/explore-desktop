@@ -346,7 +346,7 @@ class VisualizationFunctions(AppFunctions):
                     self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
                     id2remove.append(idx_t)
             for idx_t in id2remove:
-                try: 
+                try:
                     self.r_peak["t"].remove(self.r_peak["t"][idx_t])
                     self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
                     self.r_peak["points"].remove(self.r_peak["points"][idx_t])

@@ -71,6 +71,14 @@ class MainWindow(QMainWindow):
         self.ui.frame_device.hide()
         self.ui.line_2.hide()
 
+        # Hide footer
+        self.ui.ft_label_firmware.setHidden(True)
+        self.ui.ft_label_firmware_value.setHidden(True)
+        self.ui.ft_label_battery.setHidden(True)
+        self.ui.ft_label_battery_value.setHidden(True)
+        self.ui.ft_label_temp.setHidden(True)
+        self.ui.ft_label_temp_value.setHidden(True)
+
         # Set UI definitions (close, restore, etc)
         self.ui_definitions()
 
