@@ -8,6 +8,15 @@ from exploregui.modules.app_settings import Settings
 import explorepy._exceptions as xpy_ex
 from explorepy.stream_processor import TOPICS
 
+# DISABLED_STYLESHEET = """
+#     background-color: rgb(129,133,161);
+#     color: rgb(78,78,78);
+# """
+DISABLED_STYLESHEET = """
+    background-color: rgb(89,90,111);
+    color: rgb(155,155,155);
+"""
+
 
 class BTFunctions(AppFunctions):
     """
@@ -28,11 +37,17 @@ class BTFunctions(AppFunctions):
         """"
         Scans for available explore devices.
         """
+        self.ui.list_devices.clear()
 
+        # Change footer
         self.ui.ft_label_device_3.setText("Scanning ...")
         self.ui.ft_label_device_3.repaint()
 
-        self.ui.list_devices.clear()
+        # Change scan button
+        self.ui.btn_scan.setText("Scanning")
+        self.ui.btn_scan.setStyleSheet(DISABLED_STYLESHEET)
+        QApplication.processEvents()
+
         with self.wait_cursor():
             try:
                 explore_devices = bt_scan()
@@ -45,8 +60,14 @@ class BTFunctions(AppFunctions):
             self.ui.list_devices.addItems(explore_devices)
             pass
 
+        # Reset footer
         self.ui.ft_label_device_3.setText("Not connected")
         self.ui.ft_label_device_3.repaint()
+
+        # Reset button
+        self.ui.btn_scan.setText("Scan")
+        self.ui.btn_scan.setStyleSheet("")
+        QApplication.processEvents()
 
     def get_device_from_le(self):
 
@@ -58,7 +79,7 @@ class BTFunctions(AppFunctions):
             device_name = input_name
         else:
             device_name = ""
-        
+
         if len(device_name) != 12:
             device_name = ""
 
@@ -90,10 +111,16 @@ class BTFunctions(AppFunctions):
                 self.display_msg(msg)
                 return
 
+            # Change footer
             self.ui.ft_label_device_3.setText(f"Connecting to {device_name}...")
             self.ui.ft_label_device_3.adjustSize()
             self.ui.ft_label_device_3.repaint()
+
+            # Change scan button
+            self.ui.btn_connect.setText("Connecting")
+            self.ui.btn_connect.setStyleSheet(DISABLED_STYLESHEET)
             QApplication.processEvents()
+            # QApplication.processEvents()
 
             with self.wait_cursor():
                 try:
@@ -147,6 +174,9 @@ class BTFunctions(AppFunctions):
                 msg = str(e)
                 self.display_msg(msg)
 
+        # Change scan button
+        self.ui.btn_connect.setStyleSheet("")
+        QApplication.processEvents()
         print(self.is_connected)
         self.on_connection()
 

@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QMessageBox, QPushButton, QSizeGrip
+from PySide6.QtWidgets import QApplication, QCheckBox, QGraphicsDropShadowEffect, QMainWindow, QMessageBox, QPushButton, QSizeGrip
 from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, Qt, Signal, QTimer, Slot
 from PySide6.QtGui import QColor, QFont, QIcon, QFontDatabase, QIntValidator
 
@@ -332,6 +332,8 @@ class MainWindow(QMainWindow):
 
         elif btn_name == "btn_settings":
             self.imp_funct.check_is_imp()
+            enable = not self.record_funct.is_recording
+            self.config_funct.enable_settings(enable)
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_plots":
@@ -360,11 +362,6 @@ class MainWindow(QMainWindow):
                     self.update_fft()
                     self.update_heart_rate()
                     self.is_streaming = True
-
-                # for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
-                #     w.setEnabled(False)
-                #     w.setToolTip("Changing channels during visualization is not allowed")
-                #     w.setStyleSheet("color: gray")
 
             else:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)

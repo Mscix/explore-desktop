@@ -1,9 +1,9 @@
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QCheckBox, QMessageBox
-from exploregui.modules.app_functions import AppFunctions
-from exploregui.modules.app_settings import Settings
+from exploregui.modules import AppFunctions
+from exploregui.modules import Settings
 import numpy as np
-
+from exploregui.modules.bt_functions import DISABLED_STYLESHEET
 
 class ConfigFunctions(AppFunctions):
     def __init__(self, ui, explorer, vis_functions):
@@ -21,11 +21,11 @@ class ConfigFunctions(AppFunctions):
         response = self.display_msg(msg_text=question, type="question")
 
         if response == QMessageBox.StandardButton.Yes:
-            print("yes")
-            self.explorer.format_memory()
+            with self.wait_cursor():
+                self.explorer.format_memory()
+                pass
             self.display_msg(msg_text="Memory formatted", type="info")
         else:
-            print("no")
             return
 
     @Slot()
@@ -232,3 +232,33 @@ class ConfigFunctions(AppFunctions):
 
         if warning != "":
             self.display_msg(msg_text=warning, type="info")
+
+    def enable_settings(self, enable=True):
+        if enable is False:
+            for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
+                w.setEnabled(False)
+                # w.setToolTip("Changing channels during visualization is not allowed")
+                w.setStyleSheet("color: gray")
+
+            self.ui.value_sampling_rate.setEnabled(False)
+            # self.ui.value_sampling_rate.setToolTip(
+            #     "Changing the sampling rate during visualization is not allowed")
+            self.ui.value_sampling_rate.setStyleSheet("color: gray;\nborder-color: gray;")
+
+            self.ui.btn_apply_settings.setStyleSheet(DISABLED_STYLESHEET)
+            self.ui.btn_apply_settings.setEnabled(False)
+            self.ui.btn_apply_settings.setToolTip(
+                "Changing the settings during visualization is not possible")
+        else:
+            for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
+                w.setEnabled(True)
+                w.setToolTip("")
+                w.setStyleSheet("")
+
+            self.ui.value_sampling_rate.setEnabled(False)
+            self.ui.value_sampling_rate.setToolTip("")
+            self.ui.value_sampling_rate.setStyleSheet("")
+
+            self.ui.btn_apply_settings.setStyleSheet("")
+            self.ui.btn_apply_settings.setEnabled(True)
+            self.ui.btn_apply_settings.setToolTip("")
