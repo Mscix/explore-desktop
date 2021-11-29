@@ -33,6 +33,7 @@ class IMPFunctions(AppFunctions):
         data = {ch: ["", self._impedance_stylesheet_wet("")] for ch in active_chan}
 
         def callback(packet):
+            mode = "dry" if self.ui.imp_mode.currentText() == "Dry electrodes" else "wet"
 
             imp_values = packet.get_impedances()
             for chan, value in zip(active_chan, imp_values):
@@ -41,12 +42,12 @@ class IMPFunctions(AppFunctions):
                 # print(value)
                 if value < 5:
                     str_value = "<5 K\u03A9"
-                elif value > 500:
+                elif (mode == "wet" and value > 100) or (mode == "dry" and value > 300):
                     str_value = "Open"
                 else:
                     str_value = str(int(round(value, 0))) + " K\u03A9"
 
-                if self.ui.imp_mode.currentText() == "Dry electrodes":
+                if mode == "dry":
                     ch_stylesheet = self._impedance_stylesheet_dry(value=value)
                 else:
                     ch_stylesheet = self._impedance_stylesheet_wet(value=value)
@@ -101,13 +102,13 @@ class IMPFunctions(AppFunctions):
         """
         if type(value) == str:
             imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
-        elif value > 500:
+        elif value > 50:  # 500
             imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
-        elif value > 100:
+        elif value > 30:  # 100
             imp_stylesheet = Settings.RED_IMPEDANCE_STYLESHEET
-        elif value > 50:
+        elif value > 20:  # 50
             imp_stylesheet = Settings.ORANGE_IMPEDANCE_STYLESHEET
-        elif value > 10:
+        elif value > 10:  # 20
             imp_stylesheet = Settings.YELLOW_IMPEDANCE_STYLESHEET
         else:
             imp_stylesheet = Settings.GREEN_IMPEDANCE_STYLESHEET
@@ -120,13 +121,13 @@ class IMPFunctions(AppFunctions):
         """
         if type(value) == str:
             imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
-        elif value > 500:
+        elif value > 70:  # 500
             imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
-        elif value > 200:
+        elif value > 50:  # 200
             imp_stylesheet = Settings.RED_IMPEDANCE_STYLESHEET
-        # elif value > 50:
-        #     imp_stylesheet = Settings.ORANGE_IMPEDANCE_STYLESHEET
-        elif value > 100:
+        elif value > 35:  # na
+            imp_stylesheet = Settings.ORANGE_IMPEDANCE_STYLESHEET
+        elif value > 20:  # 100
             imp_stylesheet = Settings.YELLOW_IMPEDANCE_STYLESHEET
         else:
             imp_stylesheet = Settings.GREEN_IMPEDANCE_STYLESHEET
