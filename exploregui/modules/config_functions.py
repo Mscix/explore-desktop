@@ -61,24 +61,20 @@ class ConfigFunctions(AppFunctions):
         response = self.display_msg(msg_text=question, type="question")
 
         if response == QMessageBox.StandardButton.Yes:
-            self.explorer.reset_soft()
 
-            self.explorer.set_sampling_rate(sampling_rate=250)
-            mask = "11111111"
-            int_mask = int(mask, 2)
-            try:
-                self.explorer.set_channels(int_mask)
-            except TypeError:
-                self.explorer.set_channels(mask)
+            with self.wait_cursor():
+                self.change_settings(reset=True)
+                self.ui.value_sampling_rate.setCurrentText("250")
+                for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
+                    w.setChecked(True)
+                pass
 
-            print(self.explorer.stream_processor.device_info['sampling_rate'])
-            self.update_frame_dev_settings()
-            self.display_msg(msg_text="Settings reset", type="info")
+            # self.display_msg(msg_text="Settings reset", type="info")
 
         else:
             return
 
-    def change_sampling_rate(self):
+    def change_sampling_rate(self, reset=False):
         """
         Change the sampling rate
         """
@@ -86,6 +82,8 @@ class ConfigFunctions(AppFunctions):
         sr = self.explorer.stream_processor.device_info['sampling_rate']
         str_value = self.ui.value_sampling_rate.currentText()
         value = int(str_value)
+        if reset:
+            value = 250
         if int(sr) != value:
             if self.plotting_filters is not None:
                 self.check_filters_new_sr()
@@ -103,7 +101,7 @@ class ConfigFunctions(AppFunctions):
             print("Same sampling rate")
             return
 
-    def change_active_channels(self):
+    def change_active_channels(self, reset=False):
         """
         Read selected checkboxes and set the channel mask of the device
         """
@@ -123,6 +121,8 @@ class ConfigFunctions(AppFunctions):
                 self.explorer.stream_processor.remove_filters()
 
             mask = "".join(active_chan)
+            if reset:
+                mask = "11111111"
             int_mask = int(mask, 2)
             try:
                 self.explorer.set_channels(int_mask)
@@ -153,7 +153,7 @@ class ConfigFunctions(AppFunctions):
             return
 
     @Slot()
-    def change_settings(self):
+    def change_settings(self, reset=False):
         """
         Apply changes in device settings
         """
@@ -161,8 +161,8 @@ class ConfigFunctions(AppFunctions):
         stream_processor = self.explorer.stream_processor
 
         with self.wait_cursor():
-            self.change_active_channels()
-            self.change_sampling_rate()
+            self.change_active_channels(reset)
+            self.change_sampling_rate(reset)
 
             points = self.plot_points()
             # self.exg_plot = {ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}

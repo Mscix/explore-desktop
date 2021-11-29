@@ -206,8 +206,6 @@ class BTFunctions(AppFunctions):
             # self._update_battery("NA", new_stylesheet=stylesheet)
             # self._update_temperature("NA")
 
-        
-
     def update_frame_dev_settings(self):
         """
         Update the frame with the device settings.
