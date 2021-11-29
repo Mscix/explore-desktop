@@ -90,9 +90,10 @@ class BTFunctions(AppFunctions):
                 self.display_msg(msg)
                 return
 
-            self.ui.ft_label_device_3.setText("Connecting ...")
+            self.ui.ft_label_device_3.setText(f"Connecting to {device_name}...")
+            self.ui.ft_label_device_3.adjustSize()
             self.ui.ft_label_device_3.repaint()
-            # QApplication.processEvents()
+            QApplication.processEvents()
 
             with self.wait_cursor():
                 try:
