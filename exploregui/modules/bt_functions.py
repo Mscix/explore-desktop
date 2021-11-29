@@ -58,6 +58,9 @@ class BTFunctions(AppFunctions):
             device_name = input_name
         else:
             device_name = ""
+        
+        if len(device_name) != 12:
+            device_name = ""
 
         return device_name
 
