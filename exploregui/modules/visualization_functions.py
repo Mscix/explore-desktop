@@ -10,6 +10,8 @@ from exploregui.modules.dialogs import PlotDialog
 import pyqtgraph as pg
 import copy
 
+NANS = False
+
 
 class VisualizationFunctions(AppFunctions):
     def __init__(self, ui, explorer, signals):
@@ -363,20 +365,24 @@ class VisualizationFunctions(AppFunctions):
             self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
 
         # Add nans between new and old data
-        # exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
-        # for ch in exg_plot_nan.keys():
-        #     exg_plot_nan[ch][self.exg_pointer-1:self.exg_pointer+9] = np.NaN
+        if NANS:
+            exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
+            for ch in exg_plot_nan.keys():
+                exg_plot_nan[ch][self.exg_pointer-1:self.exg_pointer+9] = np.NaN
 
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
             # curve.setData(self.t_exg_plot, self.exg_plot[ch])
             try:
-                curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch], connect="finite")
+                if NANS:
+                    curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect="finite")
+                else:
+                    curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch], connect="finite")
             except KeyError:
-                print("key error line 371")
-                print(f"{self.active_chan=}")
-                print(f"{self.exg_plot_data[1].keys()=}")
-            # curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect="finite")
+                # print("key error line 371")
+                # print(f"{self.active_chan=}")
+                # print(f"{self.exg_plot_data[1].keys()=}")
+                pass
 
         # Remove reploted markers
         for idx_t in range(len(self.mrk_replot["t"])):
@@ -443,30 +449,32 @@ class VisualizationFunctions(AppFunctions):
                     self.lines_orn = [None, None, None]
                     # pass
 
-        # orn_plot_nan = copy.deepcopy(self.orn_plot)
-        # for k in orn_plot_nan.keys():
-        #     orn_plot_nan[k][self.orn_pointer-1:self.orn_pointer+1] = np.NaN
+        if NANS:
+            orn_plot_nan = copy.deepcopy(self.orn_plot)
+            for k in orn_plot_nan.keys():
+                orn_plot_nan[k][self.orn_pointer-1:self.orn_pointer+1] = np.NaN
 
         # Paint curves
-        # self.curve_ax.setData(self.t_orn_plot, orn_plot_nan["accX"], connect="finite")
-        # self.curve_ay.setData(self.t_orn_plot, orn_plot_nan["accY"], connect="finite")
-        # self.curve_az.setData(self.t_orn_plot, orn_plot_nan["accZ"], connect="finite")
-        # self.curve_gx.setData(self.t_orn_plot, orn_plot_nan["gyroX"], connect="finite")
-        # self.curve_gy.setData(self.t_orn_plot, orn_plot_nan["gyroY"], connect="finite")
-        # self.curve_gz.setData(self.t_orn_plot, orn_plot_nan["gyroZ"], connect="finite")
-        # self.curve_mx.setData(self.t_orn_plot, orn_plot_nan["magX"], connect="finite")
-        # self.curve_my.setData(self.t_orn_plot, orn_plot_nan["magY"], connect="finite")
-        # self.curve_mz.setData(self.t_orn_plot, orn_plot_nan["magZ"], connect="finite")
-
-        self.curve_ax.setData(self.t_orn_plot, self.orn_plot["accX"], connect="finite")
-        self.curve_ay.setData(self.t_orn_plot, self.orn_plot["accY"], connect="finite")
-        self.curve_az.setData(self.t_orn_plot, self.orn_plot["accZ"], connect="finite")
-        self.curve_gx.setData(self.t_orn_plot, self.orn_plot["gyroX"], connect="finite")
-        self.curve_gy.setData(self.t_orn_plot, self.orn_plot["gyroY"], connect="finite")
-        self.curve_gz.setData(self.t_orn_plot, self.orn_plot["gyroZ"], connect="finite")
-        self.curve_mx.setData(self.t_orn_plot, self.orn_plot["magX"], connect="finite")
-        self.curve_my.setData(self.t_orn_plot, self.orn_plot["magY"], connect="finite")
-        self.curve_mz.setData(self.t_orn_plot, self.orn_plot["magZ"], connect="finite")
+        if NANS:
+            self.curve_ax.setData(self.t_orn_plot, orn_plot_nan["accX"], connect="finite")
+            self.curve_ay.setData(self.t_orn_plot, orn_plot_nan["accY"], connect="finite")
+            self.curve_az.setData(self.t_orn_plot, orn_plot_nan["accZ"], connect="finite")
+            self.curve_gx.setData(self.t_orn_plot, orn_plot_nan["gyroX"], connect="finite")
+            self.curve_gy.setData(self.t_orn_plot, orn_plot_nan["gyroY"], connect="finite")
+            self.curve_gz.setData(self.t_orn_plot, orn_plot_nan["gyroZ"], connect="finite")
+            self.curve_mx.setData(self.t_orn_plot, orn_plot_nan["magX"], connect="finite")
+            self.curve_my.setData(self.t_orn_plot, orn_plot_nan["magY"], connect="finite")
+            self.curve_mz.setData(self.t_orn_plot, orn_plot_nan["magZ"], connect="finite")
+        else:
+            self.curve_ax.setData(self.t_orn_plot, self.orn_plot["accX"], connect="finite")
+            self.curve_ay.setData(self.t_orn_plot, self.orn_plot["accY"], connect="finite")
+            self.curve_az.setData(self.t_orn_plot, self.orn_plot["accZ"], connect="finite")
+            self.curve_gx.setData(self.t_orn_plot, self.orn_plot["gyroX"], connect="finite")
+            self.curve_gy.setData(self.t_orn_plot, self.orn_plot["gyroY"], connect="finite")
+            self.curve_gz.setData(self.t_orn_plot, self.orn_plot["gyroZ"], connect="finite")
+            self.curve_mx.setData(self.t_orn_plot, self.orn_plot["magX"], connect="finite")
+            self.curve_my.setData(self.t_orn_plot, self.orn_plot["magY"], connect="finite")
+            self.curve_mz.setData(self.t_orn_plot, self.orn_plot["magZ"], connect="finite")
 
     @Slot()
     def plot_fft(self):
@@ -516,7 +524,7 @@ class VisualizationFunctions(AppFunctions):
             self.t_exg_plot = self.t_exg_plot[new_points:]
             for ch in self.exg_plot.keys():
                 self.exg_plot[ch] = self.exg_plot[ch][new_points:]
-            
+
             # Remove marker line
             for idx_t in range(len(self.mrk_plot["t"])):
                 if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
@@ -534,7 +542,6 @@ class VisualizationFunctions(AppFunctions):
                 self.r_peak["t"].remove(self.r_peak["t"][idx_t])
                 self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
                 self.r_peak["points"].remove(self.r_peak["points"][idx_t])
-                    
 
             # Update axis
             if len(self.t_exg_plot) - max_points > 0:
@@ -542,7 +549,7 @@ class VisualizationFunctions(AppFunctions):
                 self.t_exg_plot = self.t_exg_plot[extra:]
                 for ch in self.exg_plot.keys():
                     self.exg_plot[ch] = self.exg_plot[ch][extra:]
-                    
+
         self.t_exg_plot.extend(data["t"])
         for ch in self.exg_plot.keys():
             self.exg_plot[ch].extend(data[ch])
@@ -551,7 +558,7 @@ class VisualizationFunctions(AppFunctions):
             curve.setData(self.t_exg_plot, self.exg_plot[ch])
 
     def plot_orn_moving(self, data):
-        
+
         time_scale = AppFunctions._get_timeScale(self)
 
         max_points = AppFunctions._plot_points(self) / 7 #/ (2*7)
@@ -586,7 +593,7 @@ class VisualizationFunctions(AppFunctions):
         self.mrk_plot["code"].append(data[1])
 
         pen_marker = pg.mkPen(color='#7AB904', dash=[4,4])
- 
+
         # lines = []
         '''for plt in self.plots_list:
         # plt = self.plot_ch8
