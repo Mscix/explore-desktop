@@ -353,8 +353,8 @@ class VisualizationFunctions(AppFunctions):
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
             # curve.setData(self.t_exg_plot, self.exg_plot[ch])
-            # curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch])
-            curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect="finite")
+            curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch])
+            # curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect="finite")
 
         # Remove reploted markers
         for idx_t in range(len(self.mrk_replot["t"])):
