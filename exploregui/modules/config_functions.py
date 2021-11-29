@@ -1,5 +1,5 @@
-from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QCheckBox, QMessageBox
+from PySide6.QtCore import QTimer, Slot
+from PySide6.QtWidgets import QApplication, QCheckBox, QMessageBox
 from exploregui.modules import AppFunctions
 from exploregui.modules import Settings
 import numpy as np
@@ -28,11 +28,24 @@ class ConfigFunctions(AppFunctions):
         else:
             return
 
+    # def update_label_calibration(self):
+    #     sec = 100
+    #     self.ui.ft_label_device_3.setText(f"Calibrating ORN ({sec}s left)")
+    #     sec -= 1
+
+    # def timer_calibration(self):
+    #     self.timer_cal = QTimer()
+    #     print(f"{self.timer_cal=}")
+    #     self.timer_cal.setInterval(1000)
+    #     self.timer_cal.timeout.connect(lambda: self.update_label_calibration())
+    #     self.timer_cal.start()
+
     @Slot()
     def calibrate_orn(self):
         r"""
         Calibrate the orientation
         """
+        lbl = self.ui.ft_label_device_3.text()
         question = ("Do you want to continue with the orientation sensors calibration?\n"
                     "This will overwrite the calibration data if it already exists\n\n"
                     "If yes, you would need to move and rotate the device for 100 seconds\n"
@@ -42,11 +55,14 @@ class ConfigFunctions(AppFunctions):
 
         if response == QMessageBox.StandardButton.Yes:
             # QMessageBox.information(self, "", "Calibrating...\nPlease move and rotate the device")
-            self.explorer.calibrate_orn(do_overwrite=True)
-            msg = "Calibration Complete"
-            title = "Done"
-            # QMessageBox.information(self, title, msg)
-            self.display_msg(msg_text=msg, title=title, type="info")
+            self.ui.ft_label_device_3.setText(f"Calibrating ORN ... ")
+            self.ui.ft_label_device_3.repaint()
+            with self.wait_cursor():
+                self.explorer.calibrate_orn(do_overwrite=True)
+                pass
+            self.ui.ft_label_device_3.setText(lbl)
+            self.ui.ft_label_device_3.repaint()
+            self.display_msg(msg_text="Calibration Complete", title="Done", type="info")
         else:
             return
 
