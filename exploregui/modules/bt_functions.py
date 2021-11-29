@@ -104,23 +104,33 @@ class BTFunctions(AppFunctions):
                 except xpy_ex.DeviceNotFoundError as e:
                     msg = str(e)
                     self.display_msg(msg)
+                    self.ui.ft_label_device_3.setText("Not connected")
+                    self.ui.ft_label_device_3.repaint()
                     return
                 except TypeError:
                     msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
                     self.display_msg(msg)
+                    self.ui.ft_label_device_3.setText("Not connected")
+                    self.ui.ft_label_device_3.repaint()
                     return
                 except AssertionError as e:
                     msg = str(e)
                     self.display_msg(msg)
+                    self.ui.ft_label_device_3.setText("Not connected")
+                    self.ui.ft_label_device_3.repaint()
                     return
                 except ValueError:
                     msg = "Error opening socket.\nPlease make sure the bluetooth is on."
                     # QMessageBox.critical(self, "Error", msg)
                     self.display_msg(msg)
+                    self.ui.ft_label_device_3.setText("Not connected")
+                    self.ui.ft_label_device_3.repaint()
                     return
                 except Exception as e:
                     msg = str(e)
                     self.display_msg(msg)
+                    self.ui.ft_label_device_3.setText("Not connected")
+                    self.ui.ft_label_device_3.repaint()
                     return
                 pass
 
