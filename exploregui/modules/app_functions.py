@@ -79,7 +79,7 @@ class AppFunctions():
             wdw_title = "Error" if title is None else title
             msg.setIcon(QMessageBox.Critical)
         elif type == "info":
-            wdw_title = "!" if title is None else title
+            wdw_title = "Information" if title is None else title
             msg.setIcon(QMessageBox.Information)
         elif type == "question":
             wdw_title = "Confirmation" if title is None else title
