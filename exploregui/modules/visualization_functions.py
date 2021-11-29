@@ -346,9 +346,9 @@ class VisualizationFunctions(AppFunctions):
             self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
 
         # Add nans between new and old data
-        exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
-        for ch in exg_plot_nan.keys():
-            exg_plot_nan[ch][self.exg_pointer-1:self.exg_pointer+9] = np.NaN
+        # exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
+        # for ch in exg_plot_nan.keys():
+        #     exg_plot_nan[ch][self.exg_pointer-1:self.exg_pointer+9] = np.NaN
 
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
@@ -448,7 +448,11 @@ class VisualizationFunctions(AppFunctions):
         exg_data = np.array(
             [self.exg_plot_data[1][key][~np.isnan(self.exg_plot_data[1][key])] for key in self.exg_plot_data[1].keys()])
 
-        if exg_data.shape[1] < exg_fs * 5:
+        if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
+            print(exg_data.shape)
+            print(self.exg_plot_data[1].keys())
+            print(exg_data)
+            print()
             return
 
         fft_content, freq = self.get_fft(exg_data, exg_fs)
