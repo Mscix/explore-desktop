@@ -102,6 +102,7 @@ class BTFunctions(AppFunctions):
 
         # change button stylesheet
         self.ui.btn_connect.setStyleSheet("")
+        self.ui.btn_connect.setText("Connect")
         QApplication.processEvents()
 
         # display error message
@@ -177,6 +178,7 @@ class BTFunctions(AppFunctions):
                 self.display_msg(msg)
 
         print(self.is_connected)
+        self.ui.btn_connect.setStyleSheet("")
         self.on_connection()
 
     #########################
