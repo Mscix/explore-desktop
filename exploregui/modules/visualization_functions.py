@@ -10,7 +10,7 @@ from exploregui.modules.dialogs import PlotDialog
 import pyqtgraph as pg
 import copy
 
-NANS = False
+NANS = True
 
 
 class VisualizationFunctions(AppFunctions):
@@ -153,17 +153,17 @@ class VisualizationFunctions(AppFunctions):
             plt.setMouseEnabled(x=False, y=False)
 
         # Initialize curves for each plot
-        self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name="accZ")
-        self.curve_ay = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name="accY")
-        self.curve_ax = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[0], name="accX")
+        self.curve_ax = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[0], name=" accX ")
+        self.curve_ay = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name=" accY ")
+        self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name=" accZ ")
 
         self.curve_gx = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[0], name="gyroX")
         self.curve_gy = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
         self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="gyroZ")
 
-        self.curve_mx = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX")
-        self.curve_my = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY")
-        self.curve_mz = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[2], name="magZ")
+        self.curve_mx = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX ")
+        self.curve_my = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY ")
+        self.curve_mz = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[2], name="magZ ")
 
     def init_plot_fft(self):
         """

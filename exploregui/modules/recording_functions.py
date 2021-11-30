@@ -6,6 +6,7 @@ from exploregui.modules.dialogs import RecordingDialog
 from datetime import datetime
 import os
 
+
 class RecordFunctions(AppFunctions):
     """
     Functions for recording functionality
