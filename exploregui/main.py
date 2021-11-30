@@ -3,9 +3,11 @@ import sys
 
 from exploregui import MainWindow
 from PySide6.QtWidgets import QApplication
+import faulthandler
 
 
 def main():
+    faulthandler.enable()
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()

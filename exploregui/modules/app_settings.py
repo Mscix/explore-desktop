@@ -140,3 +140,19 @@ QMessageBox QLabel {
     N_CHAN_LIST = ["4", "8"]
 
     PLOT_BACKGROUND = "#120b28"
+
+    # Max value for each color
+    COLOR_RULES_DRY = {
+        "green": 20,
+        "yellow": 35,
+        "orange": 50,
+        "red": 70,
+        "open": 500
+    }
+    COLOR_RULES_WET = {
+        "green": 10,
+        "yellow": 20,
+        "orange": 30,
+        "red": 50,
+        "open": 100
+    }

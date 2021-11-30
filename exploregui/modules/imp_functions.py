@@ -42,7 +42,7 @@ class IMPFunctions(AppFunctions):
                 # print(value)
                 if value < 5:
                     str_value = "<5 K\u03A9"
-                elif (mode == "wet" and value > 100) or (mode == "dry" and value > 300):
+                elif (mode == "wet" and value > Settings.COLOR_RULES_WET["open"]) or (mode == "dry" and value > Settings.COLOR_RULES_DRY["open"]):
                     str_value = "Open"
                 else:
                     str_value = str(int(round(value, 0))) + " K\u03A9"
@@ -102,13 +102,13 @@ class IMPFunctions(AppFunctions):
         """
         if type(value) == str:
             imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
-        elif value > 50:  # 500
+        elif value > Settings.COLOR_RULES_WET["red"]:  # 500
             imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
-        elif value > 30:  # 100
+        elif value > Settings.COLOR_RULES_WET["orange"]:  # 100
             imp_stylesheet = Settings.RED_IMPEDANCE_STYLESHEET
-        elif value > 20:  # 50
+        elif value > Settings.COLOR_RULES_WET["yellow"]:  # 50
             imp_stylesheet = Settings.ORANGE_IMPEDANCE_STYLESHEET
-        elif value > 10:  # 20
+        elif value > Settings.COLOR_RULES_WET["green"]:  # 20
             imp_stylesheet = Settings.YELLOW_IMPEDANCE_STYLESHEET
         else:
             imp_stylesheet = Settings.GREEN_IMPEDANCE_STYLESHEET
@@ -121,13 +121,13 @@ class IMPFunctions(AppFunctions):
         """
         if type(value) == str:
             imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
-        elif value > 70:  # 500
+        elif value > Settings.COLOR_RULES_DRY["red"]:  # 500
             imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
-        elif value > 50:  # 200
+        elif value > Settings.COLOR_RULES_DRY["orange"]:  # 200
             imp_stylesheet = Settings.RED_IMPEDANCE_STYLESHEET
-        elif value > 35:  # na
+        elif value > Settings.COLOR_RULES_DRY["yellow"]:  # na
             imp_stylesheet = Settings.ORANGE_IMPEDANCE_STYLESHEET
-        elif value > 20:  # 100
+        elif value > Settings.COLOR_RULES_DRY["green"]:  # 100
             imp_stylesheet = Settings.YELLOW_IMPEDANCE_STYLESHEET
         else:
             imp_stylesheet = Settings.GREEN_IMPEDANCE_STYLESHEET
