@@ -5,6 +5,7 @@ from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, Qt, Signal,
 from PySide6.QtGui import QColor, QFont, QIcon, QFontDatabase, QIntValidator
 
 import explorepy as xpy
+import exploregui
 
 from exploregui.modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
 from exploregui.modules import Settings, Ui_MainWindow
@@ -18,7 +19,7 @@ from exploregui.modules import IMPFunctions, LSLFunctions, RecordFunctions
 
 # pyinstaller --onefile --console --name ExploreGUI --icon=='/home/sankirtan/andrea/mentalab_repo/explorepy-gui/exploregui/images/MentalabLogo.png' main.py
 # explorepy==1.6.0 pyside6==6.2.1 pandas==1.3.4 pyqtgraph==0.12.3 mne==0.24.0 appdirs==1.4.3 certifi==2020.12.5 Click==7.0 Jinja2==3.0.3 MarkupSafe==2.0.1 numpy==1.21.4 packaging==21.3 Pillow==8.4.0 pyEDFlib==0.1.22 pylsl==1.15.0 pyparsing==3.0.6 python-dateutil==2.8.1 PyYAML==5.3.1 scipy==1.5.2 sentry-sdk==1.0.0 six==1.15.0 tornado==6.0.4 urllib3==1.26.4 shiboken6==6.2.1 pytz==2021.3
-VERSION_APP = 'v0.19'
+VERSION_APP = exploregui.__version__
 WINDOW_SIZE = False
 
 
