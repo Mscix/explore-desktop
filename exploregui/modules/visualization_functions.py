@@ -622,7 +622,7 @@ class VisualizationFunctions(AppFunctions):
             self.display_msg(msg_text=str(e))
 
         # Clean input text box
-        self.ui.value_event_code.setText("")
+        # self.ui.value_event_code.setText("")
 
     @Slot()
     def change_timescale(self):

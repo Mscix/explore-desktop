@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(lambda: self.vis_funct.set_marker())
-        # self.ui.value_event_code.returnPressed.connect(lambda: AppFunctions.set_marker(self))
+        self.ui.value_event_code.returnPressed.connect(lambda: self.vis_funct.set_marker())
 
         self.ui.value_yAxis.currentTextChanged.connect(lambda: self.vis_funct.change_scale())
         self.ui.value_timeScale.currentTextChanged.connect(lambda: self.vis_funct.change_timescale())
