@@ -94,14 +94,14 @@ class VisualizationFunctions(AppFunctions):
         pw.setLabel("left", "Voltage")
 
         # Initialize curves for each channel
-        self.curve_ch1 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch2 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch3 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch4 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch5 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch6 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch7 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
-        self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)
+        self.curve_ch1 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch2 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch3 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch4 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch5 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch6 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch7 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
 
         all_curves_list = [
             self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
@@ -145,7 +145,7 @@ class VisualizationFunctions(AppFunctions):
         timescale = int(self.get_timeScale())
         for plt, lbl in zip(self.plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
             # plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0, -125))
-            plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0,0))
+            plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0, 0))
             plt.getAxis("left").setWidth(80)
             plt.getAxis("left").setLabel(lbl)
             plt.showGrid(x=True, y=True, alpha=0.5)
@@ -171,7 +171,7 @@ class VisualizationFunctions(AppFunctions):
         """
         pw = self.ui.plot_fft
         pw.setBackground(Settings.PLOT_BACKGROUND)
-        pw.setXRange(0, 70, padding=0.01)
+        # pw.setXRange(0, 70, padding=0.01)
         pw.showGrid(x=True, y=True, alpha=0.5)
         pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0, -300))
         pw.setLabel('left', "Amplitude (uV)")
@@ -327,8 +327,8 @@ class VisualizationFunctions(AppFunctions):
 
             self.exg_plot_data[0][self.exg_pointer:] += self.get_timeScale()
 
-            t_min = int(round(np.mean(data["t"])))
-            t_max = int(t_min + self.get_timeScale())
+            t_min = np.nanmin(self.exg_plot_data[0])
+            t_max = t_min + self.get_timeScale()
             self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
             # Remove marker line and replot in the new axis
@@ -432,9 +432,9 @@ class VisualizationFunctions(AppFunctions):
 
             self.t_orn_plot[self.orn_pointer:] += self.get_timeScale()
 
-            t_min = int(round(np.mean(data["t"])))
-            # t_min = int(data["t"][-1])
-            t_max = int(t_min + self.get_timeScale())
+            # t_min = int(round(np.mean(data["t"])))
+            t_min = np.nanmin(self.t_orn_plot)
+            t_max = t_min + self.get_timeScale()
             for plt in self.plots_orn_list:
                 plt.setXRange(t_min, t_max, padding=0.01)
         # Position line
@@ -484,25 +484,21 @@ class VisualizationFunctions(AppFunctions):
         pw.setXRange(0, 70, padding=0.01)
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
-        # exg_data = np.array([self.exg_plot[key][~np.isnan(self.exg_plot[key])] for key in self.exg_plot.keys()])
-        exg_data = np.array(
-            [self.exg_plot_data[1][key][~np.isnan(self.exg_plot_data[1][key])] for key in self.exg_plot_data[1].keys()],
-            dtype=object)
-
+        # exg_data = np.array([self.exg_plot_data[1][key][~np.isnan(self.exg_plot_data[1][key])] for key in self.exg_plot_data[1].keys()],
+        #     dtype=object)
+        exg_data = np.array([self.exg_plot_data[1][key] for key in self.exg_plot_data[1].keys()])
+        # t = np.linspace(0, 10, 2500)
+        # f = 20
+        # exg_data = np.array([np.sin(2*np.pi*f*t) for key in self.exg_plot_data[1].keys()])
         if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
-            # print(exg_data.shape)
-            # print(self.exg_plot_data[1].keys())
-            # print(exg_data)
-            # print()
             return
 
         fft_content, freq = self.get_fft(exg_data, exg_fs)
         data = dict(zip(self.exg_plot_data[1].keys(), fft_content))
-        # data = dict(zip(self.exg_plot.keys(), fft_content))
         data['f'] = freq
 
-        for i in range(len(data.keys())):
-            key = list(data.keys())[i]
+        for i, key in enumerate(data.keys()):
+            # key = list(data.keys())[i]
             if key != "f":
                 pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
 
@@ -629,8 +625,9 @@ class VisualizationFunctions(AppFunctions):
         """
         Change ExG and ORN plots time scale
         """
+
         t_min = self.last_t
-        t_max = int(t_min + self.get_timeScale())
+        t_max = t_min + self.get_timeScale()
         self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
         for plt in self.plots_orn_list:
             plt.setXRange(t_min, t_max, padding=0.01)
