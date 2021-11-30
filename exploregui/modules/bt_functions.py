@@ -93,6 +93,20 @@ class BTFunctions(AppFunctions):
 
         return device_name
 
+    def _connection_error_gui(self, msg):
+        """
+        Visual feedback when the connection to device is not successful
+        """
+        # reset footer to Not connected
+        self.ui.ft_label_device_3.setText("Not connected")
+
+        # change button stylesheet
+        self.ui.btn_connect.setStyleSheet("")
+        QApplication.processEvents()
+
+        # display error message
+        self.display_msg(msg)
+
     def connect2device(self):
         """
         Connect to the explore device.
@@ -120,46 +134,34 @@ class BTFunctions(AppFunctions):
             self.ui.btn_connect.setText("Connecting")
             self.ui.btn_connect.setStyleSheet(DISABLED_STYLESHEET)
             QApplication.processEvents()
-            # QApplication.processEvents()
 
-            with self.wait_cursor():
-                try:
+            try:
+                with self.wait_cursor():
                     self.explorer.connect(device_name=device_name)
                     self.is_connected = True
                     AppFunctions.is_connected = self.is_connected
+                    pass
 
-                except xpy_ex.DeviceNotFoundError as e:
-                    msg = str(e)
-                    self.display_msg(msg)
-                    self.ui.ft_label_device_3.setText("Not connected")
-                    self.ui.ft_label_device_3.repaint()
-                    return
-                except TypeError:
-                    msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-                    self.display_msg(msg)
-                    self.ui.ft_label_device_3.setText("Not connected")
-                    self.ui.ft_label_device_3.repaint()
-                    return
-                except AssertionError as e:
-                    msg = str(e)
-                    self.display_msg(msg)
-                    self.ui.ft_label_device_3.setText("Not connected")
-                    self.ui.ft_label_device_3.repaint()
-                    return
-                except ValueError:
-                    msg = "Error opening socket.\nPlease make sure the bluetooth is on."
-                    # QMessageBox.critical(self, "Error", msg)
-                    self.display_msg(msg)
-                    self.ui.ft_label_device_3.setText("Not connected")
-                    self.ui.ft_label_device_3.repaint()
-                    return
-                except Exception as e:
-                    msg = str(e)
-                    self.display_msg(msg)
-                    self.ui.ft_label_device_3.setText("Not connected")
-                    self.ui.ft_label_device_3.repaint()
-                    return
-                pass
+            except xpy_ex.DeviceNotFoundError as e:
+                msg = str(e)
+                self._connection_error_gui(msg)
+                return
+            except TypeError:
+                msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
+                self._connection_error_gui(msg)
+                return
+            except AssertionError as e:
+                msg = str(e)
+                self._connection_error_gui(msg)
+                return
+            except ValueError:
+                msg = "Error opening socket.\nPlease make sure the bluetooth is on."
+                self._connection_error_gui(msg)
+                return
+            except Exception as e:
+                msg = str(e)
+                self._connection_error_gui(msg)
+                return
 
         else:
             try:
@@ -174,9 +176,6 @@ class BTFunctions(AppFunctions):
                 msg = str(e)
                 self.display_msg(msg)
 
-        # Change scan button
-        self.ui.btn_connect.setStyleSheet("")
-        QApplication.processEvents()
         print(self.is_connected)
         self.on_connection()
 
