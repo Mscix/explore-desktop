@@ -211,7 +211,7 @@ class MainWindow(QMainWindow):
     @Slot()
     def settings_changed(self):
         self.config_funct.change_settings()
-        self.t_exg_plot, self.exg_plot = self.config_funct.get_exg_plot_data()
+        self.t_exg_plot, self.exg_plot, _ = self.config_funct.get_exg_plot_data()
         self.chan_dict = self.config_funct.get_chan_dict()
 
     @Slot()
@@ -332,8 +332,11 @@ class MainWindow(QMainWindow):
 
         elif btn_name == "btn_settings":
             self.imp_funct.check_is_imp()
+            print(f"{self.ui.value_sampling_rate.isEnabled()=}")
             enable = not self.record_funct.is_recording
             self.config_funct.enable_settings(enable)
+            print(f"{self.ui.value_sampling_rate.isEnabled()=}")
+            self.ui.value_sampling_rate.setEnabled(True)
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_plots":

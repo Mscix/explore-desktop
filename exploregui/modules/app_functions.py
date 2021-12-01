@@ -11,7 +11,7 @@ import numpy as np
 class AppFunctions():
     chan_dict = {}
     is_connected = False
-    exg_plot_data = [np.array([np.NaN]*2500), {}]
+    exg_plot_data = [np.array([np.NaN]*2500), {}, {}]
     n_chan = 8
     chan_list = Settings.CHAN_LIST[:n_chan]
     plotting_filters = None
@@ -122,7 +122,7 @@ class AppFunctions():
         sr = stream_processor.device_info['sampling_rate']
         return sr
 
-    def apply_filters(self):            
+    def apply_filters(self):
         stream_processor = self.explorer.stream_processor
         notch_freq = self.plotting_filters["notch"]
         high_freq = self.plotting_filters["highpass"]
@@ -186,7 +186,7 @@ class AppFunctions():
     def reset_vars(self):
         self.chan_dict = {}
         self.is_connected = False
-        self.exg_plot_data = [np.array([np.NaN]*2500), {}]
+        self.exg_plot_data = [np.array([np.NaN]*2500), {}, {}]
         self.n_chan = 8
         self.chan_list = Settings.CHAN_LIST[:self.n_chan]
         self.plotting_filters = None

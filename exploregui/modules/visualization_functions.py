@@ -30,6 +30,7 @@ class VisualizationFunctions(AppFunctions):
 
         self.line = None
         self.exg_pointer = 0
+        self.orig_exg_pointer = 0
         self.mrk_plot = {"t": [], "code": [], "line": []}
         self.mrk_replot = {"t": [], "code": [], "line": []}
 
@@ -190,6 +191,25 @@ class VisualizationFunctions(AppFunctions):
         self.emit_exg()
         self.emit_marker()
 
+    def add_original_exg(self, orig_exg):
+
+        first_chan = list(self.exg_plot_data[2].keys())[0]
+        n_new_points = len(orig_exg[first_chan])
+
+        idxs = np.arange(self.orig_exg_pointer, self.orig_exg_pointer+n_new_points)
+
+        for ch in self.exg_plot_data[2].keys():
+            try:
+                d = orig_exg[ch]
+            except KeyError:
+                d = np.array([np.NaN for i in range(n_new_points)])
+            self.exg_plot_data[2][ch].put(idxs, d, mode="wrap")
+
+        self.orig_exg_pointer += n_new_points
+        if self.orig_exg_pointer >= len(self.exg_plot_data[2][first_chan]):
+            while self.orig_exg_pointer >= len(self.exg_plot_data[2][first_chan]):
+                self.orig_exg_pointer -= len(self.exg_plot_data[2][first_chan])
+
     def emit_exg(self, stop=False):
         """
         Get EXG data from packet and emit signal
@@ -201,6 +221,10 @@ class VisualizationFunctions(AppFunctions):
             self.chan_list = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
             exg_fs = stream_processor.device_info['sampling_rate']
             timestamp, exg = packet.get_data(exg_fs)
+
+            # Original data
+            orig_exg = dict(zip(self.active_chan, exg))
+            self.add_original_exg(orig_exg)
 
             # From timestamp to seconds
             if self._vis_time_offset is None:
@@ -482,18 +506,15 @@ class VisualizationFunctions(AppFunctions):
         pw = self.ui.plot_fft
         pw.clear()
         pw.setXRange(0, 70, padding=0.01)
-        pw.setYRange(-4, 4, padding=0.01)
-
+        
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
-        # exg_data = np.array([self.exg_plot_data[1][key][~np.isnan(self.exg_plot_data[1][key])] for key in self.exg_plot_data[1].keys()],
-        #     dtype=object)
-        exg_data = np.array([self.exg_plot_data[1][key] for key in self.exg_plot_data[1].keys()])
-
+        exg_data = np.array([self.exg_plot_data[2][key][~np.isnan(self.exg_plot_data[2][key])] for key in self.exg_plot_data[2].keys()])
         if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
+            print(exg_data.shape)
             return
 
         fft_content, freq = self.get_fft(exg_data, exg_fs)
-        data = dict(zip(self.exg_plot_data[1].keys(), fft_content))
+        data = dict(zip(self.exg_plot_data[2].keys(), fft_content))
         data['f'] = freq
 
         for i, key in enumerate(data.keys()):
@@ -633,8 +654,10 @@ class VisualizationFunctions(AppFunctions):
 
         new_size = self.plot_points()
         self.exg_pointer = 0
+        self.orig_exg_pointer = 0
         self.exg_plot_data[0] = np.array([np.NaN]*new_size)
         self.exg_plot_data[1] = {ch: np.array([np.NaN]*new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+        self.exg_plot_data[2] = {ch: np.array([np.NaN]*self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
 
         new_size_orn = self.plot_points(orn=True)
         self.orn_pointer = 0
@@ -727,6 +750,8 @@ class VisualizationFunctions(AppFunctions):
         n_point = 1024
         exg -= exg.mean(axis=1)[:, np.newaxis]
         freq = s_rate * np.arange(int(n_point / 2)) / n_point
+        # freq = Settings.EXG_VIS_SRATE * np.arange(int(n_point / 2)) / n_point
+        # freq = np.fft.fftfreq()
         fft_content = np.fft.fft(exg, n=n_point) / n_point
         fft_content = np.abs(fft_content[:, range(int(n_point / 2))])
         fft_content = gaussian_filter1d(fft_content, 1)
@@ -766,6 +791,7 @@ class VisualizationFunctions(AppFunctions):
 
         self.line = None
         self.exg_pointer = 0
+        self.orig_exg_pointer = 0
         self.mrk_plot = {"t": [], "code": [], "line": []}
         self.mrk_replot = {"t": [], "code": [], "line": []}
 
