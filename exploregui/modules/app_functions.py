@@ -122,7 +122,7 @@ class AppFunctions():
         sr = stream_processor.device_info['sampling_rate']
         return sr
 
-    def apply_filters(self):
+    def apply_filters(self):            
         stream_processor = self.explorer.stream_processor
         notch_freq = self.plotting_filters["notch"]
         high_freq = self.plotting_filters["highpass"]

@@ -482,14 +482,13 @@ class VisualizationFunctions(AppFunctions):
         pw = self.ui.plot_fft
         pw.clear()
         pw.setXRange(0, 70, padding=0.01)
+        pw.setYRange(-4, 4, padding=0.01)
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
         # exg_data = np.array([self.exg_plot_data[1][key][~np.isnan(self.exg_plot_data[1][key])] for key in self.exg_plot_data[1].keys()],
         #     dtype=object)
         exg_data = np.array([self.exg_plot_data[1][key] for key in self.exg_plot_data[1].keys()])
-        # t = np.linspace(0, 10, 2500)
-        # f = 20
-        # exg_data = np.array([np.sin(2*np.pi*f*t) for key in self.exg_plot_data[1].keys()])
+
         if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
             return
 
@@ -737,7 +736,7 @@ class VisualizationFunctions(AppFunctions):
         """
         Open plot filter dialog and apply filters
         """
-
+        remove = True if self.plotting_filters is not None else False
         wait = True if self.plotting_filters is None else False
         sr = self.explorer.stream_processor.device_info['sampling_rate']
         dialog = PlotDialog(sr=sr, current_filters=self.plotting_filters)
@@ -747,6 +746,8 @@ class VisualizationFunctions(AppFunctions):
         else:
             self.plotting_filters = filters
             AppFunctions.plotting_filters = self.plotting_filters
+            if remove:
+                self.explorer.stream_processor.remove_filters()
             self.apply_filters()
             # self.loading = LoadingScreen()
             if wait:

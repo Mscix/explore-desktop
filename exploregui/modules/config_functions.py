@@ -1,9 +1,10 @@
-from PySide6.QtCore import QTimer, Slot
-from PySide6.QtWidgets import QApplication, QCheckBox, QMessageBox
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QCheckBox, QMessageBox
 from exploregui.modules import AppFunctions
 from exploregui.modules import Settings
 import numpy as np
 from exploregui.modules.bt_functions import DISABLED_STYLESHEET
+
 
 class ConfigFunctions(AppFunctions):
     def __init__(self, ui, explorer, vis_functions):
@@ -55,7 +56,7 @@ class ConfigFunctions(AppFunctions):
 
         if response == QMessageBox.StandardButton.Yes:
             # QMessageBox.information(self, "", "Calibrating...\nPlease move and rotate the device")
-            self.ui.ft_label_device_3.setText(f"Calibrating ORN ... ")
+            self.ui.ft_label_device_3.setText("Calibrating ORN ... ")
             self.ui.ft_label_device_3.repaint()
             with self.wait_cursor():
                 self.explorer.calibrate_orn(do_overwrite=True)
@@ -151,13 +152,6 @@ class ConfigFunctions(AppFunctions):
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             AppFunctions.chan_dict = self.chan_dict
 
-            # points = self.plot_points()
-            # self.exg_plot_data[1] = {
-            #   ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-            # AppFunctions.exg_plot_data = self.exg_plot_data
-            # print('changed')
-            # print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
-            # print(f"{self.chan_dict=}")
             self.vis_functions.offsets = np.arange(1, n_chan.count(1) + 1)[:, np.newaxis].astype(float)
             self.vis_functions._baseline_corrector["baseline"] = None
             if self.plotting_filters is not None:

@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtWidgets import QApplication, QCheckBox, QGraphicsDropShadowEffect, QMainWindow, QMessageBox, QPushButton, QSizeGrip
+from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QPushButton, QSizeGrip
 from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, Qt, Signal, QTimer, Slot
 from PySide6.QtGui import QColor, QFont, QIcon, QFontDatabase, QIntValidator
 
@@ -33,8 +33,8 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowIcon(QIcon('/home/sankirtan/andrea/mentalab_repo/explorepy-gui/exploregui/images/MentalabLogo.png'))
-
+        self.setWindowIcon(
+            QIcon('/home/sankirtan/andrea/mentalab_repo/explorepy-gui/exploregui/images/MentalabLogo.png'))
         self.explorer = xpy.Explore()
         self.funct = AppFunctions(self.ui, self.explorer)
         self.LSL_funct = LSLFunctions(self.ui, self.explorer)
@@ -94,7 +94,6 @@ class MainWindow(QMainWindow):
             border:none;""")
         QFontDatabase.addApplicationFont("./modules/stylesheets/DMSans-Regular.ttf")
         self.funct.lineedit_stylesheet()
-
 
         # Slidable left panel
         self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slideLeftMenu())
