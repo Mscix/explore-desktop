@@ -48,17 +48,19 @@ class BTFunctions(AppFunctions):
         self.ui.btn_scan.setStyleSheet(DISABLED_STYLESHEET)
         QApplication.processEvents()
 
-        with self.wait_cursor():
-            try:
+        try:
+            with self.wait_cursor():
                 explore_devices = bt_scan()
-            except ValueError:
-                print("Error opening socket. Check if bt is on")
-            explore_devices = [dev[0] for dev in explore_devices]
-            if len(explore_devices) == 0:
-                print("No explore devices found. Please make sure it is turn on and click on reescan")
+                pass
+        except ValueError:
+            msg = "Error opening socket.\nPlease make sure the bluetooth is on."
+            self._connection_error_gui(msg, scan=True)
+            return
+        explore_devices = [dev[0] for dev in explore_devices]
+        if len(explore_devices) == 0:
+            print("No explore devices found. Please make sure it is turn on and click on reescan")
 
-            self.ui.list_devices.addItems(explore_devices)
-            pass
+        self.ui.list_devices.addItems(explore_devices)
 
         # Reset footer
         self.ui.ft_label_device_3.setText("Not connected")
@@ -92,21 +94,6 @@ class BTFunctions(AppFunctions):
             device_name = ""
 
         return device_name
-
-    def _connection_error_gui(self, msg):
-        """
-        Visual feedback when the connection to device is not successful
-        """
-        # reset footer to Not connected
-        self.ui.ft_label_device_3.setText("Not connected")
-
-        # change button stylesheet
-        self.ui.btn_connect.setStyleSheet("")
-        self.ui.btn_connect.setText("Connect")
-        QApplication.processEvents()
-
-        # display error message
-        self.display_msg(msg)
 
     def connect2device(self):
         """
@@ -184,6 +171,24 @@ class BTFunctions(AppFunctions):
     #########################
     # Visual feedback functions
     #########################
+    def _connection_error_gui(self, msg, scan=False):
+        """
+        Visual feedback when the scan or connection to device is not successful
+        """
+        # reset footer to Not connected
+        self.ui.ft_label_device_3.setText("Not connected")
+
+        if scan is False:
+            # change button stylesheet
+            self.ui.btn_connect.setStyleSheet("")
+            self.ui.btn_connect.setText("Connect")
+        else:
+            self.ui.btn_scan.setStyleSheet("")
+            self.ui.btn_scan.setText("Scan")
+        QApplication.processEvents()
+
+        # display error message
+        self.display_msg(msg)
 
     def on_connection(self):
         # set number of channels:
@@ -288,12 +293,13 @@ class BTFunctions(AppFunctions):
             #     self.ui.frame_cb_channels_16.hide()
 
             points = self.plot_points()
+            points_wo_downsampl = self.plot_points(downsampling=False)
             self.exg_plot_data[0] = np.array([np.NaN]*points)
             self.exg_plot_data[1] = {
                 ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
                 }
             self.exg_plot_data[2] = {
-                ch: np.array([np.NaN]*self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
+                ch: np.array([np.NaN]*points_wo_downsampl) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
                 }
             AppFunctions.exg_plot_data = self.exg_plot_data
 
