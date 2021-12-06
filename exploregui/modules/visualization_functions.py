@@ -1,5 +1,6 @@
 import time
 from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QApplication
 from explorepy.stream_processor import TOPICS
 from explorepy.tools import HeartRateEstimator
 import numpy as np
@@ -179,6 +180,37 @@ class VisualizationFunctions(AppFunctions):
         pw.setLabel('bottom', "Frequency (Hz)")
         pw.setLogMode(x=False, y=True)
         pw.setMouseEnabled(x=False, y=False)
+
+        # self.curve_fft_ch1 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[0], name="ch1")
+        # self.curve_fft_ch2 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[1], name="ch2")
+        # self.curve_fft_ch3 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[2], name="ch3")
+        # self.curve_fft_ch4 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[3], name="ch4")
+        # self.curve_fft_ch5 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[4], name="ch5")
+        # self.curve_fft_ch6 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[5], name="ch6")
+        # self.curve_fft_ch7 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[6], name="ch7")
+        # self.curve_fft_ch8 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[7], name="ch8")
+
+        # self.curve_fft_ch1 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[0], name="ch1", skipFiniteCheck=True)
+        # self.curve_fft_ch2 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[1], name="ch2", skipFiniteCheck=True)
+        # self.curve_fft_ch3 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[2], name="ch3", skipFiniteCheck=True)
+        # self.curve_fft_ch4 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[3], name="ch4", skipFiniteCheck=True)
+        # self.curve_fft_ch5 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[4], name="ch5", skipFiniteCheck=True)
+        # self.curve_fft_ch6 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[5], name="ch6", skipFiniteCheck=True)
+        # self.curve_fft_ch7 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[6], name="ch7", skipFiniteCheck=True)
+        # self.curve_fft_ch8 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[7], name="ch8", skipFiniteCheck=True)
+
+        # all_curves_fft_list = [
+        #     self.curve_fft_ch1, self.curve_fft_ch2, self.curve_fft_ch3, self.curve_fft_ch4,
+        #     self.curve_fft_ch5, self.curve_fft_ch6, self.curve_fft_ch7, self.curve_fft_ch8
+        # ]
+
+        # # Add curves to plot only if channel is active
+        # self.curves_fft_list = []
+        # for curve, act in zip(all_curves_fft_list, list(self.chan_dict.values())):
+        #     if act == 1:
+        #         pw.addItem(curve)
+        #         self.curves_fft_list.append(curve)
+        # print(pw.allChildItems())
 
     #########################
     # Emit Functions
@@ -506,7 +538,7 @@ class VisualizationFunctions(AppFunctions):
         pw = self.ui.plot_fft
         pw.clear()
         pw.setXRange(0, 70, padding=0.01)
-        
+
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
         exg_data = np.array([self.exg_plot_data[2][key][~np.isnan(self.exg_plot_data[2][key])] for key in self.exg_plot_data[2].keys()])
         if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
@@ -517,8 +549,17 @@ class VisualizationFunctions(AppFunctions):
         data = dict(zip(self.exg_plot_data[2].keys(), fft_content))
         data['f'] = freq
 
+        # for curve, ch in zip(self.curves_fft_list, self.active_chan):
+        #     # x = np.linspace(1, 100)
+        #     # y = np.linspace(1, 100)
+        #     # curve.setData(x,y, name=ch)
+        #     curve.setData(data["f"], data[ch], name=ch)
+        # # print(pw.allChildItems())
+
         for i, key in enumerate(data.keys()):
             # key = list(data.keys())[i]
+            # if key == "ch1":
+            #     self.curve_fft_ch1.setData(data["f"], data[key])
             if key != "f":
                 pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
 
