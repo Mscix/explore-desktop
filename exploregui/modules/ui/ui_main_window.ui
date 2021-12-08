@@ -186,7 +186,7 @@ QSpinBox:disabled{
 }
 
 #btn_left_menu_toggle{
-	background-image: url(:/icons/icons/icon_menu.png);
+	background-image: url(:/icons/icons/cil_menu.png);
 }
 
 /*TITLES FONT*/
