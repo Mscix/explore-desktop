@@ -23,9 +23,9 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputDir=D:\Projects\github\explorepy-gui\installer\Windows\output
+OutputDir=.\installer\Windows\output
 OutputBaseFilename=setup-ExploreGUI
-SetupIconFile=D:\Projects\github\explorepy-gui\mentalab.ico
+SetupIconFile=.\mentalab.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
