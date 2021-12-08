@@ -333,7 +333,8 @@ class Ui_MainWindow(object):
         self.btn_minimize.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_minimize.setStyleSheet(u"")
         icon = QIcon()
-        icon.addFile(u":/icons/icons/icon_minimize.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/icons/icons/cil-window-minimize.png", QSize(), QIcon.Normal, QIcon.Off)
+        # icon.addFile(u":/icons/icons/icon_minimize.png", QSize(), QIcon.Normal, QIcon.Off)
         self.btn_minimize.setIcon(icon)
         self.btn_minimize.setIconSize(QSize(24, 24))
 
@@ -344,7 +345,8 @@ class Ui_MainWindow(object):
         self.btn_restore.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_restore.setStyleSheet(u"")
         icon1 = QIcon()
-        icon1.addFile(u":/icons/icons/icon_maximize.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/icons/icons/cil-window-maximize.png", QSize(), QIcon.Normal, QIcon.Off)
+        # icon1.addFile(u":/icons/icons/icon_maximize.png", QSize(), QIcon.Normal, QIcon.Off)
         self.btn_restore.setIcon(icon1)
         self.btn_restore.setIconSize(QSize(24, 24))
 

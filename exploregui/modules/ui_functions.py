@@ -42,7 +42,8 @@ class UIFunctions():
             self.showNormal()  # normal is 800x400
             # Update button icon
             self.ui.btn_restore.setIcon(QIcon(
-                u":icons/icons/icon_maximize.png"))
+                u":icons/icons/cil-window-maximize.png"))
+                # u":icons/icons/icon_maximize.png"))
 
     # Get window status
     def getWindowStatus(self):

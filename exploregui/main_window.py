@@ -452,7 +452,8 @@ class MainWindow(QMainWindow):
             self.showNormal()  # normal is 800x400
             # Update button icon
             self.ui.btn_restore.setIcon(QIcon(
-                u":icons/icons/icon_maximize.png"))
+                u":icons/icons/cil-window-maximize.png"))
+                # u":icons/icons/icon_maximize.png"))
 
     @Slot()
     def on_close(self):
@@ -460,7 +461,7 @@ class MainWindow(QMainWindow):
         self.close()
 
     def ui_definitions(self):
-        # Double click onn bar to maximize/restore the window
+        # Double click on bar to maximize/restore the window
         def doubleClickMaximize(e):
             if e.type() == QEvent.MouseButtonDblClick:
                 QTimer.singleShot(
