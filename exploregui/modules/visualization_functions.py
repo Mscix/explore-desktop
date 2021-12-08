@@ -1,4 +1,5 @@
 import time
+from PySide6 import QtCore
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QApplication
 from explorepy.stream_processor import TOPICS
@@ -85,11 +86,23 @@ class VisualizationFunctions(AppFunctions):
         # Add chan ticks to y axis
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
         ticks = [(idx+1, ch) for idx, ch in enumerate(self.active_chan)]
+        # ticks += [(i+1.5, self.y_string) for i in range(len(self.active_chan))]
+        # print(ticks)
         pw.getAxis("left").setTicks([ticks])
         pw.getAxis("left").setWidth(50)
 
+        # pw.showAxis("right")
+        # pw.getAxis('right').linkToView(pw.getViewBox())
+        # pw.getAxis('right').setLabel('Voltage')
+        # ticks_right = [(idx+1.5, self.y_string) for idx, _ in enumerate(self.active_chan)]
+        # pw.getAxis('right').setTicks([ticks_right])
+        # pw.getAxis('right').setPen(style=QtCore.Qt.DashLine)
+        # pw.getAxis('right').setGrid(50)
+        # pg.AxisItem.set()
+
         # Add grid, axis labels and range of time axis
-        pw.showGrid(x=False, y=True, alpha=0.5)
+        # pw.showGrid(x=False, y=True, alpha=0.5)
+        pw.getAxis('left').setGrid(125)
         timescale = self.get_timeScale()
         pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)), padding=0.01)
         pw.setLabel("bottom", "time (s)")
@@ -190,26 +203,26 @@ class VisualizationFunctions(AppFunctions):
         # self.curve_fft_ch7 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[6], name="ch7")
         # self.curve_fft_ch8 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[7], name="ch8")
 
-        # self.curve_fft_ch1 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[0], name="ch1", skipFiniteCheck=True)
-        # self.curve_fft_ch2 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[1], name="ch2", skipFiniteCheck=True)
-        # self.curve_fft_ch3 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[2], name="ch3", skipFiniteCheck=True)
-        # self.curve_fft_ch4 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[3], name="ch4", skipFiniteCheck=True)
-        # self.curve_fft_ch5 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[4], name="ch5", skipFiniteCheck=True)
-        # self.curve_fft_ch6 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[5], name="ch6", skipFiniteCheck=True)
-        # self.curve_fft_ch7 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[6], name="ch7", skipFiniteCheck=True)
-        # self.curve_fft_ch8 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[7], name="ch8", skipFiniteCheck=True)
+        self.curve_fft_ch1 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[0], name="ch1", skipFiniteCheck=True)
+        self.curve_fft_ch2 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[1], name="ch2", skipFiniteCheck=True)
+        self.curve_fft_ch3 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[2], name="ch3", skipFiniteCheck=True)
+        self.curve_fft_ch4 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[3], name="ch4", skipFiniteCheck=True)
+        self.curve_fft_ch5 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[4], name="ch5", skipFiniteCheck=True)
+        self.curve_fft_ch6 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[5], name="ch6", skipFiniteCheck=True)
+        self.curve_fft_ch7 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[6], name="ch7", skipFiniteCheck=True)
+        self.curve_fft_ch8 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[7], name="ch8", skipFiniteCheck=True)
 
-        # all_curves_fft_list = [
-        #     self.curve_fft_ch1, self.curve_fft_ch2, self.curve_fft_ch3, self.curve_fft_ch4,
-        #     self.curve_fft_ch5, self.curve_fft_ch6, self.curve_fft_ch7, self.curve_fft_ch8
-        # ]
+        all_curves_fft_list = [
+            self.curve_fft_ch1, self.curve_fft_ch2, self.curve_fft_ch3, self.curve_fft_ch4,
+            self.curve_fft_ch5, self.curve_fft_ch6, self.curve_fft_ch7, self.curve_fft_ch8
+        ]
 
-        # # Add curves to plot only if channel is active
-        # self.curves_fft_list = []
-        # for curve, act in zip(all_curves_fft_list, list(self.chan_dict.values())):
-        #     if act == 1:
-        #         pw.addItem(curve)
-        #         self.curves_fft_list.append(curve)
+        # Add curves to plot only if channel is active
+        self.curves_fft_list = []
+        for curve, act in zip(all_curves_fft_list, list(self.chan_dict.values())):
+            if act == 1:
+                pw.addItem(curve)
+                self.curves_fft_list.append(curve)
         # print(pw.allChildItems())
 
     #########################
@@ -404,14 +417,16 @@ class VisualizationFunctions(AppFunctions):
                     self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
                     id2remove.append(idx_t)
             for idx_t in id2remove:
-                try:
-                    self.r_peak["t"].remove(self.r_peak["t"][idx_t])
-                    self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
-                    self.r_peak["points"].remove(self.r_peak["points"][idx_t])
-                except:
-                    self.r_peak["t"] = self.r_peak["t"][self.r_peak["t"] != self.r_peak["t"][idx_t]]
-                    self.r_peak["r_peak"] = self.r_peak["r_peak"][self.r_peak["r_peak"] != self.r_peak["r_peak"][idx_t]]
-                    self.r_peak["points"] = self.r_peak["points"][self.r_peak["points"] != self.r_peak["points"][idx_t]]
+                # try:
+                print(self.r_peak)
+                print(idx_t)
+                self.r_peak["t"].remove(self.r_peak["t"][idx_t])
+                self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
+                self.r_peak["points"].remove(self.r_peak["points"][idx_t])
+                # except:
+                #     self.r_peak["t"] = self.r_peak["t"][self.r_peak["t"] != self.r_peak["t"][idx_t]]
+                #     self.r_peak["r_peak"] = self.r_peak["r_peak"][self.r_peak["r_peak"] != self.r_peak["r_peak"][idx_t]]
+                #     self.r_peak["points"] = self.r_peak["points"][self.r_peak["points"] != self.r_peak["points"][idx_t]]
 
         # Position line:
         if self.line is not None:
@@ -536,7 +551,7 @@ class VisualizationFunctions(AppFunctions):
     def plot_fft(self):
 
         pw = self.ui.plot_fft
-        pw.clear()
+        # pw.clear()
         pw.setXRange(0, 70, padding=0.01)
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
@@ -549,19 +564,15 @@ class VisualizationFunctions(AppFunctions):
         data = dict(zip(self.exg_plot_data[2].keys(), fft_content))
         data['f'] = freq
 
-        # for curve, ch in zip(self.curves_fft_list, self.active_chan):
-        #     # x = np.linspace(1, 100)
-        #     # y = np.linspace(1, 100)
-        #     # curve.setData(x,y, name=ch)
-        #     curve.setData(data["f"], data[ch], name=ch)
-        # # print(pw.allChildItems())
+        for curve, ch in zip(self.curves_fft_list, self.active_chan):
+            curve.setData(data["f"], data[ch])
 
-        for i, key in enumerate(data.keys()):
-            # key = list(data.keys())[i]
-            # if key == "ch1":
-            #     self.curve_fft_ch1.setData(data["f"], data[key])
-            if key != "f":
-                pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=key)
+        # for i, key in enumerate(data.keys()):
+        #     # key = list(data.keys())[i]
+        #     # if key == "ch1":
+        #     #     self.curve_fft_ch1.setData(data["f"], data[key])
+        #     if key != "f":
+        #         pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=f"{key}_2")
 
     #########################
     # Moving Plot Functions
@@ -735,28 +746,28 @@ class VisualizationFunctions(AppFunctions):
             (old_unit / self.y_unit) + self.offsets[0]
 
     def plot_heart_rate(self):
+        """Detect R-peaks and update the plot and heart rate"""
+
         if self.ui.value_signal.currentText() == "EEG":
             return
 
-        # if "ch1" not in self.exg_plot.keys():
-        if "ch1" not in self.exg_plot_data[1].keys():
+        if "ch1" not in self.exg_plot_data[2].keys():
             msg = "Heart rate estimation works only when channel 1 is enabled."
-            # QMessageBox.information(self, "!", msg)
-            if self.rr_warning_displayed == False:
+            if self.rr_warning_displayed is False:
                 self.display_msg(msg_text=msg, type="info")
                 self.rr_warning_displayed = True
             return
 
-        # first_chan = self.exg_plot.keys()[0]
+        # first_chan = list(self.exg_plot.keys())[0]
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
 
         if self.rr_estimator is None:
             self.rr_estimator = HeartRateEstimator(fs=exg_fs)
 
-        # ecg_data = (np.array(self.exg_plot['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
         ecg_data = (
-            np.array(self.exg_plot_data[1]['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
+            np.array(self.exg_plot_data[2]['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]
+            )  # * self.y_unit
         # ecg_data = (np.array(self.exg_plot[first_chan])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
         time_vector = np.array(self.exg_plot_data[0])[-2 * Settings.EXG_VIS_SRATE:]
 
