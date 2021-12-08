@@ -2,7 +2,7 @@ class Settings():
 
     CUSTOM_TITLE_BAR = True
 
-    DOWNSAMPLING = False
+    DOWNSAMPLING = True
 
     # Start button stylesheet
     START_BUTTON_STYLESHEET = """
