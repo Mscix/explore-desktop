@@ -260,7 +260,7 @@ class ConfigFunctions(AppFunctions):
             self.ui.btn_apply_settings.setStyleSheet(DISABLED_STYLESHEET)
             self.ui.btn_apply_settings.setEnabled(False)
             self.ui.btn_apply_settings.setToolTip(
-                "Changing the settings during visualization is not possible")
+                "Changing the settings during recording is not possible")
         else:
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setEnabled(True)

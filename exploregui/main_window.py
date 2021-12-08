@@ -332,10 +332,8 @@ class MainWindow(QMainWindow):
 
         elif btn_name == "btn_settings":
             self.imp_funct.check_is_imp()
-            print(f"{self.ui.value_sampling_rate.isEnabled()=}")
             enable = not self.record_funct.is_recording
             self.config_funct.enable_settings(enable)
-            print(f"{self.ui.value_sampling_rate.isEnabled()=}")
             self.ui.value_sampling_rate.setEnabled(True)
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
