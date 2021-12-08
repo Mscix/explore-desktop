@@ -1,0 +1,22 @@
+# ExploreGUI Installer for Windows
+
+This page provides instructions for creating an installer for Windows 10.
+
+## Dependencies
+- Python 3.8.12 and a virtual environment
+- [PyInstaller](https://github.com/pyinstaller/pyinstaller) with `pip install pyinstaller==4.7` inside a the virtual environment.
+- [Inno Setup software](https://jrsoftware.org/isdl.php) (version 6.2.0)
+
+
+## How to
+
+- In a terminal activate the virtual environment and navigate to ExploreGUI folder
+- Install ExploreGUI using `pip install -e .`
+- Run `pyinstaller --onedir --console --icon=mentalab ExploreGUI.spec`
+
+This should create a directory named `ExploreGUI` in the `dist` folder. You can run the `ExploreGUI.exe` file to make sure the software works as intended.
+
+- Next, open Inno Setup software and open `setup-builder.iss` script with the software.
+- Run the the compiler (click on the icon or press F9).
+- The installer file should be in the `installer/Windows/output` directory.
+
