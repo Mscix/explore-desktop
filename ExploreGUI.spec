@@ -5,9 +5,9 @@ from distutils.sysconfig import get_python_lib
 
 
 block_cipher = None
+main_path = path.join('exploregui', 'main.py')
 
-
-a = Analysis(['exploregui\\main.py'],
+a = Analysis([main_path],
              pathex=[get_python_lib()],
              binaries=[],
              datas=[],
