@@ -50,11 +50,11 @@ QPushButton:pressed{
 }"""
 
     LEFT_MENU_MIN = 60
-    LEFT_MENU_MAX = 180
+    LEFT_MENU_MAX = 200
 
     BTN_LEFT_MENU_SELECTED_STYLESHEET = """
     background-color: rgb(113, 120, 159);
-    border-left:  20px solid rgb(113, 120, 159);"""
+    """
 
     GRAY_IMPEDANCE_STYLESHEET = """
 border: 2px solid rgb(145, 145, 145);

@@ -15,6 +15,7 @@ from exploregui.modules import IMPFunctions, LSLFunctions, RecordFunctions
 # pyside6-uic ui_main_window.ui > ui_main_window.py
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
+# pyside6-rcc app_resources.rc -o app_resources_rc.py
 # from exploregui import app_resources_rc
 
 # pyinstaller --onefile --console --name ExploreGUI --icon=='/home/sankirtan/andrea/mentalab_repo/explorepy-gui/exploregui/images/MentalabLogo.png' main.py
@@ -52,6 +53,7 @@ class MainWindow(QMainWindow):
         self.file_names = None
         self.is_started = False
 
+        # Hide push to lsl duration
         # self.ui.duration_push_lsl.hide()
         # self.ui.frame_6.hide()
 
@@ -69,8 +71,8 @@ class MainWindow(QMainWindow):
         self.ui.ft_label_version.setText(VERSION_APP)
 
         # Hide frame of device settings when launching app
-        self.ui.frame_device.hide()
-        self.ui.line_2.hide()
+        # self.ui.frame_device.hide()
+        # self.ui.line_2.hide()
 
         # Hide footer
         self.ui.ft_label_firmware.setHidden(True)
@@ -87,21 +89,21 @@ class MainWindow(QMainWindow):
         self.init_dropdowns()
 
         # Apply stylesheets
-        self.ui.centralwidget.setStyleSheet(CENTRAL_STYLESHEET)
-        self.ui.main_body.setStyleSheet(MAINBODY_STYLESHEET)
-        self.ui.line.setStyleSheet(
-            """background-color: #FFFFFF;
-            border:none;""")
+        # self.ui.centralwidget.setStyleSheet(CENTRAL_STYLESHEET)
+        # self.ui.main_body.setStyleSheet(MAINBODY_STYLESHEET)
+        # self.ui.line.setStyleSheet(
+        #     """background-color: #FFFFFF;
+        #     border:none;""")
         QFontDatabase.addApplicationFont("./modules/stylesheets/DMSans-Regular.ttf")
         self.funct.lineedit_stylesheet()
 
         # Slidable left panel
         self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slideLeftMenu())
 
-        # Stacked pages - default open home
-        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings_testing)
+        # Stacked pages - default open connect
+        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
-        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+        self.ui.btn_bt.setStyleSheet(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
 
         # Stacked pages - navigation
         for w in self.ui.left_side_menu.findChildren(QPushButton):
@@ -114,8 +116,8 @@ class MainWindow(QMainWindow):
         # hide import data:
         self.ui.btn_import_data.hide()
         self.ui.le_data_path.hide()
-        self.ui.label_8.setHidden(True)
-        self.ui.line.hide()
+        self.ui.label_16.setHidden(True)
+        self.ui.line_2.hide()
 
         self.ui.dev_name_input.textChanged.connect(lambda: self.funct.lineedit_stylesheet())
         self.ui.btn_connect.clicked.connect(lambda: self.connect_clicked())
@@ -170,15 +172,14 @@ class MainWindow(QMainWindow):
         # self.signal_orn.connect(lambda data: AppFunctions.plot_orn_moving(self, data))
         # self.signal_mkr.connect(lambda data: AppFunctions.plot_marker_moving(self, data))
 
-        self.ui.label_7.linkActivated.connect(
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
-        )
+        # self.ui.label_7.linkActivated.connect(
+        #     self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
+        # )
 
-        # Recorded data plotting page
-        self.ui.label_3.linkActivated.connect(
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-        )
-        self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        # # Recorded data plotting page
+        # self.ui.label_3.linkActivated.connect(
+        #     self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+        # )
 
         self.ui.btn_stream_rec.clicked.connect(lambda: self.start_recorded_plots())
 
@@ -330,12 +331,22 @@ class MainWindow(QMainWindow):
             self.imp_funct.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
 
+        elif btn_name == "btn_bt":
+            self.imp_funct.check_is_imp()
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+
         elif btn_name == "btn_settings":
             self.imp_funct.check_is_imp()
+
+            if self.funct.is_connected is False:
+                msg = "Please connect an Explore device before changing its settings"
+                self.funct.display_msg(msg_text=msg, type="info")
+                return False
+
             enable = not self.record_funct.is_recording
             self.config_funct.enable_settings(enable)
             self.ui.value_sampling_rate.setEnabled(True)
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
 
         elif btn_name == "btn_plots":
             # self.ui.label_3.setHidden(self.file_names is None)
@@ -347,7 +358,7 @@ class MainWindow(QMainWindow):
             if self.funct.is_connected is False and self.file_names is None:
                 msg = "Please connect an Explore device or import data before attempting to visualize the data"
                 self.funct.display_msg(msg_text=msg, type="info")
-                return
+                return False
 
             elif self.file_names is None:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
@@ -355,7 +366,7 @@ class MainWindow(QMainWindow):
                     filt = self.vis_funct.popup_filters()
 
                 if filt is False:
-                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
                     return
 
                 if not self.is_streaming and filt:
@@ -371,7 +382,7 @@ class MainWindow(QMainWindow):
             if self.funct.is_connected is False:
                 msg = "Please connect an Explore device to visualize the impedances."
                 self.funct.display_msg(msg_text=msg, type="info")
-                return
+                return False
 
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_impedance)
             self.imp_funct.reset_impedance()
@@ -380,10 +391,11 @@ class MainWindow(QMainWindow):
             if self.funct.is_connected is False:
                 msg = "Please connect an Explore device to push the data."
                 self.funct.display_msg(msg_text=msg, type="info")
-                return
+                return False
 
             self.imp_funct.check_is_imp()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_integration)
+        return True
 
     def slideLeftMenu(self, enable=True):
         # Get current left menu width
@@ -411,7 +423,9 @@ class MainWindow(QMainWindow):
         btn_name = btn.objectName()
 
         # Navigate to active page
-        self.changePage(btn_name)
+        change = self.changePage(btn_name)
+        if change is False:
+            return
 
         if btn_name != "btn_left_menu_toggle":
             # Reset style for other buttons
@@ -606,7 +620,7 @@ class MainWindow(QMainWindow):
                     # self.BT_funct.update_frame_dev_settings()
                     # self.BT_funct.change_btn_connect()
                     # self.BT_funct.change_footer()
-                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
 
         else:
             return
