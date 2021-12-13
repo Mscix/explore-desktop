@@ -85,19 +85,20 @@ class VisualizationFunctions(AppFunctions):
 
         # Add chan ticks to y axis
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-        ticks = [(idx+1, ch) for idx, ch in enumerate(self.active_chan)]
+        ticks = [
+            (idx+1, f'{ch}\n'+u'(\u00B1'+f"{self.y_string})") for idx, ch in enumerate(self.active_chan)]
         # ticks += [(i+1.5, self.y_string) for i in range(len(self.active_chan))]
         # print(ticks)
         pw.getAxis("left").setTicks([ticks])
-        pw.getAxis("left").setWidth(50)
+        pw.getAxis("left").setWidth(60)
 
-        # pw.showAxis("right")
-        # pw.getAxis('right').linkToView(pw.getViewBox())
+        pw.showAxis("right")
+        pw.getAxis('right').linkToView(pw.getViewBox())
         # pw.getAxis('right').setLabel('Voltage')
-        # ticks_right = [(idx+1.5, self.y_string) for idx, _ in enumerate(self.active_chan)]
-        # pw.getAxis('right').setTicks([ticks_right])
+
+        self.add_right_axis_ticks()
         # pw.getAxis('right').setPen(style=QtCore.Qt.DashLine)
-        # pw.getAxis('right').setGrid(50)
+        pw.getAxis('right').setGrid(50)
         # pg.AxisItem.set()
 
         # Add grid, axis labels and range of time axis
@@ -413,16 +414,34 @@ class VisualizationFunctions(AppFunctions):
             # Remove rr peaks
             id2remove = []
             for idx_t in range(len(self.r_peak["t"])):
-                if self.r_peak["t"][idx_t][0] < self.exg_plot_data[0][0]:
+                # if self.r_peak["t"][idx_t][0] < self.exg_plot_data[0][0]:
+                if self.r_peak["t"][idx_t] < data["t"][-1]:
+                    print("plot_exg block 1")
+                    print(f"{self.r_peak['t']=}")
+                    print(f"{self.r_peak['r_peak']=}")
+                    print(f"{idx_t=}")
+                    print('\n')
                     self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
                     id2remove.append(idx_t)
             for idx_t in id2remove:
                 # try:
-                print(self.r_peak)
-                print(idx_t)
-                self.r_peak["t"].remove(self.r_peak["t"][idx_t])
-                self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
-                self.r_peak["points"].remove(self.r_peak["points"][idx_t])
+                print("plot_exg")
+                print(f"{self.r_peak['t']=}")
+                print(f"{self.r_peak['r_peak']=}")
+                print(f"{idx_t=}")
+                print(f"{id2remove=}")
+                print('\n')
+                try:
+                    self.r_peak["t"].remove(self.r_peak["t"][idx_t])
+                    self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
+                    self.r_peak["points"].remove(self.r_peak["points"][idx_t])
+                except IndexError:
+                    print("error")
+                    print(f"{self.r_peak['t']=}")
+                    print(f"{self.r_peak['r_peak']=}")
+                    print(f"{idx_t=}")
+                    print(f"{id2remove=}")
+                    print('\n')
                 # except:
                 #     self.r_peak["t"] = self.r_peak["t"][self.r_peak["t"] != self.r_peak["t"][idx_t]]
                 #     self.r_peak["r_peak"] = self.r_peak["r_peak"][self.r_peak["r_peak"] != self.r_peak["r_peak"][idx_t]]
@@ -745,6 +764,20 @@ class VisualizationFunctions(AppFunctions):
         self.r_peak['r_peak'] = (np.array(self.r_peak['r_peak']) - self.offsets[0]) * \
             (old_unit / self.y_unit) + self.offsets[0]
 
+        self.add_right_axis_ticks()
+
+    def add_right_axis_ticks(self):
+        # ticks_right = [(idx+1.5, self.y_string) for idx, _ in enumerate(self.active_chan)]
+        # # ticks_right += [(idx+0.5, f"-{self.y_string}") for idx, _ in enumerate(self.active_chan)]
+        # ticks_right += [(idx+1, f"0 {self.y_string[-2:]}") for idx, _ in enumerate(self.active_chan)]
+        # ticks_right += [(0.5, f"- {self.y_string}")]
+
+        ticks_right = [(idx+1.5, "") for idx, _ in enumerate(self.active_chan)]
+        ticks_right += [(idx+1, "") for idx, _ in enumerate(self.active_chan)]
+        ticks_right += [(0.5, "")]
+        
+        self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
+
     def plot_heart_rate(self):
         """Detect R-peaks and update the plot and heart rate"""
 
@@ -766,28 +799,39 @@ class VisualizationFunctions(AppFunctions):
             self.rr_estimator = HeartRateEstimator(fs=exg_fs)
 
         ecg_data = (
-            np.array(self.exg_plot_data[2]['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]
-            )  # * self.y_unit
+            np.array(self.exg_plot_data[1]['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]
+            ) * self.y_unit
         # ecg_data = (np.array(self.exg_plot[first_chan])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
         time_vector = np.array(self.exg_plot_data[0])[-2 * Settings.EXG_VIS_SRATE:]
 
         # Check if the peak2peak value is bigger than threshold
         if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
+            print(f"{np.ptp(ecg_data)=}")
             print("P2P value larger or less than threshold. Cannot compute heart rate!")
             return
 
         peaks_time, peaks_val = self.rr_estimator.estimate(ecg_data, time_vector)
         peaks_val = (np.array(peaks_val) / self.y_unit) + self.offsets[0]
+
         if peaks_time:
-            self.r_peak['t'].append(peaks_time)
-            list(self.r_peak['r_peak']).append(peaks_val)
+            for i in range(len(peaks_time)):
+                if peaks_time[i] not in self.r_peak['t']:
+                    self.r_peak['t'].append(peaks_time[i])
+                    self.r_peak['r_peak'].append(peaks_val[i])
 
-            points = self.ui.plot_exg.plot(
-                peaks_time, peaks_val, pen=None, symbolBrush=(200, 0, 0), symbol='o', symbolSize=8)
+            point = self.ui.plot_exg.plot(
+                [peaks_time[i]], [peaks_val[i]],
+                pen=None, symbolBrush=(200, 0, 0), symbol='o', symbolSize=8)
 
-            self.r_peak["points"].extend([points])
+            self.r_peak["points"].append(point)
+
             # print(dict(zip(['r_peak', 't'], [peaks_val, peaks_time])))
-
+        print("plot_hear_rate")
+        print(f"{peaks_time=}")
+        print(f"{peaks_val=}")
+        print(f"{self.r_peak['t']=}")
+        print(f"{self.r_peak['r_peak']=}")
+        print("\n")
         # Update heart rate cell
         estimated_heart_rate = self.rr_estimator.heart_rate
         self.ui.value_heartRate.setText(str(estimated_heart_rate))

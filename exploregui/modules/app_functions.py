@@ -87,6 +87,12 @@ class AppFunctions():
             msg.setIcon(QMessageBox.Question)
 
         msg.setWindowTitle(wdw_title)
+
+        # if type == "info":
+        #     msg.show()
+        #     msg.raise_()
+        #     msg.activateWindow()
+        #     return
         response = msg.exec()
         return response
 
