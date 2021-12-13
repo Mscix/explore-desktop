@@ -47,7 +47,7 @@ class RecordFunctions(AppFunctions):
         self.is_recording = True
         self.start_timer_recorder(duration=record_duration)
 
-        self.ui.btn_record.setIcon(QIcon(u":icons/icons/icon_maximize.png"))
+        self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-stop.png"))
         self.ui.btn_record.setText("Stop")
         QApplication.processEvents()
 
@@ -58,7 +58,7 @@ class RecordFunctions(AppFunctions):
         self.explorer.stop_recording()
         self.is_recording = False
         self.timer.stop()
-        self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-circle.png"))
+        self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-record.png"))
         self.ui.btn_record.setText("Record")
         self.ui.label_recording_time.setText("00:00:00")
         QApplication.processEvents()
