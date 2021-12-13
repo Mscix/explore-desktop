@@ -7,7 +7,7 @@ import faulthandler
 
 
 def main():
-    faulthandler.enable()
+    # faulthandler.enable()
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()

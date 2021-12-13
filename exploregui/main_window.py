@@ -1,4 +1,5 @@
 import sys
+import os
 
 from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QPushButton, QSizeGrip
 from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, Qt, Signal, QTimer, Slot
@@ -35,7 +36,9 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowIcon(
-            QIcon('/home/sankirtan/andrea/mentalab_repo/explorepy-gui/exploregui/images/MentalabLogo.png'))
+            QIcon(os.path.join('images', 'MentalabLogo.png')))
+        self.setWindowTitle('ExploreGUI')
+
         self.explorer = xpy.Explore()
         self.funct = AppFunctions(self.ui, self.explorer)
         self.LSL_funct = LSLFunctions(self.ui, self.explorer)
@@ -188,7 +191,23 @@ class MainWindow(QMainWindow):
         self.ui.cb_lsl_duration.hide()
         self.ui.label_lsl_duration.setHidden(True)
         self.ui.cb_lsl_duration.stateChanged.connect(lambda: self.LSL_funct.enable_lsl_duration())
-        self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
+        self.ui.btn_push_lsl.clicked.connect(lambda: self.stylesheet_print())
+        # self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
+
+    def stylesheet_print(self):
+        print("central widget stylesheet")
+        print(self.ui.centralwidget.styleSheet())
+        print()
+        print()
+        print("frame integration stylesheet")
+        print(self.ui.frame_integration.styleSheet())
+        print()
+        print()
+        print("frame settings stylesheet")
+        print(self.ui.frame_settings.styleSheet())
+        print()
+        print()
+
 
     @Slot()
     def connect_clicked(self):

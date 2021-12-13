@@ -7,6 +7,7 @@ import numpy as np
 from exploregui.modules.app_settings import Settings
 import explorepy._exceptions as xpy_ex
 from explorepy.stream_processor import TOPICS
+import os
 
 # DISABLED_STYLESHEET = """
 #     background-color: rgb(129,133,161);
@@ -57,8 +58,14 @@ class BTFunctions(AppFunctions):
             self._connection_error_gui(msg, scan=True)
             return
         explore_devices = [dev[0] for dev in explore_devices]
+        
         if len(explore_devices) == 0:
-            print("No explore devices found. Please make sure it is turn on and click on reescan")
+            msg = "No explore devices found. Please make sure your device is turned on."
+            if os.name == 'nt':
+                msg = msg[:-1]
+                msg += " and the Bluetooth is active."
+            self._connection_error_gui(msg, scan=True)
+            return
 
         self.ui.list_devices.addItems(explore_devices)
 
@@ -132,10 +139,15 @@ class BTFunctions(AppFunctions):
 
             except xpy_ex.DeviceNotFoundError as e:
                 msg = str(e)
+                if os.name == "nt":
+                    msg += "\nPlease make sure both the Bluetooth and your device are turned ON."
                 self._connection_error_gui(msg)
                 return
-            except TypeError:
+            except TypeError or UnboundLocalError:
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
+                if os.name == "nt":
+                    msg = msg[:-1]
+                    msg += " and make sure that the Bluetooth is on."
                 self._connection_error_gui(msg)
                 return
             except AssertionError as e:
