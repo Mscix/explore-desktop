@@ -11,30 +11,32 @@ from exploregui.modules.app_settings import Settings
 from exploregui.modules.dialogs import PlotDialog
 import pyqtgraph as pg
 import copy
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
-NANS = False
+NANS = [False, False] #exg, orn
 
 
 class VisualizationFunctions(AppFunctions):
     def __init__(self, ui, explorer, signals):
         super().__init__(ui, explorer)
-        self.signal_exg = signals["exg"]
-        self.signal_mkr = signals["mkr"]
-        self.signal_orn = signals["orn"]
+        self.signal_exg = signals['exg']
+        self.signal_mkr = signals['mkr']
+        self.signal_orn = signals['orn']
 
         self._vis_time_offset = None
-        self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
-                                    "baseline": 0}
+        self._baseline_corrector = {'MA_length': 1.5 * Settings.EXG_VIS_SRATE,
+                                    'baseline': 0}
 
         self.y_unit = Settings.DEFAULT_SCALE
-        self.y_string = "1 mV"
+        self.y_string = '1 mV'
         self.last_t = 0
 
         self.line = None
         self.exg_pointer = 0
         self.orig_exg_pointer = 0
-        self.mrk_plot = {"t": [], "code": [], "line": []}
-        self.mrk_replot = {"t": [], "code": [], "line": []}
+        self.mrk_plot = {'t': [], 'code': [], 'line': []}
+        self.mrk_replot = {'t': [], 'code': [], 'line': []}
 
         self.lines_orn = [None, None, None]
         self.orn_pointer = 0
@@ -42,8 +44,8 @@ class VisualizationFunctions(AppFunctions):
         self.t_orn_plot = np.array([np.NaN]*200)
 
         self.rr_estimator = None
-        self.r_peak = {"t": [], "r_peak": [], "points": []}
-        self.r_peak_replot = {"t": [], "r_peak": [], "points": []}
+        self.r_peak = {'t': [], 'r_peak': [], 'points': []}
+        self.r_peak_replot = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
 
     #########################
@@ -58,7 +60,6 @@ class VisualizationFunctions(AppFunctions):
             self.ui.plot_fft.clear()
             self.ui.plot_orn.clear()
             self.line = None
-            print("cleared plots")
 
         self.init_plot_exg()
         self.init_plot_orn()
@@ -72,7 +73,7 @@ class VisualizationFunctions(AppFunctions):
         n_chan_sp = self.explorer.stream_processor.device_info['adc_mask'].count(1)
         n_chan = list(self.chan_dict.values()).count(1)
         if n_chan != n_chan_sp:
-            print("ERROR chan count does not match")
+            print('ERROR chan count does not match')
 
         # Create offsets for each chan line
         self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
@@ -87,24 +88,26 @@ class VisualizationFunctions(AppFunctions):
         # Add chan ticks to y axis
         # Left axis
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-        pw.setLabel("left", "Voltage")
+        pw.setLabel('left', 'Voltage')
         self.add_left_axis_ticks()
-        pw.getAxis("left").setWidth(60)
-        pw.getAxis('left').setGrid(125)
+        pw.getAxis('left').setWidth(60)
+        pw.getAxis('left').setPen(color=(255,255,255,50))
+        pw.getAxis('left').setGrid(50)
 
         # Right axis
-        pw.showAxis("right")
+        pw.showAxis('right')
         pw.getAxis('right').linkToView(pw.getViewBox())
         # pw.getAxis('right').setLabel('Voltage')
         self.add_right_axis_ticks()
+        # pw.getAxis('right').setPen(color=(255,255,255,200), style=QtCore.Qt.SolidLine)
         # pw.getAxis('right').setPen(style=QtCore.Qt.DashLine)
-        pw.getAxis('right').setGrid(50)
+        pw.getAxis('right').setGrid(200)
 
         # Add range of time axis
         # pw.showGrid(x=False, y=True, alpha=0.5)
         timescale = self.get_timeScale()
         pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)), padding=0.01)
-        pw.setLabel("bottom", "time (s)")
+        pw.setLabel('bottom', 'time (s)')
 
         # Initialize curves for each channel
         self.curve_ch1 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
@@ -128,10 +131,12 @@ class VisualizationFunctions(AppFunctions):
                 pw.addItem(curve)
                 self.curves_list.append(curve)
 
+        #TEST DIFFERENT APPROACHES ticks inside
+
     def init_plot_orn(self):
-        """
+        '''''''''
         Initialize plot ORN
-        """
+        '''
         pw = self.ui.plot_orn
 
         # Set Background color
@@ -151,32 +156,42 @@ class VisualizationFunctions(AppFunctions):
         self.plot_gyro.setXLink(self.plot_mag)
 
         # Remove x axis in upper plots
-        self.plot_acc.getAxis("bottom").setStyle(showValues=False)
-        self.plot_gyro.getAxis("bottom").setStyle(showValues=False)
+        self.plot_acc.getAxis('bottom').setStyle(showValues=False)
+        self.plot_gyro.getAxis('bottom').setStyle(showValues=False)
 
         # Add legend, axis label and grid to all the plots
         timescale = int(self.get_timeScale())
         for plt, lbl in zip(self.plots_orn_list, ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']):
-            # plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0, -125))
-            plt.addLegend(horSpacing=20, colCount=3, brush="k", offset=(0, 0))
-            plt.getAxis("left").setWidth(80)
-            plt.getAxis("left").setLabel(lbl)
+            # plt.addLegend(horSpacing=20, colCount=3, brush='k', offset=(0, -125))
+            plt.addLegend(horSpacing=20, colCount=3, brush='k', offset=(0, 0))
+            plt.getAxis('left').setWidth(80)
+            plt.getAxis('left').setLabel(lbl)
             plt.showGrid(x=True, y=True, alpha=0.5)
             plt.setXRange(0, timescale, padding=0.01)
             plt.setMouseEnabled(x=False, y=False)
+            plt.disableAutoRange()
 
         # Initialize curves for each plot
-        self.curve_ax = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[0], name=" accX ")
-        self.curve_ay = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[1], name=" accY ")
-        self.curve_az = self.plot_acc.plot(pen=Settings.ORN_LINE_COLORS[2], name=" accZ ")
+        self.curve_ax = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[0], name=' accX ')
+        self.curve_ay = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[1], name=' accY ')
+        self.curve_az = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[2], name=' accZ ')
+        self.plot_acc.addItem(self.curve_ax)
+        self.plot_acc.addItem(self.curve_ay)
+        self.plot_acc.addItem(self.curve_az)
 
-        self.curve_gx = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[0], name="gyroX")
-        self.curve_gy = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[1], name="gyroY")
-        self.curve_gz = self.plot_gyro.plot(pen=Settings.ORN_LINE_COLORS[2], name="gyroZ")
+        self.curve_gx = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[0], name='gyroX')
+        self.curve_gy = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[1], name='gyroY')
+        self.curve_gz = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[2], name='gyroZ')
+        self.plot_gyro.addItem(self.curve_gx)
+        self.plot_gyro.addItem(self.curve_gy)
+        self.plot_gyro.addItem(self.curve_gz)
 
-        self.curve_mx = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[0], name="magX ")
-        self.curve_my = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[1], name="magY ")
-        self.curve_mz = self.plot_mag.plot(pen=Settings.ORN_LINE_COLORS[2], name="magZ ")
+        self.curve_mx = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[0], name='magX ')
+        self.curve_my = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[1], name='magY ')
+        self.curve_mz = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[2], name='magZ ')
+        self.plot_mag.addItem(self.curve_mx)
+        self.plot_mag.addItem(self.curve_my)
+        self.plot_mag.addItem(self.curve_mz)
 
     def init_plot_fft(self):
         """
@@ -186,29 +201,29 @@ class VisualizationFunctions(AppFunctions):
         pw.setBackground(Settings.PLOT_BACKGROUND)
         # pw.setXRange(0, 70, padding=0.01)
         pw.showGrid(x=True, y=True, alpha=0.5)
-        pw.addLegend(horSpacing=20, colCount=2, brush="k", offset=(0, -300))
-        pw.setLabel('left', "Amplitude (uV)")
-        pw.setLabel('bottom', "Frequency (Hz)")
+        pw.addLegend(horSpacing=20, colCount=2, brush='k', offset=(0, -300))
+        pw.setLabel('left', 'Amplitude (uV)')
+        pw.setLabel('bottom', 'Frequency (Hz)')
         pw.setLogMode(x=False, y=True)
         pw.setMouseEnabled(x=False, y=False)
 
-        # self.curve_fft_ch1 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[0], name="ch1")
-        # self.curve_fft_ch2 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[1], name="ch2")
-        # self.curve_fft_ch3 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[2], name="ch3")
-        # self.curve_fft_ch4 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[3], name="ch4")
-        # self.curve_fft_ch5 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[4], name="ch5")
-        # self.curve_fft_ch6 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[5], name="ch6")
-        # self.curve_fft_ch7 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[6], name="ch7")
-        # self.curve_fft_ch8 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[7], name="ch8")
+        # self.curve_fft_ch1 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[0], name='ch1')
+        # self.curve_fft_ch2 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[1], name='ch2')
+        # self.curve_fft_ch3 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[2], name='ch3')
+        # self.curve_fft_ch4 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[3], name='ch4')
+        # self.curve_fft_ch5 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[4], name='ch5')
+        # self.curve_fft_ch6 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[5], name='ch6')
+        # self.curve_fft_ch7 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[6], name='ch7')
+        # self.curve_fft_ch8 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[7], name='ch8')
 
-        self.curve_fft_ch1 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[0], name="ch1", skipFiniteCheck=True)
-        self.curve_fft_ch2 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[1], name="ch2", skipFiniteCheck=True)
-        self.curve_fft_ch3 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[2], name="ch3", skipFiniteCheck=True)
-        self.curve_fft_ch4 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[3], name="ch4", skipFiniteCheck=True)
-        self.curve_fft_ch5 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[4], name="ch5", skipFiniteCheck=True)
-        self.curve_fft_ch6 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[5], name="ch6", skipFiniteCheck=True)
-        self.curve_fft_ch7 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[6], name="ch7", skipFiniteCheck=True)
-        self.curve_fft_ch8 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[7], name="ch8", skipFiniteCheck=True)
+        self.curve_fft_ch1 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[0], name='ch1', skipFiniteCheck=True)
+        self.curve_fft_ch2 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[1], name='ch2', skipFiniteCheck=True)
+        self.curve_fft_ch3 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[2], name='ch3', skipFiniteCheck=True)
+        self.curve_fft_ch4 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[3], name='ch4', skipFiniteCheck=True)
+        self.curve_fft_ch5 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[4], name='ch5', skipFiniteCheck=True)
+        self.curve_fft_ch6 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[5], name='ch6', skipFiniteCheck=True)
+        self.curve_fft_ch7 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[6], name='ch7', skipFiniteCheck=True)
+        self.curve_fft_ch8 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[7], name='ch8', skipFiniteCheck=True)
 
         all_curves_fft_list = [
             self.curve_fft_ch1, self.curve_fft_ch2, self.curve_fft_ch3, self.curve_fft_ch4,
@@ -221,7 +236,6 @@ class VisualizationFunctions(AppFunctions):
             if act == 1:
                 pw.addItem(curve)
                 self.curves_fft_list.append(curve)
-        # print(pw.allChildItems())
 
     #########################
     # Emit Functions
@@ -246,7 +260,7 @@ class VisualizationFunctions(AppFunctions):
                 d = orig_exg[ch]
             except KeyError:
                 d = np.array([np.NaN for i in range(n_new_points)])
-            self.exg_plot_data[2][ch].put(idxs, d, mode="wrap")
+            self.exg_plot_data[2][ch].put(idxs, d, mode='wrap')
 
         self.orig_exg_pointer += n_new_points
         if self.orig_exg_pointer >= len(self.exg_plot_data[2][first_chan]):
@@ -281,28 +295,24 @@ class VisualizationFunctions(AppFunctions):
 
             # Baseline correction
             # if True: # if testing
-            if self.plotting_filters is not None and self.plotting_filters["offset"]:
+            if self.plotting_filters is not None and self.plotting_filters['offset']:
                 samples_avg = exg.mean(axis=1)
-                if self._baseline_corrector["baseline"] is None:
-                    self._baseline_corrector["baseline"] = samples_avg
+                if self._baseline_corrector['baseline'] is None:
+                    self._baseline_corrector['baseline'] = samples_avg
                 else:
                     try:
-                        self._baseline_corrector["baseline"] = \
-                            self._baseline_corrector["baseline"] - \
+                        self._baseline_corrector['baseline'] = \
+                            self._baseline_corrector['baseline'] - \
                             (
-                                (self._baseline_corrector["baseline"] - samples_avg) / self._baseline_corrector["MA_length"]
+                                (self._baseline_corrector['baseline'] - samples_avg) / self._baseline_corrector['MA_length']
                                 * exg.shape[1]
                             )
                     except ValueError:
-                        # print("Value error 227")
-                        # print(f"{samples_avg.shape=}")
-                        # print(f"{exg.shape=}")
-                        # print(f"{self._baseline_corrector=}")
-                        self._baseline_corrector["baseline"] = samples_avg
+                        self._baseline_corrector['baseline'] = samples_avg
 
-                exg = exg - self._baseline_corrector["baseline"][:, np.newaxis]
+                exg = exg - self._baseline_corrector['baseline'][:, np.newaxis]
             else:
-                self._baseline_corrector["baseline"] = None
+                self._baseline_corrector['baseline'] = None
 
             # Update ExG unit
             try:
@@ -318,13 +328,13 @@ class VisualizationFunctions(AppFunctions):
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
-            print("unsubscribe")
+            print('unsubscribe')
             return
 
         stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
 
     def emit_orn(self):
-        """"
+        """
         Get orientation data and emit signal
         """
         stream_processor = self.explorer.stream_processor
@@ -368,12 +378,12 @@ class VisualizationFunctions(AppFunctions):
         Plot and update exg data
         """
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-        n_new_points = len(data["t"])
-        # n_new_points = len(data["t"]) + 1
+        n_new_points = len(data['t'])
+        # n_new_points = len(data['t']) + 1
         idxs = np.arange(self.exg_pointer, self.exg_pointer+n_new_points)
 
-        self.exg_plot_data[0].put(idxs, data["t"], mode="wrap")  # replace values with new points
-        self.last_t = data["t"][-1]
+        self.exg_plot_data[0].put(idxs, data['t'], mode='wrap')  # replace values with new points
+        self.last_t = data['t'][-1]
 
         # for i, ch in enumerate(self.exg_plot.keys()):
         for ch in self.exg_plot_data[1].keys():
@@ -381,9 +391,8 @@ class VisualizationFunctions(AppFunctions):
                 d = data[ch]
             except KeyError:
                 d = np.array([np.NaN for i in range(n_new_points)])
-                # print("key error line 305: ", str(e))
-                # print(f"{data.keys()=}")
-            self.exg_plot_data[1][ch].put(idxs, d, mode="wrap")
+
+            self.exg_plot_data[1][ch].put(idxs, d, mode='wrap')
 
         self.exg_pointer += n_new_points
 
@@ -399,62 +408,93 @@ class VisualizationFunctions(AppFunctions):
             self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
             # Remove marker line and replot in the new axis
-            for idx_t in range(len(self.mrk_plot["t"])):
-                if self.mrk_plot["t"][idx_t] < self.exg_plot_data[0][0]:
-                    self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
+            for idx_t in range(len(self.mrk_plot['t'])):
+                if self.mrk_plot['t'][idx_t] < self.exg_plot_data[0][0]:
+                    self.ui.plot_exg.removeItem(self.mrk_plot['line'][idx_t])
                     new_data = [
-                        self.mrk_plot["t"][idx_t] + self.get_timeScale(),
-                        self.mrk_plot["code"][idx_t]
+                        self.mrk_plot['t'][idx_t] + self.get_timeScale(),
+                        self.mrk_plot['code'][idx_t]
                     ]
                     self.plot_mkr(new_data, replot=True)
 
-            # Remove rr peaks
-            for idx_t in range(len(self.r_peak["t"])):
-                # if self.r_peak["t"][idx_t][0] < self.exg_plot_data[0][0]:
-                if self.r_peak["t"][idx_t] < data["t"][-1]:
+            # Remove rr peaks and replot in new axis
+            to_remove = []
+            for idx_t in range(len(self.r_peak['t'])):
+                # if self.r_peak['t'][idx_t][0] < self.exg_plot_data[0][0]:
+                if self.r_peak['t'][idx_t] < data['t'][-1]:
                     
-                    new_t = self.r_peak["t"][idx_t]+self.get_timeScale()
-                    new_point = self.ui.plot_exg.plot([new_t], [self.r_peak["r_peak"][idx_t]], pen=None, symbolBrush=(200,0,0,200), symbol='o', symbolSize=8)
+                    new_t = self.r_peak['t'][idx_t]+self.get_timeScale()
+                    new_point = self.ui.plot_exg.plot([new_t], [self.r_peak['r_peak'][idx_t]], pen=None, symbolBrush=(200,0,0,200), symbol='o', symbolSize=8)
                     self.r_peak_replot['t'].append(new_t)
+                    self.r_peak_replot['r_peak'].append(self.r_peak['r_peak'][idx_t])
                     self.r_peak_replot['points'].append(new_point)
 
-                    self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
+                    self.ui.plot_exg.removeItem(self.r_peak['points'][idx_t])
+                    to_remove.append(
+                        [self.r_peak['t'][idx_t], self.r_peak['r_peak'][idx_t], self.r_peak['points'][idx_t]])
+            for point in to_remove:
+                # print(f'{self.r_peak["t"]=}')
+                # print(f'{i=}')
+                # print(f'{to_remove=}')
+                self.r_peak['t'].remove(point[0])
+                self.r_peak['r_peak'].remove(point[1])
+                self.r_peak['points'].remove(point[2])
+                to_remove.remove(point)
 
         # Position line:
         if self.line is not None:
-            self.line.setPos(data["t"][-1])
+            self.line.setPos(data['t'][-1])
 
         else:
-            self.line = self.ui.plot_exg.addLine(data["t"][-1], pen="#FF0000")
+            self.line = self.ui.plot_exg.addLine(data['t'][-1], pen='#FF0000')
 
         # Add nans between new and old data
-        if NANS:
+        if NANS[0]:
             exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
             for ch in exg_plot_nan.keys():
                 exg_plot_nan[ch][self.exg_pointer-1:self.exg_pointer+9] = np.NaN
 
+        # Define connection vector for lines
+        else:
+            connection = np.full(len(self.exg_plot_data[0]), 1)
+            connection[self.exg_pointer-5:self.exg_pointer+5] = 0
+
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
-            # curve.setData(self.t_exg_plot, self.exg_plot[ch])
             try:
-                if NANS:
-                    curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect="finite")
+                if NANS[0]:
+                    curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect='finite')
                 else:
-                    curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch], connect="finite")
+                    curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch], connect=connection)
             except KeyError:
-                # print("key error line 371")
-                # print(f"{self.active_chan=}")
-                # print(f"{self.exg_plot_data[1].keys()=}")
                 pass
 
         # Remove reploted markers
-        for idx_t in range(len(self.mrk_replot["t"])):
-            if self.mrk_replot["t"][idx_t] < data["t"][-1]:
-                self.ui.plot_exg.removeItem(self.mrk_replot["line"][idx_t])
+        for idx_t in range(len(self.mrk_replot['t'])):
+            if self.mrk_replot['t'][idx_t] < data['t'][-1]:
+                self.ui.plot_exg.removeItem(self.mrk_replot['line'][idx_t])
         # Remove reploted r_peaks
-        for idx_t in range(len(self.r_peak_replot["t"])):
-            if self.r_peak_replot["t"][idx_t] < data["t"][-1]:
-                self.ui.plot_exg.removeItem(self.r_peak_replot["points"][idx_t])
+        to_remove_replot = []
+        for idx_t in range(len(self.r_peak_replot['t'])):
+            try:
+                self.r_peak_replot['t'][idx_t]
+            except IndexError:
+                print("\nindexerror line 472")
+                print(idx_t, self.r_peak_replot['t'])
+                print()
+            if self.r_peak_replot['t'][idx_t] < data['t'][-1]:
+                self.ui.plot_exg.removeItem(self.r_peak_replot['points'][idx_t])
+                to_remove_replot.append(
+                        [self.r_peak_replot['t'][idx_t], self.r_peak_replot['r_peak'][idx_t], self.r_peak_replot['points'][idx_t]])
+        for point in to_remove_replot:
+            try:
+                self.r_peak_replot['t'].remove(point[0])
+                self.r_peak_replot['r_peak'].remove(point[1])
+                self.r_peak_replot['points'].remove(point[2])
+                to_remove_replot.remove(point)
+            except:
+                print(f'{self.r_peak_replot["t"]=}')
+                print(f'{point[0]=}\n')
 
     @Slot(dict)
     def plot_mkr(self, data, replot=False):
@@ -470,25 +510,25 @@ class VisualizationFunctions(AppFunctions):
             mrk_dict = self.mrk_replot
             color = Settings.MARKER_LINE_COLOR_ALPHA
 
-        mrk_dict["t"].append(t)
-        mrk_dict["code"].append(code)
+        mrk_dict['t'].append(t)
+        mrk_dict['code'].append(code)
         pen_marker = pg.mkPen(color=color, dash=[4, 4])
 
         line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
-        mrk_dict["line"].append(line)
+        mrk_dict['line'].append(line)
     
     @Slot(dict)
     def plot_orn(self, data):
         """
         Plot and update ORN data
         """
-        n_new_points = len(data["t"])
+        n_new_points = len(data['t'])
         idxs = np.arange(self.orn_pointer, self.orn_pointer+n_new_points)
 
-        self.t_orn_plot.put(idxs, data["t"], mode="wrap")  # replace values with new points
+        self.t_orn_plot.put(idxs, data['t'], mode='wrap')  # replace values with new points
 
         for k in self.orn_plot.keys():
-            self.orn_plot[k].put(idxs, data[k], mode="wrap")
+            self.orn_plot[k].put(idxs, data[k], mode='wrap')
 
         self.orn_pointer += n_new_points
 
@@ -499,50 +539,68 @@ class VisualizationFunctions(AppFunctions):
 
             self.t_orn_plot[self.orn_pointer:] += self.get_timeScale()
 
-            # t_min = int(round(np.mean(data["t"])))
+            # t_min = int(round(np.mean(data['t'])))
             t_min = np.nanmin(self.t_orn_plot)
             t_max = t_min + self.get_timeScale()
             for plt in self.plots_orn_list:
                 plt.setXRange(t_min, t_max, padding=0.01)
+
         # Position line
         if None in self.lines_orn:
             for i, plt in enumerate(self.plots_orn_list):
-                self.lines_orn[i] = plt.addLine(data["t"][-1], pen="#FF0000")
+                self.lines_orn[i] = plt.addLine(data['t'][-1], pen='#FF0000')
         else:
             for line in self.lines_orn:
                 try:
-                    line.setPos(data["t"][-1])
+                    line.setPos(data['t'][-1])
                 except RuntimeError:
                     self.lines_orn = [None, None, None]
                     # pass
 
-        if NANS:
+        if NANS[1]:
             orn_plot_nan = copy.deepcopy(self.orn_plot)
             for k in orn_plot_nan.keys():
                 orn_plot_nan[k][self.orn_pointer-1:self.orn_pointer+1] = np.NaN
 
-        # Paint curves
-        if NANS:
-            self.curve_ax.setData(self.t_orn_plot, orn_plot_nan["accX"], connect="finite")
-            self.curve_ay.setData(self.t_orn_plot, orn_plot_nan["accY"], connect="finite")
-            self.curve_az.setData(self.t_orn_plot, orn_plot_nan["accZ"], connect="finite")
-            self.curve_gx.setData(self.t_orn_plot, orn_plot_nan["gyroX"], connect="finite")
-            self.curve_gy.setData(self.t_orn_plot, orn_plot_nan["gyroY"], connect="finite")
-            self.curve_gz.setData(self.t_orn_plot, orn_plot_nan["gyroZ"], connect="finite")
-            self.curve_mx.setData(self.t_orn_plot, orn_plot_nan["magX"], connect="finite")
-            self.curve_my.setData(self.t_orn_plot, orn_plot_nan["magY"], connect="finite")
-            self.curve_mz.setData(self.t_orn_plot, orn_plot_nan["magZ"], connect="finite")
         else:
-            self.curve_ax.setData(self.t_orn_plot, self.orn_plot["accX"], connect="finite")
-            self.curve_ay.setData(self.t_orn_plot, self.orn_plot["accY"], connect="finite")
-            self.curve_az.setData(self.t_orn_plot, self.orn_plot["accZ"], connect="finite")
-            self.curve_gx.setData(self.t_orn_plot, self.orn_plot["gyroX"], connect="finite")
-            self.curve_gy.setData(self.t_orn_plot, self.orn_plot["gyroY"], connect="finite")
-            self.curve_gz.setData(self.t_orn_plot, self.orn_plot["gyroZ"], connect="finite")
-            self.curve_mx.setData(self.t_orn_plot, self.orn_plot["magX"], connect="finite")
-            self.curve_my.setData(self.t_orn_plot, self.orn_plot["magY"], connect="finite")
-            self.curve_mz.setData(self.t_orn_plot, self.orn_plot["magZ"], connect="finite")
+            connection  = np.full(len(self.t_orn_plot), 1)
+            connection[self.orn_pointer-1:self.orn_pointer+1] = 0
+        for plt in self.plots_orn_list:
+            plt.disableAutoRange()
+        # Paint curves
+        if NANS[1]:
+            self.curve_ax.setData(self.t_orn_plot, orn_plot_nan['accX'], connect='finite')
+            self.curve_ay.setData(self.t_orn_plot, orn_plot_nan['accY'], connect='finite')
+            self.curve_az.setData(self.t_orn_plot, orn_plot_nan['accZ'], connect='finite')
+            self.curve_gx.setData(self.t_orn_plot, orn_plot_nan['gyroX'], connect='finite')
+            self.curve_gy.setData(self.t_orn_plot, orn_plot_nan['gyroY'], connect='finite')
+            self.curve_gz.setData(self.t_orn_plot, orn_plot_nan['gyroZ'], connect='finite')
+            self.curve_mx.setData(self.t_orn_plot, orn_plot_nan['magX'], connect='finite')
+            self.curve_my.setData(self.t_orn_plot, orn_plot_nan['magY'], connect='finite')
+            self.curve_mz.setData(self.t_orn_plot, orn_plot_nan['magZ'], connect='finite')
+        else:
+            self.curve_ax.setData(self.t_orn_plot, self.orn_plot['accX'], connect=connection)
+            self.curve_ay.setData(self.t_orn_plot, self.orn_plot['accY'], connect=connection)
+            self.curve_az.setData(self.t_orn_plot, self.orn_plot['accZ'], connect=connection)
+            self.curve_gx.setData(self.t_orn_plot, self.orn_plot['gyroX'], connect=connection)
+            self.curve_gy.setData(self.t_orn_plot, self.orn_plot['gyroY'], connect=connection)
+            self.curve_gz.setData(self.t_orn_plot, self.orn_plot['gyroZ'], connect=connection)
+            self.curve_mx.setData(self.t_orn_plot, self.orn_plot['magX'], connect=connection)
+            self.curve_my.setData(self.t_orn_plot, self.orn_plot['magY'], connect=connection)
+            self.curve_mz.setData(self.t_orn_plot, self.orn_plot['magZ'], connect=connection)
 
+            # self.curve_ax.setData(self.t_orn_plot, self.orn_plot['accX'], connect='finite')
+            # self.curve_ay.setData(self.t_orn_plot, self.orn_plot['accY'], connect='finite')
+            # self.curve_az.setData(self.t_orn_plot, self.orn_plot['accZ'], connect='finite')
+            # self.curve_gx.setData(self.t_orn_plot, self.orn_plot['gyroX'], connect='finite')
+            # self.curve_gy.setData(self.t_orn_plot, self.orn_plot['gyroY'], connect='finite')
+            # self.curve_gz.setData(self.t_orn_plot, self.orn_plot['gyroZ'], connect='finite')
+            # self.curve_mx.setData(self.t_orn_plot, self.orn_plot['magX'], connect='finite')
+            # self.curve_my.setData(self.t_orn_plot, self.orn_plot['magY'], connect='finite')
+            # self.curve_mz.setData(self.t_orn_plot, self.orn_plot['magZ'], connect='finite')
+
+        for plt in self.plots_orn_list:
+            plt.autoRange()
     @Slot()
     def plot_fft(self):
 
@@ -551,9 +609,10 @@ class VisualizationFunctions(AppFunctions):
         pw.setXRange(0, 70, padding=0.01)
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
-        exg_data = np.array([self.exg_plot_data[2][key][~np.isnan(self.exg_plot_data[2][key])] for key in self.exg_plot_data[2].keys()])
+        exg_data = np.array(
+            [self.exg_plot_data[2][key][~np.isnan(self.exg_plot_data[2][key])] for key in self.exg_plot_data[2].keys()],
+            dtype=object)
         if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
-            print(exg_data.shape)
             return
 
         fft_content, freq = self.get_fft(exg_data, exg_fs)
@@ -561,14 +620,14 @@ class VisualizationFunctions(AppFunctions):
         data['f'] = freq
 
         for curve, ch in zip(self.curves_fft_list, self.active_chan):
-            curve.setData(data["f"], data[ch])
+            curve.setData(data['f'], data[ch])
 
         # for i, key in enumerate(data.keys()):
         #     # key = list(data.keys())[i]
-        #     # if key == "ch1":
-        #     #     self.curve_fft_ch1.setData(data["f"], data[key])
-        #     if key != "f":
-        #         pw.plot(data["f"], data[key], pen=Settings.FFT_LINE_COLORS[i], name=f"{key}_2")
+        #     # if key == 'ch1':
+        #     #     self.curve_fft_ch1.setData(data['f'], data[key])
+        #     if key != 'f':
+        #         pw.plot(data['f'], data[key], pen=Settings.FFT_LINE_COLORS[i], name=f'{key}_2')
 
     #########################
     # Moving Plot Functions
@@ -590,22 +649,22 @@ class VisualizationFunctions(AppFunctions):
                 self.exg_plot[ch] = self.exg_plot[ch][new_points:]
 
             # Remove marker line
-            for idx_t in range(len(self.mrk_plot["t"])):
-                if self.mrk_plot["t"][idx_t] < self.t_exg_plot[0]:
+            for idx_t in range(len(self.mrk_plot['t'])):
+                if self.mrk_plot['t'][idx_t] < self.t_exg_plot[0]:
                     '''for i, plt in enumerate(self.plots_list):
-                        plt.removeItem(self.mrk_plot["line"][idx_t][i])'''
-                    self.ui.plot_exg.removeItem(self.mrk_plot["line"][idx_t])
+                        plt.removeItem(self.mrk_plot['line'][idx_t][i])'''
+                    self.ui.plot_exg.removeItem(self.mrk_plot['line'][idx_t])
 
             # Remove rr peaks
             id2remove = []
-            for idx_t in range(len(self.r_peak["t"])):
-                if self.r_peak["t"][idx_t][0] < self.t_exg_plot[0]:
-                    self.ui.plot_exg.removeItem(self.r_peak["points"][idx_t])
+            for idx_t in range(len(self.r_peak['t'])):
+                if self.r_peak['t'][idx_t][0] < self.t_exg_plot[0]:
+                    self.ui.plot_exg.removeItem(self.r_peak['points'][idx_t])
                     id2remove.append(idx_t)
             for idx_t in id2remove:
-                self.r_peak["t"].remove(self.r_peak["t"][idx_t])
-                self.r_peak["r_peak"].remove(self.r_peak["r_peak"][idx_t])
-                self.r_peak["points"].remove(self.r_peak["points"][idx_t])
+                self.r_peak['t'].remove(self.r_peak['t'][idx_t])
+                self.r_peak['r_peak'].remove(self.r_peak['r_peak'][idx_t])
+                self.r_peak['points'].remove(self.r_peak['points'][idx_t])
 
             # Update axis
             if len(self.t_exg_plot) - max_points > 0:
@@ -614,7 +673,7 @@ class VisualizationFunctions(AppFunctions):
                 for ch in self.exg_plot.keys():
                     self.exg_plot[ch] = self.exg_plot[ch][extra:]
 
-        self.t_exg_plot.extend(data["t"])
+        self.t_exg_plot.extend(data['t'])
         for ch in self.exg_plot.keys():
             self.exg_plot[ch].extend(data[ch])
 
@@ -637,24 +696,24 @@ class VisualizationFunctions(AppFunctions):
                 for k in self.orn_plot.keys():
                     self.orn_plot[k] = self.orn_plot[k][extra:]
 
-        self.t_orn_plot.extend(data["t"])
+        self.t_orn_plot.extend(data['t'])
         for k in self.orn_plot.keys():
             self.orn_plot[k].extend(data[k])
 
-        self.curve_ax.setData(self.t_orn_plot, self.orn_plot["accX"])
-        self.curve_ay.setData(self.t_orn_plot, self.orn_plot["accY"])
-        self.curve_az.setData(self.t_orn_plot, self.orn_plot["accZ"])
-        self.curve_gx.setData(self.t_orn_plot, self.orn_plot["gyroX"])
-        self.curve_gy.setData(self.t_orn_plot, self.orn_plot["gyroY"])
-        self.curve_gz.setData(self.t_orn_plot, self.orn_plot["gyroZ"])
-        self.curve_mx.setData(self.t_orn_plot, self.orn_plot["magX"])
-        self.curve_my.setData(self.t_orn_plot, self.orn_plot["magY"])
-        self.curve_mz.setData(self.t_orn_plot, self.orn_plot["magZ"])
+        self.curve_ax.setData(self.t_orn_plot, self.orn_plot['accX'])
+        self.curve_ay.setData(self.t_orn_plot, self.orn_plot['accY'])
+        self.curve_az.setData(self.t_orn_plot, self.orn_plot['accZ'])
+        self.curve_gx.setData(self.t_orn_plot, self.orn_plot['gyroX'])
+        self.curve_gy.setData(self.t_orn_plot, self.orn_plot['gyroY'])
+        self.curve_gz.setData(self.t_orn_plot, self.orn_plot['gyroZ'])
+        self.curve_mx.setData(self.t_orn_plot, self.orn_plot['magX'])
+        self.curve_my.setData(self.t_orn_plot, self.orn_plot['magY'])
+        self.curve_mz.setData(self.t_orn_plot, self.orn_plot['magZ'])
 
     def plot_marker_moving(self, data):
         t, code = data
-        self.mrk_plot["t"].append(data[0])
-        self.mrk_plot["code"].append(data[1])
+        self.mrk_plot['t'].append(data[0])
+        self.mrk_plot['code'].append(data[1])
 
         pen_marker = pg.mkPen(color='#7AB904', dash=[4,4])
 
@@ -665,8 +724,8 @@ class VisualizationFunctions(AppFunctions):
             lines.append(line)'''
         line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
         # lines.append(line)
-        # self.mrk_plot["line"].append(lines)
-        self.mrk_plot["line"].append(line)
+        # self.mrk_plot['line'].append(lines)
+        self.mrk_plot['line'].append(line)
 
     #########################
     # Functions
@@ -678,7 +737,7 @@ class VisualizationFunctions(AppFunctions):
         """
         event_code = int(self.ui.value_event_code.text())
         if event_code > 65535 or event_code < 8:
-            self.display_msg(msg_text="Marker code value is not valid")
+            self.display_msg(msg_text='Marker code value is not valid')
             return
         try:
             self.explorer.set_marker(event_code)
@@ -686,7 +745,7 @@ class VisualizationFunctions(AppFunctions):
             self.display_msg(msg_text=str(e))
 
         # Clean input text box
-        # self.ui.value_event_code.setText("")
+        # self.ui.value_event_code.setText('')
 
     @Slot()
     def change_timescale(self):
@@ -741,56 +800,44 @@ class VisualizationFunctions(AppFunctions):
         self.r_peak['r_peak'] = list((np.array(self.r_peak['r_peak']) - self.offsets[0]) * \
             (old_unit / self.y_unit) + self.offsets[0])
 
+        self.r_peak_replot['r_peak'] = list((np.array(self.r_peak_replot['r_peak']) - self.offsets[0]) * \
+            (old_unit / self.y_unit) + self.offsets[0])
+
         # self.add_right_axis_ticks()
         self.add_left_axis_ticks()
 
     def add_right_axis_ticks(self):
         # ticks_right = [(idx+1.5, self.y_string) for idx, _ in enumerate(self.active_chan)]
-        # # ticks_right += [(idx+0.5, f"-{self.y_string}") for idx, _ in enumerate(self.active_chan)]
-        # ticks_right += [(idx+1, f"0 {self.y_string[-2:]}") for idx, _ in enumerate(self.active_chan)]
-        # ticks_right += [(0.5, f"- {self.y_string}")]
+        # # ticks_right += [(idx+0.5, f'-{self.y_string}') for idx, _ in enumerate(self.active_chan)]
+        # ticks_right += [(idx+1, f'0 {self.y_string[-2:]}') for idx, _ in enumerate(self.active_chan)]
+        # ticks_right += [(0.5, f'- {self.y_string}')]
 
-        ticks_right = [(idx+1.5, "") for idx, _ in enumerate(self.active_chan)]
-        ticks_right += [(idx+1, "") for idx, _ in enumerate(self.active_chan)]
-        ticks_right += [(0.5, "")]
+        ticks_right = [(idx+1.5, '') for idx, _ in enumerate(self.active_chan)]
+        # ticks_right += [(idx+1, '') for idx, _ in enumerate(self.active_chan)]
+        ticks_right += [(0.5, '')]
         
         self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
 
     def add_left_axis_ticks(self):
         pw = self.ui.plot_exg
         ticks = [
-            (idx+1, f'{ch}\n'+u'(\u00B1'+f"{self.y_string})") for idx, ch in enumerate(self.active_chan)]
+            (idx+1, f'{ch}\n'+u'(\u00B1'+f'{self.y_string})') for idx, ch in enumerate(self.active_chan)]
         # ticks += [(i+1.5, self.y_string) for i in range(len(self.active_chan))]
         # print(ticks)
-        pw.getAxis("left").setTicks([ticks])
-
-    def plot_r_peaks(self, replot=False):
-        if replot:
-            color = (200,0,0)
-        else:
-            color = (200,0,0,125)
-        if self.peaks_time:
-            for i in range(len(self.peaks_time)):
-                if self.peaks_time[i] not in self.r_peak['t']:
-                    self.r_peak['t'].append(self.peaks_time[i])
-                    self.r_peak['r_peak'].append(self.peaks_val[i])
-
-            point = self.ui.plot_exg.plot(
-                [self.peaks_time[i]], [self.peaks_val[i]],
-                pen=None, symbolBrush=color, symbol='o', symbolSize=8)
-
-            self.r_peak["points"].append(point)
+        pw.getAxis('left').setTicks([ticks])
 
     def plot_heart_rate(self):
-        """Detect R-peaks and update the plot and heart rate"""
+        """
+        Detect R-peaks and update the plot and heart rate
+        """
 
-        if self.ui.value_signal.currentText() == "EEG":
+        if self.ui.value_signal.currentText() == 'EEG':
             return
 
-        if "ch1" not in self.exg_plot_data[2].keys():
-            msg = "Heart rate estimation works only when channel 1 is enabled."
+        if 'ch1' not in self.exg_plot_data[2].keys():
+            msg = 'Heart rate estimation works only when channel 1 is enabled.'
             if self.rr_warning_displayed is False:
-                self.display_msg(msg_text=msg, type="info")
+                self.display_msg(msg_text=msg, type='info')
                 self.rr_warning_displayed = True
             return
 
@@ -801,16 +848,12 @@ class VisualizationFunctions(AppFunctions):
         if self.rr_estimator is None:
             self.rr_estimator = HeartRateEstimator(fs=exg_fs)
 
-        # ecg_data = (
-        #     np.array(self.exg_plot_data[1]['ch1'])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]
-        #     ) * self.y_unit
-        # ecg_data = (np.array(self.exg_plot[first_chan])[-2 * Settings.EXG_VIS_SRATE:] - self.offsets[0]) * self.y_unit
-        # time_vector = np.array(self.exg_plot_data[0])[-2 * Settings.EXG_VIS_SRATE:]
-        
-        i = self.exg_pointer - (3 * Settings.EXG_VIS_SRATE)
+        sr = Settings.EXG_VIS_SRATE if Settings.DOWNSAMPLING else self.get_samplingRate
+        # last_n_sec
+        i = self.exg_pointer - (3 * sr)
         i = i if i>=0 else 0
-        # f = self.exg_pointer if i self.exg_pointer > (2 * Settings.EXG_VIS_SRATE) else (2 * Settings.EXG_VIS_SRATE) + self.exg_pointer
-        f = self.exg_pointer
+        f = self.exg_pointer if i+self.exg_pointer >= (2 * sr) else (2 * sr)
+        # f = self.exg_pointer
         ecg_data = (
             np.array(self.exg_plot_data[1]['ch1'])[i:f] - self.offsets[0]
             ) * self.y_unit
@@ -818,16 +861,13 @@ class VisualizationFunctions(AppFunctions):
 
         # Check if the peak2peak value is bigger than threshold
         if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
-            print(f"{np.ptp(ecg_data)=}")
-            print("P2P value larger or less than threshold. Cannot compute heart rate!")
+            print('P2P value larger or less than threshold. Cannot compute heart rate!')
             return
-        # print(f"{self.exg_pointer=}")
-        # print(f"{self.exg_plot_data[0][self.exg_pointer]=}")
-        
-        print(f"{time_vector[0]=}")
-        print(f"{time_vector[-1]=}")
 
-        self.peaks_time, self.peaks_val = self.rr_estimator.estimate(ecg_data, time_vector)
+        try:
+            self.peaks_time, self.peaks_val = self.rr_estimator.estimate(ecg_data, time_vector)
+        except IndexError:
+            return
         self.peaks_val = (np.array(self.peaks_val) / self.y_unit) + self.offsets[0]
 
         if self.peaks_time:
@@ -840,15 +880,7 @@ class VisualizationFunctions(AppFunctions):
                         [self.peaks_time[i]], [self.peaks_val[i]],
                         pen=None, symbolBrush=(200, 0, 0), symbol='o', symbolSize=8)
 
-                    self.r_peak["points"].append(point)
-
-            # print(dict(zip(['r_peak', 't'], [peaks_val, peaks_time])))
-        # print("plot_hear_rate")
-        # print(f"{peaks_time=}")
-        # print(f"{peaks_val=}")
-        # print(f"{self.r_peak['t']=}")
-        # print(f"{self.r_peak['r_peak']=}")
-        print("\n\n")
+                    self.r_peak['points'].append(point)
 
         # Update heart rate cell
         estimated_heart_rate = self.rr_estimator.heart_rate
@@ -895,19 +927,19 @@ class VisualizationFunctions(AppFunctions):
 
     def reset_vis_vars(self):
         self._vis_time_offset = None
-        self._baseline_corrector = {"MA_length": 1.5 * Settings.EXG_VIS_SRATE,
-                                    "baseline": 0}
+        self._baseline_corrector = {'MA_length': 1.5 * Settings.EXG_VIS_SRATE,
+                                    'baseline': 0}
 
         self.y_unit = Settings.DEFAULT_SCALE
-        self.y_string = "1 mV"
+        self.y_string = '1 mV'
         self.ui.value_yAxis.setCurrentText(self.y_string)
         self.last_t = 0
 
         self.line = None
         self.exg_pointer = 0
         self.orig_exg_pointer = 0
-        self.mrk_plot = {"t": [], "code": [], "line": []}
-        self.mrk_replot = {"t": [], "code": [], "line": []}
+        self.mrk_plot = {'t': [], 'code': [], 'line': []}
+        self.mrk_replot = {'t': [], 'code': [], 'line': []}
 
         self.lines_orn = [None, None, None]
         self.orn_pointer = 0
@@ -915,5 +947,5 @@ class VisualizationFunctions(AppFunctions):
         self.t_orn_plot = np.array([np.NaN]*200)
 
         self.rr_estimator = None
-        self.r_peak = {"t": [], "r_peak": [], "points": []}
+        self.r_peak = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False

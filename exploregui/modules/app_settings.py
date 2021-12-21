@@ -1,4 +1,5 @@
 class Settings():
+    TEST = 'test_nostylesheet4'
 
     CUSTOM_TITLE_BAR = True
 

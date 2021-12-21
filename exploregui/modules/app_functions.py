@@ -26,7 +26,7 @@ class AppFunctions():
     def init_imp(self):
         active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
-        self.ui.frame_impedance_widgets_16.hide()
+        # self.ui.frame_impedance_widgets_16.hide()
 
         for chan in Settings.CHAN_LIST:
             frame_name = f"frame_{chan}"
@@ -49,7 +49,7 @@ class AppFunctions():
         if self.ui.dev_name_input.text() == "":
             color = "#B4B4B4"
         else:
-            color = "#FFFFFF"
+            color = "#000000"
 
         stylesheet = f"""
         QLineEdit{{

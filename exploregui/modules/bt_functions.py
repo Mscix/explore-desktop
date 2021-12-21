@@ -102,7 +102,7 @@ class BTFunctions(AppFunctions):
 
         return device_name
 
-    def connect2device(self):
+    def connect2device(self, dev_name = None):
         """
         Connect to the explore device.
         """
@@ -110,7 +110,9 @@ class BTFunctions(AppFunctions):
             device_name_le = self.get_device_from_le()
             device_name_list = self.get_device_from_list()
 
-            if device_name_le != "":
+            if dev_name is not None:
+                device_name = dev_name
+            elif device_name_le != "":
                 device_name = device_name_le
             elif device_name_list != "":
                 device_name = device_name_list
@@ -325,8 +327,9 @@ class BTFunctions(AppFunctions):
             self.ui.line_2.show()
 
         else:
-            self.ui.frame_device.hide()
-            self.ui.line_2.hide()
+            # self.ui.frame_device.hide()
+            # self.ui.line_2.hide()
+            pass
 
     def info_device(self):
         r"""

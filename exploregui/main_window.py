@@ -1,3 +1,4 @@
+import datetime
 import sys
 import os
 
@@ -16,7 +17,7 @@ from exploregui.modules import IMPFunctions, LSLFunctions, RecordFunctions
 # pyside6-uic ui_main_window.ui > ui_main_window.py
 # pyside6-uic dialog_plot_settings.ui > dialog_plot_settings.py
 # pyside6-uic dialog_recording_settings.ui > dialog_recording_settings.py
-# pyside6-rcc app_resources.rc -o app_resources_rc.py
+# pyside6-rcc app_resources.qrc -o app_resources_rc.py
 # from exploregui import app_resources_rc
 
 # pyinstaller --onefile --console --name ExploreGUI --icon=='/home/sankirtan/andrea/mentalab_repo/explorepy-gui/exploregui/images/MentalabLogo.png' main.py
@@ -107,6 +108,7 @@ class MainWindow(QMainWindow):
         # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
         self.ui.btn_bt.setStyleSheet(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
+        self.ui.dev_name_input.setFocus()
 
         # Stacked pages - navigation
         for w in self.ui.left_side_menu.findChildren(QPushButton):
@@ -135,7 +137,7 @@ class MainWindow(QMainWindow):
         self.ui.n_chan.currentTextChanged.connect(lambda: self.n_chan_changed())
 
         # IMPEDANCE PAGE
-        self.ui.frame_impedance_widgets_16.hide()
+        # self.ui.frame_impedance_widgets_16.hide()
         self.ui.imp_meas_info.setHidden(False)
 
         self.ui.imp_meas_info.clicked.connect(lambda: self.imp_info_clicked())
@@ -191,27 +193,29 @@ class MainWindow(QMainWindow):
         self.ui.cb_lsl_duration.hide()
         self.ui.label_lsl_duration.setHidden(True)
         self.ui.cb_lsl_duration.stateChanged.connect(lambda: self.LSL_funct.enable_lsl_duration())
-        self.ui.btn_push_lsl.clicked.connect(lambda: self.stylesheet_print())
-        # self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
+        # self.ui.btn_push_lsl.clicked.connect(lambda: self.stylesheet_print())
+        self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
 
-    def stylesheet_print(self):
-        print("central widget stylesheet")
-        print(self.ui.centralwidget.styleSheet())
-        print()
-        print()
-        print("frame integration stylesheet")
-        print(self.ui.frame_integration.styleSheet())
-        print()
-        print()
-        print("frame settings stylesheet")
-        print(self.ui.frame_settings.styleSheet())
-        print()
-        print()
+        self.last_t = datetime.datetime.now()
+        self.first_t = datetime.datetime.now()
 
+        # FOR TESTING
+        self.test = False
+        if self.test:
+            self.file = open(Settings.TEST + '_freeze.txt', 'a+')
+            self.connect_clicked(dev_name="Explore_CA18")
+            self.vis_funct.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 1.0, 'highpass': 30.0}
+            self.funct.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 1.0, 'highpass': 30.0}
+            self.vis_funct.apply_filters()
+            self.first_t = datetime.datetime.now()
+            self.changePage(btn_name="btn_plots")
+            self.explorer.record_data(
+                file_name=Settings.TEST,
+                file_type="csv")
 
     @Slot()
-    def connect_clicked(self):
-        self.BT_funct.connect2device()
+    def connect_clicked(self, dev_name=None):
+        self.BT_funct.connect2device(dev_name=dev_name)
         self.funct.is_connected = self.BT_funct.is_connected
         # print(f"{self.BT_funct.is_connected=}")
         # print(f"{self.funct.is_connected=}")
@@ -389,7 +393,10 @@ class MainWindow(QMainWindow):
                     return
 
                 if not self.is_streaming and filt:
-                    self.vis_funct.emit_signals()
+                    # self.vis_funct.emit_signals()
+                    self.vis_funct.emit_orn()
+                    self.vis_funct.emit_exg()
+                    self.vis_funct.emit_marker()
                     self.update_fft()
                     self.update_heart_rate()
                     self.is_streaming = True
@@ -489,6 +496,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def on_close(self):
         self.stop_processes()
+        if self.test:
+            self.file.close()
         self.close()
 
     def ui_definitions(self):
@@ -522,10 +531,10 @@ class MainWindow(QMainWindow):
 
         # Drop Shadow
         self.shadow = QGraphicsDropShadowEffect()
-        self.shadow.setBlurRadius(17)
+        self.shadow.setBlurRadius(0)
         self.shadow.setXOffset(0)
         self.shadow.setYOffset(0)
-        self.shadow.setColor(QColor(0, 0, 0, 150))
+        self.shadow.setColor(QColor(0, 0, 0, 0))
         self.ui.centralwidget.setGraphicsEffect(self.shadow)
 
         # Resize winndow
@@ -607,6 +616,16 @@ class MainWindow(QMainWindow):
         reconnecting_label = "Reconnecting ..."
         not_connected_label = "Not connected"
         connected_label = f"Connected to {self.explorer.device_name}"
+        
+        
+        a = datetime.datetime.now() - self.last_t
+        sec = a.total_seconds()
+        s_run = self.last_t - self.first_t
+        if sec>=3:
+            print(f"\nAt t={s_run.total_seconds()} FROZEN FOR {sec} SEC\n")
+            if self.test:
+                self.file.write(f"{s_run.total_seconds()};{sec}\n")
+        self.last_t = datetime.datetime.now()
 
         if self.explorer.is_connected:
             sp_connected = self.explorer.stream_processor.is_connected
@@ -639,7 +658,7 @@ class MainWindow(QMainWindow):
                     # self.BT_funct.update_frame_dev_settings()
                     # self.BT_funct.change_btn_connect()
                     # self.BT_funct.change_footer()
-                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         else:
             return

@@ -171,10 +171,18 @@ class ConfigFunctions(AppFunctions):
         stream_processor = self.explorer.stream_processor
 
         with self.wait_cursor():
+            points = self.plot_points()
+            self.exg_plot_data[0] = np.array([np.NaN]*points)
+            self.exg_plot_data[1] = {
+                ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+            self.exg_plot_data[2] = {
+                ch: np.array([np.NaN]*self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
+                }
+            AppFunctions.exg_plot_data = self.exg_plot_data
+            
             self.change_active_channels(reset)
             self.change_sampling_rate(reset)
 
-            points = self.plot_points()
             self.exg_plot_data[0] = np.array([np.NaN]*points)
             self.exg_plot_data[1] = {
                 ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}

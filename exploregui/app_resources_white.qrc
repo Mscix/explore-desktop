@@ -7,18 +7,23 @@
     <qresource prefix="/icons">
         <file>icons/cil-bluetooth.png</file>
         <file>icons/cil-chart-line.png</file>
-        <file>icons/cil-hamburger-menu.png</file>
         <file>icons/cil-home.png</file>
         <file>icons/cil-media-record.png</file>
         <file>icons/cil-media-stop.png</file>
+        <file>icons/cil-minimize.png</file>
         <file>icons/cil-options.png</file>
         <file>icons/cil-settings.png</file>
         <file>icons/cil-share-boxed.png</file>
         <file>icons/cil-speedometer.png</file>
         <file>icons/cil-window-maximize.png</file>
-        <file>icons/cil-window-minimize.png</file>
         <file>icons/cil-window-restore.png</file>
         <file>icons/cil-x.png</file>
+        <file>icons/icon_maximize.png</file>
+        <file>icons/icon_menu.png</file>
+        <file>icons/icon_minimize.png</file>
+        <file>icons/icon_restore.png</file>
+        <file>icons/icons8-info-50 (1).png</file>
+        <file>icons/info-icon.png</file>
         <file>icons/pngfind.com-png-circle-1194554.png</file>
     </qresource>
 </RCC>
