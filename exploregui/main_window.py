@@ -74,10 +74,6 @@ class MainWindow(QMainWindow):
         # Add app version to footer
         self.ui.ft_label_version.setText(VERSION_APP)
 
-        # Hide frame of device settings when launching app
-        # self.ui.frame_device.hide()
-        # self.ui.line_2.hide()
-
         # Hide footer
         self.ui.ft_label_firmware.setHidden(True)
         self.ui.ft_label_firmware_value.setHidden(True)
@@ -93,12 +89,6 @@ class MainWindow(QMainWindow):
         self.init_dropdowns()
 
         # Apply stylesheets
-        # self.ui.centralwidget.setStyleSheet(CENTRAL_STYLESHEET)
-        # self.ui.main_body.setStyleSheet(MAINBODY_STYLESHEET)
-        # self.ui.line.setStyleSheet(
-        #     """background-color: #FFFFFF;
-        #     border:none;""")
-        QFontDatabase.addApplicationFont("./modules/stylesheets/DMSans-Regular.ttf")
         self.funct.lineedit_stylesheet()
 
         # Slidable left panel
@@ -137,7 +127,6 @@ class MainWindow(QMainWindow):
         self.ui.n_chan.currentTextChanged.connect(lambda: self.n_chan_changed())
 
         # IMPEDANCE PAGE
-        # self.ui.frame_impedance_widgets_16.hide()
         self.ui.imp_meas_info.setHidden(False)
 
         self.ui.imp_meas_info.clicked.connect(lambda: self.imp_info_clicked())
@@ -193,25 +182,10 @@ class MainWindow(QMainWindow):
         self.ui.cb_lsl_duration.hide()
         self.ui.label_lsl_duration.setHidden(True)
         self.ui.cb_lsl_duration.stateChanged.connect(lambda: self.LSL_funct.enable_lsl_duration())
-        # self.ui.btn_push_lsl.clicked.connect(lambda: self.stylesheet_print())
         self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
 
         self.last_t = datetime.datetime.now()
         self.first_t = datetime.datetime.now()
-
-        # FOR TESTING
-        self.test = False
-        if self.test:
-            self.file = open(Settings.TEST + '_freeze.txt', 'a+')
-            self.connect_clicked(dev_name="Explore_CA18")
-            self.vis_funct.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 1.0, 'highpass': 30.0}
-            self.funct.plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 1.0, 'highpass': 30.0}
-            self.vis_funct.apply_filters()
-            self.first_t = datetime.datetime.now()
-            self.changePage(btn_name="btn_plots")
-            self.explorer.record_data(
-                file_name=Settings.TEST,
-                file_type="csv")
 
     @Slot()
     def connect_clicked(self, dev_name=None):
@@ -393,10 +367,7 @@ class MainWindow(QMainWindow):
                     return
 
                 if not self.is_streaming and filt:
-                    # self.vis_funct.emit_signals()
-                    self.vis_funct.emit_orn()
-                    self.vis_funct.emit_exg()
-                    self.vis_funct.emit_marker()
+                    self.vis_funct.emit_signals()
                     self.update_fft()
                     self.update_heart_rate()
                     self.is_streaming = True
@@ -496,8 +467,6 @@ class MainWindow(QMainWindow):
     @Slot()
     def on_close(self):
         self.stop_processes()
-        if self.test:
-            self.file.close()
         self.close()
 
     def ui_definitions(self):
@@ -616,16 +585,6 @@ class MainWindow(QMainWindow):
         reconnecting_label = "Reconnecting ..."
         not_connected_label = "Not connected"
         connected_label = f"Connected to {self.explorer.device_name}"
-        
-        
-        a = datetime.datetime.now() - self.last_t
-        sec = a.total_seconds()
-        s_run = self.last_t - self.first_t
-        if sec>=3:
-            print(f"\nAt t={s_run.total_seconds()} FROZEN FOR {sec} SEC\n")
-            if self.test:
-                self.file.write(f"{s_run.total_seconds()};{sec}\n")
-        self.last_t = datetime.datetime.now()
 
         if self.explorer.is_connected:
             sp_connected = self.explorer.stream_processor.is_connected
