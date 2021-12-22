@@ -12,8 +12,8 @@ from exploregui.modules.app_settings import Settings
 
 
 def main():
-    faulthandler.enable()
-    cgitb.enable(format = 'text')
+    # faulthandler.enable()
+    # cgitb.enable(format = 'text')
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()

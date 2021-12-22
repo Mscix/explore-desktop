@@ -57,13 +57,18 @@ class BTFunctions(AppFunctions):
             msg = "Error opening socket.\nPlease make sure the bluetooth is on."
             self._connection_error_gui(msg, scan=True)
             return
+        except SystemError as e:
+            msg = str(e)
+            msg += "\nPlease make sure the Bluetooth is on."
+            self._connection_error_gui(msg, scan=True)
+            return
         explore_devices = [dev[0] for dev in explore_devices]
         
         if len(explore_devices) == 0:
             msg = "No explore devices found. Please make sure your device is turned on."
-            if os.name == 'nt':
-                msg = msg[:-1]
-                msg += " and the Bluetooth is active."
+            # if os.name == 'nt':
+            #     msg = msg[:-1]
+            #     msg += " and the Bluetooth is active."
             self._connection_error_gui(msg, scan=True)
             return
 
@@ -146,15 +151,15 @@ class BTFunctions(AppFunctions):
 
             except xpy_ex.DeviceNotFoundError as e:
                 msg = str(e)
-                if os.name == "nt":
-                    msg += "\nPlease make sure both the Bluetooth and your device are turned ON."
+                # if os.name == "nt":
+                #     msg += "\nPlease make sure both the Bluetooth and your device are turned ON."
                 self._connection_error_gui(msg)
                 return
             except TypeError or UnboundLocalError:
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-                if os.name == "nt":
-                    msg = msg[:-1]
-                    msg += " and make sure that the Bluetooth is on."
+                # if os.name == "nt":
+                #     msg = msg[:-1]
+                #     msg += " and make sure that the Bluetooth is on."
                 self._connection_error_gui(msg)
                 return
             except AssertionError as e:
@@ -163,6 +168,11 @@ class BTFunctions(AppFunctions):
                 return
             except ValueError:
                 msg = "Error opening socket.\nPlease make sure the bluetooth is on."
+                self._connection_error_gui(msg)
+                return
+            except SystemError as e:
+                msg = str(e)
+                msg += "\nPlease make sure the Bluetooth is on."
                 self._connection_error_gui(msg)
                 return
             except Exception as e:
