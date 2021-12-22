@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_main_window_nostylesheet.ui'
+## Form generated from reading UI file 'ui_main_window.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.2.1
 ##
@@ -44,12 +44,12 @@ class Ui_MainWindow(object):
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
-        self.centralwidget.setStyleSheet(u"QFrame{\n"
-"	border:none;\n"
+        self.centralwidget.setStyleSheet(u"QWidget{\n"
+"	font:13pt;\n"
 "}\n"
 "\n"
-"QWidget{\n"
-"	font:13pt;\n"
+"QFrame{\n"
+"	border:none;\n"
 "}\n"
 "\n"
 "#main_header{\n"
@@ -57,13 +57,13 @@ class Ui_MainWindow(object):
 "	border-bottom: 1px solid rgb(95, 197, 201);\n"
 "}\n"
 "\n"
+"#main_header .QPushButton{\n"
+"	border: none;\n"
+"}\n"
+"\n"
 "#main_footer{\n"
 "	border:none;\n"
 "	border-top: 1px solid rgb(95, 197, 201);\n"
-"}\n"
-"\n"
-"#main_header .QPushButton{\n"
-"	border:none\n"
 "}\n"
 "\n"
 "#page_home .QPushButton{\n"
@@ -107,34 +107,25 @@ class Ui_MainWindow(object):
 "/*TITLES FONT*/\n"
 "\n"
 "QLabel#integration_title{\n"
-"	border:none;\n"
 "	font: 22pt;\n"
 "}\n"
 "\n"
-"QLabel#home_title{\n"
-"	border:none;\n"
+"QLabel#home_title"
+                        "{\n"
 "	font: 22pt;\n"
 "}\n"
 "\n"
 "QLabel#impedance_title{\n"
-"	border:none;\n"
 "	font: 22pt;\n"
 "}\n"
 "\n"
 "QLabel#settings_title{\n"
-"	border:none;\n"
-"	font: 22pt ;\n"
+"	font: 22pt;\n"
 "}\n"
 "\n"
 "QLabel#bt_title{\n"
-"	border:none;\n"
-"	font: 22pt ;\n"
+"	font: 22pt;\n"
 "}\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
 "")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setSpacing(0)
@@ -987,12 +978,7 @@ class Ui_MainWindow(object):
         self.btn_stream.setObjectName(u"btn_stream")
         self.btn_stream.setMinimumSize(QSize(150, 30))
         self.btn_stream.setMaximumSize(QSize(16777215, 16777215))
-        font3 = QFont()
-        font3.setFamilies([u"DM Sans"])
-        font3.setPointSize(12)
-        font3.setBold(False)
-        font3.setItalic(False)
-        self.btn_stream.setFont(font3)
+        self.btn_stream.setFont(font2)
         self.btn_stream.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_stream.setStyleSheet(u"")
 
@@ -1050,12 +1036,12 @@ class Ui_MainWindow(object):
         self.value_event_code = QLineEdit(self.page_plotsNoWidget)
         self.value_event_code.setObjectName(u"value_event_code")
         self.value_event_code.setMaximumSize(QSize(85, 30))
-        font4 = QFont()
-        font4.setFamilies([u"DM Sans"])
-        font4.setPointSize(11)
-        font4.setBold(False)
-        font4.setItalic(False)
-        self.value_event_code.setFont(font4)
+        font3 = QFont()
+        font3.setFamilies([u"DM Sans"])
+        font3.setPointSize(11)
+        font3.setBold(False)
+        font3.setItalic(False)
+        self.value_event_code.setFont(font3)
         self.value_event_code.setStyleSheet(u"font: 11pt ")
 
         self.horizontalLayout_34.addWidget(self.value_event_code)
@@ -1205,7 +1191,7 @@ class Ui_MainWindow(object):
         self.btn_stream_rec.setObjectName(u"btn_stream_rec")
         self.btn_stream_rec.setMinimumSize(QSize(150, 30))
         self.btn_stream_rec.setMaximumSize(QSize(16777215, 16777215))
-        self.btn_stream_rec.setFont(font3)
+        self.btn_stream_rec.setFont(font2)
         self.btn_stream_rec.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_stream_rec.setStyleSheet(u"")
 
@@ -1354,7 +1340,12 @@ class Ui_MainWindow(object):
         self.label_ch1_value.setObjectName(u"label_ch1_value")
         self.label_ch1_value.setMinimumSize(QSize(61, 0))
         self.label_ch1_value.setMaximumSize(QSize(16777215, 30))
-        self.label_ch1_value.setFont(font3)
+        font4 = QFont()
+        font4.setFamilies([u"DM Sans"])
+        font4.setPointSize(12)
+        font4.setBold(False)
+        font4.setItalic(False)
+        self.label_ch1_value.setFont(font4)
         self.label_ch1_value.setStyleSheet(u"font:12pt")
         self.label_ch1_value.setAlignment(Qt.AlignCenter)
 
@@ -1404,7 +1395,7 @@ class Ui_MainWindow(object):
         self.label_ch2_value.setObjectName(u"label_ch2_value")
         self.label_ch2_value.setMinimumSize(QSize(61, 0))
         self.label_ch2_value.setMaximumSize(QSize(16777215, 30))
-        self.label_ch2_value.setFont(font3)
+        self.label_ch2_value.setFont(font4)
         self.label_ch2_value.setStyleSheet(u"font:12pt")
         self.label_ch2_value.setAlignment(Qt.AlignCenter)
 
@@ -1450,7 +1441,7 @@ class Ui_MainWindow(object):
         self.label_ch3_value.setObjectName(u"label_ch3_value")
         self.label_ch3_value.setMinimumSize(QSize(61, 0))
         self.label_ch3_value.setMaximumSize(QSize(16777215, 30))
-        self.label_ch3_value.setFont(font3)
+        self.label_ch3_value.setFont(font4)
         self.label_ch3_value.setStyleSheet(u"font:12pt")
         self.label_ch3_value.setAlignment(Qt.AlignCenter)
 
@@ -1496,7 +1487,7 @@ class Ui_MainWindow(object):
         self.label_ch4_value.setObjectName(u"label_ch4_value")
         self.label_ch4_value.setMinimumSize(QSize(61, 0))
         self.label_ch4_value.setMaximumSize(QSize(16777215, 30))
-        self.label_ch4_value.setFont(font3)
+        self.label_ch4_value.setFont(font4)
         self.label_ch4_value.setStyleSheet(u"font:12pt")
         self.label_ch4_value.setAlignment(Qt.AlignCenter)
 
@@ -1542,7 +1533,7 @@ class Ui_MainWindow(object):
         self.label_ch5_value.setObjectName(u"label_ch5_value")
         self.label_ch5_value.setMinimumSize(QSize(61, 0))
         self.label_ch5_value.setMaximumSize(QSize(16777215, 30))
-        self.label_ch5_value.setFont(font3)
+        self.label_ch5_value.setFont(font4)
         self.label_ch5_value.setStyleSheet(u"font:12pt")
         self.label_ch5_value.setAlignment(Qt.AlignCenter)
 
@@ -1588,7 +1579,7 @@ class Ui_MainWindow(object):
         self.label_ch6_value.setObjectName(u"label_ch6_value")
         self.label_ch6_value.setMinimumSize(QSize(61, 0))
         self.label_ch6_value.setMaximumSize(QSize(16777215, 30))
-        self.label_ch6_value.setFont(font3)
+        self.label_ch6_value.setFont(font4)
         self.label_ch6_value.setStyleSheet(u"font:12pt")
         self.label_ch6_value.setAlignment(Qt.AlignCenter)
 
@@ -1634,7 +1625,7 @@ class Ui_MainWindow(object):
         self.label_ch7_value.setObjectName(u"label_ch7_value")
         self.label_ch7_value.setMinimumSize(QSize(61, 0))
         self.label_ch7_value.setMaximumSize(QSize(16777215, 30))
-        self.label_ch7_value.setFont(font3)
+        self.label_ch7_value.setFont(font2)
         self.label_ch7_value.setStyleSheet(u"")
         self.label_ch7_value.setAlignment(Qt.AlignCenter)
 
@@ -1680,7 +1671,7 @@ class Ui_MainWindow(object):
         self.label_ch8_value.setObjectName(u"label_ch8_value")
         self.label_ch8_value.setMinimumSize(QSize(61, 0))
         self.label_ch8_value.setMaximumSize(QSize(16777215, 30))
-        self.label_ch8_value.setFont(font3)
+        self.label_ch8_value.setFont(font4)
         self.label_ch8_value.setStyleSheet(u"font:12pt")
         self.label_ch8_value.setAlignment(Qt.AlignCenter)
 
@@ -1793,7 +1784,7 @@ class Ui_MainWindow(object):
 
         self.label_10 = QLabel(self.page_bt)
         self.label_10.setObjectName(u"label_10")
-        self.label_10.setFont(font4)
+        self.label_10.setFont(font2)
         self.label_10.setStyleSheet(u"")
         self.label_10.setWordWrap(True)
 
@@ -1874,18 +1865,21 @@ class Ui_MainWindow(object):
 
         self.dev_name_input = QLineEdit(self.frame_8)
         self.dev_name_input.setObjectName(u"dev_name_input")
-        self.dev_name_input.setStyleSheet(u"\n"
-"/*background-color: rgb(83, 88, 123);*/\n"
-"")
+        self.dev_name_input.setStyleSheet(u"")
 
         self.horizontalLayout_16.addWidget(self.dev_name_input)
 
 
         self.verticalLayout_6.addWidget(self.frame_8, 0, Qt.AlignHCenter)
 
+        self.lbl_bt_instructions = QLabel(self.page_bt)
+        self.lbl_bt_instructions.setObjectName(u"lbl_bt_instructions")
+
+        self.verticalLayout_6.addWidget(self.lbl_bt_instructions)
+
         self.line_2 = QFrame(self.page_bt)
         self.line_2.setObjectName(u"line_2")
-        self.line_2.setStyleSheet(u"")
+        self.line_2.setStyleSheet(u"background-color: rgb(28, 30, 42);")
         self.line_2.setFrameShape(QFrame.HLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
 
@@ -2188,6 +2182,7 @@ class Ui_MainWindow(object):
         self.btn_connect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"Device Name: ", None))
         self.dev_name_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Explore_XXXX or XXXX", None))
+        self.lbl_bt_instructions.setText("")
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Import data", None))
         self.btn_import_data.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"TESTING PLOTS", None))

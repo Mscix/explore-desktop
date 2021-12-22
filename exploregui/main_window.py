@@ -34,10 +34,11 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super(MainWindow, self).__init__()
+
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowIcon(
-            QIcon(os.path.join('images', 'MentalabLogo.png')))
+            QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images', 'MentalabLogo.png')))
         self.setWindowTitle('ExploreGUI')
 
         self.explorer = xpy.Explore()
@@ -107,18 +108,20 @@ class MainWindow(QMainWindow):
         # Check connection every 2 seconds
         self.check_connection()
 
-        # SETTINNGS PAGE BUTTONS
+        # CONNECT PAGE BUTTONS
         # hide import data:
         self.ui.btn_import_data.hide()
         self.ui.le_data_path.hide()
         self.ui.label_16.setHidden(True)
         self.ui.line_2.hide()
+        self.ui.lbl_bt_instructions.hide()
 
         self.ui.dev_name_input.textChanged.connect(lambda: self.funct.lineedit_stylesheet())
         self.ui.btn_connect.clicked.connect(lambda: self.connect_clicked())
         self.ui.dev_name_input.returnPressed.connect(lambda: self.connect_clicked())
         self.ui.btn_scan.clicked.connect(lambda: self.BT_funct.scan_devices())
 
+        # SETTING PAGE BUTTONS
         # self.ui.btn_import_data.clicked.connect(lambda: self.import_recorded_data())
         self.ui.btn_format_memory.clicked.connect(lambda: self.config_funct.format_memory())
         self.ui.btn_reset_settings.clicked.connect(lambda: self.config_funct.reset_settings())
@@ -186,6 +189,7 @@ class MainWindow(QMainWindow):
 
         self.last_t = datetime.datetime.now()
         self.first_t = datetime.datetime.now()
+
 
     @Slot()
     def connect_clicked(self, dev_name=None):

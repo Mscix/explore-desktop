@@ -20,4 +20,5 @@ def main():
     sys.exit(app.exec())
 
 if __name__ == "__main__":
+    print("\nPlease do not close this command prompt window.\nIf any error happens, you can use this window to send the report to Mentalab.\n")
     main()

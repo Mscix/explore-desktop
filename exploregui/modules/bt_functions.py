@@ -127,11 +127,16 @@ class BTFunctions(AppFunctions):
             self.ui.ft_label_device_3.adjustSize()
             self.ui.ft_label_device_3.repaint()
 
-            # Change scan button
+            # Change connect button
             self.ui.btn_connect.setText("Connecting")
             self.ui.btn_connect.setStyleSheet(DISABLED_STYLESHEET)
-            QApplication.processEvents()
 
+            # If platform is windows, add instructions
+            if os.name == "nt":
+                self.ui.lbl_bt_instructions.setText("Follow Windows' instructions to pair your device.")
+                self.ui.lbl_bt_instructions.show()
+            QApplication.processEvents()
+            
             try:
                 with self.wait_cursor():
                     self.explorer.connect(device_name=device_name)
@@ -181,6 +186,7 @@ class BTFunctions(AppFunctions):
         print(self.is_connected)
         self.ui.btn_connect.setStyleSheet("")
         self.on_connection()
+        self.ui.lbl_bt_instructions.hide()
 
     #########################
     # Visual feedback functions
@@ -191,6 +197,9 @@ class BTFunctions(AppFunctions):
         """
         # reset footer to Not connected
         self.ui.ft_label_device_3.setText("Not connected")
+
+        # hide instructions
+        self.ui.lbl_bt_instructions.hide()
 
         if scan is False:
             # change button stylesheet
@@ -224,6 +233,8 @@ class BTFunctions(AppFunctions):
         # init plots and impedances
         # self.init_plots()
         self.init_imp()
+        
+        self.ui.line_2.setHidden(True)
 
     def change_btn_connect(self):
         '''
