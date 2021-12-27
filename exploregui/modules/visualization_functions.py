@@ -800,11 +800,37 @@ class VisualizationFunctions(AppFunctions):
                 # self.exg_plot[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
                 self.exg_plot_data[1][chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
 
+        # Rescale r_peaks
         self.r_peak['r_peak'] = list((np.array(self.r_peak['r_peak']) - self.offsets[0]) * \
             (old_unit / self.y_unit) + self.offsets[0])
+        
+        # Remove old rpeaks
+        for p in self.r_peak['points']:
+            self.ui.plot_exg.removeItem(p)
+        self.r_peak['points'] = []
 
+        # plot scaled rpeaks
+        for i in range(len(self.r_peak['t'])):
+            point = self.ui.plot_exg.plot(
+                [self.r_peak['t'][i]], [self.r_peak['r_peak'][i]],
+                pen=None, symbolBrush=(200, 0, 0), symbol='o', symbolSize=8)
+            self.r_peak['points'].append(point)
+
+        # Rescale replotted rpeaks
         self.r_peak_replot['r_peak'] = list((np.array(self.r_peak_replot['r_peak']) - self.offsets[0]) * \
             (old_unit / self.y_unit) + self.offsets[0])
+
+        # Remove old rpeaks
+        for p in self.r_peak_replot['points']:
+            self.ui.plot_exg.removeItem(p)
+        self.r_peak_replot['points'] = []
+
+        # plot scaled rpeaks
+        for i in range(len(self.r_peak_replot['t'])):
+            point = self.ui.plot_exg.plot(
+                [self.r_peak_replot['t'][i]], [self.r_peak_replot['r_peak'][i]],
+                pen=None, symbolBrush=(200, 0, 0, 200), symbol='o', symbolSize=8)
+            self.r_peak_replot['points'].append(point)
 
         # self.add_right_axis_ticks()
         self.add_left_axis_ticks()
@@ -818,7 +844,7 @@ class VisualizationFunctions(AppFunctions):
         ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(self.active_chan)]
         # ticks_right += [(idx+1, '') for idx, _ in enumerate(self.active_chan)]
         ticks_right += [(0.5, '')]
-        
+
         self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
 
     def add_left_axis_ticks(self):
@@ -853,7 +879,7 @@ class VisualizationFunctions(AppFunctions):
 
         sr = Settings.EXG_VIS_SRATE if Settings.DOWNSAMPLING else self.get_samplingRate
         # last_n_sec
-        i = self.exg_pointer - (3 * sr)
+        i = self.exg_pointer - (2 * sr)
         i = i if i >= 0 else 0
         f = self.exg_pointer if i + self.exg_pointer >= (2 * sr) else (2 * sr)
         # f = self.exg_pointer
@@ -861,6 +887,7 @@ class VisualizationFunctions(AppFunctions):
             np.array(self.exg_plot_data[1]['ch1'])[i:f] - self.offsets[0]
         ) * self.y_unit
         time_vector = np.array(self.exg_plot_data[0])[i:f]
+        # print(time_vector[-1])
 
         # Check if the peak2peak value is bigger than threshold
         if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
