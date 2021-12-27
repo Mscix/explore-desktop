@@ -33,7 +33,7 @@ class RecordFunctions(AppFunctions):
         print(data)
 
         file_name = data["file_path"]
-        if os.path.isfile(file_name+"_ExG.csv"):
+        if os.path.isfile(file_name + "_ExG.csv"):
             file_name += datetime.now().strftime("_%d%b%Y_%H%M")
         file_type = data["file_type"]
 

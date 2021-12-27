@@ -1,16 +1,8 @@
-'''import explorepy as xpy
-import time
-explorer = xpy.Explore()
-explorer.connect(device_name="Explore_CA18")
-stream_processor = explorer.stream_processor
-stream_processor.add_filter(cutoff_freq=50, filter_type='notch')
-time.sleep(5)
-stream_processor.add_filter(cutoff_freq=None, filter_type='notch')'''
 
-import sys
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
+from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QMovie
+from PySide6.QtWidgets import QLabel, QWidget
+
 
 class LoadingScreen(QWidget):
     def __init__(self):
@@ -35,4 +27,3 @@ class LoadingScreen(QWidget):
     def stopAnimation(self):
         self.movie.stop()
         self.close()
-

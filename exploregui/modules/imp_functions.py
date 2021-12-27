@@ -42,7 +42,8 @@ class IMPFunctions(AppFunctions):
                 # print(value)
                 if value < 5:
                     str_value = "<5 K\u03A9"
-                elif (mode == "wet" and value > Settings.COLOR_RULES_WET["open"]) or (mode == "dry" and value > Settings.COLOR_RULES_DRY["open"]):
+                elif (mode == "wet" and value > Settings.COLOR_RULES_WET["open"]) or \
+                     (mode == "dry" and value > Settings.COLOR_RULES_DRY["open"]):
                     str_value = "Open"
                 else:
                     str_value = str(int(round(value, 0))) + " K\u03A9"

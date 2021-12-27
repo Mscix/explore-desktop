@@ -4,12 +4,11 @@ import os
 
 from PySide6.QtWidgets import QApplication, QGraphicsDropShadowEffect, QMainWindow, QPushButton, QSizeGrip
 from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, Qt, Signal, QTimer, Slot
-from PySide6.QtGui import QColor, QFont, QIcon, QFontDatabase, QIntValidator
+from PySide6.QtGui import QColor, QFont, QIcon, QIntValidator
 
 import explorepy as xpy
 import exploregui
 
-from exploregui.modules.stylesheets.stylesheet_centralwidget import CENTRAL_STYLESHEET, MAINBODY_STYLESHEET
 from exploregui.modules import Settings, Ui_MainWindow
 from exploregui.modules import AppFunctions, BTFunctions, ConfigFunctions, VisualizationFunctions
 from exploregui.modules import IMPFunctions, LSLFunctions, RecordFunctions
@@ -20,8 +19,11 @@ from exploregui.modules import IMPFunctions, LSLFunctions, RecordFunctions
 # pyside6-rcc app_resources.qrc -o app_resources_rc.py
 # from exploregui import app_resources_rc
 
-# pyinstaller --onefile --console --name ExploreGUI --icon=='/home/sankirtan/andrea/mentalab_repo/explorepy-gui/exploregui/images/MentalabLogo.png' main.py
-# explorepy==1.6.0 pyside6==6.2.1 pandas==1.3.4 pyqtgraph==0.12.3 mne==0.24.0 appdirs==1.4.3 certifi==2020.12.5 Click==7.0 Jinja2==3.0.3 MarkupSafe==2.0.1 numpy==1.21.4 packaging==21.3 Pillow==8.4.0 pyEDFlib==0.1.22 pylsl==1.15.0 pyparsing==3.0.6 python-dateutil==2.8.1 PyYAML==5.3.1 scipy==1.5.2 sentry-sdk==1.0.0 six==1.15.0 tornado==6.0.4 urllib3==1.26.4 shiboken6==6.2.1 pytz==2021.3
+# explorepy==1.6.0 pyside6==6.2.1 pandas==1.3.4 pyqtgraph==0.12.3 mne==0.24.0 appdirs==1.4.3 certifi==2020.12.5 Click==7.0
+# Jinja2==3.0.3 MarkupSafe==2.0.1 numpy==1.21.4 packaging==21.3 Pillow==8.4.0 pyEDFlib==0.1.22 pylsl==1.15.0
+# pyparsing==3.0.6 python-dateutil==2.8.1 PyYAML==5.3.1 scipy==1.5.2 sentry-sdk==1.0.0 six==1.15.0
+# tornado==6.0.4 urllib3==1.26.4 shiboken6==6.2.1 pytz==2021.3
+
 VERSION_APP = exploregui.__version__
 WINDOW_SIZE = False
 
@@ -49,7 +51,7 @@ class MainWindow(QMainWindow):
         self.vis_funct = VisualizationFunctions(
             self.ui, self.explorer,
             {"exg": self.signal_exg, "mkr": self.signal_mkr, "orn": self.signal_orn}
-            )
+        )
         self.config_funct = ConfigFunctions(self.ui, self.explorer, self.vis_funct)
         self.record_funct = RecordFunctions(self.ui, self.explorer)
 
@@ -144,10 +146,9 @@ class MainWindow(QMainWindow):
 
         self.ui.btn_marker.setEnabled(False)
         self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
-                (self.ui.value_event_code.text() != "")
-                or
-                ((self.ui.value_event_code.text().isnumeric()) and (8 <= int(self.ui.value_event_code.text())))
-            )
+            (self.ui.value_event_code.text() != "") or (
+                (self.ui.value_event_code.text().isnumeric()) and (8 <= int(self.ui.value_event_code.text())))
+        )
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(lambda: self.vis_funct.set_marker())
@@ -189,7 +190,6 @@ class MainWindow(QMainWindow):
 
         self.last_t = datetime.datetime.now()
         self.first_t = datetime.datetime.now()
-
 
     @Slot()
     def connect_clicked(self, dev_name=None):
@@ -466,7 +466,6 @@ class MainWindow(QMainWindow):
             # Update button icon
             self.ui.btn_restore.setIcon(QIcon(
                 u":icons/icons/cil-window-maximize.png"))
-                # u":icons/icons/icon_maximize.png"))
 
     @Slot()
     def on_close(self):

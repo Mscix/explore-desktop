@@ -63,7 +63,7 @@ class BTFunctions(AppFunctions):
             self._connection_error_gui(msg, scan=True)
             return
         explore_devices = [dev[0] for dev in explore_devices]
-        
+
         if len(explore_devices) == 0:
             msg = "No explore devices found. Please make sure your device is turned on."
             # if os.name == 'nt':
@@ -107,7 +107,7 @@ class BTFunctions(AppFunctions):
 
         return device_name
 
-    def connect2device(self, dev_name = None):
+    def connect2device(self, dev_name=None):
         """
         Connect to the explore device.
         """
@@ -141,7 +141,7 @@ class BTFunctions(AppFunctions):
                 self.ui.lbl_bt_instructions.setText("Follow Windows' instructions to pair your device.")
                 self.ui.lbl_bt_instructions.show()
             QApplication.processEvents()
-            
+
             try:
                 with self.wait_cursor():
                     self.explorer.connect(device_name=device_name)
@@ -243,7 +243,7 @@ class BTFunctions(AppFunctions):
         # init plots and impedances
         # self.init_plots()
         self.init_imp()
-        
+
         self.ui.line_2.setHidden(True)
 
     def change_btn_connect(self):

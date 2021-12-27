@@ -92,13 +92,13 @@ class PlotDialog(QDialog):
     def verify_input(self, borderOnly=False):
         nyq_freq = self.s_rate / 2.
 
-        max_hc_freq = nyq_freq-1
+        max_hc_freq = nyq_freq - 1
         min_lc_freq = 0.003 * nyq_freq
 
         hc_freq_warning = (
             "High cutoff frequency cannot be larger than or equal to the nyquist frequency."
             f"The maximum high cutoff frequency is {max_hc_freq:.1f} Hz!"
-            )
+        )
 
         lc_freq_warning = (
             "'Transient band for low cutoff frequency is too narrow."
@@ -132,7 +132,7 @@ class PlotDialog(QDialog):
         elif r_value == "" and l_value != "":
             lc_freq = float(l_value) / nyq_freq
             if lc_freq <= 0.003:
-                print(lc_freq_warning)
+                # print(lc_freq_warning)
                 lbl_txt = lc_freq_warning
                 r_stylesheet = ""
                 l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
@@ -141,21 +141,21 @@ class PlotDialog(QDialog):
         elif r_value != "" and l_value != "":
             lc_freq = float(l_value) / nyq_freq
             if float(l_value) >= float(r_value):
-                print(bp_freq_warning)
+                # print(bp_freq_warning)
                 lbl_txt = bp_freq_warning
                 r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
                 l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
                 accepted = False
 
             elif float(r_value) >= nyq_freq:
-                print(hc_freq_warning)
+                # print(hc_freq_warning)
                 lbl_txt = hc_freq_warning
                 r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
                 l_stylesheet = ""
                 accepted = False
 
             elif lc_freq <= 0.003:
-                print(lc_freq_warning)
+                # print(lc_freq_warning)
                 lbl_txt = lc_freq_warning
                 r_stylesheet = ""
                 l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
@@ -200,7 +200,7 @@ class PlotDialog(QDialog):
             "notch": None if self.ui.value_notch.currentText() == "" else int(self.ui.value_notch.currentText()),
             "lowpass": None if self.ui.value_lowpass.text() in [None, 'None', ""] else float(self.ui.value_lowpass.text()),
             "highpass": None if self.ui.value_highpass.text() in [None, 'None', ""] else float(self.ui.value_highpass.text())
-            }
+        }
 
 
 class RecordingDialog(QDialog):
@@ -246,7 +246,7 @@ class RecordingDialog(QDialog):
             "Save File As",
             "",
             filter=file_types, options=options
-            )
+        )
 
         self.recording_path = file_name  # + "." + self.recording_mode
         self.ui.input_filepath.setText(self.recording_path)
@@ -258,7 +258,7 @@ class RecordingDialog(QDialog):
             "file_path": self.ui.input_filepath.text(),
             "file_type": self.file_extension(),
             "duration": int(self.ui.spinBox.value())
-            }
+        }
 
 
 if __name__ == "__main__":

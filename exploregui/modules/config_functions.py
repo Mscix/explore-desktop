@@ -179,7 +179,7 @@ class ConfigFunctions(AppFunctions):
                 ch: np.array([np.NaN]*self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
                 }
             AppFunctions.exg_plot_data = self.exg_plot_data
-            
+
             self.change_active_channels(reset)
             self.change_sampling_rate(reset)
 

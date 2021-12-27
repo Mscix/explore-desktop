@@ -1,7 +1,5 @@
 import time
-from PySide6 import QtCore
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QApplication
 from explorepy.stream_processor import TOPICS
 from explorepy.tools import HeartRateEstimator
 import numpy as np
@@ -14,7 +12,7 @@ import copy
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-NANS = [False, False] #exg, orn
+NANS = [False, False]  # exg, orn
 
 
 class VisualizationFunctions(AppFunctions):
@@ -40,8 +38,8 @@ class VisualizationFunctions(AppFunctions):
 
         self.lines_orn = [None, None, None]
         self.orn_pointer = 0
-        self.orn_plot = {k: np.array([np.NaN]*200) for k in Settings.ORN_LIST}
-        self.t_orn_plot = np.array([np.NaN]*200)
+        self.orn_plot = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
+        self.t_orn_plot = np.array([np.NaN] * 200)
 
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
@@ -91,7 +89,7 @@ class VisualizationFunctions(AppFunctions):
         pw.setLabel('left', 'Voltage')
         self.add_left_axis_ticks()
         pw.getAxis('left').setWidth(60)
-        pw.getAxis('left').setPen(color=(255,255,255,50))
+        pw.getAxis('left').setPen(color=(255, 255, 255, 50))
         pw.getAxis('left').setGrid(50)
 
         # Right axis
@@ -106,7 +104,7 @@ class VisualizationFunctions(AppFunctions):
         # Add range of time axis
         # pw.showGrid(x=False, y=True, alpha=0.5)
         timescale = self.get_timeScale()
-        pw.setRange(yRange=(-0.5, n_chan+1), xRange=(0, int(timescale)), padding=0.01)
+        pw.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
         pw.setLabel('bottom', 'time (s)')
 
         # Initialize curves for each channel
@@ -130,8 +128,6 @@ class VisualizationFunctions(AppFunctions):
             if act == 1:
                 pw.addItem(curve)
                 self.curves_list.append(curve)
-
-        #TEST DIFFERENT APPROACHES ticks inside
 
     def init_plot_orn(self):
         '''''''''
@@ -253,7 +249,7 @@ class VisualizationFunctions(AppFunctions):
         first_chan = list(self.exg_plot_data[2].keys())[0]
         n_new_points = len(orig_exg[first_chan])
 
-        idxs = np.arange(self.orig_exg_pointer, self.orig_exg_pointer+n_new_points)
+        idxs = np.arange(self.orig_exg_pointer, self.orig_exg_pointer + n_new_points)
 
         for ch in self.exg_plot_data[2].keys():
             try:
@@ -380,7 +376,7 @@ class VisualizationFunctions(AppFunctions):
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
         n_new_points = len(data['t'])
         # n_new_points = len(data['t']) + 1
-        idxs = np.arange(self.exg_pointer, self.exg_pointer+n_new_points)
+        idxs = np.arange(self.exg_pointer, self.exg_pointer + n_new_points)
 
         self.exg_plot_data[0].put(idxs, data['t'], mode='wrap')  # replace values with new points
         self.last_t = data['t'][-1]
@@ -422,9 +418,11 @@ class VisualizationFunctions(AppFunctions):
             for idx_t in range(len(self.r_peak['t'])):
                 # if self.r_peak['t'][idx_t][0] < self.exg_plot_data[0][0]:
                 if self.r_peak['t'][idx_t] < data['t'][-1]:
-                    
-                    new_t = self.r_peak['t'][idx_t]+self.get_timeScale()
-                    new_point = self.ui.plot_exg.plot([new_t], [self.r_peak['r_peak'][idx_t]], pen=None, symbolBrush=(200,0,0,200), symbol='o', symbolSize=8)
+
+                    new_t = self.r_peak['t'][idx_t] + self.get_timeScale()
+                    new_point = self.ui.plot_exg.plot(
+                        [new_t], [self.r_peak['r_peak'][idx_t]], pen=None,
+                        symbolBrush=(200, 0, 0, 200), symbol='o', symbolSize=8)
                     self.r_peak_replot['t'].append(new_t)
                     self.r_peak_replot['r_peak'].append(self.r_peak['r_peak'][idx_t])
                     self.r_peak_replot['points'].append(new_point)
@@ -452,12 +450,12 @@ class VisualizationFunctions(AppFunctions):
         if NANS[0]:
             exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
             for ch in exg_plot_nan.keys():
-                exg_plot_nan[ch][self.exg_pointer-1:self.exg_pointer+9] = np.NaN
+                exg_plot_nan[ch][self.exg_pointer - 1: self.exg_pointer + 9] = np.NaN
 
         # Define connection vector for lines
         else:
             connection = np.full(len(self.exg_plot_data[0]), 1)
-            connection[self.exg_pointer-5:self.exg_pointer+5] = 0
+            connection[self.exg_pointer - 5: self.exg_pointer + 5] = 0
 
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
@@ -485,16 +483,18 @@ class VisualizationFunctions(AppFunctions):
             if self.r_peak_replot['t'][idx_t] < data['t'][-1]:
                 self.ui.plot_exg.removeItem(self.r_peak_replot['points'][idx_t])
                 to_remove_replot.append(
-                        [self.r_peak_replot['t'][idx_t], self.r_peak_replot['r_peak'][idx_t], self.r_peak_replot['points'][idx_t]])
+                    [self.r_peak_replot['t'][idx_t],
+                    self.r_peak_replot['r_peak'][idx_t],
+                    self.r_peak_replot['points'][idx_t]])
         for point in to_remove_replot:
-            try:
-                self.r_peak_replot['t'].remove(point[0])
-                self.r_peak_replot['r_peak'].remove(point[1])
-                self.r_peak_replot['points'].remove(point[2])
-                to_remove_replot.remove(point)
-            except:
-                print(f'{self.r_peak_replot["t"]=}')
-                print(f'{point[0]=}\n')
+            # try:
+            self.r_peak_replot['t'].remove(point[0])
+            self.r_peak_replot['r_peak'].remove(point[1])
+            self.r_peak_replot['points'].remove(point[2])
+            to_remove_replot.remove(point)
+            # except:
+            #     print(f'{self.r_peak_replot["t"]=}')
+            #     print(f'{point[0]=}\n')
 
     @Slot(dict)
     def plot_mkr(self, data, replot=False):
@@ -516,14 +516,14 @@ class VisualizationFunctions(AppFunctions):
 
         line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
         mrk_dict['line'].append(line)
-    
+
     @Slot(dict)
     def plot_orn(self, data):
         """
         Plot and update ORN data
         """
         n_new_points = len(data['t'])
-        idxs = np.arange(self.orn_pointer, self.orn_pointer+n_new_points)
+        idxs = np.arange(self.orn_pointer, self.orn_pointer + n_new_points)
 
         self.t_orn_plot.put(idxs, data['t'], mode='wrap')  # replace values with new points
 
@@ -560,11 +560,11 @@ class VisualizationFunctions(AppFunctions):
         if NANS[1]:
             orn_plot_nan = copy.deepcopy(self.orn_plot)
             for k in orn_plot_nan.keys():
-                orn_plot_nan[k][self.orn_pointer-1:self.orn_pointer+1] = np.NaN
+                orn_plot_nan[k][self.orn_pointer - 1: self.orn_pointer + 1] = np.NaN
 
         else:
-            connection  = np.full(len(self.t_orn_plot), 1)
-            connection[self.orn_pointer-1:self.orn_pointer+1] = 0
+            connection = np.full(len(self.t_orn_plot), 1)
+            connection[self.orn_pointer - 1: self.orn_pointer + 1] = 0
         for plt in self.plots_orn_list:
             plt.disableAutoRange()
         # Paint curves
@@ -601,6 +601,7 @@ class VisualizationFunctions(AppFunctions):
 
         for plt in self.plots_orn_list:
             plt.autoRange()
+
     @Slot()
     def plot_fft(self):
 
@@ -635,12 +636,12 @@ class VisualizationFunctions(AppFunctions):
     def plot_exg_moving(self, data):
 
         # max_points = 100
-        max_points = AppFunctions._plot_points(self) 
+        max_points = AppFunctions._plot_points(self)
         # if len(self.t_exg_plot)>max_points:
 
-        time_scale = AppFunctions._get_timeScale(self)
+        # time_scale = AppFunctions._get_timeScale(self)
         # if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
-        if len(self.t_exg_plot)>max_points:
+        if len(self.t_exg_plot) > max_points:
             # self.plot_ch8.clear()
             # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
             new_points = len(data['t'])
@@ -682,11 +683,11 @@ class VisualizationFunctions(AppFunctions):
 
     def plot_orn_moving(self, data):
 
-        time_scale = AppFunctions._get_timeScale(self)
+        # time_scale = AppFunctions._get_timeScale(self)
 
-        max_points = AppFunctions._plot_points(self) / 7 #/ (2*7)
-        if len(self.t_orn_plot)>max_points:
+        max_points = AppFunctions._plot_points(self) / 7  # / (2*7)
         # if len(self.t_orn_plot) and self.t_orn_plot[-1]>time_scale:
+        if len(self.t_orn_plot) > max_points:
             self.t_orn_plot = self.t_orn_plot[1:]
             for k in self.orn_plot.keys():
                 self.orn_plot[k] = self.orn_plot[k][1:]
@@ -715,7 +716,7 @@ class VisualizationFunctions(AppFunctions):
         self.mrk_plot['t'].append(data[0])
         self.mrk_plot['code'].append(data[1])
 
-        pen_marker = pg.mkPen(color='#7AB904', dash=[4,4])
+        pen_marker = pg.mkPen(color='#7AB904', dash=[4, 4])
 
         # lines = []
         '''for plt in self.plots_list:
@@ -762,14 +763,16 @@ class VisualizationFunctions(AppFunctions):
         new_size = self.plot_points()
         self.exg_pointer = 0
         self.orig_exg_pointer = 0
-        self.exg_plot_data[0] = np.array([np.NaN]*new_size)
-        self.exg_plot_data[1] = {ch: np.array([np.NaN]*new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-        self.exg_plot_data[2] = {ch: np.array([np.NaN]*self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+        self.exg_plot_data[0] = np.array([np.NaN] * new_size)
+        self.exg_plot_data[1] = {
+            ch: np.array([np.NaN] * new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+        self.exg_plot_data[2] = {
+            ch: np.array([np.NaN] * self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
 
         new_size_orn = self.plot_points(orn=True)
         self.orn_pointer = 0
-        self.t_orn_plot = np.array([np.NaN]*new_size_orn)
-        self.orn_plot = {k: np.array([np.NaN]*new_size_orn) for k in Settings.ORN_LIST}
+        self.t_orn_plot = np.array([np.NaN] * new_size_orn)
+        self.orn_plot = {k: np.array([np.NaN] * new_size_orn) for k in Settings.ORN_LIST}
 
     @Slot()
     def change_scale(self):
@@ -812,7 +815,7 @@ class VisualizationFunctions(AppFunctions):
         # ticks_right += [(idx+1, f'0 {self.y_string[-2:]}') for idx, _ in enumerate(self.active_chan)]
         # ticks_right += [(0.5, f'- {self.y_string}')]
 
-        ticks_right = [(idx+1.5, '') for idx, _ in enumerate(self.active_chan)]
+        ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(self.active_chan)]
         # ticks_right += [(idx+1, '') for idx, _ in enumerate(self.active_chan)]
         ticks_right += [(0.5, '')]
         
@@ -821,7 +824,7 @@ class VisualizationFunctions(AppFunctions):
     def add_left_axis_ticks(self):
         pw = self.ui.plot_exg
         ticks = [
-            (idx+1, f'{ch}\n'+u'(\u00B1'+f'{self.y_string})') for idx, ch in enumerate(self.active_chan)]
+            (idx + 1, f'{ch}\n' + u'(\u00B1' + f'{self.y_string})') for idx, ch in enumerate(self.active_chan)]
         # ticks += [(i+1.5, self.y_string) for i in range(len(self.active_chan))]
         # print(ticks)
         pw.getAxis('left').setTicks([ticks])
@@ -851,12 +854,12 @@ class VisualizationFunctions(AppFunctions):
         sr = Settings.EXG_VIS_SRATE if Settings.DOWNSAMPLING else self.get_samplingRate
         # last_n_sec
         i = self.exg_pointer - (3 * sr)
-        i = i if i>=0 else 0
-        f = self.exg_pointer if i+self.exg_pointer >= (2 * sr) else (2 * sr)
+        i = i if i >= 0 else 0
+        f = self.exg_pointer if i + self.exg_pointer >= (2 * sr) else (2 * sr)
         # f = self.exg_pointer
         ecg_data = (
             np.array(self.exg_plot_data[1]['ch1'])[i:f] - self.offsets[0]
-            ) * self.y_unit
+        ) * self.y_unit
         time_vector = np.array(self.exg_plot_data[0])[i:f]
 
         # Check if the peak2peak value is bigger than threshold
@@ -943,8 +946,8 @@ class VisualizationFunctions(AppFunctions):
 
         self.lines_orn = [None, None, None]
         self.orn_pointer = 0
-        self.orn_plot = {k: np.array([np.NaN]*200) for k in Settings.ORN_LIST}
-        self.t_orn_plot = np.array([np.NaN]*200)
+        self.orn_plot = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
+        self.t_orn_plot = np.array([np.NaN] * 200)
 
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}

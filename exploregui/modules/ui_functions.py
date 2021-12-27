@@ -4,7 +4,7 @@
 
 from PySide6.QtCore import QEasingCurve, QEvent, QPropertyAnimation, QTimer, Qt
 from PySide6.QtGui import QColor, QIcon
-from PySide6.QtWidgets import QGraphicsDropShadowEffect, QMainWindow, QSizeGrip
+from PySide6.QtWidgets import QGraphicsDropShadowEffect, QSizeGrip
 from exploregui.modules.app_settings import Settings
 
 '''
@@ -43,7 +43,6 @@ class UIFunctions():
             # Update button icon
             self.ui.btn_restore.setIcon(QIcon(
                 u":icons/icons/cil-window-maximize.png"))
-                # u":icons/icons/icon_maximize.png"))
 
     # Get window status
     def getWindowStatus(self):
