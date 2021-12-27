@@ -1,5 +1,6 @@
+import os
 from PySide6.QtCore import QRegularExpression
-from PySide6.QtGui import QRegularExpressionValidator
+from PySide6.QtGui import QIcon, QRegularExpressionValidator
 
 from exploregui.modules.ui import Ui_PlotDialog
 from exploregui.modules.ui import Ui_RecordingDialog
@@ -33,6 +34,8 @@ class PlotDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
         self.ui.setupUi(self)
+        self.setWindowIcon(
+            QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images', 'MentalabLogo.png')))
         self.ui.lbl_warning.hide()
         self.ui.cb_offset.setToolTip("Remove the DC offset of the signal based on the previous signal values")
         self.setWindowTitle("Visualization Settings")
@@ -73,7 +76,7 @@ class PlotDialog(QDialog):
         self.ui.cb_offset.setChecked(self.offset)
 
         # Set validators (only accept doubles)
-        regex = QRegularExpression("([0-9]+\.?[0-9]|\.[0-9])")
+        regex = QRegularExpression(r"([0-9]+\.?[0-9]|\.[0-9])")
         self.ui.value_highpass.setValidator(QRegularExpressionValidator(regex))
         self.ui.value_lowpass.setValidator(QRegularExpressionValidator(regex))
         # self.ui.value_lowpass.setValidator(QDoubleValidator(decimals=1))
@@ -205,10 +208,11 @@ class RecordingDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_RecordingDialog()
         self.ui.setupUi(self)
+        self.setWindowIcon(
+            QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images', 'MentalabLogo.png')))
         self.setWindowTitle("Recording Settings")
         self.ui.buttonBox.button(QDialogButtonBox.Cancel).setStyleSheet(
-            stylesheet_cancel
-        )
+            stylesheet_cancel)
 
         self.recording_time = int(self.ui.spinBox.value())
         self.recording_mode = "csv"
@@ -267,5 +271,3 @@ if __name__ == "__main__":
     # dialog = RecordingDialog()
     # dialog.show()
     sys.exit(app.exec())
-
-    
