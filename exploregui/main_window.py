@@ -602,6 +602,7 @@ class MainWindow(QMainWindow):
                 if label_text != reconnecting_label:
                     self.ui.ft_label_device_3.setText(reconnecting_label)
                     self.ui.ft_label_device_3.repaint()
+                    # self.vis_funct._vis_time_offset = None
             elif sp_connected and reconnecting is False:
                 # print("Connected")
                 if label_text != connected_label:
@@ -617,11 +618,7 @@ class MainWindow(QMainWindow):
                     # self.stop_processes()
                     self.reset_vars()
                     self.BT_funct.on_connection()
-                    # self.BT_funct.update_frame_dev_settings()
-                    # self.BT_funct.change_btn_connect()
-                    # self.BT_funct.change_footer()
-                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
-
+                    self.changePage(btn_name="btn_bt")
         else:
             return
 

@@ -280,9 +280,27 @@ class VisualizationFunctions(AppFunctions):
             self.add_original_exg(orig_exg)
 
             # From timestamp to seconds
+            if self._vis_time_offset is not None and timestamp[0] < self._vis_time_offset:
+                self.reset_vis_vars()
+                new_size = self.plot_points()
+                self.exg_plot_data[0] = np.array([np.NaN] * new_size)
+                self.exg_plot_data[1] = {
+                    ch: np.array([np.NaN] * new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+                self.exg_plot_data[2] = {
+                    ch: np.array([np.NaN] * self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+
+                t_min = 0
+                t_max = t_min + self.get_timeScale()
+                self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
+
             if self._vis_time_offset is None:
                 self._vis_time_offset = timestamp[0]
+
             time_vector = timestamp - self._vis_time_offset
+            # print(f"{self._vis_time_offset=}")
+            # print(f"{timestamp[-1]=}")
+            # print(f"{time_vector[-1]=}")
+            # print()
 
             # Downsampling
             if Settings.DOWNSAMPLING:
@@ -380,6 +398,9 @@ class VisualizationFunctions(AppFunctions):
 
         self.exg_plot_data[0].put(idxs, data['t'], mode='wrap')  # replace values with new points
         self.last_t = data['t'][-1]
+        # print(f"{self.last_t=}")
+        # print()
+        # print()
 
         # for i, ch in enumerate(self.exg_plot.keys()):
         for ch in self.exg_plot_data[1].keys():
@@ -803,7 +824,7 @@ class VisualizationFunctions(AppFunctions):
         # Rescale r_peaks
         self.r_peak['r_peak'] = list((np.array(self.r_peak['r_peak']) - self.offsets[0]) * \
             (old_unit / self.y_unit) + self.offsets[0])
-        
+
         # Remove old rpeaks
         for p in self.r_peak['points']:
             self.ui.plot_exg.removeItem(p)
