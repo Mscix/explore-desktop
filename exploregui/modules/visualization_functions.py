@@ -320,7 +320,7 @@ class VisualizationFunctions(AppFunctions):
                             (
                                 (self._baseline_corrector['baseline'] - samples_avg) / self._baseline_corrector['MA_length']
                                 * exg.shape[1]
-                            )
+                        )
                     except ValueError:
                         self._baseline_corrector['baseline'] = samples_avg
 
@@ -398,9 +398,14 @@ class VisualizationFunctions(AppFunctions):
 
         self.exg_plot_data[0].put(idxs, data['t'], mode='wrap')  # replace values with new points
         self.last_t = data['t'][-1]
+        # try:
+        #     self.last_t = self.exg_plot_data[0][idxs[-1]]
+        # except IndexError:
+        #     self.last_t = data['t'][-1]
+        # print()
         # print(f"{self.last_t=}")
-        # print()
-        # print()
+        # print(f"{t_min=}")
+        # print(f"{self.exg_plot_data[0][idxs[-1]]=}")
 
         # for i, ch in enumerate(self.exg_plot.keys()):
         for ch in self.exg_plot_data[1].keys():
@@ -420,9 +425,21 @@ class VisualizationFunctions(AppFunctions):
 
             self.exg_plot_data[0][self.exg_pointer:] += self.get_timeScale()
 
-            t_min = np.nanmin(self.exg_plot_data[0])
+            t_min = self.last_t
+            # t_min = np.nanmin(self.exg_plot_data[0])
             t_max = t_min + self.get_timeScale()
             self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
+            # print(f"{t_min=}")
+            # print(f"{t_max=}")
+            # print(f"{np.nanmin(self.exg_plot_data[0])=}")
+            # print(f"{np.nanmax(self.exg_plot_data[0])=}")
+            # print(f"{np.where(self.exg_plot_data[0] - t_min>=0.5)[0]=}")
+            # print()
+            # print()
+            id_th = np.where(self.exg_plot_data[0] - t_min >= 0.5)[0][0]
+            if id_th > 100:
+                for ch in self.exg_plot_data[1].keys():
+                    self.exg_plot_data[1][ch][:id_th] = np.NaN
 
             # Remove marker line and replot in the new axis
             for idx_t in range(len(self.mrk_plot['t'])):
@@ -477,6 +494,24 @@ class VisualizationFunctions(AppFunctions):
         else:
             connection = np.full(len(self.exg_plot_data[0]), 1)
             connection[self.exg_pointer - 5: self.exg_pointer + 5] = 0
+            try:
+                if id_th > 100:
+                    connection[:id_th] = 0
+            except UnboundLocalError:
+                pass
+
+        # Set t axis
+        if np.nanmax(self.exg_plot_data[0]) < self.get_timeScale():
+            pass
+        else:
+            t_ticks = self.exg_plot_data[0].copy()
+            t_ticks[self.exg_pointer:] -= self.get_timeScale()
+            t_ticks = t_ticks.astype(int)
+            l_points = int(len(self.exg_plot_data[0]) / 10)
+            vals = self.exg_plot_data[0][::l_points]
+            ticks = t_ticks[::l_points]
+            self.ui.plot_exg.getAxis('bottom').setTicks(
+                [[(t, str(tick)) for t, tick in zip(vals, ticks)]])
 
         # Paint curves
         for curve, ch in zip(self.curves_list, self.active_chan):
