@@ -12,6 +12,7 @@ from explorepy.tools import HeartRateEstimator
 from PySide6.QtCore import Slot
 from scipy.ndimage.filters import gaussian_filter1d
 
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 NANS = [False, False]  # exg, orn

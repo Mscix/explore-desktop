@@ -18,6 +18,7 @@ from .ui import (
 from .ui_functions import UIFunctions
 from .visualization_functions import VisualizationFunctions
 
+
 __all__ = ["AppFunctions", "Settings", "BTFunctions", "ConfigFunctions", "IMPFunctions", "LSLFunctions",
            "RecordFunctions", "Ui_MainWindow", "Ui_PlotDialog", "Ui_RecordingDialog", "UIFunctions",
            "VisualizationFunctions"]
