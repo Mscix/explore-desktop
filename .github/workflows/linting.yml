@@ -12,6 +12,7 @@ jobs:
         with:
           fetch-depth: 0
       - run: ls
+      - run: pwd
           
       - name: Lint the code
         uses: github/super-linter/slim@v4
