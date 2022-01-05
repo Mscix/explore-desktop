@@ -172,23 +172,23 @@ class ConfigFunctions(AppFunctions):
 
         with self.wait_cursor():
             points = self.plot_points()
-            self.exg_plot_data[0] = np.array([np.NaN]*points)
+            self.exg_plot_data[0] = np.array([np.NaN] * points)
             self.exg_plot_data[1] = {
-                ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+                ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             self.exg_plot_data[2] = {
-                ch: np.array([np.NaN]*self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
-                }
+                ch: np.array([np.NaN] * self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
+            }
             AppFunctions.exg_plot_data = self.exg_plot_data
 
             self.change_active_channels(reset)
             self.change_sampling_rate(reset)
 
-            self.exg_plot_data[0] = np.array([np.NaN]*points)
+            self.exg_plot_data[0] = np.array([np.NaN] * points)
             self.exg_plot_data[1] = {
-                ch: np.array([np.NaN]*points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+                ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
             self.exg_plot_data[2] = {
-                ch: np.array([np.NaN]*self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
-                }
+                ch: np.array([np.NaN] * self.plot_points(downsampling=False)) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
+            }
             AppFunctions.exg_plot_data = self.exg_plot_data
 
             pass
@@ -220,7 +220,7 @@ class ConfigFunctions(AppFunctions):
 
         nyq_freq = sr / 2.
 
-        max_hc_freq = round(nyq_freq-1, 2)
+        max_hc_freq = round(nyq_freq - 1, 2)
         min_lc_freq = round(0.003 * nyq_freq, 2)
 
         warning = ""
@@ -228,7 +228,7 @@ class ConfigFunctions(AppFunctions):
         hc_freq_warning = (
             "High cutoff frequency cannot be larger than or equal to the nyquist frequency.\n"
             f"The high cutoff frequency has changed to {max_hc_freq:.2f} Hz!"
-            )
+        )
 
         lc_freq_warning = (
             "Transient band for low cutoff frequency was too narrow.\n"
