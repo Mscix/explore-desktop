@@ -1,0 +1,24 @@
+name: linting
+on:
+  pull_request:
+    branches: [master, develop]
+jobs:
+  linting:
+    name: Lint code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
+      - name: Lint the code
+        uses: github/super-linter/slim@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_PYTHON: true
+          VALIDATE_PYTHON_FLAKE8: true
+          PYTHON_FLAKE8_CONFIG_FILE: ../../setup.cfg
+          VALIDATE_PYTHON_ISORT: true
