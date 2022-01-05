@@ -22,3 +22,4 @@ jobs:
           VALIDATE_PYTHON_FLAKE8: true
           PYTHON_FLAKE8_CONFIG_FILE: ../../setup.cfg
           VALIDATE_PYTHON_ISORT: true
+          PYTHON_ISORT_CONFIG_FILE: ../../setup.cfg
