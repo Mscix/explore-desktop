@@ -1,11 +1,22 @@
 import os
-from PySide6.QtCore import QRegularExpression
-from PySide6.QtGui import QIcon, QRegularExpressionValidator
-
-from exploregui.modules.ui import Ui_PlotDialog
-from exploregui.modules.ui import Ui_RecordingDialog
-from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QFileDialog
 import sys
+
+from exploregui.modules.ui import (
+    Ui_PlotDialog,
+    Ui_RecordingDialog
+)
+from PySide6.QtCore import QRegularExpression
+from PySide6.QtGui import (
+    QIcon,
+    QRegularExpressionValidator
+)
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog
+)
+
 
 stylesheet_cancel = (
     "QPushButton{\n"

@@ -1,15 +1,18 @@
+import copy
 import time
-from PySide6.QtCore import Slot
-from explorepy.stream_processor import TOPICS
-from explorepy.tools import HeartRateEstimator
+import warnings
+
 import numpy as np
-from scipy.ndimage.filters import gaussian_filter1d
+import pyqtgraph as pg
 from exploregui.modules.app_functions import AppFunctions
 from exploregui.modules.app_settings import Settings
 from exploregui.modules.dialogs import PlotDialog
-import pyqtgraph as pg
-import copy
-import warnings
+from explorepy.stream_processor import TOPICS
+from explorepy.tools import HeartRateEstimator
+from PySide6.QtCore import Slot
+from scipy.ndimage.filters import gaussian_filter1d
+
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 NANS = [False, False]  # exg, orn

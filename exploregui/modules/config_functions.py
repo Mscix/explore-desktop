@@ -1,9 +1,14 @@
-from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QCheckBox, QMessageBox
-from exploregui.modules import AppFunctions
-from exploregui.modules import Settings
 import numpy as np
+from exploregui.modules import (
+    AppFunctions,
+    Settings
+)
 from exploregui.modules.bt_functions import DISABLED_STYLESHEET
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QMessageBox
+)
 
 
 class ConfigFunctions(AppFunctions):
