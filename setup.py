@@ -8,7 +8,8 @@ requirements = ['PySide6>=6.1.2',
                 'pandas',
                 'pyqtgraph',
                 'mne',
-                'explorepy'
+                'explorepy',
+                'numpy'
                 ]
 
 test_requirements = []
@@ -36,9 +37,5 @@ setup(
     url='https://github.com/Mentalab-hub/explorepy-gui',
     version='0.1.0',
     zip_safe=False,
-    entry_points={
-          'console_scripts': [
-              'exploregui = exploregui.main:main'
-          ]
-      },
+    entry_points={'console_scripts': ['exploregui = exploregui.main:main']},
 )

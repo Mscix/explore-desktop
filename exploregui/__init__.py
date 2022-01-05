@@ -5,3 +5,5 @@ from . import (
     modules
 )
 from .main_window import MainWindow
+
+__all__ = ["app_resources_rc", "modules", "MainWindow"]
