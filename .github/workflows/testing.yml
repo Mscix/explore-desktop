@@ -1,0 +1,26 @@
+name: testing
+on:
+  pull_request:
+    branches: [main, master, develop]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: checkout to current branch
+        run: git checkout ${{ env.BRANCH }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libgles2-mesa-dev
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+
+      - name: Run pytest
+        run: python -m pytest --import-mode=append
