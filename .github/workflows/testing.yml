@@ -18,8 +18,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y
+          # pytest-qt's dependency
           sudo apt-get install -y libgles2-mesa-dev
+          # explorepy's dependency
+          sudo apt-get install libbluetooth-dev
           python -m pip install --upgrade pip
+          # install exploregui with its test dependencies
           pip install -e .[test]
 
       - name: Run pytest
