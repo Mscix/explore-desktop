@@ -18,7 +18,6 @@ requirements = ['PySide6>=6.1.2',
 
 test_requirements = ["pytest==6.2.5",
                      "flake8==4.0.1",
-                     "tox==3.24.5",
                      "isort==5.10.1",
                      "pytest-qt==4.0.2"]
 extras = {"test": test_requirements}
