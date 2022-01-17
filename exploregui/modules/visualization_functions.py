@@ -507,7 +507,7 @@ class VisualizationFunctions(AppFunctions):
             t_ticks = self.exg_plot_data[0].copy()
             t_ticks[self.exg_pointer:] -= self.get_timeScale()
             t_ticks = t_ticks.astype(int)
-            l_points = int(len(self.exg_plot_data[0]) / 10)
+            l_points = int(len(self.exg_plot_data[0]) / int(self.get_timeScale()))
             vals = self.exg_plot_data[0][::l_points]
             ticks = t_ticks[::l_points]
             self.ui.plot_exg.getAxis('bottom').setTicks(
