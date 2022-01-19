@@ -19,17 +19,20 @@ fi
 
 # Conda virtual env
 conda config --append channels conda-forge
-conda install -y gcc
+if [[ "$uname" == "Linux" ]]
+then
+  conda install -y gcc
+fi
 conda create -n gui_installer python=3.8.10 -y
-conda activate gui_installer
+source activate gui_installer
 which python
 python -m pip install --upgrade pip
 
 # Install qt and qt-ifw
-pip install aqtinstall
-aqt install-qt linux desktop 6.2.1 -m all
-aqt install-tool linux desktop tools_ifw
-aqt install-tool linux desktop tools_maintenance
+# pip install aqtinstall
+# aqt install-qt linux desktop 6.2.1 -m all
+# aqt install-tool linux desktop tools_ifw
+# aqt install-tool linux desktop tools_maintenance
 
 # Install Pyinstaller
 pip install pyinstaller==4.7
@@ -42,11 +45,14 @@ pyinstaller --onedir --console ExploreGUI.spec
 
 # Copy files to data dir
 exploregui_path="installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/"
-cp -r dist/ExploreGUI "$exploregui_path"data
+
 if [[ "$uname" == "Linux" ]]
 then
+  cp -r dist/ExploreGUI "$exploregui_path"data
   cp "$exploregui_path"extras/MentalabLogo.png "$exploregui_path"data/
   cp "$exploregui_path"extras/exploregui.desktop "$exploregui_path"data/
+else
+  cp -r dist/ExploreGUI.app "$exploregui_path"data
 fi
 
 
@@ -57,4 +63,4 @@ then
 else
   extension=""
 fi
-./Tools/QtInstallerFramework/4.2/bin/binarycreator -c "$exploregui_path"../../config/config.xml -p "$exploregui_path"../ --verbose ExploreGUIInstaller"$extension"
+/Users/andrea/Qt/QtIFW-4.2.0/bin/binarycreator -c "$exploregui_path"../../config/config.xml -p "$exploregui_path"../ --verbose ExploreGUIInstaller"$extension"
