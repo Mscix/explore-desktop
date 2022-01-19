@@ -5,7 +5,8 @@
     <Version>0.1.0</Version>
     <ReleaseDate>2022-01-15</ReleaseDate>
     <Licenses>
-        <License name="Licence name" file="license.txt" />
+        <License name="ExploreGUI License" file="license.txt" />
+        <License name="Third Party Code Licenses" file="license3party.txt" />
     </Licenses>
     <Default>true</Default>
     <Script>installscript.qs</Script>
