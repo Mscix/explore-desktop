@@ -4,6 +4,10 @@ import sys
 import pylsl
 from distutils.sysconfig import get_python_lib
 
+if sys.platform == "darwin":
+    icon_path = "./installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/extras/MentalabLogo.icns"
+else:
+    icon_path = "./installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/extras/MentalabLogo.ico"
 
 block_cipher = None
 main_path = path.join('exploregui', 'main.py')
@@ -38,7 +42,7 @@ exe = EXE(pyz,
           disable_windowed_traceback=False,
           target_arch=None,
           codesign_identity=None,
-          entitlements_file=None , icon='mentalab.ico')
+          entitlements_file=None , icon=icon_path)
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
@@ -51,7 +55,7 @@ coll = COLLECT(exe,
 if sys.platform == 'darwin':
     app = BUNDLE(coll,
                  name='ExploreGUI.app',
-                 icon='MentalabLogo.icns',
+                 icon=icon_path,
                  bundle_identifier='com.mentalab.exploregui',
                  version='0.1.0',
                  info_plist={
