@@ -10,12 +10,12 @@ current_branch=$(git branch --show-current)
 
 # Install Bluetooth headers on Ubuntu
 uname=$(uname);
-if [[ "$uname" == "Linux" ]]
-then
-  echo "Installing bluetooth headers!"
-  sudo apt-get update -yq
-  sudo apt-get install -yq libbluetooth-dev
-fi
+#if [[ "$uname" == "Linux" ]]
+#then
+#  echo "Installing bluetooth headers!"
+#  sudo apt-get update -yq
+#  sudo apt-get install -yq libbluetooth-dev
+#fi
 
 # Conda virtual env
 conda config --append channels conda-forge
@@ -40,11 +40,17 @@ pip install pyinstaller==4.7
 # Install ExploreGUI
 pip install -e .
 
+# Copy files to data dir
+exploregui_path="installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/"
+
+# Clean required directories
+rm -rfv "$exploregui_path"data/*
+rm -rfv dist/*
+
 # Create executable files
 pyinstaller --onedir --console ExploreGUI.spec
 
-# Copy files to data dir
-exploregui_path="installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/"
+
 
 if [[ "$uname" == "Linux" ]]
 then
