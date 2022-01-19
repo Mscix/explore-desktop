@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 from os import path
+import sys
 import pylsl
 from distutils.sysconfig import get_python_lib
 
@@ -46,3 +47,17 @@ coll = COLLECT(exe,
                upx=True,
                upx_exclude=[],
                name='ExploreGUI')
+
+if sys.platform == 'darwin':
+    app = BUNDLE(coll,
+                 name='ExploreGUI.app',
+                 icon='MentalabLogo.icns',
+                 bundle_identifier='com.mentalab.exploregui',
+                 version='0.1.0',
+                 info_plist={
+                  'NSPrincipalClass': 'NSApplication',
+                  'NSAppleScriptEnabled': False,
+                  'NSHighResolutionCapable': True,
+                  'LSBackgroundOnly': False,
+                  'NSBluetoothPeripheralUsageDescription': 'ExploreGUI uses Bluetooth to communicate with the Explore devices.'
+                 })
