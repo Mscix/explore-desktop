@@ -2,20 +2,20 @@
 
 # Check we are in master branch
 current_branch=$(git branch --show-current)
-#if [[ "$current_branch" != "master" ]]
-#then
-#  echo "Please checkout to master branch and try again!"
-#  exit
-#fi
+if [[ "$current_branch" != "master" ]]
+then
+  echo "Please checkout to master branch and try again!"
+  exit
+fi
 
 # Install Bluetooth headers on Ubuntu
 uname=$(uname);
-#if [[ "$uname" == "Linux" ]]
-#then
-#  echo "Installing bluetooth headers!"
-#  sudo apt-get update -yq
-#  sudo apt-get install -yq libbluetooth-dev
-#fi
+if [[ "$uname" == "Linux" ]]
+then
+  echo "Installing bluetooth headers!"
+  sudo apt-get update -yq
+  sudo apt-get install -yq libbluetooth-dev
+fi
 
 # Conda virtual env
 conda config --append channels conda-forge
@@ -28,11 +28,14 @@ source activate gui_installer
 which python
 python -m pip install --upgrade pip
 
-# Install qt and qt-ifw
-# pip install aqtinstall
-# aqt install-qt linux desktop 6.2.1 -m all
-# aqt install-tool linux desktop tools_ifw
-# aqt install-tool linux desktop tools_maintenance
+# Install qt and qt-ifw (TO BE USED IN FUTURE)
+#mkdir temp || rm -rfv temp/*
+#cd temp
+#pip install aqtinstall
+#aqt install-qt linux desktop 6.2.1
+#aqt install-tool linux desktop tools_ifw
+#aqt install-tool linux desktop tools_maintenance
+#cd ..
 
 # Install Pyinstaller
 pip install pyinstaller==4.7
@@ -66,7 +69,9 @@ fi
 if [[ "$uname" == "Linux" ]]
 then
   extension=".run"
+  binarycreator_path=/home/"$(whoami)"/Qt/QtIFW-4.2.0/bin/
 else
   extension=""
+  binarycreator_path=/Users/"$(whoami)"/Qt/QtIFW-4.2.0/bin/
 fi
-/Users/andrea/Qt/QtIFW-4.2.0/bin/binarycreator -c "$exploregui_path"../../config/config.xml -p "$exploregui_path"../ --verbose ExploreGUIInstaller"$extension"
+"$binarycreator_path"binarycreator -c "$exploregui_path"../../config/config.xml -p "$exploregui_path"../ --verbose ExploreGUIInstaller"$extension"
