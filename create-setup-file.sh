@@ -44,8 +44,8 @@ pip install -e .
 exploregui_path="installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/"
 
 # Clean required directories
-rm -r "$exploregui_path"data/
-rm -r dist/
+rm -rfv "$exploregui_path"data/*
+rm -rfv dist/*
 
 # Create executable files
 pyinstaller --onedir --console ExploreGUI.spec
