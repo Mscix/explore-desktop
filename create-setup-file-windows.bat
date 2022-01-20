@@ -1,17 +1,16 @@
 @REM @echo off
 @REM Check we are in master branch
 
-@REM git branch | find "* master" > NUL & IF ERRORLEVEL 1 (
-@REM     echo "Please checkout to master branch and try again!"
-@REM     exit
-@REM )
+call git branch | find "* master" > NUL & IF ERRORLEVEL 1 (
+call     echo "Please checkout to master branch and try again!"
+call     exit
+call )
 
 
 @REM # Conda virtual env
 call conda config --append channels conda-forge
 call conda create -n gui_installer python=3.8.10 -y
 call conda activate gui_installer
-@REM call which python
 call python -m pip install --upgrade pip
 
 @REM Install qt and qt-ifw (TO BE USED IN FUTURE)

@@ -25,7 +25,6 @@ then
 fi
 conda create -n gui_installer python=3.8.10 -y
 source activate gui_installer
-which python
 python -m pip install --upgrade pip
 
 # Install qt and qt-ifw (TO BE USED IN FUTURE)
