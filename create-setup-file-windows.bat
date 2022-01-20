@@ -1,10 +1,10 @@
 @REM @echo off
 @REM Check we are in master branch
 
-call git branch | find "* master" > NUL & IF ERRORLEVEL 1 (
-call     echo "Please checkout to master branch and try again!"
-call     exit
-call )
+git branch | find "* master" > NUL & IF ERRORLEVEL 1 (
+    echo "Please checkout to master branch and try again!"
+    exit
+)
 
 
 @REM # Conda virtual env
