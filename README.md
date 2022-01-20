@@ -17,7 +17,7 @@ If there is any error with liblsl try to install it manually: `conda install -c 
 
 ## Create installer file
 ### Requirements
- - Anaconda
+ - Anaconda or miniconda
  - Qt Installer Framework v4.2 (download the appropriate setup file 
 [here](https://download.qt.io/official_releases/qt-installer-framework/4.2.0/)). **NOTE: Leave the default installation
 path, e.g.:**
