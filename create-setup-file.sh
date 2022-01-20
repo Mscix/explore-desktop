@@ -41,6 +41,7 @@ python -m pip install --upgrade pip
 pip install pyinstaller==4.7
 
 # Install ExploreGUI
+pip install pylsl
 pip install -e .
 
 # Copy files to data dir
