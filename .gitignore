@@ -163,3 +163,8 @@ ExploreGUIInstaller.app/Contents/Info.plist
 ExploreGUIInstaller.app/Contents/MacOS/ExploreGUIInstaller
 ExploreGUIInstaller.app/Contents/PkgInfo
 ExploreGUIInstaller.app/Contents/Resources/installer.dat
+
+# installers
+*.run
+*.app
+*.exe
