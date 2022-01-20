@@ -4,7 +4,7 @@
     <Version>0.1.0</Version>
     <Title>ExploreGUI</Title>
     <Publisher>Mentalab GmbH.</Publisher>
-    <InstallerApplicationIcon>MentalabLogo</InstallerApplicationIcon>
+    <InstallerApplicationIcon>../packages/com.Mentalab.ExploreGUI/extras/MentalabLogo</InstallerApplicationIcon>
     <StartMenuDir>ExploreGUI</StartMenuDir>
     <TargetDir>@HomeDir@/ExploreGUI</TargetDir>
     <RunProgram>@HomeDir@/ExploreGUI</RunProgram>
