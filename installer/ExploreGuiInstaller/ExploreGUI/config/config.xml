@@ -5,11 +5,13 @@
     <Title>ExploreGUI</Title>
     <Publisher>Mentalab GmbH.</Publisher>
     <InstallerApplicationIcon>../packages/com.Mentalab.ExploreGUI/extras/MentalabLogo</InstallerApplicationIcon>
+    <InstallerWindowIcon>../packages/com.Mentalab.ExploreGUI/extras/MentalabLogo.png</InstallerWindowIcon>
     <StartMenuDir>ExploreGUI</StartMenuDir>
     <TargetDir>@HomeDir@/ExploreGUI</TargetDir>
-    <RunProgram>@HomeDir@/ExploreGUI</RunProgram>
+    <!-- <RunProgram>@TargetDir@/ExploreGUI.exe</RunProgram> -->
     <RemoveTargetDir>true</RemoveTargetDir>
-    <!-- <WizardStyle>Aero</WizardStyle> -->
-    <!-- <Logo>MentalabLogo.png</Logo> -->
+    <WizardStyle>Modern</WizardStyle>
+    <!-- <ControlScript>controlscript.qs</ControlScript> -->
+    <!-- <Logo>../packages/com.Mentalab.ExploreGUI/extras/MentalabLogo.png</Logo> -->
     <!-- <Banner>MentalabLogo_full.png</Banner> -->
 </Installer>
