@@ -156,5 +156,15 @@ modules/old
 # csv
 *.csv
 
-# set up files
-installer/Windows/output/setup_ExploreGUI.exe
+# DS_store
+*.DS_Store
+
+ExploreGUIInstaller.app/Contents/Info.plist
+ExploreGUIInstaller.app/Contents/MacOS/ExploreGUIInstaller
+ExploreGUIInstaller.app/Contents/PkgInfo
+ExploreGUIInstaller.app/Contents/Resources/installer.dat
+
+# installers
+*.run
+*.app
+*.exe
