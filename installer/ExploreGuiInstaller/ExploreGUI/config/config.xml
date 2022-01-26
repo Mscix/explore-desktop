@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>ExploreGUI</Name>
+    <Version>0.1.0</Version>
+    <Title>ExploreGUI</Title>
+    <Publisher>Mentalab GmbH.</Publisher>
+    <InstallerApplicationIcon>../packages/com.Mentalab.ExploreGUI/extras/MentalabLogo</InstallerApplicationIcon>
+    <InstallerWindowIcon>../packages/com.Mentalab.ExploreGUI/extras/MentalabLogo.png</InstallerWindowIcon>
+    <StartMenuDir>ExploreGUI</StartMenuDir>
+    <TargetDir>@HomeDir@/ExploreGUI</TargetDir>
+    <!-- <RunProgram>@TargetDir@/ExploreGUI.exe</RunProgram> -->
+    <RemoveTargetDir>true</RemoveTargetDir>
+    <WizardStyle>Modern</WizardStyle>
+    <!-- <ControlScript>controlscript.qs</ControlScript> -->
+    <!-- <Logo>../packages/com.Mentalab.ExploreGUI/extras/MentalabLogo.png</Logo> -->
+    <!-- <Banner>MentalabLogo_full.png</Banner> -->
+</Installer>
