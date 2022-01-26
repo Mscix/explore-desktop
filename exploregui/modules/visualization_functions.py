@@ -1002,9 +1002,11 @@ class VisualizationFunctions(AppFunctions):
         wait = True if self.plotting_filters is None else False
         sr = self.explorer.stream_processor.device_info['sampling_rate']
         dialog = PlotDialog(sr=sr, current_filters=self.plotting_filters)
-        filters = dialog.exec()
+        filters = dialog.exec()  # returns false if popup is closed/click on cancel
         if filters is False:
             return False
+        elif self._check_same_filters(new_filters=filters):
+            return True
         else:
             self.plotting_filters = filters
             AppFunctions.plotting_filters = self.plotting_filters
@@ -1015,6 +1017,16 @@ class VisualizationFunctions(AppFunctions):
             if wait:
                 time.sleep(1.5)
             return True
+
+    def _check_same_filters(self, new_filters):
+        """
+        Compare new filters to existing ones
+
+        Args:
+            new_filters (dict): filters to compare
+        """
+        same = True if self.plotting_filters == new_filters else False
+        return same
 
     def reset_vis_vars(self):
         self._vis_time_offset = None
