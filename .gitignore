@@ -159,12 +159,16 @@ modules/old
 # DS_store
 *.DS_Store
 
+# installers
+*.run
+*.app
+*.exe
+
 ExploreGUIInstaller.app/Contents/Info.plist
 ExploreGUIInstaller.app/Contents/MacOS/ExploreGUIInstaller
 ExploreGUIInstaller.app/Contents/PkgInfo
 ExploreGUIInstaller.app/Contents/Resources/installer.dat
 
-# installers
-*.run
-*.app
-*.exe
+# data folder
+installer/ExploreGUIInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/data/*
+
