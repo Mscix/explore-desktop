@@ -1,3 +1,33 @@
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@andrea-escartin 
+Mentalab-hub
+/
+explorepy-gui
+Private
+Code
+Issues
+Pull requests
+3
+Actions
+Projects
+Wiki
+Security
+Insights
+explorepy-gui/.gitignore
+@andrea-escartin
+andrea-escartin Merge branch 'develop' into fix-marker
+Latest commit 7880aa8 3 days ago
+ History
+ 2 contributors
+@andrea-escartin@bmeatayi
+174 lines (139 sloc)  2.58 KB
+   
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -156,5 +186,18 @@ modules/old
 # csv
 *.csv
 
-# set up files
-installer/Windows/output/setup_ExploreGUI.exe
+# DS_store
+*.DS_Store
+
+# installers
+*.run
+*.app
+*.exe
+
+ExploreGUIInstaller.app/Contents/Info.plist
+ExploreGUIInstaller.app/Contents/MacOS/ExploreGUIInstaller
+ExploreGUIInstaller.app/Contents/PkgInfo
+ExploreGUIInstaller.app/Contents/Resources/installer.dat
+
+# data folder
+installer/ExploreGUIInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/data/*
