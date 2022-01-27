@@ -1,0 +1,4 @@
+*.app
+*.run
+*.exe
+/packages/com.Mentalab.ExploreGUI/data/ExploreGUI/*
