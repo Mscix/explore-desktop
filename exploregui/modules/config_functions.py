@@ -81,7 +81,7 @@ class ConfigFunctions(AppFunctions):
 
         question = (
             "Are you sure you want to reset your settings?\n"
-            "The Explore device will disconnect."
+            "The Explore device will disconnect after the soft reset."
         )
         response = self.display_msg(msg_text=question, type="question")
         if response == QMessageBox.StandardButton.Yes:
