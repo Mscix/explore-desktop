@@ -1,33 +1,3 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@andrea-escartin 
-Mentalab-hub
-/
-explorepy-gui
-Private
-Code
-Issues
-Pull requests
-3
-Actions
-Projects
-Wiki
-Security
-Insights
-explorepy-gui/.gitignore
-@andrea-escartin
-andrea-escartin Merge branch 'develop' into fix-marker
-Latest commit 7880aa8 3 days ago
- History
- 2 contributors
-@andrea-escartin@bmeatayi
-174 lines (139 sloc)  2.58 KB
-   
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
