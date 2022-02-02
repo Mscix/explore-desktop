@@ -22,7 +22,8 @@ from PySide6.QtCore import (
     Qt,
     QTimer,
     Signal,
-    Slot
+    Slot,
+    QSize
 )
 from PySide6.QtGui import (
     QColor,
@@ -141,6 +142,11 @@ class MainWindow(QMainWindow):
         self.ui.btn_scan.clicked.connect(lambda: self.BT_funct.scan_devices())
 
         # SETTING PAGE BUTTONS
+        # if os.name == "nt":
+        #     self.ui.lbl_paired_dev.setHidden(True)
+        #     self.ui.lbl_unpaired_dev.setHidden(True)
+        #     self.ui.list_unpaired_dev.setHidden(True)
+        #     self.ui.list_paired_dev.setMinimumSize(QSize(300,200))
         # self.ui.btn_import_data.clicked.connect(lambda: self.import_recorded_data())
         self.ui.btn_format_memory.clicked.connect(lambda: self.config_funct.format_memory())
         self.ui.btn_reset_settings.clicked.connect(lambda: self.config_funct.reset_settings())
