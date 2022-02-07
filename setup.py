@@ -9,11 +9,11 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = ['PySide6==6.2.1',
-                'pandas',
-                'pyqtgraph',
-                'mne',
+                'pandas==1.3.4',
+                'pyqtgraph==0.12.3 ',
+                'mne==0.24.1',
                 'explorepy',
-                'numpy'
+                'numpy==1.21.4'
                 ]
 
 test_requirements = ["pytest==6.2.5",

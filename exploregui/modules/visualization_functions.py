@@ -376,12 +376,12 @@ class VisualizationFunctions(AppFunctions):
         stream_processor = self.explorer.stream_processor
 
         def callback(packet):
-            timestamp, _ = packet.get_data()
+            timestamp, code = packet.get_data()
             if self._vis_time_offset is None:
                 self._vis_time_offset = timestamp[0]
             time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
 
-            data = [time_vector[0], self.ui.value_event_code.text()]
+            data = [time_vector[0], str(code[0])]
             self.signal_mkr.emit(data)
 
         stream_processor.subscribe(topic=TOPICS.marker, callback=callback)
@@ -563,7 +563,6 @@ class VisualizationFunctions(AppFunctions):
         Plot and update marker data
         """
         t, code = data
-
         if replot is False:
             mrk_dict = self.mrk_plot
             color = Settings.MARKER_LINE_COLOR
@@ -683,13 +682,6 @@ class VisualizationFunctions(AppFunctions):
 
         for curve, ch in zip(self.curves_fft_list, self.active_chan):
             curve.setData(data['f'], data[ch])
-
-        # for i, key in enumerate(data.keys()):
-        #     # key = list(data.keys())[i]
-        #     # if key == 'ch1':
-        #     #     self.curve_fft_ch1.setData(data['f'], data[key])
-        #     if key != 'f':
-        #         pw.plot(data['f'], data[key], pen=Settings.FFT_LINE_COLORS[i], name=f'{key}_2')
 
     #########################
     # Moving Plot Functions
