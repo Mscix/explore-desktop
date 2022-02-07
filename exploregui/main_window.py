@@ -129,6 +129,7 @@ class MainWindow(QMainWindow):
         self.check_connection()
 
         # CONNECT PAGE BUTTONS
+        self.ui.lbl_wdws_warning.hide()
         # hide import data:
         self.ui.btn_import_data.hide()
         self.ui.le_data_path.hide()
@@ -216,6 +217,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def connect_clicked(self, dev_name=None):
+        self.ui.lbl_wdws_warning.hide()
         self.BT_funct.connect2device(dev_name=dev_name)
         self.funct.is_connected = self.BT_funct.is_connected
         # print(f"{self.BT_funct.is_connected=}")

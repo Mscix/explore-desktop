@@ -16,15 +16,15 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QCheckBox, QComboBox, QFrame,
-    QHBoxLayout, QLabel, QLayout, QLineEdit,
-    QListWidget, QListWidgetItem, QMainWindow, QPushButton,
-    QSizePolicy, QSpacerItem, QSpinBox, QSplitter,
-    QStackedWidget, QTabWidget, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QCheckBox, QComboBox,
+    QFrame, QHBoxLayout, QLabel, QLayout,
+    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
+    QPushButton, QSizePolicy, QSpacerItem, QSpinBox,
+    QSplitter, QStackedWidget, QTabWidget, QVBoxLayout,
+    QWidget)
 
 from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
 from exploregui import app_resources_rc
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -398,7 +398,7 @@ class Ui_MainWindow(object):
 
         self.label = QLabel(self.page_home)
         self.label.setObjectName(u"label")
-        self.label.setMaximumSize(QSize(16777215, 50))
+        self.label.setMaximumSize(QSize(16777215, 16777215))
         self.label.setStyleSheet(u"")
         self.label.setMargin(15)
 
@@ -1733,12 +1733,12 @@ class Ui_MainWindow(object):
         self.page_bt = QWidget()
         self.page_bt.setObjectName(u"page_bt")
         self.page_bt.setStyleSheet(u"")
-        self.verticalLayout_17 = QVBoxLayout(self.page_bt)
-        self.verticalLayout_17.setObjectName(u"verticalLayout_17")
-        self.verticalLayout_17.setContentsMargins(200, -1, 200, -1)
+        self.verticalLayout_6 = QVBoxLayout(self.page_bt)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.verticalLayout_6.setContentsMargins(200, -1, 200, 9)
         self.verticalSpacer_14 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
-        self.verticalLayout_17.addItem(self.verticalSpacer_14)
+        self.verticalLayout_6.addItem(self.verticalSpacer_14)
 
         self.frame_bt_title = QFrame(self.page_bt)
         self.frame_bt_title.setObjectName(u"frame_bt_title")
@@ -1759,11 +1759,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_37.addWidget(self.bt_title)
 
 
-        self.verticalLayout_17.addWidget(self.frame_bt_title)
+        self.verticalLayout_6.addWidget(self.frame_bt_title)
 
         self.verticalSpacer_5 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
-        self.verticalLayout_17.addItem(self.verticalSpacer_5)
+        self.verticalLayout_6.addItem(self.verticalSpacer_5)
 
         self.label_explore_name_3 = QLabel(self.page_bt)
         self.label_explore_name_3.setObjectName(u"label_explore_name_3")
@@ -1771,7 +1771,7 @@ class Ui_MainWindow(object):
         self.label_explore_name_3.setStyleSheet(u"")
         self.label_explore_name_3.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_17.addWidget(self.label_explore_name_3)
+        self.verticalLayout_6.addWidget(self.label_explore_name_3)
 
         self.label_10 = QLabel(self.page_bt)
         self.label_10.setObjectName(u"label_10")
@@ -1779,8 +1779,15 @@ class Ui_MainWindow(object):
         self.label_10.setStyleSheet(u"")
         self.label_10.setWordWrap(True)
 
-        self.verticalLayout_17.addWidget(self.label_10)
+        self.verticalLayout_6.addWidget(self.label_10)
 
+        self.lbl_wdws_warning = QLabel(self.page_bt)
+        self.lbl_wdws_warning.setObjectName(u"lbl_wdws_warning")
+        self.lbl_wdws_warning.setFont(font2)
+        self.lbl_wdws_warning.setStyleSheet(u"color: red;")
+        self.lbl_wdws_warning.setWordWrap(True)
+
+        self.verticalLayout_6.addWidget(self.lbl_wdws_warning, 0, Qt.AlignHCenter)
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.list_devices = QListWidget(self.page_bt)
@@ -1831,7 +1838,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9.addWidget(self.frame_btns_scan_connect, 0, Qt.AlignVCenter)
 
 
-        self.verticalLayout_17.addLayout(self.horizontalLayout_9)
+        self.verticalLayout_6.addLayout(self.horizontalLayout_9)
 
         self.frame_8 = QFrame(self.page_bt)
         self.frame_8.setObjectName(u"frame_8")
@@ -1861,12 +1868,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_16.addWidget(self.dev_name_input)
 
 
-        self.verticalLayout_17.addWidget(self.frame_8)
+        self.verticalLayout_6.addWidget(self.frame_8)
 
         self.lbl_bt_instructions = QLabel(self.page_bt)
         self.lbl_bt_instructions.setObjectName(u"lbl_bt_instructions")
 
-        self.verticalLayout_17.addWidget(self.lbl_bt_instructions)
+        self.verticalLayout_6.addWidget(self.lbl_bt_instructions)
 
         self.line_2 = QFrame(self.page_bt)
         self.line_2.setObjectName(u"line_2")
@@ -1874,13 +1881,13 @@ class Ui_MainWindow(object):
         self.line_2.setFrameShape(QFrame.HLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
 
-        self.verticalLayout_17.addWidget(self.line_2)
+        self.verticalLayout_6.addWidget(self.line_2)
 
         self.label_16 = QLabel(self.page_bt)
         self.label_16.setObjectName(u"label_16")
         self.label_16.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_17.addWidget(self.label_16)
+        self.verticalLayout_6.addWidget(self.label_16)
 
         self.horizontalLayout_28 = QHBoxLayout()
         self.horizontalLayout_28.setObjectName(u"horizontalLayout_28")
@@ -1901,7 +1908,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_28.addWidget(self.btn_import_data)
 
 
-        self.verticalLayout_17.addLayout(self.horizontalLayout_28)
+        self.verticalLayout_6.addLayout(self.horizontalLayout_28)
 
         self.stackedWidget.addWidget(self.page_bt)
         self.page_settings_testing = QWidget()
@@ -1918,7 +1925,7 @@ class Ui_MainWindow(object):
         self.graphicsView.setGeometry(QRect(10, 100, 981, 371))
         self.splitter = QSplitter(self.page_settings_testing)
         self.splitter.setObjectName(u"splitter")
-        self.splitter.setGeometry(QRect(20, 500, 431, 61))
+        self.splitter.setGeometry(QRect(20, 500, 431, 31))
         self.splitter.setOrientation(Qt.Horizontal)
         self.pushButton_2 = QPushButton(self.splitter)
         self.pushButton_2.setObjectName(u"pushButton_2")
@@ -2164,6 +2171,11 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:'DM Sans'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Segoe UI';\">Press the button on your device to turn it on.</span></p>\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Segoe UI';\">Scan the paired devices or directly input the name of your device.</span></p></body></html>", None))
+        self.lbl_wdws_warning.setText(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Segoe UI'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+"<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'DM Sans'; font-size:11pt;\"><br /></p></body></html>", None))
         self.btn_scan.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
         self.btn_connect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"Device Name: ", None))

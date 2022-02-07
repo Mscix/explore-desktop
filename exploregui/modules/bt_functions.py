@@ -73,9 +73,17 @@ class BTFunctions(AppFunctions):
             self._connection_error_gui(msg, scan=True)
             return
 
-        devs = [dev.name + "\t" + str(dev.is_paired) for dev in explore_devices]
-        devs = [dev.replace("True", "Paired").replace("False", "Unpaired")  for dev in devs]
-        devs.sort(key=lambda x: x.endswith("Paired"))
+        if os.name == "nt":
+            devs = [dev.name + "\t" + str(dev.is_paired) for dev in explore_devices]
+            devs = [dev.replace("True", "Paired").replace("False", "Unpaired") for dev in devs]
+            devs.sort(key=lambda x: x.endswith("Paired"))
+            self.ui.lbl_wdws_warning.setText("Note: Listed paired devices might not be advertising")
+            self.ui.lbl_wdws_warning.setStyleSheet("font: 11pt; color: red;")
+            self.ui.lbl_wdws_warning.show()
+            self.ui.lbl_wdws_warning.repaint()
+        else:
+            devs = [dev.name for dev in explore_devices]
+
         self.ui.list_devices.addItems(devs)
 
         # Reset footer
