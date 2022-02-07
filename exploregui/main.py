@@ -2,15 +2,13 @@
 import sys
 import explorepy
 import logging
-logger = logging.getLogger("explorepy")
-logger.debug("Starting ExploreGUI")
 from exploregui import MainWindow
 from PySide6.QtWidgets import QApplication
 
+logger = logging.getLogger("explorepy")
+logger.debug("Starting ExploreGUI")
 
 def main():
-    # faulthandler.enable()
-    # cgitb.enable(format = 'text')
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
