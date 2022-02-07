@@ -72,19 +72,10 @@ class BTFunctions(AppFunctions):
             msg = "No explore devices found. Please make sure your device is turned on."
             self._connection_error_gui(msg, scan=True)
             return
-        
-        # if os.name != "nt":
-        #     explore_devices = [dev.name for dev in explore_devices]
-        #     self.ui.list_paired_dev.addItems(explore_devices)
-        # else:
-        #     devs = [dev.name + "\t" + str(dev.is_paired) for dev in explore_devices]
-        #     devs = [dev.replace("True", "Paired").replace("False", "Unpaired")  for dev in devs]
-        #     devs.sort(key = lambda x: x.endswith("Paired"))
-        #     self.ui.list_paired_dev.addItems(devs)
 
         devs = [dev.name + "\t" + str(dev.is_paired) for dev in explore_devices]
         devs = [dev.replace("True", "Paired").replace("False", "Unpaired")  for dev in devs]
-        devs.sort(key = lambda x: x.endswith("Paired"))
+        devs.sort(key=lambda x: x.endswith("Paired"))
         self.ui.list_devices.addItems(devs)
 
         # Reset footer
@@ -109,7 +100,7 @@ class BTFunctions(AppFunctions):
 
         if len(device_name) != 12:
             device_name = ""
- 
+
         return device_name
 
     def get_device_from_list(self):
