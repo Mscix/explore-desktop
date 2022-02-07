@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
         # SETTING PAGE BUTTONS
         # self.ui.btn_import_data.clicked.connect(lambda: self.import_recorded_data())
         self.ui.btn_format_memory.clicked.connect(lambda: self.config_funct.format_memory())
-        self.ui.btn_reset_settings.clicked.connect(lambda: self.config_funct.reset_settings())
+        self.ui.btn_reset_settings.clicked.connect(lambda: self.soft_reset())
         self.ui.btn_apply_settings.clicked.connect(lambda: self.settings_changed())
         self.ui.btn_calibrate.clicked.connect(lambda: self.config_funct.calibrate_orn())
         self.ui.n_chan.currentTextChanged.connect(lambda: self.n_chan_changed())
@@ -232,6 +232,15 @@ class MainWindow(QMainWindow):
         self.config_funct.change_settings()
         self.t_exg_plot, self.exg_plot, _ = self.config_funct.get_exg_plot_data()
         self.chan_dict = self.config_funct.get_chan_dict()
+
+    @Slot()
+    def soft_reset(self):
+        with self.funct.wait_cursor():
+            self.config_funct.reset_settings()
+            self.BT_funct.connect2device()
+            self.stop_processes()
+            self.reset_vars()
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
     @Slot()
     def imp_meas_clicked(self):

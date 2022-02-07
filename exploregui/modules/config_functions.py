@@ -79,16 +79,15 @@ class ConfigFunctions(AppFunctions):
         If yes, the settinngs are set to default.
         """
 
-        question = "Are you sure you want to reset your settings?"
+        question = (
+            "Are you sure you want to reset your settings?\n"
+            "The Explore device will disconnect after the soft reset."
+        )
         response = self.display_msg(msg_text=question, type="question")
-
         if response == QMessageBox.StandardButton.Yes:
 
             with self.wait_cursor():
-                self.change_settings(reset=True)
-                self.ui.value_sampling_rate.setCurrentText("250")
-                for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
-                    w.setChecked(True)
+                self.explorer.reset_soft()
                 pass
 
             # self.display_msg(msg_text="Settings reset", type="info")
