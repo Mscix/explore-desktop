@@ -927,6 +927,7 @@ class VisualizationFunctions(AppFunctions):
 
         if 'ch1' not in self.exg_plot_data[2].keys():
             msg = 'Heart rate estimation works only when channel 1 is enabled.'
+            logger.warning(msg)
             if self.rr_warning_displayed is False:
                 self.display_msg(msg_text=msg, type='info')
                 self.rr_warning_displayed = True
@@ -951,7 +952,8 @@ class VisualizationFunctions(AppFunctions):
 
         # Check if the peak2peak value is bigger than threshold
         if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
-            print('P2P value larger or less than threshold. Cannot compute heart rate!')
+            msg = 'P2P value larger or less than threshold. Cannot compute heart rate!'
+            logger.warning(msg)
             return
 
         try:
