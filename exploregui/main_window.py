@@ -159,6 +159,7 @@ class MainWindow(QMainWindow):
         self.ui.label_6.setHidden(True)
 
         # PLOTTING PAGE
+        self.ui.value_signal.currentTextChanged.connect(self.vis_funct._mode_change)
         self.ui.btn_record.clicked.connect(lambda: self.record_funct.on_record())
         self.ui.btn_plot_filters.clicked.connect(lambda: self.vis_funct.popup_filters())
 

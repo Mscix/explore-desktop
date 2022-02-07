@@ -1,6 +1,6 @@
 # from PySide6.QtCore import Signal
 import os
-
+import logging
 import explorepy._exceptions as xpy_ex
 import numpy as np
 from exploregui.modules.app_functions import AppFunctions
@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QCheckBox
 )
 
+logger = logging.getLogger("explorepy")
 
 # DISABLED_STYLESHEET = """
 #     background-color: rgb(129,133,161);
@@ -56,16 +57,13 @@ class BTFunctions(AppFunctions):
         try:
             with self.wait_cursor():
                 explore_devices = bt_scan()
-                pass
-        except ValueError:
-            msg = "Error opening socket.\nPlease make sure the bluetooth is on."
+
+        except (ValueError, SystemError):
+            msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
             self._connection_error_gui(msg, scan=True)
+            logger.warning("No Bluetooth connection available.")
             return
-        except SystemError as e:
-            msg = str(e)
-            msg += "\nPlease make sure the Bluetooth is on."
-            self._connection_error_gui(msg, scan=True)
-            return
+
         explore_devices = [dev[0] for dev in explore_devices]
 
         if len(explore_devices) == 0:
@@ -74,6 +72,7 @@ class BTFunctions(AppFunctions):
             #     msg = msg[:-1]
             #     msg += " and the Bluetooth is active."
             self._connection_error_gui(msg, scan=True)
+            logger.info("No explore devices found.")
             return
 
         self.ui.list_devices.addItems(explore_devices)
@@ -151,36 +150,24 @@ class BTFunctions(AppFunctions):
                     self.explorer.connect(device_name=device_name)
                     self.is_connected = True
                     AppFunctions.is_connected = self.is_connected
-                    pass
 
-            except xpy_ex.DeviceNotFoundError as e:
-                msg = str(e)
-                # if os.name == "nt":
-                #     msg += "\nPlease make sure both the Bluetooth and your device are turned ON."
+            except xpy_ex.DeviceNotFoundError as error:
+                msg = str(error)
                 self._connection_error_gui(msg)
+                logger.warning("Device not found.")
                 return
-            except TypeError or UnboundLocalError:
+            except (TypeError, UnboundLocalError):
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-                # if os.name == "nt":
-                #     msg = msg[:-1]
-                #     msg += " and make sure that the Bluetooth is on."
                 self._connection_error_gui(msg)
+                logger.warning("Invalid Explore name")
                 return
-            except AssertionError as e:
-                msg = str(e)
+            except (ValueError, SystemError):
+                msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
                 self._connection_error_gui(msg)
+                logger.warning("No Bluetooth connection available.")
                 return
-            except ValueError:
-                msg = "Error opening socket.\nPlease make sure the bluetooth is on."
-                self._connection_error_gui(msg)
-                return
-            except SystemError as e:
-                msg = str(e)
-                msg += "\nPlease make sure the Bluetooth is on."
-                self._connection_error_gui(msg)
-                return
-            except Exception as e:
-                msg = str(e)
+            except Exception as error:
+                msg = str(error)
                 self._connection_error_gui(msg)
                 return
 
@@ -190,12 +177,11 @@ class BTFunctions(AppFunctions):
                 self.is_connected = False
                 AppFunctions.is_connected = self.is_connected
 
-            except AssertionError as e:
-                msg = str(e)
+            except Exception as error:
+                msg = str(error)
                 self.display_msg(msg)
-            except Exception as e:
-                msg = str(e)
-                self.display_msg(msg)
+                logger.debug(
+                    f"Got an exception while disconnecting from the device: {error} of type: {type(error)}")
 
         print(self.is_connected)
         self.ui.btn_connect.setStyleSheet("")

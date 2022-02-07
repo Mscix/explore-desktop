@@ -9,7 +9,8 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QMessageBox
 )
-
+import logging
+logger = logging.getLogger("explorepy")
 
 class ConfigFunctions(AppFunctions):
     def __init__(self, ui, explorer, vis_functions):
@@ -252,6 +253,7 @@ class ConfigFunctions(AppFunctions):
             reapply = True
 
         if reapply:
+            logger.info("Updating filters for new sampling rate")
             self.explorer.stream_processor.remove_filters()
             self.apply_filters()
             AppFunctions.plotting_filters = self.plotting_filters

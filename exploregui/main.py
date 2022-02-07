@@ -1,6 +1,9 @@
 # This Python file uses the following encoding: utf-8
 import sys
-
+import explorepy
+import logging
+logger = logging.getLogger("explorepy")
+logger.debug("Starting ExploreGUI")
 from exploregui import MainWindow
 from PySide6.QtWidgets import QApplication
 

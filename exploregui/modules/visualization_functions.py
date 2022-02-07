@@ -1,7 +1,7 @@
 import copy
 import time
 import warnings
-
+import logging
 import numpy as np
 import pyqtgraph as pg
 from exploregui.modules.app_functions import AppFunctions
@@ -14,7 +14,7 @@ from scipy.ndimage.filters import gaussian_filter1d
 
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
+logger = logging.getLogger("explorepy")
 NANS = [False, False]  # exg, orn
 
 
@@ -133,9 +133,9 @@ class VisualizationFunctions(AppFunctions):
                 self.curves_list.append(curve)
 
     def init_plot_orn(self):
-        '''''''''
+        """
         Initialize plot ORN
-        '''
+        """
         pw = self.ui.plot_orn
 
         # Set Background color
@@ -806,7 +806,7 @@ class VisualizationFunctions(AppFunctions):
         """
         Change ExG and ORN plots time scale
         """
-
+        logger.debug(f"Time scale has been changed to {self.get_timeScale()}")
         t_min = self.last_t
         t_max = t_min + self.get_timeScale()
         self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
@@ -835,6 +835,8 @@ class VisualizationFunctions(AppFunctions):
         """
         old = Settings.SCALE_MENU[self.y_string]
         new = Settings.SCALE_MENU[self.ui.value_yAxis.currentText()]
+        logger.debug(
+            f"ExG scale has been changed from {self.y_string} to {self.ui.value_yAxis.currentText()}")
 
         old_unit = 10 ** (-old)
         new_unit = 10 ** (-new)
@@ -1052,3 +1054,9 @@ class VisualizationFunctions(AppFunctions):
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
+
+    def _mode_change(self):
+        """
+        Log mode change (EEG or ECG)
+        """
+        logger.debug(f"ExG mode has been changed to {self.ui.value_signal.currentText()}")
