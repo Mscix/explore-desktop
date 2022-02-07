@@ -378,6 +378,10 @@ class BTFunctions(AppFunctions):
                     not_connected_lbl = "Not connected"
                     new_value = connected_lbl if self.is_connected else not_connected_lbl
                     self._update_device_name(new_value=new_value)
+                
+                elif key == "light":
+                    pass
+
                 else:
                     logger.warning("There is no field named: " + key)
 
