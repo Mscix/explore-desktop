@@ -156,5 +156,19 @@ modules/old
 # csv
 *.csv
 
-# set up files
-installer/Windows/output/setup_ExploreGUI.exe
+# DS_store
+*.DS_Store
+
+# installers
+*.run
+*.app
+*.exe
+
+ExploreGUIInstaller.app/Contents/Info.plist
+ExploreGUIInstaller.app/Contents/MacOS/ExploreGUIInstaller
+ExploreGUIInstaller.app/Contents/PkgInfo
+ExploreGUIInstaller.app/Contents/Resources/installer.dat
+
+# data folder
+installer/ExploreGUIInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/data/*
+
