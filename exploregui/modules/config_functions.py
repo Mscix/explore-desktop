@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 import logging
 logger = logging.getLogger("explorepy")
 
+
 class ConfigFunctions(AppFunctions):
     def __init__(self, ui, explorer, vis_functions):
         super().__init__(ui, explorer)
