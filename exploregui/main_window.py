@@ -22,8 +22,7 @@ from PySide6.QtCore import (
     Qt,
     QTimer,
     Signal,
-    Slot,
-    QSize
+    Slot
 )
 from PySide6.QtGui import (
     QColor,
