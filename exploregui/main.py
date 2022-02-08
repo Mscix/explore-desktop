@@ -1,15 +1,18 @@
 # This Python file uses the following encoding: utf-8
-import sys
-import explorepy
 import logging
-from exploregui import MainWindow
+import sys
+
+import explorepy
 from PySide6.QtWidgets import QApplication
 
-import exploregui
+
+import exploregui  # isort:skip
+from exploregui import MainWindow  # isort:skip
+
 
 logger = logging.getLogger("explorepy")
-logger.debug("Starting ExploreGUI - version: %s", exploregui.__version__)
-# print(explorepy.__doc__) uncomment to avoid flake8(F401)
+logger.debug("Starting ExploreGUI (version: %s) with Explorepy (version: %s)",
+             exploregui.__version__, explorepy.__version__)
 
 
 def main():
