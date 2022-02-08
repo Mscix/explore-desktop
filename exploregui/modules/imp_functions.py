@@ -1,3 +1,5 @@
+import logging
+
 from exploregui.modules.app_functions import AppFunctions
 from exploregui.modules.app_settings import Settings
 from explorepy.stream_processor import TOPICS
@@ -6,6 +8,8 @@ from PySide6.QtWidgets import (
     QApplication,
     QMessageBox
 )
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class IMPFunctions(AppFunctions):
@@ -30,9 +34,9 @@ class IMPFunctions(AppFunctions):
         """
 
         stream_processor = self.explorer.stream_processor
-        print(f"emit_imp - {self.chan_dict=}")
+        logger.debug(f"emit_imp - {self.chan_dict=}")
         active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
-        print(active_chan)
+        logger.debug(f"active channels: {active_chan}")
         data = {ch: ["", self._impedance_stylesheet_wet("")] for ch in active_chan}
 
         def callback(packet):
