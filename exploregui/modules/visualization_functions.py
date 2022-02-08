@@ -605,6 +605,10 @@ class VisualizationFunctions(AppFunctions):
             for plt in self.plots_orn_list:
                 plt.setXRange(t_min, t_max, padding=0.01)
 
+        # for plt in self.plots_orn_list:
+        #     print(f"{plt=}")
+        #     print(plt.dataItems)
+
         # Position line
         if None in self.lines_orn:
             for i, plt in enumerate(self.plots_orn_list):

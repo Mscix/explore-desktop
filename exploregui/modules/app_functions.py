@@ -31,7 +31,7 @@ class AppFunctions():
         # self.ui.frame_impedance_widgets_16.hide()
 
         for chan in Settings.CHAN_LIST:
-            frame_name = f"frame_{chan}"
+            frame_name = f"frame_{chan}_2"
             try:
                 ch_frame = self.get_widget_by_objName(frame_name)
             except AttributeError:
