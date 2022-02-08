@@ -180,24 +180,6 @@ class MainWindow(QMainWindow):
         self.signal_mkr.connect(self.vis_funct.plot_mkr)
 
         self.ui.btn_stream.hide()
-        # self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_exg(self, stop=True))
-        # self.ui.btn_stream.clicked.connect(lambda: self.update_fft())
-        # self.ui.btn_stream.clicked.connect(lambda: self.update_heart_rate())
-
-        # self.signal_exg.connect(lambda data: AppFunctions.plot_exg_moving(self, data))
-        # self.signal_orn.connect(lambda data: AppFunctions.plot_orn_moving(self, data))
-        # self.signal_mkr.connect(lambda data: AppFunctions.plot_marker_moving(self, data))
-
-        # self.ui.label_7.linkActivated.connect(
-        #     self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
-        # )
-
-        # # Recorded data plotting page
-        # self.ui.label_3.linkActivated.connect(
-        #     self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-        # )
-
-        self.ui.btn_stream_rec.clicked.connect(lambda: self.start_recorded_plots())
 
         # INTEGRATION PAGE
         self.ui.lsl_duration_value.hide()
@@ -262,7 +244,6 @@ class MainWindow(QMainWindow):
             " (e.g. with alcohol, abrasive gel, EEG gel)"
         )
         self.funct.display_msg(imp_msg, type="info")
-
 
     #########################
     # UI Functions

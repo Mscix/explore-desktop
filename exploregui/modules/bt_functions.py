@@ -71,7 +71,7 @@ class BTFunctions(AppFunctions):
             msg = "No explore devices found. Please make sure your device is turned on."
             self._connection_error_gui(msg, scan=True)
             return
-        
+
         # If platform is Windows display devices with Paired/Unpaired label and display warning
         if os.name == "nt":
             devs = [dev.name + "\t" + str(dev.is_paired) for dev in explore_devices]
@@ -160,7 +160,6 @@ class BTFunctions(AppFunctions):
                     self.explorer.connect(device_name=device_name)
                     self.is_connected = True
                     AppFunctions.is_connected = self.is_connected
-                    pass
 
             except xpy_ex.DeviceNotFoundError as error:
                 msg = str(error)
