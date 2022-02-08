@@ -44,6 +44,11 @@ WINDOW_SIZE = False
 
 
 class MainWindow(QMainWindow):
+    """
+    Main window class. Connect signals and slots
+    Args:
+        QMainWindow (PySide.QtWidget.QMainWindow): MainWindow widget
+    """
     signal_exg = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
@@ -73,13 +78,8 @@ class MainWindow(QMainWindow):
         self.record_funct = RecordFunctions(self.ui, self.explorer)
 
         self.is_streaming = False
-        # self.is_recording = False
         self.file_names = None
         self.is_started = False
-
-        # Hide push to lsl duration
-        # self.ui.duration_push_lsl.hide()
-        # self.ui.frame_6.hide()
 
         bold_font = QFont()
         bold_font.setBold(True)
@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
         self.funct.lineedit_stylesheet()
 
         # Slidable left panel
-        self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slideLeftMenu())
+        self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slide_left_menu())
 
         # Stacked pages - default open connect
         # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
@@ -122,7 +122,7 @@ class MainWindow(QMainWindow):
 
         # Stacked pages - navigation
         for w in self.ui.left_side_menu.findChildren(QPushButton):
-            w.clicked.connect(self.leftMenuButtonClicked)
+            w.clicked.connect(self.left_menu_button_clicked)
 
         # Check connection every 2 seconds
         self.check_connection()
@@ -142,11 +142,6 @@ class MainWindow(QMainWindow):
         self.ui.btn_scan.clicked.connect(lambda: self.BT_funct.scan_devices())
 
         # SETTING PAGE BUTTONS
-        # if os.name == "nt":
-        #     self.ui.lbl_paired_dev.setHidden(True)
-        #     self.ui.lbl_unpaired_dev.setHidden(True)
-        #     self.ui.list_unpaired_dev.setHidden(True)
-        #     self.ui.list_paired_dev.setMinimumSize(QSize(300,200))
         # self.ui.btn_import_data.clicked.connect(lambda: self.import_recorded_data())
         self.ui.btn_format_memory.clicked.connect(lambda: self.config_funct.format_memory())
         self.ui.btn_reset_settings.clicked.connect(lambda: self.config_funct.reset_settings())
@@ -268,85 +263,15 @@ class MainWindow(QMainWindow):
         )
         self.funct.display_msg(imp_msg, type="info")
 
-    # def import_recorded_data(self):
-    #     '''
-    #     Open file dialog to select file to import
-    #     '''
-    #     file_types = "CSV files(*.csv);;EDF files (*.edf);;BIN files (*.BIN)"
-    #     dialog = QFileDialog()
-    #     dialog.setFileMode(QFileDialog.ExistingFiles)
-    #     self.file_names, _ = dialog.getOpenFileNames(
-    #         self,
-    #         "Select Files to import",
-    #         "",
-    #         filter=file_types
-    #         )
-
-    #     files = ", ".join(self.file_names)
-    #     self.ui.le_data_path.setText(files)
-    #     print(self.file_names)
-
-    # def start_recorded_plots(self):
-    #     '''
-    #     Start plotting recorded data
-    #     '''
-
-    #     '''if self.file_names is None:
-    #         QMessageBox.critical(self, "Error", "Import data first")'''
-
-    #     # if self.ui.cb_swiping.isChecked():
-    #     if self.ui.cb_swipping_rec.isChecked():
-    #         time_scale = self.ui.value_timeScale_rec.currentText()
-    #     else:
-    #         time_scale = None
-
-    #     if self.is_started is False:
-    #         self.is_started = True
-    #         exg_wdgt = self.ui.plot_exg_rec
-    #         orn_wdgt = self.ui.plot_orn_rec
-    #         fft_wdgt = self.ui.plot_fft_rec
-    #         if any("exg" in s.lower() for s in self.file_names):
-    #             self.plot_exg_recorded = Plots("exg", self.file_names, exg_wdgt, time_scale)
-    #             plot_fft = Plots("fft", self.file_names, fft_wdgt, time_scale)
-
-    #         if any("orn" in s.lower() for s in self.file_names):
-    #             self.plot_orn_recorded = Plots("orn", self.file_names, orn_wdgt, time_scale)
-
-    #     # if self.is_streaming is False and self.ui.cb_swiping.isChecked():
-    #     if self.is_streaming is False and self.ui.cb_swipping_rec.isChecked():
-    #         self.ui.btn_stream_rec.setText("Stop Data Stream")
-    #         self.ui.btn_stream_rec.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
-    #         self.is_streaming = True
-    #         QApplication.processEvents()
-
-    #         self.timer_exg = QTimer()
-    #         self.timer_exg.setInterval(1)
-    #         self.timer_exg.timeout.connect(lambda: self.plot_exg_recorded.update_plot_exg())
-    #         self.timer_exg.start()
-
-    #         self.timer_orn = QTimer()
-    #         self.timer_orn.setInterval(50)
-    #         self.timer_orn.timeout.connect(lambda: self.plot_orn_recorded.update_plot_orn())
-    #         self.timer_orn.start()
-
-    #     else:
-    #         self.ui.btn_stream_rec.setText("Start Data Stream")
-    #         self.ui.btn_stream_rec.setStyleSheet(Settings.START_BUTTON_STYLESHEET)
-    #         self.is_streaming = False
-    #         try:
-    #             self.timer_exg.stop()
-    #             self.timer_orn.stop()
-    #         except AttributeError as e:
-    #             print(str(e))
 
     #########################
     # UI Functions
     #########################
-    def changePage(self, btn_name):
+    def change_page(self, btn_name):
         """
         Change the active page when the object is clicked
         Args:
-            btn_name
+            btn_name (str): button named
         """
         self.is_imp_measuring = self.imp_funct.get_imp_status()
         # btn = self.sender()
@@ -422,7 +347,10 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_integration)
         return True
 
-    def slideLeftMenu(self, enable=True):
+    def slide_left_menu(self):
+        """
+        Animation to display the whole left menu
+        """
         # Get current left menu width
         width = self.ui.left_side_menu.width()
         if width == Settings.LEFT_MENU_MIN:
@@ -439,7 +367,7 @@ class MainWindow(QMainWindow):
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
 
-    def leftMenuButtonClicked(self):
+    def left_menu_button_clicked(self):
         """
         Change style of the button clicked and move to the selected page
         """
@@ -448,7 +376,7 @@ class MainWindow(QMainWindow):
         btn_name = btn.objectName()
 
         # Navigate to active page
-        change = self.changePage(btn_name)
+        change = self.change_page(btn_name)
         if change is False:
             return
 
@@ -473,6 +401,9 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def restore_or_maximize(self):
+        """
+        Restore or maximize window
+        """
         # Global window state
         global WINDOW_SIZE
         win_status = WINDOW_SIZE
@@ -493,19 +424,29 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def on_close(self):
+        """
+        Stop all ongoing processes when closing the app
+        """
         self.stop_processes()
         self.close()
 
     def ui_definitions(self):
+        """UI functions
+        """
         # Double click on bar to maximize/restore the window
-        def doubleClickMaximize(e):
+        def double_click_maximize(e):
+            """Maximixe or restore window when top bar is double-clicked
+
+            Args:
+                e (event): mouse double click event
+            """
             if e.type() == QEvent.MouseButtonDblClick:
                 QTimer.singleShot(
                     250, lambda: self.restore_or_maximize())
-        self.ui.main_header.mouseDoubleClickEvent = doubleClickMaximize
+        self.ui.main_header.mouseDoubleClickEvent = double_click_maximize
 
         # Move Winndow poisitionn
-        def moveWindow(e):
+        def move_window(e):
             '''
             Move window on mouse drag event on the title bar
             '''
@@ -521,7 +462,7 @@ class MainWindow(QMainWindow):
 
         if Settings.CUSTOM_TITLE_BAR:
             # Add click/move/drag event to the top header to move the window
-            self.ui.main_header.mouseMoveEvent = moveWindow
+            self.ui.main_header.mouseMoveEvent = move_window
         else:
             self.ui.top_right_btns.hide()
 
@@ -582,6 +523,8 @@ class MainWindow(QMainWindow):
         self.ui.imp_mode.addItems(["Wet electrodes", "Dry electrodes"])
 
     def stop_processes(self):
+        """Stop ongoing processes
+        """
         if self.record_funct.is_recording:
             self.record_funct.stop_record()
             self.record_funct.is_recording = False
@@ -595,6 +538,7 @@ class MainWindow(QMainWindow):
             self.imp_funct.disable_imp()
 
     def reset_vars(self):
+        """Reset al variables in modules"""
         self.is_streaming = False
         self.funct.reset_vars()
         self.BT_funct.reset_bt_vars()
@@ -607,8 +551,8 @@ class MainWindow(QMainWindow):
     # Connection Functions
     #########################
     def print_connection(self):
-        # print("connection explore: ", self.explorer.is_connected)
-
+        """Update connection label
+        """
         reconnecting_label = "Reconnecting ..."
         not_connected_label = "Not connected"
         connected_label = f"Connected to {self.explorer.device_name}"
@@ -639,14 +583,15 @@ class MainWindow(QMainWindow):
                     self.ui.ft_label_device_3.repaint()
                     self.funct.is_connected = False
                     self.BT_funct.is_connected = False
-                    # self.stop_processes()
                     self.reset_vars()
                     self.BT_funct.on_connection()
-                    self.changePage(btn_name="btn_bt")
+                    self.change_page(btn_name="btn_bt")
         else:
             return
 
     def check_connection(self):
+        """Timer to check the connection every 2 seconds
+        """
         self.timer_con = QTimer(self)
         self.timer_con.setInterval(2000)
         self.timer_con.timeout.connect(lambda: self.print_connection())

@@ -42,8 +42,7 @@ class BTFunctions(AppFunctions):
         """"
         Scans for available explore devices.
         """
-        # self.ui.list_paired_dev.clear()
-        # self.ui.list_unpaired_dev.clear()
+
         self.ui.list_devices.clear()
 
         # Change footer
@@ -72,7 +71,8 @@ class BTFunctions(AppFunctions):
             msg = "No explore devices found. Please make sure your device is turned on."
             self._connection_error_gui(msg, scan=True)
             return
-
+        
+        # If platform is Windows display devices with Paired/Unpaired label and display warning
         if os.name == "nt":
             devs = [dev.name + "\t" + str(dev.is_paired) for dev in explore_devices]
             devs = [dev.replace("True", "Paired").replace("False", "Unpaired") for dev in devs]
@@ -166,7 +166,7 @@ class BTFunctions(AppFunctions):
                 msg = str(error)
                 self._connection_error_gui(msg)
                 return
-            except TypeError or UnboundLocalError:
+            except (TypeError, UnboundLocalError):
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
                 self._connection_error_gui(msg)
                 return
