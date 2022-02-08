@@ -10,7 +10,7 @@ import exploregui  # isort:skip
 from exploregui import MainWindow  # isort:skip
 
 
-logger = logging.getLogger("explorepy")
+logger = logging.getLogger("explorepy.exploregui.main")
 logger.debug("Starting ExploreGUI (version: %s) with Explorepy (version: %s)",
              exploregui.__version__, explorepy.__version__)
 
