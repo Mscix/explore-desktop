@@ -1,6 +1,7 @@
 # from PySide6.QtCore import Signal
-import os
 import logging
+import os
+
 import explorepy._exceptions as xpy_ex
 import numpy as np
 from exploregui.modules.app_functions import AppFunctions
@@ -12,7 +13,8 @@ from PySide6.QtWidgets import (
     QCheckBox
 )
 
-logger = logging.getLogger("explorepy")
+
+logger = logging.getLogger("explorepy." + __name__)
 
 # DISABLED_STYLESHEET = """
 #     background-color: rgb(129,133,161);
@@ -127,6 +129,7 @@ class BTFunctions(AppFunctions):
             else:
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
                 # QMessageBox.critical(self, "Error", msg)
+                logger.warning(f"No device name or invalid device name")
                 self.display_msg(msg)
                 return
 
@@ -183,7 +186,6 @@ class BTFunctions(AppFunctions):
                 logger.debug(
                     f"Got an exception while disconnecting from the device: {error} of type: {type(error)}")
 
-        print(self.is_connected)
         self.ui.btn_connect.setStyleSheet("")
         self.on_connection()
         self.ui.lbl_bt_instructions.hide()
