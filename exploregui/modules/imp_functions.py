@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QMessageBox
 )
 
+
 logger = logging.getLogger("explorepy." + __name__)
 
 

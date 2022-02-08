@@ -129,7 +129,7 @@ class BTFunctions(AppFunctions):
             else:
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
                 # QMessageBox.critical(self, "Error", msg)
-                logger.warning(f"No device name or invalid device name")
+                logger.warning("No device name or invalid device name")
                 self.display_msg(msg)
                 return
 
@@ -380,7 +380,7 @@ class BTFunctions(AppFunctions):
                     not_connected_lbl = "Not connected"
                     new_value = connected_lbl if self.is_connected else not_connected_lbl
                     self._update_device_name(new_value=new_value)
-                
+
                 elif key == "light":
                     pass
 

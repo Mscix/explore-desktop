@@ -1,6 +1,7 @@
+import logging
 import os
 from datetime import datetime
-import logging
+
 from exploregui.modules.app_functions import AppFunctions
 from exploregui.modules.dialogs import RecordingDialog
 from PySide6.QtCore import (
@@ -9,6 +10,7 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
+
 
 logger = logging.getLogger("explorepy")
 

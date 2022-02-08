@@ -1,7 +1,8 @@
 import copy
+import logging
 import time
 import warnings
-import logging
+
 import numpy as np
 import pyqtgraph as pg
 from exploregui.modules.app_functions import AppFunctions
