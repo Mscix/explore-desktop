@@ -17,6 +17,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 NANS = [False, False]  # exg, orn
 
+
 class VisualizationFunctions(AppFunctions):
     def __init__(self, ui, explorer, signals):
         super().__init__(ui, explorer)
