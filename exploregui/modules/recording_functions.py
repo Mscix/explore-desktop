@@ -12,7 +12,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 
-logger = logging.getLogger("explorepy")
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class RecordFunctions(AppFunctions):

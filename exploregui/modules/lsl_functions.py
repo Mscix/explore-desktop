@@ -3,7 +3,7 @@ import logging
 from exploregui.modules.app_functions import AppFunctions
 
 
-logger = logging.getLogger("explorepy")
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class LSLFunctions(AppFunctions):

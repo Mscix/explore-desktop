@@ -15,7 +15,7 @@ from scipy.ndimage.filters import gaussian_filter1d
 
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
-logger = logging.getLogger("explorepy")
+logger = logging.getLogger("explorepy." + __name__)
 NANS = [False, False]  # exg, orn
 
 

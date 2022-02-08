@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 
-logger = logging.getLogger("explorepy")
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class ConfigFunctions(AppFunctions):
