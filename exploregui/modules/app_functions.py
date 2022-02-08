@@ -1,3 +1,4 @@
+import logging
 from contextlib import contextmanager
 
 import numpy as np
@@ -8,6 +9,8 @@ from PySide6.QtWidgets import (
     QApplication,
     QMessageBox
 )
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class AppFunctions():
@@ -34,8 +37,8 @@ class AppFunctions():
             frame_name = f"frame_{chan}"
             try:
                 ch_frame = self.get_widget_by_objName(frame_name)
-            except AttributeError:
-                print(chan, frame_name)
+            except AttributeError as e:
+                logger.warning(str(e) + f" Chan: {chan} , frame_name: {frame_name}")
                 pass
             # if chan not in self.chan_list:
             if chan not in active_chan:
@@ -68,7 +71,7 @@ class AppFunctions():
             # print(x)
             if str(x.objectName()) == name:
                 return x
-        print(f"Could not find {name}")
+        logger.warning(f"Could not find {name}")
         return None
 
     def display_msg(self, msg_text, title=None, type="error"):
@@ -147,7 +150,7 @@ class AppFunctions():
         elif low_freq is not None:
             stream_processor.add_filter(cutoff_freq=low_freq, filter_type='lowpass')
 
-        print(self.plotting_filters)
+        logger.info(f"Applied filters{self.plotting_filters}")
 
     #########################
     # Set/Get Functions
