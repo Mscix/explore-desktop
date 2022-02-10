@@ -260,21 +260,23 @@ class ConfigFunctions(AppFunctions):
             self.display_msg(msg_text=warning, type="info")
 
     def enable_settings(self, enable=True):
+        """Disable or enable device settings widgets
+
+        Args:
+            enable (bool, optional): True will enable, False will disable. Defaults to True.
+        """
         if enable is False:
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setEnabled(False)
-                # w.setToolTip("Changing channels during visualization is not allowed")
                 w.setStyleSheet("color: gray")
 
             self.ui.value_sampling_rate.setEnabled(False)
-            # self.ui.value_sampling_rate.setToolTip(
-            #     "Changing the sampling rate during visualization is not allowed")
             self.ui.value_sampling_rate.setStyleSheet("color: gray;\nborder-color: gray;")
 
             self.ui.btn_apply_settings.setStyleSheet(DISABLED_STYLESHEET)
             self.ui.btn_apply_settings.setEnabled(False)
             self.ui.btn_apply_settings.setToolTip(
-                "Changing the settings during recording is not possible")
+                "Changing the settings during recording and LSL streaming is not possible")
         else:
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setEnabled(True)
