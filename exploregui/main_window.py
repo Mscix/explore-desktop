@@ -44,6 +44,11 @@ WINDOW_SIZE = False
 
 
 class MainWindow(QMainWindow):
+    """
+    Main window class. Connect signals and slots
+    Args:
+        QMainWindow (PySide.QtWidget.QMainWindow): MainWindow widget
+    """
     signal_exg = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)

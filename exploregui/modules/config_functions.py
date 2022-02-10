@@ -12,6 +12,11 @@ from PySide6.QtWidgets import (
 
 
 class ConfigFunctions(AppFunctions):
+    """[summary]
+
+    Args:
+        AppFunctions ([type]): [description]
+    """
     def __init__(self, ui, explorer, vis_functions):
         super().__init__(ui, explorer)
         self.vis_functions = vis_functions
@@ -33,18 +38,6 @@ class ConfigFunctions(AppFunctions):
             self.display_msg(msg_text="Memory formatted", type="info")
         else:
             return
-
-    # def update_label_calibration(self):
-    #     sec = 100
-    #     self.ui.ft_label_device_3.setText(f"Calibrating ORN ({sec}s left)")
-    #     sec -= 1
-
-    # def timer_calibration(self):
-    #     self.timer_cal = QTimer()
-    #     print(f"{self.timer_cal=}")
-    #     self.timer_cal.setInterval(1000)
-    #     self.timer_cal.timeout.connect(lambda: self.update_label_calibration())
-    #     self.timer_cal.start()
 
     @Slot()
     def calibrate_orn(self):
@@ -74,7 +67,7 @@ class ConfigFunctions(AppFunctions):
 
     @Slot()
     def reset_settings(self):
-        r"""
+        """
         Display a popup asking for confirmation.
         If yes, the settinngs are set to default.
         """
@@ -84,27 +77,25 @@ class ConfigFunctions(AppFunctions):
             "The Explore device will disconnect after the soft reset."
         )
         response = self.display_msg(msg_text=question, type="question")
-        if response == QMessageBox.StandardButton.Yes:
 
+        if response == QMessageBox.StandardButton.Yes:
             with self.wait_cursor():
                 self.explorer.reset_soft()
-                pass
-
-            # self.display_msg(msg_text="Settings reset", type="info")
-
         else:
             return
 
-    def change_sampling_rate(self, reset=False):
-        """
-        Change the sampling rate
+    def change_sampling_rate(self):
+        """Change the sampling rate
+
+        Returns:
+            bool: whether sampling rate has changed
         """
 
         sr = self.explorer.stream_processor.device_info['sampling_rate']
         str_value = self.ui.value_sampling_rate.currentText()
         value = int(str_value)
-        if reset:
-            value = 250
+        changed = False
+
         if int(sr) != value:
             if self.plotting_filters is not None:
                 self.check_filters_new_sr()
@@ -118,23 +109,33 @@ class ConfigFunctions(AppFunctions):
             print(
                 "New Sampling rate: ",
                 self.explorer.stream_processor.device_info['sampling_rate'])
+            changed = True
         else:
             print("Same sampling rate")
-            return
+        
+        return changed
 
-    def change_active_channels(self, reset=False):
+    def change_active_channels(self):
         """
         Read selected checkboxes and set the channel mask of the device
+
+        Returns:
+            bool: whether sampling rate has changed
         """
 
         active_chan = []
+        changed = False
 
         for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
             status = str(1) if w.isChecked() else str(0)
             active_chan.append(status)
 
+        active_chan = list(reversed(active_chan))
         active_chan_int = [int(i) for i in active_chan]
-        active_chan = [i for i in reversed(active_chan)]
+        n_active = sum(active_chan_int)
+        if n_active == 0:
+            self.display_msg("Please select at least one channel")
+            return
 
         if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
             if AppFunctions.plotting_filters is not None:
@@ -142,8 +143,6 @@ class ConfigFunctions(AppFunctions):
                 self.explorer.stream_processor.remove_filters()
 
             mask = "".join(active_chan)
-            if reset:
-                mask = "11111111"
             int_mask = int(mask, 2)
             try:
                 self.explorer.set_channels(int_mask)
@@ -151,7 +150,7 @@ class ConfigFunctions(AppFunctions):
                 self.explorer.set_channels(mask)
 
             n_chan = self.explorer.stream_processor.device_info['adc_mask']
-            n_chan = [i for i in reversed(n_chan)]
+            n_chan = list(reversed(n_chan))
 
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             AppFunctions.chan_dict = self.chan_dict
@@ -161,13 +160,15 @@ class ConfigFunctions(AppFunctions):
             if self.plotting_filters is not None:
                 self.apply_filters()
             self.init_imp()
+            changed = True
 
         else:
             print("Same channel mask")
-            return
+        
+        return changed
 
     @Slot()
-    def change_settings(self, reset=False):
+    def change_settings(self):
         """
         Apply changes in device settings
         """
@@ -175,37 +176,20 @@ class ConfigFunctions(AppFunctions):
         stream_processor = self.explorer.stream_processor
 
         with self.wait_cursor():
-            points = self.plot_points()
-            self.exg_plot_data[0] = np.array([np.NaN] * points)
-            self.exg_plot_data[1] = {
-                ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-            self.exg_plot_data[2] = {
-                ch: np.array([np.NaN] * self.plot_points(downsampling=False
-                                                         )) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
-            }
-            AppFunctions.exg_plot_data = self.exg_plot_data
-
-            self.change_active_channels(reset)
-            self.change_sampling_rate(reset)
-
-            self.exg_plot_data[0] = np.array([np.NaN] * points)
-            self.exg_plot_data[1] = {
-                ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-            self.exg_plot_data[2] = {
-                ch: np.array([np.NaN] * self.plot_points(downsampling=False
-                                                         )) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
-            }
-            AppFunctions.exg_plot_data = self.exg_plot_data
-
-            pass
-
-        act_chan = ", ".join([ch for ch in self.chan_dict if self.chan_dict[ch] == 1])
-        msg = (
-            "Device settings have been changed:"
-            f"\nSampling Rate: {int(stream_processor.device_info['sampling_rate'])}"
-            f"\nActive Channels: {act_chan}"
-        )
-        self.display_msg(msg_text=msg, type="info")
+            self.reset_exg_plot_data()
+            changed_chan = self.change_active_channels()
+            changed_sr = self.change_sampling_rate()
+            self.reset_exg_plot_data()
+        print("chan ", changed_chan)
+        print("sr", changed_sr)
+        if changed_sr or changed_chan:
+            act_chan = ", ".join([ch for ch in self.chan_dict if self.chan_dict[ch] == 1])
+            msg = (
+                "Device settings have been changed:"
+                f"\nSampling Rate: {int(stream_processor.device_info['sampling_rate'])}"
+                f"\nActive Channels: {act_chan}"
+            )
+            self.display_msg(msg_text=msg, type="info")
 
         self.vis_functions.init_plots()
 
