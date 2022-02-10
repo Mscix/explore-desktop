@@ -232,6 +232,11 @@ class MainWindow(QMainWindow):
             self.reset_vars()
         else:
             self.vis_funct.init_plots()
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+            default = self.ui.btn_bt.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
+            self.ui.btn_bt.setStyleSheet(default)
+            highlight = self.ui.btn_settings.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
+            self.ui.btn_settings.setStyleSheet(highlight)
 
     @Slot()
     def n_chan_changed(self):
