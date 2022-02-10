@@ -34,7 +34,6 @@ class ConfigFunctions(AppFunctions):
         if response == QMessageBox.StandardButton.Yes:
             with self.wait_cursor():
                 self.explorer.format_memory()
-                pass
             self.display_msg(msg_text="Memory formatted", type="info")
         else:
             return
@@ -58,7 +57,6 @@ class ConfigFunctions(AppFunctions):
             self.ui.ft_label_device_3.repaint()
             with self.wait_cursor():
                 self.explorer.calibrate_orn(do_overwrite=True)
-                pass
             self.ui.ft_label_device_3.setText(lbl)
             self.ui.ft_label_device_3.repaint()
             self.display_msg(msg_text="Calibration Complete", title="Done", type="info")
@@ -112,7 +110,7 @@ class ConfigFunctions(AppFunctions):
             changed = True
         else:
             print("Same sampling rate")
-        
+
         return changed
 
     def change_active_channels(self):
@@ -164,7 +162,7 @@ class ConfigFunctions(AppFunctions):
 
         else:
             print("Same channel mask")
-        
+
         return changed
 
     @Slot()
