@@ -223,8 +223,6 @@ class MainWindow(QMainWindow):
         """
         self.BT_funct.connect2device(dev_name=dev_name)
         self.funct.is_connected = self.BT_funct.is_connected
-        # print(f"{self.BT_funct.is_connected=}")
-        # print(f"{self.funct.is_connected=}")
         self.is_connected = self.funct.get_is_connected()
 
         if self.funct.get_is_connected() is False:
