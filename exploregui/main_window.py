@@ -35,7 +35,8 @@ from PySide6.QtWidgets import (
     QGraphicsDropShadowEffect,
     QMainWindow,
     QPushButton,
-    QSizeGrip
+    QSizeGrip,
+    QMessageBox
 )
 
 
@@ -254,8 +255,18 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def imp_meas_clicked(self):
-        # self.chan_dict = self.BT_funct.get_chan_dict()
-        # self.is_connected = self.BT_funct.get_is_connected()
+        """
+        Start impedance measurement.
+        If another process is running, it will ask the user for confirmation
+        """
+        msg = (
+            "Impedance measurement will introduce noise to the signal"
+            " and affect the visualization, recording, and LSL stream."
+            "\nAre you sure you want to continue?")
+        if not self.imp_funct.is_imp_measuring and (self.record_funct.is_recording or self.LSL_funct.is_pushing):
+            response = self.funct.display_msg(msg_text=msg, type="question")
+            if response == QMessageBox.StandardButton.No:
+                return
         self.imp_funct.emit_imp()
 
     def update_fft(self):
