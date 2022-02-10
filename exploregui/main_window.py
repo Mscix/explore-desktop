@@ -44,6 +44,11 @@ WINDOW_SIZE = False
 
 
 class MainWindow(QMainWindow):
+    """Main window, connects signals triggered by UI user interaction with corresponding functions
+
+    Args:
+        QMainWindow (PySide6.QWidget.QMainWidnow): pyside widget
+    """
     signal_exg = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
@@ -211,6 +216,10 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def connect_clicked(self, dev_name=None):
+        """Connect or disconnect from device
+        Args:
+            dev_name (str, optional): For testing purposes, can pass name of the device to connect. Defaults to None.
+        """
         self.BT_funct.connect2device(dev_name=dev_name)
         self.funct.is_connected = self.BT_funct.is_connected
         # print(f"{self.BT_funct.is_connected=}")
@@ -270,77 +279,6 @@ class MainWindow(QMainWindow):
             " (e.g. with alcohol, abrasive gel, EEG gel)"
         )
         self.funct.display_msg(imp_msg, type="info")
-
-    # def import_recorded_data(self):
-    #     '''
-    #     Open file dialog to select file to import
-    #     '''
-    #     file_types = "CSV files(*.csv);;EDF files (*.edf);;BIN files (*.BIN)"
-    #     dialog = QFileDialog()
-    #     dialog.setFileMode(QFileDialog.ExistingFiles)
-    #     self.file_names, _ = dialog.getOpenFileNames(
-    #         self,
-    #         "Select Files to import",
-    #         "",
-    #         filter=file_types
-    #         )
-
-    #     files = ", ".join(self.file_names)
-    #     self.ui.le_data_path.setText(files)
-    #     print(self.file_names)
-
-    # def start_recorded_plots(self):
-    #     '''
-    #     Start plotting recorded data
-    #     '''
-
-    #     '''if self.file_names is None:
-    #         QMessageBox.critical(self, "Error", "Import data first")'''
-
-    #     # if self.ui.cb_swiping.isChecked():
-    #     if self.ui.cb_swipping_rec.isChecked():
-    #         time_scale = self.ui.value_timeScale_rec.currentText()
-    #     else:
-    #         time_scale = None
-
-    #     if self.is_started is False:
-    #         self.is_started = True
-    #         exg_wdgt = self.ui.plot_exg_rec
-    #         orn_wdgt = self.ui.plot_orn_rec
-    #         fft_wdgt = self.ui.plot_fft_rec
-    #         if any("exg" in s.lower() for s in self.file_names):
-    #             self.plot_exg_recorded = Plots("exg", self.file_names, exg_wdgt, time_scale)
-    #             plot_fft = Plots("fft", self.file_names, fft_wdgt, time_scale)
-
-    #         if any("orn" in s.lower() for s in self.file_names):
-    #             self.plot_orn_recorded = Plots("orn", self.file_names, orn_wdgt, time_scale)
-
-    #     # if self.is_streaming is False and self.ui.cb_swiping.isChecked():
-    #     if self.is_streaming is False and self.ui.cb_swipping_rec.isChecked():
-    #         self.ui.btn_stream_rec.setText("Stop Data Stream")
-    #         self.ui.btn_stream_rec.setStyleSheet(Settings.STOP_BUTTON_STYLESHEET)
-    #         self.is_streaming = True
-    #         QApplication.processEvents()
-
-    #         self.timer_exg = QTimer()
-    #         self.timer_exg.setInterval(1)
-    #         self.timer_exg.timeout.connect(lambda: self.plot_exg_recorded.update_plot_exg())
-    #         self.timer_exg.start()
-
-    #         self.timer_orn = QTimer()
-    #         self.timer_orn.setInterval(50)
-    #         self.timer_orn.timeout.connect(lambda: self.plot_orn_recorded.update_plot_orn())
-    #         self.timer_orn.start()
-
-    #     else:
-    #         self.ui.btn_stream_rec.setText("Start Data Stream")
-    #         self.ui.btn_stream_rec.setStyleSheet(Settings.START_BUTTON_STYLESHEET)
-    #         self.is_streaming = False
-    #         try:
-    #             self.timer_exg.stop()
-    #             self.timer_orn.stop()
-    #         except AttributeError as e:
-    #             print(str(e))
 
     #########################
     # UI Functions
