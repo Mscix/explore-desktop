@@ -2,19 +2,7 @@ import datetime
 import os
 import sys
 
-import exploregui
 import explorepy as xpy
-from exploregui.modules import (
-    AppFunctions,
-    BTFunctions,
-    ConfigFunctions,
-    IMPFunctions,
-    LSLFunctions,
-    RecordFunctions,
-    Settings,
-    Ui_MainWindow,
-    VisualizationFunctions
-)
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
@@ -39,6 +27,18 @@ from PySide6.QtWidgets import (
     QMessageBox
 )
 
+import exploregui
+from exploregui.modules import (
+    AppFunctions,
+    BTFunctions,
+    ConfigFunctions,
+    IMPFunctions,
+    LSLFunctions,
+    RecordFunctions,
+    Settings,
+    Ui_MainWindow,
+    VisualizationFunctions
+)
 
 VERSION_APP = exploregui.__version__
 WINDOW_SIZE = False
