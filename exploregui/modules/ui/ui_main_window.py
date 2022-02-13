@@ -31,9 +31,6 @@ class Ui_MainWindow(object):
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1116, 691)
         MainWindow.setMinimumSize(QSize(800, 600))
-        MainWindow.setStyleSheet(u"QMainWindow{\n"
-" border: 2px solid #000\n"
-"}")
         self.actionExport_Metadata = QAction(MainWindow)
         self.actionExport_Metadata.setObjectName(u"actionExport_Metadata")
         self.actionDocumentation = QAction(MainWindow)

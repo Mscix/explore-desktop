@@ -3,7 +3,6 @@ import os
 import sys
 
 import exploregui
-import explorepy as xpy
 from exploregui.modules import (
     AppFunctions,
     BTFunctions,
@@ -15,6 +14,10 @@ from exploregui.modules import (
     Ui_MainWindow,
     VisualizationFunctions
 )
+
+import explorepy as xpy
+from explorepy.log_config import write_config, read_config
+
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
@@ -44,6 +47,11 @@ WINDOW_SIZE = False
 
 
 class MainWindow(QMainWindow):
+    """
+    Main window class. Connect signals and slots
+    Args:
+        QMainWindow (PySide.QtWidget.QMainWindow): MainWindow widget
+    """
     signal_exg = Signal(object)
     signal_orn = Signal(object)
     signal_imp = Signal(object)
@@ -115,8 +123,15 @@ class MainWindow(QMainWindow):
         self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slideLeftMenu())
 
         # Stacked pages - default open connect
-        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
-        self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        existing_permission = self.check_permissions()
+        if existing_permission:
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        else:
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
+            # Set data sharing permissions
+            self.set_permissions()
+
+        # Left menu button stylesheet and input foucus
         self.ui.btn_bt.setStyleSheet(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
         self.ui.dev_name_input.setFocus()
 
@@ -127,6 +142,8 @@ class MainWindow(QMainWindow):
         # Check connection every 2 seconds
         self.check_connection()
 
+        # HOME PAGE
+        self.ui.cb_permission.stateChanged.connect(self.set_permissions)
         # CONNECT PAGE BUTTONS
         # hide import data:
         self.ui.btn_import_data.hide()
@@ -584,6 +601,28 @@ class MainWindow(QMainWindow):
         self.timer_con.setInterval(2000)
         self.timer_con.timeout.connect(lambda: self.print_connection())
         self.timer_con.start()
+
+    def set_permissions(self):
+        """
+        Set data sharing permission to explorepy config file
+        """
+        share = self.ui.cb_permission.isChecked()
+        write_config("user settings", "share_logs", str(share))
+
+    def check_permissions(self):
+        """Check current data sharing permission
+
+        Returns:
+            bool: whether permission exist in config file
+        """
+        exist = False
+        config = read_config("user settings", "share_logs")
+        if config != "":
+            self.ui.cb_permission.setChecked(bool(config))
+            exist = True
+        return exist
+            
+
 
 
 if __name__ == "__main__":
