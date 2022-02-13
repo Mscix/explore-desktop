@@ -16,11 +16,13 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
-    QHBoxLayout, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QMainWindow, QPushButton, QSizePolicy,
-    QSpacerItem, QSpinBox, QSplitter, QStackedWidget,
-    QTabWidget, QVBoxLayout, QWidget)
+
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QCheckBox, QComboBox,
+    QFrame, QHBoxLayout, QLabel, QLayout,
+    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
+    QPushButton, QSizePolicy, QSpacerItem, QSpinBox,
+    QSplitter, QStackedWidget, QTabWidget, QVBoxLayout,
+    QWidget)
 
 from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
 from exploregui import app_resources_rc
@@ -78,7 +80,7 @@ class Ui_MainWindow(object):
 "	border: 1px solid\n"
 "}\n"
 "\n"
-"#list_devices{\n"
+"QListWidget{\n"
 "	border: 1px solid;\n"
 "}\n"
 "\n"
@@ -110,9 +112,9 @@ class Ui_MainWindow(object):
 "	font: 22pt;\n"
 "}\n"
 "\n"
-"QLabel#home_title"
-                        "{\n"
-"	font: 22pt;\n"
+"QLabel#home_title{\n"
+""
+                        "	font: 22pt;\n"
 "}\n"
 "\n"
 "QLabel#impedance_title{\n"
@@ -1693,11 +1695,12 @@ class Ui_MainWindow(object):
         self.page_bt = QWidget()
         self.page_bt.setObjectName(u"page_bt")
         self.page_bt.setStyleSheet(u"")
-        self.verticalLayout_17 = QVBoxLayout(self.page_bt)
-        self.verticalLayout_17.setObjectName(u"verticalLayout_17")
+        self.verticalLayout_6 = QVBoxLayout(self.page_bt)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.verticalLayout_6.setContentsMargins(200, -1, 200, 9)
         self.verticalSpacer_14 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
-        self.verticalLayout_17.addItem(self.verticalSpacer_14)
+        self.verticalLayout_6.addItem(self.verticalSpacer_14)
 
         self.frame_bt_title = QFrame(self.page_bt)
         self.frame_bt_title.setObjectName(u"frame_bt_title")
@@ -1718,15 +1721,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_37.addWidget(self.bt_title)
 
 
-        self.verticalLayout_17.addWidget(self.frame_bt_title)
+        self.verticalLayout_6.addWidget(self.frame_bt_title)
 
         self.verticalSpacer_5 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
-        self.verticalLayout_17.addItem(self.verticalSpacer_5)
+        self.verticalLayout_6.addItem(self.verticalSpacer_5)
 
-        self.verticalLayout_6 = QVBoxLayout()
-        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.verticalLayout_6.setContentsMargins(250, -1, 250, -1)
         self.label_explore_name_3 = QLabel(self.page_bt)
         self.label_explore_name_3.setObjectName(u"label_explore_name_3")
         self.label_explore_name_3.setMaximumSize(QSize(16777215, 30))
@@ -1743,14 +1743,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_6.addWidget(self.label_10)
 
+        self.lbl_wdws_warning = QLabel(self.page_bt)
+        self.lbl_wdws_warning.setObjectName(u"lbl_wdws_warning")
+        self.lbl_wdws_warning.setFont(font2)
+        self.lbl_wdws_warning.setStyleSheet(u"color: red;")
+        self.lbl_wdws_warning.setWordWrap(True)
+
+        self.verticalLayout_6.addWidget(self.lbl_wdws_warning, 0, Qt.AlignHCenter)
         self.horizontalLayout_9 = QHBoxLayout()
-        self.horizontalLayout_9.setSpacing(0)
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.list_devices = QListWidget(self.page_bt)
         self.list_devices.setObjectName(u"list_devices")
-        self.list_devices.setMaximumSize(QSize(200, 200))
+        self.list_devices.setMaximumSize(QSize(300, 200))
         self.list_devices.viewport().setProperty("cursor", QCursor(Qt.ArrowCursor))
         self.list_devices.setStyleSheet(u"")
+        self.list_devices.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
 
         self.horizontalLayout_9.addWidget(self.list_devices)
 
@@ -1790,7 +1797,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_38.addWidget(self.btn_connect)
 
 
-        self.horizontalLayout_9.addWidget(self.frame_btns_scan_connect)
+        self.horizontalLayout_9.addWidget(self.frame_btns_scan_connect, 0, Qt.AlignVCenter)
 
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_9)
@@ -1823,7 +1830,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_16.addWidget(self.dev_name_input)
 
 
-        self.verticalLayout_6.addWidget(self.frame_8, 0, Qt.AlignHCenter)
+        self.verticalLayout_6.addWidget(self.frame_8)
 
         self.lbl_bt_instructions = QLabel(self.page_bt)
         self.lbl_bt_instructions.setObjectName(u"lbl_bt_instructions")
@@ -1864,9 +1871,6 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_28)
-
-
-        self.verticalLayout_17.addLayout(self.verticalLayout_6)
 
         self.stackedWidget.addWidget(self.page_bt)
         self.page_settings_testing = QWidget()
@@ -2155,6 +2159,11 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:'DM Sans'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Segoe UI';\">Press the button on your device to turn it on.</span></p>\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Segoe UI';\">Scan the paired devices or directly input the name of your device.</span></p></body></html>", None))
+        self.lbl_wdws_warning.setText(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Segoe UI'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
+"<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'DM Sans'; font-size:11pt;\"><br /></p></body></html>", None))
         self.btn_scan.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
         self.btn_connect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"Device Name: ", None))

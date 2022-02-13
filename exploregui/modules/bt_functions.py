@@ -45,6 +45,7 @@ class BTFunctions(AppFunctions):
         """"
         Scans for available explore devices.
         """
+
         self.ui.list_devices.clear()
 
         # Change footer
@@ -59,25 +60,33 @@ class BTFunctions(AppFunctions):
         try:
             with self.wait_cursor():
                 explore_devices = bt_scan()
-
         except (ValueError, SystemError):
             msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
             self._connection_error_gui(msg, scan=True)
             logger.warning("No Bluetooth connection available.")
             return
-
+        
         explore_devices = [dev[0] for dev in explore_devices]
-
+ 
         if len(explore_devices) == 0:
             msg = "No explore devices found. Please make sure your device is turned on."
-            # if os.name == 'nt':
-            #     msg = msg[:-1]
-            #     msg += " and the Bluetooth is active."
             self._connection_error_gui(msg, scan=True)
             logger.info("No explore devices found.")
             return
 
-        self.ui.list_devices.addItems(explore_devices)
+        # If platform is Windows display devices with Paired/Unpaired label and display warning
+        if os.name == "nt":
+            devs = [dev.name + "\t" + str(dev.is_paired) for dev in explore_devices]
+            devs = [dev.replace("True", "Paired").replace("False", "Unpaired") for dev in devs]
+            devs.sort(key=lambda x: x.endswith("Paired"))
+            self.ui.lbl_wdws_warning.setText("Note: Listed paired devices might not be advertising")
+            self.ui.lbl_wdws_warning.setStyleSheet("font: 11pt; color: red;")
+            self.ui.lbl_wdws_warning.show()
+            self.ui.lbl_wdws_warning.repaint()
+        else:
+            devs = [dev.name for dev in explore_devices]
+
+        self.ui.list_devices.addItems(devs)
 
         # Reset footer
         self.ui.ft_label_device_3.setText("Not connected")
@@ -107,6 +116,7 @@ class BTFunctions(AppFunctions):
     def get_device_from_list(self):
         try:
             device_name = self.ui.list_devices.selectedItems()[0].text()
+            device_name = device_name[:12]
         except IndexError:
             device_name = ""
 

@@ -81,13 +81,8 @@ class MainWindow(QMainWindow):
         self.record_funct = RecordFunctions(self.ui, self.explorer)
 
         self.is_streaming = False
-        # self.is_recording = False
         self.file_names = None
         self.is_started = False
-
-        # Hide push to lsl duration
-        # self.ui.duration_push_lsl.hide()
-        # self.ui.frame_6.hide()
 
         bold_font = QFont()
         bold_font.setBold(True)
@@ -120,7 +115,7 @@ class MainWindow(QMainWindow):
         self.funct.lineedit_stylesheet()
 
         # Slidable left panel
-        self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slideLeftMenu())
+        self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slide_left_menu())
 
         # Stacked pages - default open connect
         existing_permission = self.check_permissions()
@@ -137,7 +132,7 @@ class MainWindow(QMainWindow):
 
         # Stacked pages - navigation
         for w in self.ui.left_side_menu.findChildren(QPushButton):
-            w.clicked.connect(self.leftMenuButtonClicked)
+            w.clicked.connect(self.left_menu_button_clicked)
 
         # Check connection every 2 seconds
         self.check_connection()
@@ -145,6 +140,7 @@ class MainWindow(QMainWindow):
         # HOME PAGE
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
         # CONNECT PAGE BUTTONS
+        self.ui.lbl_wdws_warning.hide()
         # hide import data:
         self.ui.btn_import_data.hide()
         self.ui.le_data_path.hide()
@@ -198,24 +194,6 @@ class MainWindow(QMainWindow):
         self.signal_mkr.connect(self.vis_funct.plot_mkr)
 
         self.ui.btn_stream.hide()
-        # self.ui.btn_stream.clicked.connect(lambda: AppFunctions.emit_exg(self, stop=True))
-        # self.ui.btn_stream.clicked.connect(lambda: self.update_fft())
-        # self.ui.btn_stream.clicked.connect(lambda: self.update_heart_rate())
-
-        # self.signal_exg.connect(lambda data: AppFunctions.plot_exg_moving(self, data))
-        # self.signal_orn.connect(lambda data: AppFunctions.plot_orn_moving(self, data))
-        # self.signal_mkr.connect(lambda data: AppFunctions.plot_marker_moving(self, data))
-
-        # self.ui.label_7.linkActivated.connect(
-        #     self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
-        # )
-
-        # # Recorded data plotting page
-        # self.ui.label_3.linkActivated.connect(
-        #     self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-        # )
-
-        self.ui.btn_stream_rec.clicked.connect(lambda: self.start_recorded_plots())
 
         # INTEGRATION PAGE
         self.ui.lsl_duration_value.hide()
@@ -229,6 +207,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def connect_clicked(self, dev_name=None):
+        self.ui.lbl_wdws_warning.hide()
         self.BT_funct.connect2device(dev_name=dev_name)
         self.funct.is_connected = self.BT_funct.is_connected
         # print(f"{self.BT_funct.is_connected=}")
@@ -292,11 +271,11 @@ class MainWindow(QMainWindow):
     #########################
     # UI Functions
     #########################
-    def changePage(self, btn_name):
+    def change_page(self, btn_name):
         """
         Change the active page when the object is clicked
         Args:
-            btn_name
+            btn_name (str): button named
         """
         self.is_imp_measuring = self.imp_funct.get_imp_status()
         # btn = self.sender()
@@ -372,7 +351,10 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_integration)
         return True
 
-    def slideLeftMenu(self, enable=True):
+    def slide_left_menu(self):
+        """
+        Animation to display the whole left menu
+        """
         # Get current left menu width
         width = self.ui.left_side_menu.width()
         if width == Settings.LEFT_MENU_MIN:
@@ -389,7 +371,7 @@ class MainWindow(QMainWindow):
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
 
-    def leftMenuButtonClicked(self):
+    def left_menu_button_clicked(self):
         """
         Change style of the button clicked and move to the selected page
         """
@@ -398,7 +380,7 @@ class MainWindow(QMainWindow):
         btn_name = btn.objectName()
 
         # Navigate to active page
-        change = self.changePage(btn_name)
+        change = self.change_page(btn_name)
         if change is False:
             return
 
@@ -423,6 +405,9 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def restore_or_maximize(self):
+        """
+        Restore or maximize window
+        """
         # Global window state
         global WINDOW_SIZE
         win_status = WINDOW_SIZE
@@ -443,19 +428,29 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def on_close(self):
+        """
+        Stop all ongoing processes when closing the app
+        """
         self.stop_processes()
         self.close()
 
     def ui_definitions(self):
+        """UI functions
+        """
         # Double click on bar to maximize/restore the window
-        def doubleClickMaximize(e):
+        def double_click_maximize(e):
+            """Maximixe or restore window when top bar is double-clicked
+
+            Args:
+                e (event): mouse double click event
+            """
             if e.type() == QEvent.MouseButtonDblClick:
                 QTimer.singleShot(
                     250, lambda: self.restore_or_maximize())
-        self.ui.main_header.mouseDoubleClickEvent = doubleClickMaximize
+        self.ui.main_header.mouseDoubleClickEvent = double_click_maximize
 
         # Move Winndow poisitionn
-        def moveWindow(e):
+        def move_window(e):
             '''
             Move window on mouse drag event on the title bar
             '''
@@ -471,7 +466,7 @@ class MainWindow(QMainWindow):
 
         if Settings.CUSTOM_TITLE_BAR:
             # Add click/move/drag event to the top header to move the window
-            self.ui.main_header.mouseMoveEvent = moveWindow
+            self.ui.main_header.mouseMoveEvent = move_window
         else:
             self.ui.top_right_btns.hide()
 
@@ -532,6 +527,8 @@ class MainWindow(QMainWindow):
         self.ui.imp_mode.addItems(["Wet electrodes", "Dry electrodes"])
 
     def stop_processes(self):
+        """Stop ongoing processes
+        """
         if self.record_funct.is_recording:
             self.record_funct.stop_record()
             self.record_funct.is_recording = False
@@ -545,6 +542,7 @@ class MainWindow(QMainWindow):
             self.imp_funct.disable_imp()
 
     def reset_vars(self):
+        """Reset al variables in modules"""
         self.is_streaming = False
         self.funct.reset_vars()
         self.BT_funct.reset_bt_vars()
@@ -557,8 +555,8 @@ class MainWindow(QMainWindow):
     # Connection Functions
     #########################
     def print_connection(self):
-        # print("connection explore: ", self.explorer.is_connected)
-
+        """Update connection label
+        """
         reconnecting_label = "Reconnecting ..."
         not_connected_label = "Not connected"
         connected_label = f"Connected to {self.explorer.device_name}"
@@ -589,14 +587,15 @@ class MainWindow(QMainWindow):
                     self.ui.ft_label_device_3.repaint()
                     self.funct.is_connected = False
                     self.BT_funct.is_connected = False
-                    # self.stop_processes()
                     self.reset_vars()
                     self.BT_funct.on_connection()
-                    self.changePage(btn_name="btn_bt")
+                    self.change_page(btn_name="btn_bt")
         else:
             return
 
     def check_connection(self):
+        """Timer to check the connection every 2 seconds
+        """
         self.timer_con = QTimer(self)
         self.timer_con.setInterval(2000)
         self.timer_con.timeout.connect(lambda: self.print_connection())
