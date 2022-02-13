@@ -19,7 +19,11 @@ NANS = [False, False]  # exg, orn
 
 
 class VisualizationFunctions(AppFunctions):
+    """[summary]
 
+    Args:
+        AppFunctions ([type]): [description]
+    """
     def __init__(self, ui, explorer, signals):
         super().__init__(ui, explorer)
         self.signal_exg = signals['exg']
@@ -595,17 +599,6 @@ class VisualizationFunctions(AppFunctions):
         else:
             connection = np.full(len(self.t_orn_plot), 1)
             connection[self.orn_pointer - 1: self.orn_pointer + 1] = 0
-
-        if np.nanmax(self.t_orn_plot) < self.get_timeScale():
-            pass
-        else:
-            t_ticks = self.t_orn_plot.copy()
-            t_ticks[self.orn_pointer:] -= self.get_timeScale()
-            t_ticks = t_ticks.astype(int)
-            l_points = int(len(self.t_orn_plot) / int(self.get_timeScale()))
-            vals = self.t_orn_plot[::l_points]
-            ticks = t_ticks[::l_points]
-            self.plot_mag.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(vals, ticks)]])
 
         # Paint curves
         if NANS[1]:
