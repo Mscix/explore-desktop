@@ -620,9 +620,6 @@ class MainWindow(QMainWindow):
             self.ui.cb_permission.setChecked(bool(config))
             exist = True
         return exist
-            
-
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
