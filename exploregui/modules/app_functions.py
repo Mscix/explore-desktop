@@ -32,16 +32,15 @@ class AppFunctions():
     def init_imp(self):
         active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
-        # self.ui.frame_impedance_widgets_16.hide()
-
         for chan in Settings.CHAN_LIST:
-            frame_name = f"frame_{chan}_2"
+            frame_name = f"frame_{chan}"
             try:
                 ch_frame = self.get_widget_by_objName(frame_name)
+                ch_frame.isHidden()
             except AttributeError as e:
                 logger.warning(str(e) + f" Chan: {chan} , frame_name: {frame_name}")
-                pass
-            # if chan not in self.chan_list:
+                return
+
             if chan not in active_chan:
                 ch_frame.hide()
             elif chan in active_chan and ch_frame.isHidden():
