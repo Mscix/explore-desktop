@@ -62,6 +62,7 @@ class VisualizationFunctions(AppFunctions):
             self.ui.plot_fft.clear()
             self.ui.plot_orn.clear()
             self.line = None
+            self.lines_orn = [None, None, None]
 
         self.init_plot_exg()
         self.init_plot_orn()
@@ -397,21 +398,11 @@ class VisualizationFunctions(AppFunctions):
         """
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
         n_new_points = len(data['t'])
-        # n_new_points = len(data['t']) + 1
         idxs = np.arange(self.exg_pointer, self.exg_pointer + n_new_points)
 
         self.exg_plot_data[0].put(idxs, data['t'], mode='wrap')  # replace values with new points
         self.last_t = data['t'][-1]
-        # try:
-        #     self.last_t = self.exg_plot_data[0][idxs[-1]]
-        # except IndexError:
-        #     self.last_t = data['t'][-1]
-        # print()
-        # print(f"{self.last_t=}")
-        # print(f"{t_min=}")
-        # print(f"{self.exg_plot_data[0][idxs[-1]]=}")
 
-        # for i, ch in enumerate(self.exg_plot.keys()):
         for ch in self.exg_plot_data[1].keys():
             try:
                 d = data[ch]
@@ -433,13 +424,7 @@ class VisualizationFunctions(AppFunctions):
             # t_min = np.nanmin(self.exg_plot_data[0])
             t_max = t_min + self.get_timeScale()
             self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
-            # print(f"{t_min=}")
-            # print(f"{t_max=}")
-            # print(f"{np.nanmin(self.exg_plot_data[0])=}")
-            # print(f"{np.nanmax(self.exg_plot_data[0])=}")
-            # print(f"{np.where(self.exg_plot_data[0] - t_min>=0.5)[0]=}")
-            # print()
-            # print()
+
             id_th = np.where(self.exg_plot_data[0] - t_min >= 0.5)[0][0]
             if id_th > 100:
                 for ch in self.exg_plot_data[1].keys():
@@ -458,7 +443,6 @@ class VisualizationFunctions(AppFunctions):
             # Remove rr peaks and replot in new axis
             to_remove = []
             for idx_t in range(len(self.r_peak['t'])):
-                # if self.r_peak['t'][idx_t][0] < self.exg_plot_data[0][0]:
                 if self.r_peak['t'][idx_t] < data['t'][-1]:
                     new_t = self.r_peak['t'][idx_t] + self.get_timeScale()
                     new_point = self.ui.plot_exg.plot([new_t],
@@ -477,9 +461,6 @@ class VisualizationFunctions(AppFunctions):
                                       self.r_peak['points'][idx_t]
                                       ])
             for point in to_remove:
-                # print(f'{self.r_peak["t"]=}')
-                # print(f'{i=}')
-                # print(f'{to_remove=}')
                 self.r_peak['t'].remove(point[0])
                 self.r_peak['r_peak'].remove(point[1])
                 self.r_peak['points'].remove(point[2])
@@ -534,6 +515,7 @@ class VisualizationFunctions(AppFunctions):
         for idx_t in range(len(self.mrk_replot['t'])):
             if self.mrk_replot['t'][idx_t] < data['t'][-1]:
                 self.ui.plot_exg.removeItem(self.mrk_replot['line'][idx_t])
+
         # Remove reploted r_peaks
         to_remove_replot = []
         for idx_t in range(len(self.r_peak_replot['t'])):
@@ -549,14 +531,10 @@ class VisualizationFunctions(AppFunctions):
                                          self.r_peak_replot['r_peak'][idx_t],
                                          self.r_peak_replot['points'][idx_t]])
         for point in to_remove_replot:
-            # try:
             self.r_peak_replot['t'].remove(point[0])
             self.r_peak_replot['r_peak'].remove(point[1])
             self.r_peak_replot['points'].remove(point[2])
             to_remove_replot.remove(point)
-            # except:
-            #     print(f'{self.r_peak_replot["t"]=}')
-            #     print(f'{point[0]=}\n')
 
     @Slot(dict)
     def plot_mkr(self, data, replot=False):
@@ -608,15 +586,13 @@ class VisualizationFunctions(AppFunctions):
 
         # Position line
         if None in self.lines_orn:
+            self.ui.plot_orn.clear()
+            self.init_plot_orn()
             for i, plt in enumerate(self.plots_orn_list):
                 self.lines_orn[i] = plt.addLine(data['t'][-1], pen='#FF0000')
         else:
             for line in self.lines_orn:
-                try:
-                    line.setPos(data['t'][-1])
-                except RuntimeError:
-                    self.lines_orn = [None, None, None]
-                    # pass
+                line.setPos(data['t'][-1])
 
         if NANS[1]:
             orn_plot_nan = copy.deepcopy(self.orn_plot)
@@ -628,6 +604,7 @@ class VisualizationFunctions(AppFunctions):
             connection[self.orn_pointer - 1: self.orn_pointer + 1] = 0
         for plt in self.plots_orn_list:
             plt.disableAutoRange()
+
         # Paint curves
         if NANS[1]:
             self.curve_ax.setData(self.t_orn_plot, orn_plot_nan['accX'], connect='finite')
@@ -649,16 +626,6 @@ class VisualizationFunctions(AppFunctions):
             self.curve_mx.setData(self.t_orn_plot, self.orn_plot['magX'], connect=connection)
             self.curve_my.setData(self.t_orn_plot, self.orn_plot['magY'], connect=connection)
             self.curve_mz.setData(self.t_orn_plot, self.orn_plot['magZ'], connect=connection)
-
-            # self.curve_ax.setData(self.t_orn_plot, self.orn_plot['accX'], connect='finite')
-            # self.curve_ay.setData(self.t_orn_plot, self.orn_plot['accY'], connect='finite')
-            # self.curve_az.setData(self.t_orn_plot, self.orn_plot['accZ'], connect='finite')
-            # self.curve_gx.setData(self.t_orn_plot, self.orn_plot['gyroX'], connect='finite')
-            # self.curve_gy.setData(self.t_orn_plot, self.orn_plot['gyroY'], connect='finite')
-            # self.curve_gz.setData(self.t_orn_plot, self.orn_plot['gyroZ'], connect='finite')
-            # self.curve_mx.setData(self.t_orn_plot, self.orn_plot['magX'], connect='finite')
-            # self.curve_my.setData(self.t_orn_plot, self.orn_plot['magY'], connect='finite')
-            # self.curve_mz.setData(self.t_orn_plot, self.orn_plot['magZ'], connect='finite')
 
         for plt in self.plots_orn_list:
             plt.autoRange()

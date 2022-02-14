@@ -77,6 +77,9 @@ class Ui_MainWindow(object):
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1116, 691)
         MainWindow.setMinimumSize(QSize(800, 600))
+#         MainWindow.setStyleSheet(u"QMainWindow{\n"
+# " border: 2px solid #000\n"
+# "}")
         self.actionExport_Metadata = QAction(MainWindow)
         self.actionExport_Metadata.setObjectName(u"actionExport_Metadata")
         self.actionDocumentation = QAction(MainWindow)
@@ -1339,6 +1342,7 @@ class Ui_MainWindow(object):
 
         self.verticalSpacer_12 = QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Preferred)
 
+
         self.verticalLayout_16.addItem(self.verticalSpacer_12)
 
         self.horizontalLayout_18 = QHBoxLayout()
@@ -1686,6 +1690,9 @@ class Ui_MainWindow(object):
         self.imp_mode.setStyleSheet(u"")
 
         self.verticalLayout_16.addWidget(self.imp_mode, 0, Qt.AlignHCenter)
+
+        self.verticalSpacer_16 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Preferred)
+        self.verticalLayout_16.addItem(self.verticalSpacer_16)
 
         self.horizontalLayout_11 = QHBoxLayout()
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
@@ -2058,7 +2065,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(5)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
