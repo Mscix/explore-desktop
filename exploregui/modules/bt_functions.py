@@ -189,6 +189,7 @@ class BTFunctions(AppFunctions):
 
         else:
             try:
+                self.explorer.stream_processor.remove_filters()
                 self.explorer.disconnect()
                 self.is_connected = False
                 AppFunctions.is_connected = self.is_connected
