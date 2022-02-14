@@ -2,7 +2,7 @@
 
 # Uncomment to debug
 # from appdirs import user_log_dir
-# import cgitb 
+# import cgitb
 # cgitb.enable(logdir=user_log_dir, format='text', display=1)
 # import faulthandler
 # faulthandler.enable()
