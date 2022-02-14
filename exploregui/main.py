@@ -1,17 +1,11 @@
 # This Python file uses the following encoding: utf-8
 
-# Uncomment to debug
-# from appdirs import user_log_dir
-# import cgitb
-# cgitb.enable(logdir=user_log_dir, format='text', display=1)
-# import faulthandler
-# faulthandler.enable()
-
 import logging
 import sys
 
 import explorepy
 from PySide6.QtWidgets import QApplication
+
 
 import exploregui  # isort:skip
 from exploregui import MainWindow  # isort:skip
