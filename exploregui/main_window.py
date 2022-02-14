@@ -3,6 +3,7 @@ import os
 import sys
 
 import exploregui
+import explorepy as xpy
 from exploregui.modules import (
     AppFunctions,
     BTFunctions,
@@ -14,10 +15,10 @@ from exploregui.modules import (
     Ui_MainWindow,
     VisualizationFunctions
 )
-
-import explorepy as xpy
-from explorepy.log_config import write_config, read_config
-
+from explorepy.log_config import (
+    read_config,
+    write_config
+)
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
