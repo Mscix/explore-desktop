@@ -25,7 +25,9 @@ def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    sys.exit(app.exec())
+    # sys.exit(app.exec())
+    app.exec()
+    del window, app
 
 
 if __name__ == "__main__":
