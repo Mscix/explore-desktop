@@ -277,6 +277,7 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_settings":
+            self.BT_funct.update_frame_dev_settings()
             self.imp_funct.check_is_imp()
 
             if self.funct.is_connected is False:
@@ -290,9 +291,6 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
 
         elif btn_name == "btn_plots":
-            # self.ui.label_3.setHidden(self.file_names is None)
-            # self.ui.label_7.setHidden(self.file_names is None)
-
             self.imp_funct.check_is_imp()
             filt = True
 
