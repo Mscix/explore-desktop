@@ -38,6 +38,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QGraphicsDropShadowEffect,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QSizeGrip
 )
@@ -51,7 +52,6 @@ class MainWindow(QMainWindow):
     """
     Main window class. Connect signals and slots
     Args:
-        QMainWindow (PySide.QtWidget.QMainWindow): MainWindow widget
     """
     signal_exg = Signal(object)
     signal_orn = Signal(object)
@@ -208,11 +208,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def connect_clicked(self, dev_name=None):
-        self.ui.lbl_wdws_warning.hide()
+        """Connect or disconnect from device
+        Args:
+            dev_name (str, optional): For testing purposes, can pass name of the device to connect. Defaults to None.
+        """
         self.BT_funct.connect2device(dev_name=dev_name)
         self.funct.is_connected = self.BT_funct.is_connected
-        # print(f"{self.BT_funct.is_connected=}")
-        # print(f"{self.funct.is_connected=}")
         self.is_connected = self.funct.get_is_connected()
 
         if self.funct.get_is_connected() is False:
@@ -220,6 +221,11 @@ class MainWindow(QMainWindow):
             self.reset_vars()
         else:
             self.vis_funct.init_plots()
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+            default = self.ui.btn_bt.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
+            self.ui.btn_bt.setStyleSheet(default)
+            highlight = self.ui.btn_settings.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
+            self.ui.btn_settings.setStyleSheet(highlight)
 
     @Slot()
     def n_chan_changed(self):
@@ -243,8 +249,18 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def imp_meas_clicked(self):
-        # self.chan_dict = self.BT_funct.get_chan_dict()
-        # self.is_connected = self.BT_funct.get_is_connected()
+        """
+        Start impedance measurement.
+        If another process is running, it will ask the user for confirmation
+        """
+        msg = (
+            "Impedance measurement will introduce noise to the signal"
+            " and affect the visualization, recording, and LSL stream."
+            "\nAre you sure you want to continue?")
+        if not self.imp_funct.is_imp_measuring and (self.record_funct.is_recording or self.LSL_funct.is_pushing):
+            response = self.funct.display_msg(msg_text=msg, type="question")
+            if response == QMessageBox.StandardButton.No:
+                return
         self.imp_funct.emit_imp()
 
     def update_fft(self):
