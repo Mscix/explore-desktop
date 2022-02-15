@@ -8,24 +8,68 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
-    QCursor, QFont, QFontDatabase, QGradient,
-    QIcon, QImage, QKeySequence, QLinearGradient,
-    QPainter, QPalette, QPixmap, QRadialGradient,
-    QTransform)
-from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QCheckBox, QComboBox,
-    QFrame, QHBoxLayout, QLabel, QLayout,
-    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
-    QPushButton, QSizePolicy, QSpacerItem, QSpinBox,
-    QSplitter, QStackedWidget, QTabWidget, QVBoxLayout,
-    QWidget)
-
-
-from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
 from exploregui import app_resources_rc
+from pyqtgraph import (
+    GraphicsLayoutWidget,
+    PlotWidget
+)
+from PySide6.QtCore import (
+    QCoreApplication,
+    QDate,
+    QDateTime,
+    QLocale,
+    QMetaObject,
+    QObject,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+    QTime,
+    QUrl
+)
+from PySide6.QtGui import (
+    QAction,
+    QBrush,
+    QColor,
+    QConicalGradient,
+    QCursor,
+    QFont,
+    QFontDatabase,
+    QGradient,
+    QIcon,
+    QImage,
+    QKeySequence,
+    QLinearGradient,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QRadialGradient,
+    QTransform
+)
+from PySide6.QtWidgets import (
+    QAbstractScrollArea,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
+    QSplitter,
+    QStackedWidget,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget
+)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -363,12 +407,11 @@ class Ui_MainWindow(object):
         self.stackedWidget.setStyleSheet(u"f")
         self.page_home = QWidget()
         self.page_home.setObjectName(u"page_home")
-        self.verticalLayout_20 = QVBoxLayout(self.page_home)
-        self.verticalLayout_20.setObjectName(u"verticalLayout_20")
-        self.verticalLayout_20.setContentsMargins(-1, -1, -1, 0)
+        self.verticalLayout_7 = QVBoxLayout(self.page_home)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.verticalSpacer_6 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
-        self.verticalLayout_20.addItem(self.verticalSpacer_6)
+        self.verticalLayout_7.addItem(self.verticalSpacer_6)
 
         self.frame_home_title = QFrame(self.page_home)
         self.frame_home_title.setObjectName(u"frame_home_title")
@@ -394,11 +437,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_19.addWidget(self.home_title)
 
 
-        self.verticalLayout_20.addWidget(self.frame_home_title)
+        self.verticalLayout_7.addWidget(self.frame_home_title)
 
         self.verticalSpacer_4 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
-        self.verticalLayout_20.addItem(self.verticalSpacer_4)
+        self.verticalLayout_7.addItem(self.verticalSpacer_4)
 
         self.label = QLabel(self.page_home)
         self.label.setObjectName(u"label")
@@ -406,7 +449,7 @@ class Ui_MainWindow(object):
         self.label.setStyleSheet(u"")
         self.label.setMargin(15)
 
-        self.verticalLayout_20.addWidget(self.label)
+        self.verticalLayout_7.addWidget(self.label)
 
         self.verticalLayout_18 = QVBoxLayout()
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
@@ -524,11 +567,25 @@ class Ui_MainWindow(object):
         self.verticalLayout_18.addLayout(self.horizontalLayout_10)
 
 
-        self.verticalLayout_20.addLayout(self.verticalLayout_18)
+        self.verticalLayout_7.addLayout(self.verticalLayout_18)
+
+        self.label_4 = QLabel(self.page_home)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setMaximumSize(QSize(16777215, 16777215))
+        self.label_4.setStyleSheet(u"")
+        self.label_4.setMargin(15)
+
+        self.verticalLayout_7.addWidget(self.label_4)
+
+        self.cb_permission = QCheckBox(self.page_home)
+        self.cb_permission.setObjectName(u"cb_permission")
+        self.cb_permission.setChecked(True)
+
+        self.verticalLayout_7.addWidget(self.cb_permission)
 
         self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.verticalLayout_20.addItem(self.verticalSpacer_3)
+        self.verticalLayout_7.addItem(self.verticalSpacer_3)
 
         self.stackedWidget.addWidget(self.page_home)
         self.page_integration = QWidget()
@@ -1283,7 +1340,8 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_16.addWidget(self.frame_impedance_title)
 
-        self.verticalSpacer_12 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Preferred)
+        self.verticalSpacer_12 = QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Preferred)
+
 
         self.verticalLayout_16.addItem(self.verticalSpacer_12)
 
@@ -1634,7 +1692,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_16.addWidget(self.imp_mode, 0, Qt.AlignHCenter)
 
         self.verticalSpacer_16 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Preferred)
-
         self.verticalLayout_16.addItem(self.verticalSpacer_16)
 
         self.horizontalLayout_11 = QHBoxLayout()
@@ -2046,6 +2103,8 @@ class Ui_MainWindow(object):
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Measure and visualize the channel's impedance", None))
         self.btn_integration_2.setText("")
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Integrate with other platforms", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">DATA SHARING PERMISSION</span></p></body></html>", None))
+        self.cb_permission.setText(QCoreApplication.translate("MainWindow", u"Automatically send error logs to Mentalab", None))
         self.integration_title.setText(QCoreApplication.translate("MainWindow", u"INTEGRATION", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Push to LSL</span></p></body></html>", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Stream data from other software such as OpenVibe or other programming languages. </p><p>It will create three LSL streams for ExG, Orientation and markers. </p></body></html>", None))

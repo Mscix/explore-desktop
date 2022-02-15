@@ -1,4 +1,5 @@
 # from PySide6.QtCore import Signal
+import logging
 import os
 
 import explorepy._exceptions as xpy_ex
@@ -12,6 +13,8 @@ from PySide6.QtWidgets import (
     QCheckBox
 )
 
+
+logger = logging.getLogger("explorepy." + __name__)
 
 # DISABLED_STYLESHEET = """
 #     background-color: rgb(129,133,161);
@@ -57,19 +60,18 @@ class BTFunctions(AppFunctions):
         try:
             with self.wait_cursor():
                 explore_devices = bt_scan()
-        except ValueError:
-            msg = "Error opening socket.\nPlease make sure the bluetooth is on."
+        except (ValueError, SystemError):
+            msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
             self._connection_error_gui(msg, scan=True)
+            logger.warning("No Bluetooth connection available.")
             return
-        except SystemError as error:
-            msg = str(error)
-            msg += "\nPlease make sure the Bluetooth is on."
-            self._connection_error_gui(msg, scan=True)
-            return
+
+        explore_devices = [dev[0] for dev in explore_devices]
 
         if len(explore_devices) == 0:
             msg = "No explore devices found. Please make sure your device is turned on."
             self._connection_error_gui(msg, scan=True)
+            logger.info("No explore devices found.")
             return
 
         # If platform is Windows display devices with Paired/Unpaired label and display warning
@@ -137,6 +139,7 @@ class BTFunctions(AppFunctions):
             else:
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
                 # QMessageBox.critical(self, "Error", msg)
+                logger.warning("No device name or invalid device name")
                 self.display_msg(msg)
                 return
 
@@ -164,23 +167,17 @@ class BTFunctions(AppFunctions):
             except xpy_ex.DeviceNotFoundError as error:
                 msg = str(error)
                 self._connection_error_gui(msg)
+                logger.warning("Device not found.")
                 return
             except (TypeError, UnboundLocalError):
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
                 self._connection_error_gui(msg)
+                logger.warning("Invalid Explore name")
                 return
-            except AssertionError as error:
-                msg = str(error)
+            except (ValueError, SystemError):
+                msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
                 self._connection_error_gui(msg)
-                return
-            except ValueError:
-                msg = "Error opening socket.\nPlease make sure the bluetooth is on."
-                self._connection_error_gui(msg)
-                return
-            except SystemError as error:
-                msg = str(error)
-                msg += "\nPlease make sure the Bluetooth is on."
-                self._connection_error_gui(msg)
+                logger.warning("No Bluetooth connection available.")
                 return
             except Exception as error:
                 msg = str(error)
@@ -193,14 +190,12 @@ class BTFunctions(AppFunctions):
                 self.is_connected = False
                 AppFunctions.is_connected = self.is_connected
 
-            except AssertionError as error:
-                msg = str(error)
-                self.display_msg(msg)
             except Exception as error:
                 msg = str(error)
                 self.display_msg(msg)
+                logger.debug(
+                    f"Got an exception while disconnecting from the device: {error} of type: {type(error)}")
 
-        print(self.is_connected)
         self.ui.btn_connect.setStyleSheet("")
         self.on_connection()
         self.ui.lbl_bt_instructions.hide()
@@ -395,6 +390,12 @@ class BTFunctions(AppFunctions):
                     not_connected_lbl = "Not connected"
                     new_value = connected_lbl if self.is_connected else not_connected_lbl
                     self._update_device_name(new_value=new_value)
+
+                elif key == "light":
+                    pass
+
+                else:
+                    logger.warning("There is no field named: " + key)
 
             QApplication.processEvents()
 

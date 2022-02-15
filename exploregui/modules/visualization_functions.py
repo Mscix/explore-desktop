@@ -1,4 +1,5 @@
 import copy
+import logging
 import time
 import warnings
 
@@ -14,7 +15,7 @@ from scipy.ndimage.filters import gaussian_filter1d
 
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
+logger = logging.getLogger("explorepy." + __name__)
 NANS = [False, False]  # exg, orn
 
 
@@ -137,7 +138,6 @@ class VisualizationFunctions(AppFunctions):
         """
         Initialize plot ORN
         """
-
         pw = self.ui.plot_orn
 
         # Set Background color
@@ -774,7 +774,7 @@ class VisualizationFunctions(AppFunctions):
         """
         Change ExG and ORN plots time scale
         """
-
+        logger.debug(f"Time scale has been changed to {self.get_timeScale()}")
         t_min = self.last_t
         t_max = t_min + self.get_timeScale()
         self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
@@ -803,6 +803,8 @@ class VisualizationFunctions(AppFunctions):
         """
         old = Settings.SCALE_MENU[self.y_string]
         new = Settings.SCALE_MENU[self.ui.value_yAxis.currentText()]
+        logger.debug(
+            f"ExG scale has been changed from {self.y_string} to {self.ui.value_yAxis.currentText()}")
 
         old_unit = 10 ** (-old)
         new_unit = 10 ** (-new)
@@ -893,6 +895,7 @@ class VisualizationFunctions(AppFunctions):
 
         if 'ch1' not in self.exg_plot_data[2].keys():
             msg = 'Heart rate estimation works only when channel 1 is enabled.'
+            logger.warning(msg)
             if self.rr_warning_displayed is False:
                 self.display_msg(msg_text=msg, type='info')
                 self.rr_warning_displayed = True
@@ -917,7 +920,8 @@ class VisualizationFunctions(AppFunctions):
 
         # Check if the peak2peak value is bigger than threshold
         if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
-            print('P2P value larger or less than threshold. Cannot compute heart rate!')
+            msg = 'P2P value larger or less than threshold. Cannot compute heart rate!'
+            logger.warning(msg)
             return
 
         try:
@@ -1020,3 +1024,9 @@ class VisualizationFunctions(AppFunctions):
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
+
+    def _mode_change(self):
+        """
+        Log mode change (EEG or ECG)
+        """
+        logger.debug(f"ExG mode has been changed to {self.ui.value_signal.currentText()}")

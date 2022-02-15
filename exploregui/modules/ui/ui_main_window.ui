@@ -688,10 +688,7 @@ QLabel#bt_title{
              <number>5</number>
             </property>
             <widget class="QWidget" name="page_home">
-             <layout class="QVBoxLayout" name="verticalLayout_20">
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
                <spacer name="verticalSpacer_6">
                 <property name="orientation">
@@ -1039,6 +1036,35 @@ QLabel#bt_title{
                  </layout>
                 </item>
                </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;DATA SHARING PERMISSION&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="margin">
+                 <number>15</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="cb_permission">
+                <property name="text">
+                 <string>Automatically send error logs to Mentalab</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item>
                <spacer name="verticalSpacer_3">
