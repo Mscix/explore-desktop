@@ -1,17 +1,27 @@
 # This Python file uses the following encoding: utf-8
+
+import logging
 import sys
 
-from exploregui import MainWindow
+import explorepy
 from PySide6.QtWidgets import QApplication
 
 
+import exploregui  # isort:skip
+from exploregui import MainWindow  # isort:skip
+
+logger = logging.getLogger("explorepy.exploregui.main")
+logger.debug("Starting ExploreGUI (version: %s) with Explorepy (version: %s)",
+             exploregui.__version__, explorepy.__version__)
+
+
 def main():
-    # faulthandler.enable()
-    # cgitb.enable(format = 'text')
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    sys.exit(app.exec())
+    # sys.exit(app.exec())
+    app.exec()
+    del window, app
 
 
 if __name__ == "__main__":

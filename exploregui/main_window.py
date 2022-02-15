@@ -15,6 +15,10 @@ from exploregui.modules import (
     Ui_MainWindow,
     VisualizationFunctions
 )
+from explorepy.log_config import (
+    read_config,
+    write_config
+)
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
@@ -34,6 +38,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QGraphicsDropShadowEffect,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QSizeGrip
 )
@@ -47,7 +52,6 @@ class MainWindow(QMainWindow):
     """
     Main window class. Connect signals and slots
     Args:
-        QMainWindow (PySide.QtWidget.QMainWindow): MainWindow widget
     """
     signal_exg = Signal(object)
     signal_orn = Signal(object)
@@ -115,8 +119,15 @@ class MainWindow(QMainWindow):
         self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slide_left_menu())
 
         # Stacked pages - default open connect
-        # self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
-        self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        existing_permission = self.check_permissions()
+        if existing_permission:
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+        else:
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
+            # Set data sharing permissions
+            self.set_permissions()
+
+        # Left menu button stylesheet and input foucus
         self.ui.btn_bt.setStyleSheet(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
         self.ui.dev_name_input.setFocus()
 
@@ -127,6 +138,8 @@ class MainWindow(QMainWindow):
         # Check connection every 2 seconds
         self.check_connection()
 
+        # HOME PAGE
+        self.ui.cb_permission.stateChanged.connect(self.set_permissions)
         # CONNECT PAGE BUTTONS
         self.ui.lbl_wdws_warning.hide()
         # hide import data:
@@ -160,6 +173,7 @@ class MainWindow(QMainWindow):
         self.ui.label_6.setHidden(True)
 
         # PLOTTING PAGE
+        self.ui.value_signal.currentTextChanged.connect(self.vis_funct._mode_change)
         self.ui.btn_record.clicked.connect(lambda: self.record_funct.on_record())
         self.ui.btn_plot_filters.clicked.connect(lambda: self.vis_funct.popup_filters())
 
@@ -194,11 +208,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def connect_clicked(self, dev_name=None):
-        self.ui.lbl_wdws_warning.hide()
+        """Connect or disconnect from device
+        Args:
+            dev_name (str, optional): For testing purposes, can pass name of the device to connect. Defaults to None.
+        """
         self.BT_funct.connect2device(dev_name=dev_name)
         self.funct.is_connected = self.BT_funct.is_connected
-        # print(f"{self.BT_funct.is_connected=}")
-        # print(f"{self.funct.is_connected=}")
         self.is_connected = self.funct.get_is_connected()
 
         if self.funct.get_is_connected() is False:
@@ -206,6 +221,11 @@ class MainWindow(QMainWindow):
             self.reset_vars()
         else:
             self.vis_funct.init_plots()
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+            default = self.ui.btn_bt.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
+            self.ui.btn_bt.setStyleSheet(default)
+            highlight = self.ui.btn_settings.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
+            self.ui.btn_settings.setStyleSheet(highlight)
 
     @Slot()
     def n_chan_changed(self):
@@ -229,8 +249,18 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def imp_meas_clicked(self):
-        # self.chan_dict = self.BT_funct.get_chan_dict()
-        # self.is_connected = self.BT_funct.get_is_connected()
+        """
+        Start impedance measurement.
+        If another process is running, it will ask the user for confirmation
+        """
+        msg = (
+            "Impedance measurement will introduce noise to the signal"
+            " and affect the visualization, recording, and LSL stream."
+            "\nAre you sure you want to continue?")
+        if not self.imp_funct.is_imp_measuring and (self.record_funct.is_recording or self.LSL_funct.is_pushing):
+            response = self.funct.display_msg(msg_text=msg, type="question")
+            if response == QMessageBox.StandardButton.No:
+                return
         self.imp_funct.emit_imp()
 
     def update_fft(self):
@@ -587,6 +617,26 @@ class MainWindow(QMainWindow):
         self.timer_con.setInterval(2000)
         self.timer_con.timeout.connect(lambda: self.print_connection())
         self.timer_con.start()
+
+    def set_permissions(self):
+        """
+        Set data sharing permission to explorepy config file
+        """
+        share = self.ui.cb_permission.isChecked()
+        write_config("user settings", "share_logs", str(share))
+
+    def check_permissions(self):
+        """Check current data sharing permission
+
+        Returns:
+            bool: whether permission exist in config file
+        """
+        exist = False
+        config = read_config("user settings", "share_logs")
+        if config != "":
+            self.ui.cb_permission.setChecked(bool(config))
+            exist = True
+        return exist
 
 
 if __name__ == "__main__":

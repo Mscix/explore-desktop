@@ -1,4 +1,5 @@
 import copy
+import logging
 import time
 import warnings
 
@@ -14,7 +15,7 @@ from scipy.ndimage.filters import gaussian_filter1d
 
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
+logger = logging.getLogger("explorepy." + __name__)
 NANS = [False, False]  # exg, orn
 
 
@@ -66,6 +67,7 @@ class VisualizationFunctions(AppFunctions):
             self.ui.plot_fft.clear()
             self.ui.plot_orn.clear()
             self.line = None
+            self.lines_orn = [None, None, None]
 
         self.init_plot_exg()
         self.init_plot_orn()
@@ -392,7 +394,6 @@ class VisualizationFunctions(AppFunctions):
         """
         self.active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
         n_new_points = len(data['t'])
-        # n_new_points = len(data['t']) + 1
         idxs = np.arange(self.exg_pointer, self.exg_pointer + n_new_points)
 
         self.exg_plot_data[0].put(idxs, data['t'], mode='wrap')  # replace values with new points
@@ -437,7 +438,6 @@ class VisualizationFunctions(AppFunctions):
             # Remove rr peaks and replot in new axis
             to_remove = []
             for idx_t in range(len(self.r_peak['t'])):
-                # if self.r_peak['t'][idx_t][0] < self.exg_plot_data[0][0]:
                 if self.r_peak['t'][idx_t] < data['t'][-1]:
                     new_t = self.r_peak['t'][idx_t] + self.get_timeScale()
                     new_point = self.ui.plot_exg.plot([new_t],
@@ -510,6 +510,7 @@ class VisualizationFunctions(AppFunctions):
         for idx_t in range(len(self.mrk_replot['t'])):
             if self.mrk_replot['t'][idx_t] < data['t'][-1]:
                 self.ui.plot_exg.removeItem(self.mrk_replot['line'][idx_t])
+
         # Remove reploted r_peaks
         to_remove_replot = []
         for idx_t in range(len(self.r_peak_replot['t'])):
@@ -580,6 +581,8 @@ class VisualizationFunctions(AppFunctions):
 
         # Position line
         if None in self.lines_orn:
+            self.ui.plot_orn.clear()
+            self.init_plot_orn()
             for i, plt in enumerate(self.plots_orn_list):
                 self.lines_orn[i] = plt.addLine(data['t'][-1], pen='#FF0000')
         else:
@@ -768,7 +771,7 @@ class VisualizationFunctions(AppFunctions):
         """
         Change ExG and ORN plots time scale
         """
-
+        logger.debug(f"Time scale has been changed to {self.get_timeScale()}")
         t_min = self.last_t
         t_max = t_min + self.get_timeScale()
         self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
@@ -797,6 +800,8 @@ class VisualizationFunctions(AppFunctions):
         """
         old = Settings.SCALE_MENU[self.y_string]
         new = Settings.SCALE_MENU[self.ui.value_yAxis.currentText()]
+        logger.debug(
+            f"ExG scale has been changed from {self.y_string} to {self.ui.value_yAxis.currentText()}")
 
         old_unit = 10 ** (-old)
         new_unit = 10 ** (-new)
@@ -887,6 +892,7 @@ class VisualizationFunctions(AppFunctions):
 
         if 'ch1' not in self.exg_plot_data[2].keys():
             msg = 'Heart rate estimation works only when channel 1 is enabled.'
+            logger.warning(msg)
             if self.rr_warning_displayed is False:
                 self.display_msg(msg_text=msg, type='info')
                 self.rr_warning_displayed = True
@@ -911,7 +917,8 @@ class VisualizationFunctions(AppFunctions):
 
         # Check if the peak2peak value is bigger than threshold
         if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
-            print('P2P value larger or less than threshold. Cannot compute heart rate!')
+            msg = 'P2P value larger or less than threshold. Cannot compute heart rate!'
+            logger.warning(msg)
             return
 
         try:
@@ -1014,3 +1021,9 @@ class VisualizationFunctions(AppFunctions):
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
+
+    def _mode_change(self):
+        """
+        Log mode change (EEG or ECG)
+        """
+        logger.debug(f"ExG mode has been changed to {self.ui.value_signal.currentText()}")
