@@ -87,7 +87,7 @@ background-color: #2B851A;"""
 
     BATTERY_STYLESHEETS = {
         "low": "color: #FD0000;",
-        "medium": "color: #FDE400;",
+        "medium": "color: #CDB900;",
         "high": "color: #00FD19;",
         "na": "color: #FFFFFF"
     }

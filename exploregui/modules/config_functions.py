@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from exploregui.modules import (
     AppFunctions,
@@ -9,6 +11,9 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QMessageBox
 )
+
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class ConfigFunctions(AppFunctions):
@@ -53,6 +58,7 @@ class ConfigFunctions(AppFunctions):
 
         if response == QMessageBox.StandardButton.Yes:
             # QMessageBox.information(self, "", "Calibrating...\nPlease move and rotate the device")
+            logger.debug("User requested ORN calibration.")
             self.ui.ft_label_device_3.setText("Calibrating ORN ... ")
             self.ui.ft_label_device_3.repaint()
             with self.wait_cursor():
@@ -98,18 +104,15 @@ class ConfigFunctions(AppFunctions):
             if self.plotting_filters is not None:
                 self.check_filters_new_sr()
 
-            print(
-                "Old Sampling rate: ",
-                self.explorer.stream_processor.device_info['sampling_rate'])
+            logger.info(f"Old Sampling rate: {self.explorer.stream_processor.device_info['sampling_rate']}")
 
             self.explorer.set_sampling_rate(sampling_rate=value)
 
-            print(
-                "New Sampling rate: ",
-                self.explorer.stream_processor.device_info['sampling_rate'])
+            logger.info(f"New Sampling rate: {self.explorer.stream_processor.device_info['sampling_rate']}")
             changed = True
+
         else:
-            print("Same sampling rate")
+            logger.info("Same sampling rate")
 
         return changed
 
@@ -161,7 +164,7 @@ class ConfigFunctions(AppFunctions):
             changed = True
 
         else:
-            print("Same channel mask")
+            logger.info("Same channel mask")
 
         return changed
 
@@ -234,6 +237,7 @@ class ConfigFunctions(AppFunctions):
             reapply = True
 
         if reapply:
+            logger.info("Updating filters for new sampling rate")
             self.explorer.stream_processor.remove_filters()
             self.apply_filters()
             AppFunctions.plotting_filters = self.plotting_filters

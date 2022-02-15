@@ -1,4 +1,9 @@
+import logging
+
 from exploregui.modules.app_functions import AppFunctions
+
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class LSLFunctions(AppFunctions):
@@ -8,8 +13,9 @@ class LSLFunctions(AppFunctions):
 
     def push_lsl(self):
         if self.is_connected is False:
-            self.exg_plot_datadisplay_msg(msg_text="Please connect an Explore device first")
+            self.display_msg(msg_text="Please connect an Explore device first")
             return
+        logger.debug("Pressed push2lsl button -> %s", not self.is_pushing)
 
         # spinbox_val = self.ui.lsl_duration_value.value()
         # duration = None if spinbox_val == 0 else spinbox_val
