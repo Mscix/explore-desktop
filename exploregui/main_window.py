@@ -59,10 +59,8 @@ class MainWindow(QMainWindow):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        # TODO: Set a dynamic path here
-        self.setWindowIcon(
-            QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images',
-                               'MentalabLogo.png')))
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
+        self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle('ExploreGUI')
 
         self.explorer = xpy.Explore()

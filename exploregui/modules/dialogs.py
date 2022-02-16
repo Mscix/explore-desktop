@@ -1,10 +1,6 @@
 import os
 import sys
 
-from exploregui.modules.ui import (
-    Ui_PlotDialog,
-    Ui_RecordingDialog
-)
 from PySide6.QtCore import QRegularExpression
 from PySide6.QtGui import (
     QIcon,
@@ -17,6 +13,15 @@ from PySide6.QtWidgets import (
     QFileDialog
 )
 
+from exploregui.modules.ui import (
+    Ui_PlotDialog,
+    Ui_RecordingDialog
+)
+
+CWD = os.path.dirname(os.path.abspath(__file__))
+ICON_PATH = os.path.join(
+    os.path.join(CWD, os.pardir), "images", "MentalabLogo.png")
+
 
 class PlotDialog(QDialog):
     """Dialog Filters Pop-up
@@ -28,13 +33,12 @@ class PlotDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
         self.ui.setupUi(self)
-        # TODO: Set a dynamic path here
-        self.setWindowIcon(
-            QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images',
-                               'MentalabLogo.png')))
+
+        self.setWindowIcon(QIcon(ICON_PATH))
+        self.setWindowTitle("Visualization Settings")
+
         self.ui.lbl_warning.hide()
         self.ui.cb_offset.setToolTip("Remove the DC offset of the signal based on the previous signal values")
-        self.setWindowTitle("Visualization Settings")
         self.close = False
 
         self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(
@@ -211,9 +215,7 @@ class RecordingDialog(QDialog):
         self.ui = Ui_RecordingDialog()
         self.ui.setupUi(self)
 
-        # TODO: Set a dynamic path here
-        self.setWindowIcon(QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images',
-                                              'MentalabLogo.png')))
+        self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle("Recording Settings")
 
         self.recording_time = int(self.ui.spinBox.value())
