@@ -185,7 +185,6 @@ class ConfigFunctions(AppFunctions):
         stream_processor = self.explorer.stream_processor
 
         with self.wait_cursor():
-            self.reset_exg_plot_data()
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
             self.reset_exg_plot_data()
