@@ -82,7 +82,7 @@ class PlotDialog(QDialog):
         self.ui.value_highpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
 
     def verify_input(self, borderOnly=False):
-        """[summary]
+        """Verify frequencies are not above/below the threshold
 
         Args:
             borderOnly (bool, optional): display message if False. Defaults to False.
