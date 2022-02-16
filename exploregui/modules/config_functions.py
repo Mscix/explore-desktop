@@ -255,25 +255,39 @@ class ConfigFunctions(AppFunctions):
         if enable is False:
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setEnabled(False)
-                w.setStyleSheet("color: gray")
 
             self.ui.value_sampling_rate.setEnabled(False)
             self.ui.value_sampling_rate.setStyleSheet("color: gray;\nborder-color: gray;")
 
-            self.ui.btn_apply_settings.setStyleSheet(DISABLED_STYLESHEET)
             self.ui.btn_apply_settings.setEnabled(False)
+            self.ui.btn_apply_settings.setStyleSheet(DISABLED_STYLESHEET)
             self.ui.btn_apply_settings.setToolTip(
                 "Changing the settings during recording and LSL streaming is not possible")
+
+            self.ui.btn_reset_settings.setEnabled(False)
+            self.ui.btn_reset_settings.setStyleSheet(DISABLED_STYLESHEET)
+            self.ui.btn_reset_settings.setToolTip(
+                "Resetting the settings during recording and LSL streaming is not possible")
+
+            self.ui.btn_format_memory.setEnabled(False)
+            self.ui.btn_format_memory.setStyleSheet(DISABLED_STYLESHEET)
+            self.ui.btn_format_memory.setToolTip(
+                "Formatting the memory during recording and LSL streaming is not possible")
         else:
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 w.setEnabled(True)
-                w.setToolTip("")
-                w.setStyleSheet("")
 
-            self.ui.value_sampling_rate.setEnabled(False)
-            self.ui.value_sampling_rate.setToolTip("")
+            self.ui.value_sampling_rate.setEnabled(True)
             self.ui.value_sampling_rate.setStyleSheet("")
 
-            self.ui.btn_apply_settings.setStyleSheet("")
             self.ui.btn_apply_settings.setEnabled(True)
+            self.ui.btn_apply_settings.setStyleSheet("")
             self.ui.btn_apply_settings.setToolTip("")
+
+            self.ui.btn_reset_settings.setEnabled(True)
+            self.ui.btn_reset_settings.setStyleSheet("")
+            self.ui.btn_reset_settings.setToolTip("")
+
+            self.ui.btn_format_memory.setEnabled(True)
+            self.ui.btn_format_memory.setStyleSheet("")
+            self.ui.btn_format_memory.setToolTip("")
