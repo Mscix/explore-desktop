@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from exploregui.modules import (
     AppFunctions,
@@ -9,6 +11,9 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QMessageBox
 )
+
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class ConfigFunctions(AppFunctions):
@@ -115,18 +120,10 @@ class ConfigFunctions(AppFunctions):
             if self.plotting_filters is not None:
                 self.check_filters_new_sr()
 
-            print(
-                "Old Sampling rate: ",
-                self.explorer.stream_processor.device_info['sampling_rate'])
-
+            logger.info(f"Old Sampling rate: {self.explorer.stream_processor.device_info['sampling_rate']}")
             self.explorer.set_sampling_rate(sampling_rate=value)
-
-            print(
-                "New Sampling rate: ",
-                self.explorer.stream_processor.device_info['sampling_rate'])
+            logger.info(f"New Sampling rate: {self.explorer.stream_processor.device_info['sampling_rate']}")
             changed = True
-        else:
-            print("Same sampling rate")
 
         return changed
 
@@ -177,9 +174,6 @@ class ConfigFunctions(AppFunctions):
             self.init_imp()
             changed = True
 
-        else:
-            print("Same channel mask")
-
         return changed
 
     @Slot()
@@ -195,8 +189,7 @@ class ConfigFunctions(AppFunctions):
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
             self.reset_exg_plot_data()
-        print("chan ", changed_chan)
-        print("sr", changed_sr)
+
         if changed_sr or changed_chan:
             act_chan = ", ".join([ch for ch in self.chan_dict if self.chan_dict[ch] == 1])
             msg = (
@@ -251,6 +244,7 @@ class ConfigFunctions(AppFunctions):
             reapply = True
 
         if reapply:
+            logger.info("Updating filters for new sampling rate")
             self.explorer.stream_processor.remove_filters()
             self.apply_filters()
             AppFunctions.plotting_filters = self.plotting_filters
