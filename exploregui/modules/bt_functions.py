@@ -292,7 +292,7 @@ class BTFunctions(AppFunctions):
             # self._update_battery("NA", new_stylesheet=stylesheet)
             # self._update_temperature("NA")
 
-    def update_frame_dev_settings(self):
+    def update_frame_dev_settings(self, reset_data=True):
         """
         Update the frame with the device settings.
         Only shown if a device is connected
@@ -313,10 +313,6 @@ class BTFunctions(AppFunctions):
             self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], chan))
             AppFunctions.chan_dict = self.chan_dict
 
-            # print("update frame dev")
-            # print(f"{self.explorer.stream_processor.device_info['adc_mask']=}")
-            # print(f"{self.chan_dict=}")
-
             for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
                 # print(w)
                 w.setChecked(self.chan_dict[w.objectName().replace("cb_", "")])
@@ -325,19 +321,17 @@ class BTFunctions(AppFunctions):
                 if w.isHidden() and w.objectName().replace("cb_", "") in self.chan_list:
                     w.show()
 
-            # if self.n_chan < 16:
-            #     self.ui.frame_cb_channels_16.hide()
-
-            points = self.plot_points()
-            points_wo_downsampl = self.plot_points(downsampling=False)
-            self.exg_plot_data[0] = np.array([np.NaN] * points)
-            self.exg_plot_data[1] = {
-                ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
-            }
-            self.exg_plot_data[2] = {
-                ch: np.array([np.NaN] * points_wo_downsampl) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
-            }
-            AppFunctions.exg_plot_data = self.exg_plot_data
+            if reset_data:
+                points = self.plot_points()
+                points_wo_downsampl = self.plot_points(downsampling=False)
+                self.exg_plot_data[0] = np.array([np.NaN] * points)
+                self.exg_plot_data[1] = {
+                    ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
+                }
+                self.exg_plot_data[2] = {
+                    ch: np.array([np.NaN] * points_wo_downsampl) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
+                }
+                AppFunctions.exg_plot_data = self.exg_plot_data
 
             # Set sampling rate (value_sampling_rate)
             sr = stream_processor.device_info['sampling_rate']
