@@ -1,5 +1,3 @@
-import logging
-
 import numpy as np
 from exploregui.modules import (
     AppFunctions,
@@ -13,9 +11,6 @@ from PySide6.QtWidgets import (
 )
 
 
-logger = logging.getLogger("explorepy." + __name__)
-
-
 class ConfigFunctions(AppFunctions):
     """[summary]
 
@@ -25,6 +20,23 @@ class ConfigFunctions(AppFunctions):
     def __init__(self, ui, explorer, vis_functions):
         super().__init__(ui, explorer)
         self.vis_functions = vis_functions
+
+    @Slot()
+    def one_chan_selected(self):
+        """
+        Make sure at least one checkbox is selected.
+        If only one checkbox is left it will be disabled so status cannot change. A tooltip will be added.
+        """
+        cbs = {ch_wdgt: ch_wdgt.isChecked() for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox)}
+        if sum(cbs.values()) == 1:
+            unchecked_cb = list(cbs.keys())[list(cbs.values()).index(True)]
+            unchecked_cb.setEnabled(False)
+            unchecked_cb.setToolTip("At least one channel must be active")
+
+        else:
+            for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
+                ch_wdgt.setEnabled(True)
+                ch_wdgt.setToolTip("")
 
     @Slot()
     def format_memory(self):
@@ -58,7 +70,6 @@ class ConfigFunctions(AppFunctions):
 
         if response == QMessageBox.StandardButton.Yes:
             # QMessageBox.information(self, "", "Calibrating...\nPlease move and rotate the device")
-            logger.debug("User requested ORN calibration.")
             self.ui.ft_label_device_3.setText("Calibrating ORN ... ")
             self.ui.ft_label_device_3.repaint()
             with self.wait_cursor():
@@ -104,15 +115,18 @@ class ConfigFunctions(AppFunctions):
             if self.plotting_filters is not None:
                 self.check_filters_new_sr()
 
-            logger.info(f"Old Sampling rate: {self.explorer.stream_processor.device_info['sampling_rate']}")
+            print(
+                "Old Sampling rate: ",
+                self.explorer.stream_processor.device_info['sampling_rate'])
 
             self.explorer.set_sampling_rate(sampling_rate=value)
 
-            logger.info(f"New Sampling rate: {self.explorer.stream_processor.device_info['sampling_rate']}")
+            print(
+                "New Sampling rate: ",
+                self.explorer.stream_processor.device_info['sampling_rate'])
             changed = True
-
         else:
-            logger.info("Same sampling rate")
+            print("Same sampling rate")
 
         return changed
 
@@ -164,7 +178,7 @@ class ConfigFunctions(AppFunctions):
             changed = True
 
         else:
-            logger.info("Same channel mask")
+            print("Same channel mask")
 
         return changed
 
@@ -237,7 +251,6 @@ class ConfigFunctions(AppFunctions):
             reapply = True
 
         if reapply:
-            logger.info("Updating filters for new sampling rate")
             self.explorer.stream_processor.remove_filters()
             self.apply_filters()
             AppFunctions.plotting_filters = self.plotting_filters
