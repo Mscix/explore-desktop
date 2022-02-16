@@ -343,12 +343,10 @@ class VisualizationFunctions(AppFunctions):
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
-            print('unsubscribe')
-            return
+        else:
+            stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
 
-        stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
-
-    def emit_orn(self):
+    def emit_orn(self, stop=False):
         """
         Get orientation data and emit signal
         """
@@ -362,10 +360,15 @@ class VisualizationFunctions(AppFunctions):
 
             data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
             data['t'] = time_vector
+            try:
+                self.signal_orn.emit(data)
+            except RuntimeError:
+                logger.warning("Error on close: Internal C++ object (MainWindow) already deleted.")
 
-            self.signal_orn.emit(data)
-
-        stream_processor.subscribe(topic=TOPICS.raw_orn, callback=callback)
+        if stop:
+            stream_processor.unsubscribe(topic=TOPICS.raw_orn, callback=callback)
+        else:
+            stream_processor.subscribe(topic=TOPICS.raw_orn, callback=callback)
 
     def emit_marker(self):
         """

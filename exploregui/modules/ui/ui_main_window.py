@@ -77,9 +77,9 @@ class Ui_MainWindow(object):
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1116, 691)
         MainWindow.setMinimumSize(QSize(800, 600))
-#         MainWindow.setStyleSheet(u"QMainWindow{\n"
-# " border: 2px solid #000\n"
-# "}")
+        MainWindow.setStyleSheet(u"QMainWindow{\n"
+"	border: 1px solid rgb(19, 38, 39)\n"
+"}")
         self.actionExport_Metadata = QAction(MainWindow)
         self.actionExport_Metadata.setObjectName(u"actionExport_Metadata")
         self.actionDocumentation = QAction(MainWindow)
@@ -93,7 +93,11 @@ class Ui_MainWindow(object):
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
-        self.centralwidget.setStyleSheet(u"QWidget{\n"
+        self.centralwidget.setStyleSheet(u"#centralwidget{\n"
+"	border: 1px solid rgb(19, 38, 39)\n"
+"}\n"
+"\n"
+"QWidget{\n"
 "	font:13pt;\n"
 "}\n"
 "\n"
@@ -155,13 +159,13 @@ class Ui_MainWindow(object):
 "\n"
 "/*TITLES FONT*/\n"
 "\n"
-"QLabel#integration_title{\n"
+"QLabel#"
+                        "integration_title{\n"
 "	font: 22pt;\n"
 "}\n"
 "\n"
 "QLabel#home_title{\n"
-""
-                        "	font: 22pt;\n"
+"	font: 22pt;\n"
 "}\n"
 "\n"
 "QLabel#impedance_title{\n"
@@ -1801,6 +1805,7 @@ class Ui_MainWindow(object):
         self.lbl_wdws_warning.setWordWrap(True)
 
         self.verticalLayout_6.addWidget(self.lbl_wdws_warning, 0, Qt.AlignHCenter)
+
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.list_devices = QListWidget(self.page_bt)

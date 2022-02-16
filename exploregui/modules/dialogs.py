@@ -18,45 +18,29 @@ from PySide6.QtWidgets import (
 )
 
 
-stylesheet_cancel = (
-    "QPushButton{\n"
-    "	color: #FFF;\n"
-    "	background-color: transparent;\n"
-    "	border: 2px solid #FFF;\n"
-    "	padding: 5px;\n"
-    "	border-radius: 5px;\n"
-
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "	background-color: rgb(61, 64, 89);\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "	background-color: rgb(101, 106, 141);\n"
-    "	border:  2px solid rgb(61, 64, 89);\n"
-    "}\n"
-    ""
-)
+CWD = os.path.dirname(os.path.abspath(__file__))
+ICON_PATH = os.path.join(
+    os.path.join(CWD, os.pardir), "images", "MentalabLogo.png")
 
 
 class PlotDialog(QDialog):
+    """Dialog Filters Pop-up
+
+    Args:
+        QDialog (Pyside6.QtWidgets.QDialog): pyside widget
+    """
     def __init__(self, sr, current_filters, parent=None):
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
         self.ui.setupUi(self)
-        # TODO: Set a dynamic path here
-        self.setWindowIcon(
-            QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images',
-                               'MentalabLogo.png')))
+
+        self.setWindowIcon(QIcon(ICON_PATH))
+        self.setWindowTitle("Visualization Settings")
+
         self.ui.lbl_warning.hide()
         self.ui.cb_offset.setToolTip("Remove the DC offset of the signal based on the previous signal values")
-        self.setWindowTitle("Visualization Settings")
         self.close = False
 
-        self.ui.buttonBox.button(QDialogButtonBox.Cancel).setStyleSheet(
-            stylesheet_cancel
-        )
         self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(
             lambda: self.cancelEvent())
 
@@ -77,8 +61,6 @@ class PlotDialog(QDialog):
         if self.lowpass == "None":
             self.lowpass = ""
 
-        # self.double_validator = QDoubleValidator(decimals=2)
-
         # Add options to notch combobox
         self.ui.value_notch.addItems(["", "50", "60"])
 
@@ -90,19 +72,23 @@ class PlotDialog(QDialog):
 
         # Set validators (only accept doubles)
         regex = QRegularExpression(r"([0-9]+\.?[0-9]|\.[0-9])")
+
         self.ui.value_highpass.setValidator(QRegularExpressionValidator(regex))
         self.ui.value_lowpass.setValidator(QRegularExpressionValidator(regex))
-        # self.ui.value_lowpass.setValidator(QDoubleValidator(decimals=1))
-
-        # Verify input with output message when editing is done
-        # self.ui.value_lowpass.editingFinished.connect(lambda: self.verify_input())
-        # self.ui.value_highpass.editingFinished.connect(lambda: self.verify_input())
 
         # Verify input without output message when typing
         self.ui.value_lowpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
         self.ui.value_highpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
 
     def verify_input(self, borderOnly=False):
+        """Verify frequencies are not above/below the threshold
+
+        Args:
+            borderOnly (bool, optional): display message if False. Defaults to False.
+
+        Returns:
+            bool: whether input for filter values is correct
+        """
         nyq_freq = self.s_rate / 2.
 
         max_hc_freq = nyq_freq - 1
@@ -114,15 +100,14 @@ class PlotDialog(QDialog):
         )
 
         lc_freq_warning = (
-            "'Transient band for low cutoff frequency is too narrow."
-            f"The minimum low cutoff frequency is {min_lc_freq:.2f} Hz!"
+            "Transient band for low cutoff frequency is too narrow."
+            f"The minimum low cutoff frequency is {min_lc_freq:.1f} Hz!"
         )
 
         bp_freq_warning = ("High cutoff frequency must be larger than low cutoff frequency.")
 
         r_value = "" if self.ui.value_highpass.text() in [None, 'None'] else self.ui.value_highpass.text()
         l_value = "" if self.ui.value_lowpass.text() in [None, 'None'] else self.ui.value_lowpass.text()
-        # print(r_value, l_value)
 
         r_stylesheet = ""
         l_stylesheet = ""
@@ -192,8 +177,6 @@ class PlotDialog(QDialog):
             self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(accepted))
         self.ui.value_highpass.textChanged.connect(
             self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(accepted))
-        # QTimer.singleShot(1000, lambda: self.ui.value_highpass.setStyleSheet(''))
-        # QTimer.singleShot(1000, lambda: self.ui.value_lowpass.setStyleSheet(''))
         return accepted
 
     def closeEvent(self, event):
@@ -221,17 +204,18 @@ class PlotDialog(QDialog):
 
 
 class RecordingDialog(QDialog):
+    """Dialog Recording Settings pop up
+
+    Args:
+        QDialog (Pyside6.QtWidgets.QDialog): pyside widget
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = Ui_RecordingDialog()
         self.ui.setupUi(self)
 
-        # TODO: Set a dynamic path here
-        self.setWindowIcon(QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images',
-                                              'MentalabLogo.png')))
+        self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle("Recording Settings")
-        self.ui.buttonBox.button(QDialogButtonBox.Cancel).setStyleSheet(
-            stylesheet_cancel)
 
         self.recording_time = int(self.ui.spinBox.value())
         self.recording_mode = "csv"

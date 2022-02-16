@@ -32,20 +32,17 @@ class AppFunctions():
     def init_imp(self):
         active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
-        # self.ui.frame_impedance_widgets_16.hide()
-
         for chan in Settings.CHAN_LIST:
             frame_name = f"frame_{chan}_2"
-            try:
-                ch_frame = self.get_widget_by_objName(frame_name)
-            except AttributeError as e:
-                logger.warning(str(e) + f" Chan: {chan} , frame_name: {frame_name}")
-                pass
-            # if chan not in self.chan_list:
-            if chan not in active_chan:
-                ch_frame.hide()
-            elif chan in active_chan and ch_frame.isHidden():
-                ch_frame.show()
+            ch_frame = self.get_widget_by_objName(frame_name)
+
+            if ch_frame is None:
+                logger.warning(f"Could not find frame widget {frame_name}")
+            else:
+                if chan not in active_chan:
+                    ch_frame.hide()
+                elif chan in active_chan and ch_frame.isHidden():
+                    ch_frame.show()
 
     #########################
     # Aux Functions
@@ -66,20 +63,17 @@ class AppFunctions():
         self.ui.dev_name_input.setStyleSheet(stylesheet)
 
     def get_widget_by_objName(self, name):
-        # widgets = page.allWidgets()
         widgets = QApplication.instance().allWidgets()
         for x in widgets:
-            # print(x)
             if str(x.objectName()) == name:
                 return x
         logger.warning(f"Could not find {name}")
         return None
 
     def display_msg(self, msg_text, title=None, type="error"):
-        # msg = QMessageBox.critical(self, title="Error", text=msg)
         msg = QMessageBox()
         msg.setText(msg_text)
-        msg.setStyleSheet(Settings.POPUP_STYLESHEET)
+        # msg.setStyleSheet(Settings.POPUP_STYLESHEET)
 
         if type == "error":
             wdw_title = "Error" if title is None else title
@@ -94,11 +88,6 @@ class AppFunctions():
 
         msg.setWindowTitle(wdw_title)
 
-        # if type == "info":
-        #     msg.show()
-        #     msg.raise_()
-        #     msg.activateWindow()
-        #     return
         response = msg.exec()
         return response
 

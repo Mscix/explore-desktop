@@ -65,10 +65,8 @@ class MainWindow(QMainWindow):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        # TODO: Set a dynamic path here
-        self.setWindowIcon(
-            QIcon(os.path.join(r'C:\Users\ProSomno\Documents\Mentalab\explorepy-gui\exploregui\images',
-                               'MentalabLogo.png')))
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
+        self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle('ExploreGUI')
 
         self.explorer = xpy.Explore()
@@ -311,6 +309,7 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_settings":
+            self.BT_funct.update_frame_dev_settings(reset_data=False)
             self.imp_funct.check_is_imp()
 
             if self.funct.is_connected is False:
@@ -324,9 +323,6 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
 
         elif btn_name == "btn_plots":
-            # self.ui.label_3.setHidden(self.file_names is None)
-            # self.ui.label_7.setHidden(self.file_names is None)
-
             self.imp_funct.check_is_imp()
             filt = True
 
@@ -452,6 +448,10 @@ class MainWindow(QMainWindow):
         """
         Stop all ongoing processes when closing the app
         """
+        self.vis_funct.emit_orn(stop=True)
+        self.vis_funct.emit_exg(stop=True)
+        self.signal_orn.disconnect(self.vis_funct.plot_orn)
+        self.signal_exg.disconnect(self.vis_funct.plot_exg)
         self.stop_processes()
         self.close()
 
