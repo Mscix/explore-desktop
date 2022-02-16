@@ -343,10 +343,8 @@ class VisualizationFunctions(AppFunctions):
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
-            print('unsubscribed ExG')
-            return
-
-        stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
+        else:
+            stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
 
     def emit_orn(self, stop=False):
         """
@@ -369,7 +367,6 @@ class VisualizationFunctions(AppFunctions):
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.raw_orn, callback=callback)
-            print('unsubscribed ORN')
         else:
             stream_processor.subscribe(topic=TOPICS.raw_orn, callback=callback)
 

@@ -34,17 +34,15 @@ class AppFunctions():
 
         for chan in Settings.CHAN_LIST:
             frame_name = f"frame_{chan}_2"
-            try:
-                ch_frame = self.get_widget_by_objName(frame_name)
-                ch_frame.isHidden()
-            except AttributeError as e:
-                logger.warning(str(e) + f" Chan: {chan} , frame_name: {frame_name}")
-                pass
+            ch_frame = self.get_widget_by_objName(frame_name)
 
-            if chan not in active_chan:
-                ch_frame.hide()
-            elif chan in active_chan and ch_frame.isHidden():
-                ch_frame.show()
+            if ch_frame is None:
+                logger.warning(f"Could not find frame widget {frame_name}")
+            else:
+                if chan not in active_chan:
+                    ch_frame.hide()
+                elif chan in active_chan and ch_frame.isHidden():
+                    ch_frame.show()
 
     #########################
     # Aux Functions
@@ -65,10 +63,8 @@ class AppFunctions():
         self.ui.dev_name_input.setStyleSheet(stylesheet)
 
     def get_widget_by_objName(self, name):
-        # widgets = page.allWidgets()
         widgets = QApplication.instance().allWidgets()
         for x in widgets:
-            # print(x)
             if str(x.objectName()) == name:
                 return x
         logger.warning(f"Could not find {name}")
