@@ -36,6 +36,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QGraphicsDropShadowEffect,
     QMainWindow,
     QMessageBox,
@@ -117,7 +118,7 @@ class MainWindow(QMainWindow):
         self.funct.lineedit_stylesheet()
 
         # Slidable left panel
-        self.ui.btn_left_menu_toggle.clicked.connect(lambda: self.slide_left_menu())
+        self.ui.btn_left_menu_toggle.clicked.connect(self.slide_left_menu)
 
         # Stacked pages - default open connect
         existing_permission = self.check_permissions()
@@ -150,33 +151,35 @@ class MainWindow(QMainWindow):
         self.ui.line_2.hide()
         self.ui.lbl_bt_instructions.hide()
 
-        self.ui.dev_name_input.textChanged.connect(lambda: self.funct.lineedit_stylesheet())
-        self.ui.btn_connect.clicked.connect(lambda: self.connect_clicked())
-        self.ui.dev_name_input.returnPressed.connect(lambda: self.connect_clicked())
-        self.ui.btn_scan.clicked.connect(lambda: self.BT_funct.scan_devices())
+        self.ui.dev_name_input.textChanged.connect(self.funct.lineedit_stylesheet)
+        self.ui.btn_connect.clicked.connect(self.connect_clicked)
+        self.ui.dev_name_input.returnPressed.connect(self.connect_clicked)
+        self.ui.btn_scan.clicked.connect(self.BT_funct.scan_devices)
 
         # SETTING PAGE BUTTONS
-        # self.ui.btn_import_data.clicked.connect(lambda: self.import_recorded_data())
-        self.ui.btn_format_memory.clicked.connect(lambda: self.config_funct.format_memory())
-        self.ui.btn_reset_settings.clicked.connect(lambda: self.soft_reset())
-        self.ui.btn_apply_settings.clicked.connect(lambda: self.settings_changed())
+        # self.ui.btn_import_data.clicked.connect(self.import_recorded_data)
+        self.ui.btn_format_memory.clicked.connect(self.config_funct.format_memory)
+        self.ui.btn_reset_settings.clicked.connect(self.soft_reset)
+        self.ui.btn_apply_settings.clicked.connect(self.settings_changed)
         self.ui.btn_calibrate.setHidden(True)
-        # self.ui.btn_calibrate.clicked.connect(lambda: self.config_funct.calibrate_orn())
-        self.ui.n_chan.currentTextChanged.connect(lambda: self.n_chan_changed())
+        # self.ui.btn_calibrate.clicked.connect(self.config_funct.calibrate_orn())
+        self.ui.n_chan.currentTextChanged.connect(self.n_chan_changed)
+        for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
+            ch_wdgt.stateChanged.connect(self.config_funct.one_chan_selected)
 
         # IMPEDANCE PAGE
         self.ui.imp_meas_info.setHidden(False)
 
-        self.ui.imp_meas_info.clicked.connect(lambda: self.imp_info_clicked())
+        self.ui.imp_meas_info.clicked.connect(self.imp_info_clicked)
         # self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
         self.signal_imp.connect(self.imp_funct.update_impedance)
-        self.ui.btn_imp_meas.clicked.connect(lambda: self.imp_meas_clicked())
+        self.ui.btn_imp_meas.clicked.connect(self.imp_meas_clicked)
         self.ui.label_6.setHidden(True)
 
         # PLOTTING PAGE
         self.ui.value_signal.currentTextChanged.connect(self.vis_funct._mode_change)
-        self.ui.btn_record.clicked.connect(lambda: self.record_funct.on_record())
-        self.ui.btn_plot_filters.clicked.connect(lambda: self.vis_funct.popup_filters())
+        self.ui.btn_record.clicked.connect(self.record_funct.on_record)
+        self.ui.btn_plot_filters.clicked.connect(self.vis_funct.popup_filters)
 
         self.ui.btn_marker.setEnabled(False)
         self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
@@ -185,11 +188,11 @@ class MainWindow(QMainWindow):
         )
         )
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
-        self.ui.btn_marker.clicked.connect(lambda: self.vis_funct.set_marker())
-        self.ui.value_event_code.returnPressed.connect(lambda: self.vis_funct.set_marker())
+        self.ui.btn_marker.clicked.connect(self.vis_funct.set_marker)
+        self.ui.value_event_code.returnPressed.connect(self.vis_funct.set_marker)
 
-        self.ui.value_yAxis.currentTextChanged.connect(lambda: self.vis_funct.change_scale())
-        self.ui.value_timeScale.currentTextChanged.connect(lambda: self.vis_funct.change_timescale())
+        self.ui.value_yAxis.currentTextChanged.connect(self.vis_funct.change_scale)
+        self.ui.value_timeScale.currentTextChanged.connect(self.vis_funct.change_timescale)
 
         self.signal_exg.connect(self.vis_funct.plot_exg)
         self.signal_orn.connect(self.vis_funct.plot_orn)
@@ -201,8 +204,8 @@ class MainWindow(QMainWindow):
         self.ui.lsl_duration_value.hide()
         self.ui.cb_lsl_duration.hide()
         self.ui.label_lsl_duration.setHidden(True)
-        self.ui.cb_lsl_duration.stateChanged.connect(lambda: self.LSL_funct.enable_lsl_duration())
-        self.ui.btn_push_lsl.clicked.connect(lambda: self.LSL_funct.push_lsl())
+        self.ui.cb_lsl_duration.stateChanged.connect(self.LSL_funct.enable_lsl_duration)
+        self.ui.btn_push_lsl.clicked.connect(self.LSL_funct.push_lsl)
 
         self.last_t = datetime.datetime.now()
         self.first_t = datetime.datetime.now()
@@ -267,13 +270,13 @@ class MainWindow(QMainWindow):
     def update_fft(self):
         self.timer_fft = QTimer(self)
         self.timer_fft.setInterval(2000)
-        self.timer_fft.timeout.connect(lambda: self.vis_funct.plot_fft())
+        self.timer_fft.timeout.connect(self.vis_funct.plot_fft)
         self.timer_fft.start()
 
     def update_heart_rate(self):
         self.timer_hr = QTimer(self)
         self.timer_hr.setInterval(2000)
-        self.timer_hr.timeout.connect(lambda: self.vis_funct.plot_heart_rate())
+        self.timer_hr.timeout.connect(self.vis_funct.plot_heart_rate)
         self.timer_hr.start()
 
     @Slot()
@@ -463,8 +466,7 @@ class MainWindow(QMainWindow):
                 e (event): mouse double click event
             """
             if e.type() == QEvent.MouseButtonDblClick:
-                QTimer.singleShot(
-                    250, lambda: self.restore_or_maximize())
+                QTimer.singleShot(250, self.restore_or_maximize)
         self.ui.main_header.mouseDoubleClickEvent = double_click_maximize
 
         # Move Winndow poisitionn
@@ -502,11 +504,11 @@ class MainWindow(QMainWindow):
 
         # Button click events:
         # Minimize
-        self.ui.btn_minimize.clicked.connect(lambda: self.showMinimized())
+        self.ui.btn_minimize.clicked.connect(self.showMinimized)
         # Restore/Maximize
-        self.ui.btn_restore.clicked.connect(lambda: self.restore_or_maximize())
+        self.ui.btn_restore.clicked.connect(self.restore_or_maximize)
         # Restore/Maximize
-        self.ui.btn_close.clicked.connect(lambda: self.on_close())
+        self.ui.btn_close.clicked.connect(self.on_close)
 
     #########################
     # other Functions
@@ -616,7 +618,7 @@ class MainWindow(QMainWindow):
         """
         self.timer_con = QTimer(self)
         self.timer_con.setInterval(2000)
-        self.timer_con.timeout.connect(lambda: self.print_connection())
+        self.timer_con.timeout.connect(self.print_connection)
         self.timer_con.start()
 
     def set_permissions(self):

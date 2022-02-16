@@ -248,7 +248,7 @@ class VisualizationFunctions(AppFunctions):
     def add_original_exg(self, orig_exg):
 
         first_chan = list(self.exg_plot_data[2].keys())[0]
-        n_new_points = len(orig_exg[first_chan])
+        n_new_points = len(orig_exg[list(orig_exg.keys())[0]])
 
         idxs = np.arange(self.orig_exg_pointer, self.orig_exg_pointer + n_new_points)
 
