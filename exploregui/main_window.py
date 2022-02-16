@@ -318,7 +318,7 @@ class MainWindow(QMainWindow):
                 self.funct.display_msg(msg_text=msg, type="info")
                 return False
 
-            enable = not self.record_funct.is_recording
+            enable = not self.record_funct.is_recording and not self.LSL_funct.is_pushing
             self.config_funct.enable_settings(enable)
             self.ui.value_sampling_rate.setEnabled(True)
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
