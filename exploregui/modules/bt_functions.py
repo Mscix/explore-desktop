@@ -1,4 +1,5 @@
 # from PySide6.QtCore import Signal
+import logging
 import os
 
 import explorepy._exceptions as xpy_ex
@@ -12,11 +13,8 @@ from PySide6.QtWidgets import (
     QCheckBox
 )
 
+logger = logging.getLogger("explorepy." + __name__)
 
-# DISABLED_STYLESHEET = """
-#     background-color: rgb(129,133,161);
-#     color: rgb(78,78,78);
-# """
 DISABLED_STYLESHEET = """
     background-color: rgb(89,90,111);
     color: rgb(155,155,155);
@@ -164,27 +162,23 @@ class BTFunctions(AppFunctions):
             except xpy_ex.DeviceNotFoundError as error:
                 msg = str(error)
                 self._connection_error_gui(msg)
+                logger.warning("Device not found.")
                 return
             except (TypeError, UnboundLocalError):
                 msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
                 self._connection_error_gui(msg)
+                logger.warning("Invalid Explore name")
                 return
-            except AssertionError as error:
-                msg = str(error)
+            except (ValueError, SystemError):
+                msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
                 self._connection_error_gui(msg)
-                return
-            except ValueError:
-                msg = "Error opening socket.\nPlease make sure the bluetooth is on."
-                self._connection_error_gui(msg)
-                return
-            except SystemError as error:
-                msg = str(error)
-                msg += "\nPlease make sure the Bluetooth is on."
-                self._connection_error_gui(msg)
+                logger.warning("No Bluetooth connection available.")
                 return
             except Exception as error:
                 msg = str(error)
                 self._connection_error_gui(msg)
+                logger.debug(
+                    f"Got an exception while connecting to the device: {error} of type: {type(error)}")
                 return
 
         else:
@@ -194,12 +188,11 @@ class BTFunctions(AppFunctions):
                 self.is_connected = False
                 AppFunctions.is_connected = self.is_connected
 
-            except AssertionError as error:
-                msg = str(error)
-                self.display_msg(msg)
             except Exception as error:
                 msg = str(error)
                 self.display_msg(msg)
+                logger.debug(
+                    f"Got an exception while disconnecting from the device: {error} of type: {type(error)}")
 
         print(self.is_connected)
         self.ui.btn_connect.setStyleSheet("")
