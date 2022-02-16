@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 
@@ -9,6 +10,9 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
+
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class RecordFunctions(AppFunctions):
@@ -23,6 +27,7 @@ class RecordFunctions(AppFunctions):
 
     @Slot()
     def on_record(self):
+        logger.debug("Pressed record button -> %s", not self.is_recording)
         if self.is_recording is False:
             self.start_record()
         else:

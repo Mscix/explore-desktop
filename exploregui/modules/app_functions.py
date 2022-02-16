@@ -33,13 +33,13 @@ class AppFunctions():
         active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
 
         for chan in Settings.CHAN_LIST:
-            frame_name = f"frame_{chan}"
+            frame_name = f"frame_{chan}_2"
             try:
                 ch_frame = self.get_widget_by_objName(frame_name)
                 ch_frame.isHidden()
             except AttributeError as e:
                 logger.warning(str(e) + f" Chan: {chan} , frame_name: {frame_name}")
-                return
+                pass
 
             if chan not in active_chan:
                 ch_frame.hide()
