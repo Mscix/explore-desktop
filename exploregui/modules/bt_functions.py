@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QCheckBox
 )
 
+
 logger = logging.getLogger("explorepy." + __name__)
 
 DISABLED_STYLESHEET = """

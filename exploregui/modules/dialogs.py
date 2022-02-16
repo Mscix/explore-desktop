@@ -1,6 +1,10 @@
 import os
 import sys
 
+from exploregui.modules.ui import (
+    Ui_PlotDialog,
+    Ui_RecordingDialog
+)
 from PySide6.QtCore import QRegularExpression
 from PySide6.QtGui import (
     QIcon,
@@ -13,10 +17,6 @@ from PySide6.QtWidgets import (
     QFileDialog
 )
 
-from exploregui.modules.ui import (
-    Ui_PlotDialog,
-    Ui_RecordingDialog
-)
 
 CWD = os.path.dirname(os.path.abspath(__file__))
 ICON_PATH = os.path.join(
@@ -71,8 +71,9 @@ class PlotDialog(QDialog):
         self.ui.cb_offset.setChecked(self.offset)
 
         # Set validators (only accept doubles)
+        # regex = QRegularExpression(r"([0-9]+(\.|,)?[0-9]|(\.|,)[0-9])")
         regex = QRegularExpression(r"([0-9]+\.?[0-9]|\.[0-9])")
-        
+
         self.ui.value_highpass.setValidator(QRegularExpressionValidator(regex))
         self.ui.value_lowpass.setValidator(QRegularExpressionValidator(regex))
 
@@ -108,7 +109,8 @@ class PlotDialog(QDialog):
 
         r_value = "" if self.ui.value_highpass.text() in [None, 'None'] else self.ui.value_highpass.text()
         l_value = "" if self.ui.value_lowpass.text() in [None, 'None'] else self.ui.value_lowpass.text()
-        # print(r_value, l_value)
+        # r_value = r_value.replace(",", ".")
+        # l_value = l_value.replace(",", ".")
 
         r_stylesheet = ""
         l_stylesheet = ""
