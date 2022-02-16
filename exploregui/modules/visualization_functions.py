@@ -20,6 +20,11 @@ NANS = [False, False]  # exg, orn
 
 
 class VisualizationFunctions(AppFunctions):
+    """[summary]
+
+    Args:
+        AppFunctions ([type]): [description]
+    """
     def __init__(self, ui, explorer, signals):
         super().__init__(ui, explorer)
         self.signal_exg = signals['exg']
@@ -170,7 +175,6 @@ class VisualizationFunctions(AppFunctions):
             plt.showGrid(x=True, y=True, alpha=0.5)
             plt.setXRange(0, timescale, padding=0.01)
             plt.setMouseEnabled(x=False, y=False)
-            plt.disableAutoRange()
 
         # Initialize curves for each plot
         self.curve_ax = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[0], name=' accX ')
@@ -207,16 +211,6 @@ class VisualizationFunctions(AppFunctions):
         pw.setLabel('bottom', 'Frequency (Hz)')
         pw.setLogMode(x=False, y=True)
         pw.setMouseEnabled(x=False, y=False)
-
-        # self.curve_fft_ch1 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[0], name='ch1')
-        # self.curve_fft_ch2 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[1], name='ch2')
-        # self.curve_fft_ch3 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[2], name='ch3')
-        # self.curve_fft_ch4 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[3], name='ch4')
-        # self.curve_fft_ch5 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[4], name='ch5')
-        # self.curve_fft_ch6 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[5], name='ch6')
-        # self.curve_fft_ch7 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[6], name='ch7')
-        # self.curve_fft_ch8 = pg.PlotCurveItem(pen=Settings.FFT_LINE_COLORS[7], name='ch8')
-
         self.curve_fft_ch1 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[0], name='ch1', skipFiniteCheck=True)
         self.curve_fft_ch2 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[1], name='ch2', skipFiniteCheck=True)
         self.curve_fft_ch3 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[2], name='ch3', skipFiniteCheck=True)
@@ -237,6 +231,8 @@ class VisualizationFunctions(AppFunctions):
             if act == 1:
                 pw.addItem(curve)
                 self.curves_fft_list.append(curve)
+            else:
+                pw.removeItem(curve)
 
     #########################
     # Emit Functions
@@ -421,7 +417,6 @@ class VisualizationFunctions(AppFunctions):
             self.exg_plot_data[0][self.exg_pointer:] += self.get_timeScale()
 
             t_min = self.last_t
-            # t_min = np.nanmin(self.exg_plot_data[0])
             t_max = t_min + self.get_timeScale()
             self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
@@ -592,18 +587,21 @@ class VisualizationFunctions(AppFunctions):
                 self.lines_orn[i] = plt.addLine(data['t'][-1], pen='#FF0000')
         else:
             for line in self.lines_orn:
-                line.setPos(data['t'][-1])
+                try:
+                    line.setPos(data['t'][-1])
+                except RuntimeError:
+                    self.lines_orn = [None, None, None]
 
+        # Add nans between new and old data
         if NANS[1]:
             orn_plot_nan = copy.deepcopy(self.orn_plot)
             for k in orn_plot_nan.keys():
                 orn_plot_nan[k][self.orn_pointer - 1: self.orn_pointer + 1] = np.NaN
 
+        # Define connection vector for lines
         else:
             connection = np.full(len(self.t_orn_plot), 1)
             connection[self.orn_pointer - 1: self.orn_pointer + 1] = 0
-        for plt in self.plots_orn_list:
-            plt.disableAutoRange()
 
         # Paint curves
         if NANS[1]:
@@ -627,12 +625,11 @@ class VisualizationFunctions(AppFunctions):
             self.curve_my.setData(self.t_orn_plot, self.orn_plot['magY'], connect=connection)
             self.curve_mz.setData(self.t_orn_plot, self.orn_plot['magZ'], connect=connection)
 
-        for plt in self.plots_orn_list:
-            plt.autoRange()
-
     @Slot()
     def plot_fft(self):
-
+        """
+        Plot FFT
+        """
         pw = self.ui.plot_fft
         # pw.clear()
         pw.setXRange(0, 70, padding=0.01)
