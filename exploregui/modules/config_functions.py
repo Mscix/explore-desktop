@@ -34,18 +34,6 @@ class ConfigFunctions(AppFunctions):
         else:
             return
 
-    # def update_label_calibration(self):
-    #     sec = 100
-    #     self.ui.ft_label_device_3.setText(f"Calibrating ORN ({sec}s left)")
-    #     sec -= 1
-
-    # def timer_calibration(self):
-    #     self.timer_cal = QTimer()
-    #     print(f"{self.timer_cal=}")
-    #     self.timer_cal.setInterval(1000)
-    #     self.timer_cal.timeout.connect(lambda: self.update_label_calibration())
-    #     self.timer_cal.start()
-
     @Slot()
     def calibrate_orn(self):
         r"""
@@ -56,11 +44,9 @@ class ConfigFunctions(AppFunctions):
                     "This will overwrite the calibration data if it already exists\n\n"
                     "If yes, you would need to move and rotate the device for 100 seconds\n"
                     )
-        # response = QMessageBox.question(self, "Confirmation", question)
         response = self.display_msg(msg_text=question, type="question")
 
         if response == QMessageBox.StandardButton.Yes:
-            # QMessageBox.information(self, "", "Calibrating...\nPlease move and rotate the device")
             self.ui.ft_label_device_3.setText("Calibrating ORN ... ")
             self.ui.ft_label_device_3.repaint()
             with self.wait_cursor():
@@ -88,9 +74,6 @@ class ConfigFunctions(AppFunctions):
 
             with self.wait_cursor():
                 self.explorer.reset_soft()
-                pass
-
-            # self.display_msg(msg_text="Settings reset", type="info")
 
         else:
             return
