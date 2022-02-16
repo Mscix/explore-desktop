@@ -72,7 +72,7 @@ class PlotDialog(QDialog):
 
         # Set validators (only accept doubles)
         regex = QRegularExpression(r"([0-9]+\.?[0-9]|\.[0-9])")
-        
+
         self.ui.value_highpass.setValidator(QRegularExpressionValidator(regex))
         self.ui.value_lowpass.setValidator(QRegularExpressionValidator(regex))
 
