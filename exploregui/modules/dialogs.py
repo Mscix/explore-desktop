@@ -71,7 +71,6 @@ class PlotDialog(QDialog):
         self.ui.cb_offset.setChecked(self.offset)
 
         # Set validators (only accept doubles)
-        # regex = QRegularExpression(r"([0-9]+(\.|,)?[0-9]|(\.|,)[0-9])")
         regex = QRegularExpression(r"([0-9]+\.?[0-9]|\.[0-9])")
 
         self.ui.value_highpass.setValidator(QRegularExpressionValidator(regex))
@@ -109,8 +108,6 @@ class PlotDialog(QDialog):
 
         r_value = "" if self.ui.value_highpass.text() in [None, 'None'] else self.ui.value_highpass.text()
         l_value = "" if self.ui.value_lowpass.text() in [None, 'None'] else self.ui.value_lowpass.text()
-        # r_value = r_value.replace(",", ".")
-        # l_value = l_value.replace(",", ".")
 
         r_stylesheet = ""
         l_stylesheet = ""
