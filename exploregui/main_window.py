@@ -306,7 +306,7 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_settings":
-            self.BT_funct.update_frame_dev_settings()
+            self.BT_funct.update_frame_dev_settings(reset_data=False)
             self.imp_funct.check_is_imp()
 
             if self.funct.is_connected is False:
@@ -445,6 +445,10 @@ class MainWindow(QMainWindow):
         """
         Stop all ongoing processes when closing the app
         """
+        self.vis_funct.emit_orn(stop=True)
+        self.vis_funct.emit_exg(stop=True)
+        self.signal_orn.disconnect(self.vis_funct.plot_orn)
+        self.signal_exg.disconnect(self.vis_funct.plot_exg)
         self.stop_processes()
         self.close()
 
