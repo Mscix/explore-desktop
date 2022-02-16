@@ -323,13 +323,13 @@ class BTFunctions(AppFunctions):
 
             if reset_data:
                 points = self.plot_points()
-                points_wo_downsampl = self.plot_points(downsampling=False)
+                points_wo_ds = self.plot_points(downsampling=False)
                 self.exg_plot_data[0] = np.array([np.NaN] * points)
                 self.exg_plot_data[1] = {
                     ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
                 }
                 self.exg_plot_data[2] = {
-                    ch: np.array([np.NaN] * points_wo_downsampl) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
+                    ch: np.array([np.NaN] * points_wo_ds) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
                 }
                 AppFunctions.exg_plot_data = self.exg_plot_data
 
