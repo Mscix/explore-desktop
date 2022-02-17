@@ -71,8 +71,8 @@ class MainWindow(QMainWindow):
 
         self.explorer = xpy.Explore()
         self.funct = AppFunctions(self.ui, self.explorer)
-        self.LSL_funct = LSLFunctions(self.ui, self.explorer)
-        self.BT_funct = BTFunctions(self.ui, self.explorer)
+        self.lsl_funct = LSLFunctions(self.ui, self.explorer)
+        self.bt_funct = BTFunctions(self.ui, self.explorer)
         self.imp_funct = IMPFunctions(self.ui, self.explorer, self.signal_imp)
         self.vis_funct = VisualizationFunctions(
             self.ui, self.explorer,
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
         self.ui.dev_name_input.textChanged.connect(self.funct.lineedit_stylesheet)
         self.ui.btn_connect.clicked.connect(self.connect_clicked)
         self.ui.dev_name_input.returnPressed.connect(self.connect_clicked)
-        self.ui.btn_scan.clicked.connect(self.BT_funct.scan_devices)
+        self.ui.btn_scan.clicked.connect(self.bt_funct.scan_devices)
 
         # SETTING PAGE BUTTONS
         # self.ui.btn_import_data.clicked.connect(self.import_recorded_data)
@@ -202,37 +202,41 @@ class MainWindow(QMainWindow):
         self.ui.lsl_duration_value.hide()
         self.ui.cb_lsl_duration.hide()
         self.ui.label_lsl_duration.setHidden(True)
-        self.ui.cb_lsl_duration.stateChanged.connect(self.LSL_funct.enable_lsl_duration)
-        self.ui.btn_push_lsl.clicked.connect(self.LSL_funct.push_lsl)
+        self.ui.cb_lsl_duration.stateChanged.connect(self.lsl_funct.enable_lsl_duration)
+        self.ui.btn_push_lsl.clicked.connect(self.lsl_funct.push_lsl)
 
         self.last_t = datetime.datetime.now()
         self.first_t = datetime.datetime.now()
 
     @Slot()
-    def connect_clicked(self, dev_name=None):
-        """Connect or disconnect from device
-        Args:
-            dev_name (str, optional): For testing purposes, can pass name of the device to connect. Defaults to None.
+    def connect_clicked(self) -> None:
         """
-        self.BT_funct.connect2device(dev_name=dev_name)
-        self.funct.is_connected = self.BT_funct.is_connected
-        self.is_connected = self.funct.get_is_connected()
-
+        Connect or disconnect from device
+        """
         if self.funct.get_is_connected() is False:
+            self.bt_funct.connect2device()
+            self.funct.is_connected = self.bt_funct.is_connected
+            if self.funct.is_connected:
+                # Initialize plots
+                self.vis_funct.init_plots()
+                # Move to settings page
+                self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+                # Change left menu button highlight
+                default = self.ui.btn_bt.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
+                self.ui.btn_bt.setStyleSheet(default)
+                highlight = self.ui.btn_settings.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
+                self.ui.btn_settings.setStyleSheet(highlight)
+
+        else:
+            self.bt_funct.disconnect()
+            self.funct.is_connected = self.bt_funct.is_connected
             self.stop_processes()
             self.reset_vars()
-        else:
-            self.vis_funct.init_plots()
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
-            default = self.ui.btn_bt.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
-            self.ui.btn_bt.setStyleSheet(default)
-            highlight = self.ui.btn_settings.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
-            self.ui.btn_settings.setStyleSheet(highlight)
 
     @Slot()
     def n_chan_changed(self):
-        self.BT_funct.set_n_chan()
-        self.BT_funct.update_frame_dev_settings()
+        self.bt_funct.set_n_chan()
+        self.bt_funct.update_frame_dev_settings()
 
     @Slot()
     def settings_changed(self):
@@ -244,7 +248,7 @@ class MainWindow(QMainWindow):
     def soft_reset(self):
         with self.funct.wait_cursor():
             self.config_funct.reset_settings()
-            self.BT_funct.connect2device()
+            self.bt_funct.connect2device()
             self.stop_processes()
             self.reset_vars()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
@@ -259,7 +263,7 @@ class MainWindow(QMainWindow):
             "Impedance measurement will introduce noise to the signal"
             " and affect the visualization, recording, and LSL stream."
             "\nAre you sure you want to continue?")
-        if not self.imp_funct.is_imp_measuring and (self.record_funct.is_recording or self.LSL_funct.is_pushing):
+        if not self.imp_funct.is_imp_measuring and (self.record_funct.is_recording or self.lsl_funct.is_pushing):
             response = self.funct.display_msg(msg_text=msg, type="question")
             if response == QMessageBox.StandardButton.No:
                 return
@@ -309,7 +313,7 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_settings":
-            self.BT_funct.update_frame_dev_settings(reset_data=False)
+            self.bt_funct.update_frame_dev_settings(reset_data=False)
             self.imp_funct.check_is_imp()
 
             if self.funct.is_connected is False:
@@ -317,7 +321,7 @@ class MainWindow(QMainWindow):
                 self.funct.display_msg(msg_text=msg, type="info")
                 return False
 
-            enable = not self.record_funct.is_recording and not self.LSL_funct.is_pushing
+            enable = not self.record_funct.is_recording and not self.lsl_funct.is_pushing
             self.config_funct.enable_settings(enable)
             self.ui.value_sampling_rate.setEnabled(True)
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
@@ -433,25 +437,26 @@ class MainWindow(QMainWindow):
             WINDOW_SIZE = True
             self.showMaximized()
             # Update button icon
-            self.ui.btn_restore.setIcon(QIcon(
-                u":icons/icons/cil-window-restore.png"))
+            self.ui.btn_restore.setIcon(QIcon(":icons/icons/cil-window-restore.png"))
 
         else:
             WINDOW_SIZE = False
             self.showNormal()  # normal is 800x400
             # Update button icon
-            self.ui.btn_restore.setIcon(QIcon(
-                u":icons/icons/cil-window-maximize.png"))
+            self.ui.btn_restore.setIcon(QIcon(":icons/icons/cil-window-maximize.png"))
 
     @Slot()
     def on_close(self):
         """
         Stop all ongoing processes when closing the app
         """
-        self.vis_funct.emit_orn(stop=True)
-        self.vis_funct.emit_exg(stop=True)
-        self.signal_orn.disconnect(self.vis_funct.plot_orn)
-        self.signal_exg.disconnect(self.vis_funct.plot_exg)
+        try:
+            self.vis_funct.emit_orn(stop=True)
+            self.vis_funct.emit_exg(stop=True)
+            self.signal_orn.disconnect(self.vis_funct.plot_orn)
+            self.signal_exg.disconnect(self.vis_funct.plot_exg)
+        except AttributeError:
+            pass
         self.stop_processes()
         self.close()
 
@@ -554,9 +559,9 @@ class MainWindow(QMainWindow):
             self.record_funct.is_recording = False
         if self.is_started:
             pass
-        if self.LSL_funct.get_pushing_status():
+        if self.lsl_funct.get_pushing_status():
             self.explorer.stop_lsl()
-            self.LSL_funct.is_pushing = False
+            self.lsl_funct.is_pushing = False
             self.ui.btn_push_lsl.setText("Push")
         if self.imp_funct.get_imp_status():
             self.imp_funct.disable_imp()
@@ -565,11 +570,11 @@ class MainWindow(QMainWindow):
         """Reset al variables in modules"""
         self.is_streaming = False
         self.funct.reset_vars()
-        self.BT_funct.reset_bt_vars()
+        self.bt_funct.reset_bt_vars()
         self.vis_funct.reset_vis_vars()
         self.record_funct.reset_record_vars()
         self.imp_funct.reset_imp_vars()
-        self.LSL_funct.reset_lsl_vars()
+        self.lsl_funct.reset_lsl_vars()
 
     #########################
     # Connection Functions
@@ -606,9 +611,9 @@ class MainWindow(QMainWindow):
                     self.ui.ft_label_device_3.setText(not_connected_label)
                     self.ui.ft_label_device_3.repaint()
                     self.funct.is_connected = False
-                    self.BT_funct.is_connected = False
+                    self.bt_funct.is_connected = False
                     self.reset_vars()
-                    self.BT_funct.on_connection()
+                    self.bt_funct.on_connection()
                     self.change_page(btn_name="btn_bt")
         else:
             return

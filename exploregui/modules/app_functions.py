@@ -142,18 +142,6 @@ class AppFunctions():
 
         logger.info(f"Applied filters{self.plotting_filters}")
 
-    def reset_exg_plot_data(self):
-        """
-        Resets variable exg_plot_data
-        """
-        points = self.plot_points()
-        points_no_ds = self.plot_points(downsampling=False)
-        self.exg_plot_data[0] = np.array([np.NaN] * points)
-        self.exg_plot_data[1] = {
-            ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-        self.exg_plot_data[2] = {
-            ch: np.array([np.NaN] * points_no_ds) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-
     #########################
     # Set/Get Functions
     #########################
@@ -196,6 +184,18 @@ class AppFunctions():
     #########################
     # Set/Get Functions
     #########################
+    def reset_exg_plot_data(self):
+        """
+        Resets variable exg_plot_data
+        """
+        points = self.plot_points()
+        points_no_ds = self.plot_points(downsampling=False)
+        self.exg_plot_data[0] = np.array([np.NaN] * points)
+        self.exg_plot_data[1] = {
+            ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+        self.exg_plot_data[2] = {
+            ch: np.array([np.NaN] * points_no_ds) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+
     def reset_vars(self):
         self.chan_dict = {}
         self.is_connected = False
