@@ -62,8 +62,6 @@ class BTFunctions(AppFunctions):
             logger.warning("No Bluetooth connection available.")
             return
 
-        explore_devices = [dev[0] for dev in explore_devices]
-
         if len(explore_devices) == 0:
             msg = "No explore devices found. Please make sure your device is turned on."
             self._connection_error_gui(msg, scan=True)
