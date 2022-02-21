@@ -171,10 +171,8 @@ class MainWindow(QMainWindow):
         self.ui.imp_meas_info.clicked.connect(self.imp_info_clicked)
         # self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
         self.signal_imp.connect(self.imp_funct.update_impedance)
-        # self.ui.btn_imp_meas.clicked.connect(self.imp_funct.show_imp_frames_timer)
         self.ui.btn_imp_meas.clicked.connect(self.imp_meas_clicked)
         self.ui.label_6.setHidden(True)
-        self.imp_funct.show_imp_frames_timer()
 
         # PLOTTING PAGE
         self.ui.value_signal.currentTextChanged.connect(self.vis_funct._mode_change)
@@ -323,6 +321,7 @@ class MainWindow(QMainWindow):
                 return False
 
             self.bt_funct.update_frame_dev_settings(reset_data=False)
+            self.config_funct.one_chan_selected()
             enable = not self.record_funct.is_recording and not self.lsl_funct.is_pushing
             self.config_funct.enable_settings(enable)
             self.ui.value_sampling_rate.setEnabled(True)
@@ -592,30 +591,24 @@ class MainWindow(QMainWindow):
             sp_connected = self.explorer.stream_processor.is_connected
             reconnecting = self.explorer.stream_processor.parser._is_reconnecting
             label_text = self.ui.ft_label_device_3.text()
-            # print("connection streamprocessor: ", sp_connected)
-            # print("connection parser: ", reconnecting)
-            # print("\n")
 
             if sp_connected and reconnecting:
-                # print("Reconnecting")
                 if label_text != reconnecting_label:
                     self.ui.ft_label_device_3.setText(reconnecting_label)
                     self.ui.ft_label_device_3.repaint()
                     # self.vis_funct._vis_time_offset = None
             elif sp_connected and reconnecting is False:
-                # print("Connected")
                 if label_text != connected_label:
                     self.ui.ft_label_device_3.setText(connected_label)
                     self.ui.ft_label_device_3.repaint()
             elif sp_connected is False and reconnecting is False:
-                # print("Disconnected")
                 if label_text != not_connected_label:
                     self.ui.ft_label_device_3.setText(not_connected_label)
                     self.ui.ft_label_device_3.repaint()
                     self.funct.is_connected = False
                     self.bt_funct.is_connected = False
                     self.reset_vars()
-                    self.bt_funct.on_connection()
+                    self.bt_funct.on_connection_change()
                     self.change_page(btn_name="btn_bt")
         else:
             return
