@@ -171,8 +171,10 @@ class MainWindow(QMainWindow):
         self.ui.imp_meas_info.clicked.connect(self.imp_info_clicked)
         # self.ui.imp_meas_info.setToolTip("Sum of impedances on REF and individual channels divided by 2")
         self.signal_imp.connect(self.imp_funct.update_impedance)
+        # self.ui.btn_imp_meas.clicked.connect(self.imp_funct.show_imp_frames_timer)
         self.ui.btn_imp_meas.clicked.connect(self.imp_meas_clicked)
         self.ui.label_6.setHidden(True)
+        self.imp_funct.show_imp_frames_timer()
 
         # PLOTTING PAGE
         self.ui.value_signal.currentTextChanged.connect(self.vis_funct._mode_change)
@@ -181,10 +183,10 @@ class MainWindow(QMainWindow):
 
         self.ui.btn_marker.setEnabled(False)
         self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
-            (self.ui.value_event_code.text() != "") or (
-                (self.ui.value_event_code.text().isnumeric()) and (8 <= int(self.ui.value_event_code.text())))
-        )
-        )
+            (self.ui.value_event_code.text() != "")))
+        self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
+            (self.ui.value_event_code.text().isnumeric()) and (8 <= int(self.ui.value_event_code.text()))))
+
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(self.vis_funct.set_marker)
         self.ui.value_event_code.returnPressed.connect(self.vis_funct.set_marker)
@@ -313,7 +315,6 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
 
         elif btn_name == "btn_settings":
-            self.bt_funct.update_frame_dev_settings(reset_data=False)
             self.imp_funct.check_is_imp()
 
             if self.funct.is_connected is False:
@@ -321,6 +322,7 @@ class MainWindow(QMainWindow):
                 self.funct.display_msg(msg_text=msg, type="info")
                 return False
 
+            self.bt_funct.update_frame_dev_settings(reset_data=False)
             enable = not self.record_funct.is_recording and not self.lsl_funct.is_pushing
             self.config_funct.enable_settings(enable)
             self.ui.value_sampling_rate.setEnabled(True)
