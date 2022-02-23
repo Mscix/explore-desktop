@@ -375,7 +375,7 @@ class BTFunctions(AppFunctions):
                 value = 1 if value < 1 else value
                 new_value = value if self.is_connected else "NA"
                 stylesheet = self._battery_stylesheet(value=new_value)
-                self._update_battery(new_value=str(new_value), new_stylesheet=stylesheet)
+                self._update_battery(new_value=str(new_value)+"%", new_stylesheet=stylesheet)
 
             elif key == "fimrware":
                 new_value = new_info[key] if self.is_connected else "NA"
@@ -409,11 +409,7 @@ class BTFunctions(AppFunctions):
     def _battery_stylesheet(self, value):
         if isinstance(value, str):
             stylesheet = Settings.BATTERY_STYLESHEETS["na"]
-        elif value > 60:
-            stylesheet = Settings.BATTERY_STYLESHEETS["high"]
-        elif value > 30:
-            stylesheet = Settings.BATTERY_STYLESHEETS["medium"]
-        elif value > 0:
+        elif value <= 10:
             stylesheet = Settings.BATTERY_STYLESHEETS["low"]
         else:
             stylesheet = Settings.BATTERY_STYLESHEETS["na"]
