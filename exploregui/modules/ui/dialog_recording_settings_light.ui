@@ -7,102 +7,122 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>200</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
-   <property name="topMargin">
-    <number>25</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QLabel" name="lbl_step2">
-         <property name="text">
-          <string>1. Select the file format :     </string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rdbtn_csv">
-         <property name="text">
-          <string>csv</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rdbtn_edf">
-         <property name="text">
-          <string>edf</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QLabel" name="lbl_step1">
+      <widget class="QLabel" name="lbl_step2">
        <property name="text">
-        <string>2. Select the folder and name to store the file:</string>
+        <string>1. Select the file format :     </string>
        </property>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QLineEdit" name="input_filepath"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_browse">
-         <property name="text">
-          <string>Browse</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>3. Select recording time (s):</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="spinBox"/>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_4">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <italic>true</italic>
-        </font>
-       </property>
+      <widget class="QRadioButton" name="rdbtn_csv">
        <property name="text">
-        <string>If recording time is 0, the default (3600 sec) will be used</string>
+        <string>csv</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <widget class="QRadioButton" name="rdbtn_edf">
+       <property name="text">
+        <string>edf</string>
        </property>
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="lbl_step1">
+     <property name="text">
+      <string>2. Select the folder and name to store the file:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="minimumSize">
+        <size>
+         <width>54</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Folder:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="input_filepath"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_browse">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="minimumSize">
+        <size>
+         <width>54</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>File name:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="input_file_name"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>3. Select recording time (s):</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spinBox">
+       <property name="maximum">
+        <number>1000000</number>
+       </property>
+       <property name="value">
+        <number>3600</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

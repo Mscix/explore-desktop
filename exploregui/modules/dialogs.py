@@ -241,17 +241,14 @@ class RecordingDialog(QDialog):
         Open a dialog to select file name to be saved
         """
 
-        file_types = "CSV files(*.csv);;EFD files (*.efd)"
         dialog = QFileDialog()
-        options = dialog.Options()
-        file_name, _ = dialog.getSaveFileName(
+        file_path = dialog.getExistingDirectory(
             self,
-            "Save File As",
-            "",
-            filter=file_types, options=options
-        )
+            "Choose Directory",
+            os.path.expanduser("~"),
+            QFileDialog.ShowDirsOnly)
 
-        self.recording_path = file_name
+        self.recording_path = file_path
         self.ui.input_filepath.setText(self.recording_path)
         QApplication.processEvents()
 
@@ -268,6 +265,7 @@ class RecordingDialog(QDialog):
             return False
 
         return {
+            "file_name": self.ui.input_file_name.text(),
             "file_path": self.ui.input_filepath.text(),
             "file_type": self.file_extension(),
             "duration": int(self.ui.spinBox.value())
