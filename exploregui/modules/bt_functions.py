@@ -364,7 +364,7 @@ class BTFunctions(AppFunctions):
         new_info = packet.get_data()
         for key in new_info.keys():
             if key == "temperature":
-                new_value = str(new_info[key][0]) if self.is_connected else "NA"
+                new_value = str(new_info[key][0]) + " ºC" if self.is_connected else "NA"
                 self._update_temperature(new_value=new_value)
 
             elif key == "battery":
