@@ -119,9 +119,9 @@ class ConfigFunctions(AppFunctions):
             if self.plotting_filters is not None:
                 self.check_filters_new_sr()
 
-            logger.info(f"Old Sampling rate: {self.explorer.stream_processor.device_info['sampling_rate']}")
+            logger.info("Old Sampling rate: %s", self.explorer.stream_processor.device_info['sampling_rate'])
             self.explorer.set_sampling_rate(sampling_rate=value)
-            logger.info(f"New Sampling rate: {self.explorer.stream_processor.device_info['sampling_rate']}")
+            logger.info("New Sampling rate: %s", self.explorer.stream_processor.device_info['sampling_rate'])
             changed = True
 
         return changed
@@ -144,6 +144,8 @@ class ConfigFunctions(AppFunctions):
         active_chan = list(reversed(active_chan))
         active_chan_int = [int(i) for i in active_chan]
         n_active = sum(active_chan_int)
+        print(f"{active_chan=}")
+        print(f"{active_chan_int=}")
         if n_active == 0:
             self.display_msg("Please select at least one channel")
             return
@@ -155,6 +157,8 @@ class ConfigFunctions(AppFunctions):
 
             mask = "".join(active_chan)
             int_mask = int(mask, 2)
+            print(f"{mask=}")
+            print(f"{int_mask=}")
             try:
                 self.explorer.set_channels(int_mask)
             except TypeError:

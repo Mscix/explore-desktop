@@ -112,7 +112,7 @@ class IMPFunctions(AppFunctions):
 
     def check_is_imp(self):
         """
-        Check if impedance measurement is active. 
+        Check if impedance measurement is active.
         If so ask the user whether to disable it.
         """
         disabled = False
