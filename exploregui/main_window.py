@@ -309,7 +309,7 @@ class MainWindow(QMainWindow):
             "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
 
         # If not navigating to impedance, verify if imp mode is active
-        if btn_name != "btn_impedance":
+        if self.imp_funct.is_imp_measuring and btn_name != "btn_impedance":
             imp_disabled = self.imp_funct.check_is_imp()
             if not imp_disabled:
                 return False

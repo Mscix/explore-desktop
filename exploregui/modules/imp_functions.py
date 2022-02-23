@@ -120,9 +120,9 @@ class IMPFunctions(AppFunctions):
             msg = "Impedance mode will be disabled. Do you want to continue?"
             response = self.display_msg(msg_text=msg, type="question")
 
-        if response == QMessageBox.StandardButton.Yes:
-            self.disable_imp()
-            disabled = True
+            if response == QMessageBox.StandardButton.Yes:
+                self.disable_imp()
+                disabled = True
 
         return disabled
 
