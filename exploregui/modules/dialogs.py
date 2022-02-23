@@ -1,5 +1,4 @@
 import os
-import sys
 
 from exploregui.modules.ui import (
     Ui_PlotDialog,
@@ -272,16 +271,3 @@ class RecordingDialog(QDialog):
             "file_type": self.file_extension(),
             "duration": int(self.ui.spinBox.value())
         }
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    # plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
-
-    # dialog = PlotDialog(sr=250, current_filters=plotting_filters)
-    # filt = dialog.exec()
-    # print(filt)
-    dialog = RecordingDialog()
-    filt = dialog.exec()
-    print(filt)
-    sys.exit(app.exec())
