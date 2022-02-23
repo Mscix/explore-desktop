@@ -332,14 +332,12 @@ class VisualizationFunctions(AppFunctions):
             # Update ExG unit
             try:
                 exg = self.offsets + exg / self.y_unit
-                # exg /= self.y_unit
-
                 data = dict(zip(self.active_chan, exg))
                 data['t'] = time_vector
                 self.signal_exg.emit(data)
 
-            except Exception as e:
-                print(e)
+            except ValueError as e:
+                logger.warning(f"ValueError: {str(e)}")
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)

@@ -71,8 +71,8 @@ class MainWindow(QMainWindow):
 
         self.explorer = xpy.Explore()
         self.funct = AppFunctions(self.ui, self.explorer)
-        self.LSL_funct = LSLFunctions(self.ui, self.explorer)
-        self.BT_funct = BTFunctions(self.ui, self.explorer)
+        self.lsl_funct = LSLFunctions(self.ui, self.explorer)
+        self.bt_funct = BTFunctions(self.ui, self.explorer)
         self.imp_funct = IMPFunctions(self.ui, self.explorer, self.signal_imp)
         self.vis_funct = VisualizationFunctions(
             self.ui, self.explorer,
@@ -118,22 +118,23 @@ class MainWindow(QMainWindow):
         # Slidable left panel
         self.ui.btn_left_menu_toggle.clicked.connect(self.slide_left_menu)
 
-        # Stacked pages - default open connect
+        # Stacked pages - default open connect or home if permissions are not set
         existing_permission = self.check_permissions()
         if existing_permission:
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+            self.highlight_left_button("btn_bt")
         else:
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
+            self.highlight_left_button("btn_home")
             # Set data sharing permissions
             self.set_permissions()
 
-        # Left menu button stylesheet and input foucus
-        self.ui.btn_bt.setStyleSheet(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
+        # Start with foucus on line edit for device name
         self.ui.dev_name_input.setFocus()
 
         # Stacked pages - navigation
-        for w in self.ui.left_side_menu.findChildren(QPushButton):
-            w.clicked.connect(self.left_menu_button_clicked)
+        for btn_wdgt in self.ui.left_side_menu.findChildren(QPushButton):
+            btn_wdgt.clicked.connect(self.left_menu_button_clicked)
 
         # Check connection every 2 seconds
         self.check_connection()
@@ -152,13 +153,13 @@ class MainWindow(QMainWindow):
         self.ui.dev_name_input.textChanged.connect(self.funct.lineedit_stylesheet)
         self.ui.btn_connect.clicked.connect(self.connect_clicked)
         self.ui.dev_name_input.returnPressed.connect(self.connect_clicked)
-        self.ui.btn_scan.clicked.connect(self.BT_funct.scan_devices)
+        self.ui.btn_scan.clicked.connect(self.bt_funct.scan_devices)
 
         # SETTING PAGE BUTTONS
         # self.ui.btn_import_data.clicked.connect(self.import_recorded_data)
         self.ui.btn_format_memory.clicked.connect(self.config_funct.format_memory)
         self.ui.btn_reset_settings.clicked.connect(self.soft_reset)
-        self.ui.btn_apply_settings.clicked.connect(self.settings_changed)
+        self.ui.btn_apply_settings.clicked.connect(self.config_funct.change_settings)
         self.ui.btn_calibrate.setHidden(True)
         # self.ui.btn_calibrate.clicked.connect(self.config_funct.calibrate_orn())
         self.ui.n_chan.currentTextChanged.connect(self.n_chan_changed)
@@ -181,10 +182,10 @@ class MainWindow(QMainWindow):
 
         self.ui.btn_marker.setEnabled(False)
         self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
-            (self.ui.value_event_code.text() != "") or (
-                (self.ui.value_event_code.text().isnumeric()) and (8 <= int(self.ui.value_event_code.text())))
-        )
-        )
+            (self.ui.value_event_code.text() != "")))
+        self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
+            (self.ui.value_event_code.text().isnumeric()) and (8 <= int(self.ui.value_event_code.text()))))
+
         # self.ui.value_event_code.setEnabled(self.ui.btn_record.text()=="Stop")
         self.ui.btn_marker.clicked.connect(self.vis_funct.set_marker)
         self.ui.value_event_code.returnPressed.connect(self.vis_funct.set_marker)
@@ -202,52 +203,52 @@ class MainWindow(QMainWindow):
         self.ui.lsl_duration_value.hide()
         self.ui.cb_lsl_duration.hide()
         self.ui.label_lsl_duration.setHidden(True)
-        self.ui.cb_lsl_duration.stateChanged.connect(self.LSL_funct.enable_lsl_duration)
-        self.ui.btn_push_lsl.clicked.connect(self.LSL_funct.push_lsl)
+        self.ui.cb_lsl_duration.stateChanged.connect(self.lsl_funct.enable_lsl_duration)
+        self.ui.btn_push_lsl.clicked.connect(self.lsl_funct.push_lsl)
 
         self.last_t = datetime.datetime.now()
         self.first_t = datetime.datetime.now()
 
     @Slot()
-    def connect_clicked(self, dev_name=None):
-        """Connect or disconnect from device
-        Args:
-            dev_name (str, optional): For testing purposes, can pass name of the device to connect. Defaults to None.
+    def connect_clicked(self) -> None:
         """
-        self.BT_funct.connect2device(dev_name=dev_name)
-        self.funct.is_connected = self.BT_funct.is_connected
-        self.is_connected = self.funct.get_is_connected()
-
+        Connect or disconnect from device
+        """
         if self.funct.get_is_connected() is False:
+            self.bt_funct.connect2device()
+            self.funct.is_connected = self.bt_funct.is_connected
+            if self.funct.is_connected:
+                # Initialize plots
+                self.vis_funct.init_plots()
+                # Move to settings page
+                self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+                # Change left menu button highlight
+                self.highlight_left_button("btn_settings")
+        else:
+            self.bt_funct.disconnect()
+            self.funct.is_connected = self.bt_funct.is_connected
             self.stop_processes()
             self.reset_vars()
-        else:
-            self.vis_funct.init_plots()
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
-            default = self.ui.btn_bt.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
-            self.ui.btn_bt.setStyleSheet(default)
-            highlight = self.ui.btn_settings.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
-            self.ui.btn_settings.setStyleSheet(highlight)
 
     @Slot()
     def n_chan_changed(self):
-        self.BT_funct.set_n_chan()
-        self.BT_funct.update_frame_dev_settings()
-
-    @Slot()
-    def settings_changed(self):
-        self.config_funct.change_settings()
-        self.t_exg_plot, self.exg_plot, _ = self.config_funct.get_exg_plot_data()
-        self.chan_dict = self.config_funct.get_chan_dict()
+        """
+        Update settings page when number of channels is changed
+        """
+        self.bt_funct.set_n_chan()
+        self.bt_funct.update_frame_dev_settings()
 
     @Slot()
     def soft_reset(self):
+        """Reset device settings and disconnect it
+        """
         with self.funct.wait_cursor():
             self.config_funct.reset_settings()
-            self.BT_funct.connect2device()
+            self.bt_funct.disconnect()
             self.stop_processes()
             self.reset_vars()
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+            self.highlight_left_button("btn_bt")
 
     @Slot()
     def imp_meas_clicked(self):
@@ -259,19 +260,23 @@ class MainWindow(QMainWindow):
             "Impedance measurement will introduce noise to the signal"
             " and affect the visualization, recording, and LSL stream."
             "\nAre you sure you want to continue?")
-        if not self.imp_funct.is_imp_measuring and (self.record_funct.is_recording or self.LSL_funct.is_pushing):
+        if not self.imp_funct.is_imp_measuring and (self.record_funct.is_recording or self.lsl_funct.is_pushing):
             response = self.funct.display_msg(msg_text=msg, type="question")
             if response == QMessageBox.StandardButton.No:
                 return
         self.imp_funct.emit_imp()
 
     def update_fft(self):
+        """Start QTimer to update impedance every two seconds
+        """
         self.timer_fft = QTimer(self)
         self.timer_fft.setInterval(2000)
         self.timer_fft.timeout.connect(self.vis_funct.plot_fft)
         self.timer_fft.start()
 
     def update_heart_rate(self):
+        """Start QTimer to update heart rate every two seconds
+        """
         self.timer_hr = QTimer(self)
         self.timer_hr.setInterval(2000)
         self.timer_hr.timeout.connect(self.vis_funct.plot_heart_rate)
@@ -279,6 +284,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def imp_info_clicked(self):
+        """Display message when impedance question mark is clicked
+        """
         imp_msg = (
             "NOTE: The impedance value displayed for each channel also depends on"
             " the impedance of the reference electrode.\n\n"
@@ -296,76 +303,50 @@ class MainWindow(QMainWindow):
         Args:
             btn_name (str): button named
         """
-        self.is_imp_measuring = self.imp_funct.get_imp_status()
-        # btn = self.sender()
-        # btn_name = btn.objectName()
+        btn_page_map = {
+            "btn_home": self.ui.page_home, "btn_bt": self.ui.page_bt,
+            "btn_settings": self.ui.page_settings, "btn_plots": self.ui.page_plotsNoWidget,
+            "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
 
-        if btn_name == "btn_home":
-            self.imp_funct.check_is_imp()
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
-
-        elif btn_name == "btn_bt":
-            self.imp_funct.check_is_imp()
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
-
-        elif btn_name == "btn_settings":
-            self.BT_funct.update_frame_dev_settings(reset_data=False)
+        # If not navigating to impedance, verify if imp mode is active
+        if btn_name != "btn_impedance":
             self.imp_funct.check_is_imp()
 
-            if self.funct.is_connected is False:
-                msg = "Please connect an Explore device before changing its settings"
-                self.funct.display_msg(msg_text=msg, type="info")
-                return False
+        # If the page requires connection to a Explore device, verify
+        if btn_name in Settings.LEFT_BTN_REQUIRE_CONNECTION and self.funct.is_connected is False:
+            msg = "Please connect an Explore device."
+            self.funct.display_msg(msg_text=msg, type="info")
+            return False
 
-            enable = not self.record_funct.is_recording and not self.LSL_funct.is_pushing
+        # Actions for specific pages
+        if btn_name == "btn_settings":
+            self.bt_funct.update_frame_dev_settings(reset_data=False)
+            self.config_funct.one_chan_selected()
+            enable = not self.record_funct.is_recording and not self.lsl_funct.is_pushing
             self.config_funct.enable_settings(enable)
             self.ui.value_sampling_rate.setEnabled(True)
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
 
         elif btn_name == "btn_plots":
-            self.imp_funct.check_is_imp()
             filt = True
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+            if self.funct.plotting_filters is None:
+                filt = self.vis_funct.popup_filters()
 
-            if self.funct.is_connected is False and self.file_names is None:
-                msg = "Please connect an Explore device or import data before attempting to visualize the data"
-                self.funct.display_msg(msg_text=msg, type="info")
+            if filt is False:
+                self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
                 return False
 
-            elif self.file_names is None:
-                self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-                if self.funct.plotting_filters is None:
-                    filt = self.vis_funct.popup_filters()
-
-                if filt is False:
-                    self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
-                    return
-
-                if not self.is_streaming and filt:
-                    self.vis_funct.emit_signals()
-                    self.update_fft()
-                    self.update_heart_rate()
-                    self.is_streaming = True
-
-            else:
-                self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsRecorded)
+            if not self.is_streaming and filt:
+                self.vis_funct.emit_signals()
+                self.update_fft()
+                self.update_heart_rate()
+                self.is_streaming = True
 
         elif btn_name == "btn_impedance":
-            if self.funct.is_connected is False:
-                msg = "Please connect an Explore device to visualize the impedances."
-                self.funct.display_msg(msg_text=msg, type="info")
-                return False
-
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_impedance)
             self.imp_funct.reset_impedance()
 
-        elif btn_name == "btn_integration":
-            if self.funct.is_connected is False:
-                msg = "Please connect an Explore device to push the data."
-                self.funct.display_msg(msg_text=msg, type="info")
-                return False
-
-            self.imp_funct.check_is_imp()
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_integration)
+        # Move to page
+        self.ui.stackedWidget.setCurrentWidget(btn_page_map[btn_name])
         return True
 
     def slide_left_menu(self):
@@ -388,11 +369,29 @@ class MainWindow(QMainWindow):
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
 
+    def highlight_left_button(self, btn_name):
+        """
+        Change style of the button clicked
+
+        Args:
+            btn_name (str): name of the button to highlight
+        """
+        if btn_name != "btn_left_menu_toggle":
+            # Reset style for other buttons
+            for btn_wdgt in self.ui.left_side_menu.findChildren(QPushButton):
+                if btn_wdgt.objectName() != btn_name:
+                    default_style = btn_wdgt.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
+                    btn_wdgt.setStyleSheet(default_style)
+
+            # Apply new style
+            btn = self.funct.get_widget_by_objName(btn_name)
+            new_style = btn.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
+            btn.setStyleSheet(new_style)
+
     def left_menu_button_clicked(self):
         """
         Change style of the button clicked and move to the selected page
         """
-
         btn = self.sender()
         btn_name = btn.objectName()
 
@@ -400,24 +399,14 @@ class MainWindow(QMainWindow):
         change = self.change_page(btn_name)
         if change is False:
             return
-
-        if btn_name != "btn_left_menu_toggle":
-            # Reset style for other buttons
-            for w in self.ui.left_side_menu.findChildren(QPushButton):
-                if w.objectName() != btn_name:
-                    defaultStyle = w.styleSheet().replace(Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET, "")
-                    # Apply default style
-                    w.setStyleSheet(defaultStyle)
-
-            # Apply new style
-            newStyle = btn.styleSheet() + (Settings.BTN_LEFT_MENU_SELECTED_STYLESHEET)
-            btn.setStyleSheet(newStyle)
+        # Apply stylesheet
+        self.highlight_left_button(btn_name)
 
     def mousePressEvent(self, event):
-        '''
+        """
         Get mouse current position to move the window
         Args: mouse press event
-        '''
+        """
         self.clickPosition = event.globalPosition().toPoint()
 
     @Slot()
@@ -433,25 +422,26 @@ class MainWindow(QMainWindow):
             WINDOW_SIZE = True
             self.showMaximized()
             # Update button icon
-            self.ui.btn_restore.setIcon(QIcon(
-                u":icons/icons/cil-window-restore.png"))
+            self.ui.btn_restore.setIcon(QIcon(":icons/icons/cil-window-restore.png"))
 
         else:
             WINDOW_SIZE = False
             self.showNormal()  # normal is 800x400
             # Update button icon
-            self.ui.btn_restore.setIcon(QIcon(
-                u":icons/icons/cil-window-maximize.png"))
+            self.ui.btn_restore.setIcon(QIcon(":icons/icons/cil-window-maximize.png"))
 
     @Slot()
     def on_close(self):
         """
         Stop all ongoing processes when closing the app
         """
-        self.vis_funct.emit_orn(stop=True)
-        self.vis_funct.emit_exg(stop=True)
-        self.signal_orn.disconnect(self.vis_funct.plot_orn)
-        self.signal_exg.disconnect(self.vis_funct.plot_exg)
+        try:
+            self.vis_funct.emit_orn(stop=True)
+            self.vis_funct.emit_exg(stop=True)
+            self.signal_orn.disconnect(self.vis_funct.plot_orn)
+            self.signal_exg.disconnect(self.vis_funct.plot_exg)
+        except AttributeError:
+            pass
         self.stop_processes()
         self.close()
 
@@ -471,9 +461,9 @@ class MainWindow(QMainWindow):
 
         # Move Winndow poisitionn
         def move_window(e):
-            '''
+            """
             Move window on mouse drag event on the title bar
-            '''
+            """
             # if maximized restore to normal
             if WINDOW_SIZE:
                 self.restore_or_maximize()
@@ -514,9 +504,9 @@ class MainWindow(QMainWindow):
     # other Functions
     #########################
     def init_dropdowns(self):
-        '''
+        """
         Initilize the GUI dropdowns with the values specified above
-        '''
+        """
 
         # value number of channels:
         self.ui.n_chan.addItems(Settings.N_CHAN_LIST)
@@ -554,9 +544,9 @@ class MainWindow(QMainWindow):
             self.record_funct.is_recording = False
         if self.is_started:
             pass
-        if self.LSL_funct.get_pushing_status():
+        if self.lsl_funct.get_pushing_status():
             self.explorer.stop_lsl()
-            self.LSL_funct.is_pushing = False
+            self.lsl_funct.is_pushing = False
             self.ui.btn_push_lsl.setText("Push")
         if self.imp_funct.get_imp_status():
             self.imp_funct.disable_imp()
@@ -565,11 +555,11 @@ class MainWindow(QMainWindow):
         """Reset al variables in modules"""
         self.is_streaming = False
         self.funct.reset_vars()
-        self.BT_funct.reset_bt_vars()
+        self.bt_funct.reset_bt_vars()
         self.vis_funct.reset_vis_vars()
         self.record_funct.reset_record_vars()
         self.imp_funct.reset_imp_vars()
-        self.LSL_funct.reset_lsl_vars()
+        self.lsl_funct.reset_lsl_vars()
 
     #########################
     # Connection Functions
@@ -585,30 +575,24 @@ class MainWindow(QMainWindow):
             sp_connected = self.explorer.stream_processor.is_connected
             reconnecting = self.explorer.stream_processor.parser._is_reconnecting
             label_text = self.ui.ft_label_device_3.text()
-            # print("connection streamprocessor: ", sp_connected)
-            # print("connection parser: ", reconnecting)
-            # print("\n")
 
             if sp_connected and reconnecting:
-                # print("Reconnecting")
                 if label_text != reconnecting_label:
                     self.ui.ft_label_device_3.setText(reconnecting_label)
                     self.ui.ft_label_device_3.repaint()
                     # self.vis_funct._vis_time_offset = None
             elif sp_connected and reconnecting is False:
-                # print("Connected")
                 if label_text != connected_label:
                     self.ui.ft_label_device_3.setText(connected_label)
                     self.ui.ft_label_device_3.repaint()
             elif sp_connected is False and reconnecting is False:
-                # print("Disconnected")
                 if label_text != not_connected_label:
                     self.ui.ft_label_device_3.setText(not_connected_label)
                     self.ui.ft_label_device_3.repaint()
                     self.funct.is_connected = False
-                    self.BT_funct.is_connected = False
+                    self.bt_funct.is_connected = False
                     self.reset_vars()
-                    self.BT_funct.on_connection()
+                    self.bt_funct.on_connection_change()
                     self.change_page(btn_name="btn_bt")
         else:
             return

@@ -14,18 +14,25 @@ logger = logging.getLogger("explorepy." + __name__)
 
 
 class IMPFunctions(AppFunctions):
+    """_summary_
+
+    Args:
+        AppFunctions (_type_): _description_
+    """
     def __init__(self, ui, explorer, signal_imp):
         super().__init__(ui, explorer)
         self.signal_imp = signal_imp
         self.is_imp_measuring = False
 
     def disable_imp(self):
+        """
+        Disable impedance measurement and reset GUI
+        """
         if self.is_connected:
             self.explorer.stream_processor.disable_imp()
             self.reset_impedance()
             self.ui.btn_imp_meas.setText("Measure Impedances")
             self.is_imp_measuring = False
-            # AppFunctions.is_imp_measuring = False
         else:
             return
 
@@ -71,7 +78,7 @@ class IMPFunctions(AppFunctions):
 
         else:
             if self.is_imp_measuring is False:
-                sr_ok = self._verify_samplingRate()
+                sr_ok = self._verify_sampling_rate()
                 if sr_ok is False:
                     return
                 self.ui.btn_imp_meas.setText("Stop")
@@ -87,6 +94,11 @@ class IMPFunctions(AppFunctions):
 
     @Slot(dict)
     def update_impedance(self, chan_dict_data):
+        """Update impedance value and color
+
+        Args:
+            chan_dict_data (dict): dictionary with channel as key and [value, stylesheet] as value
+        """
         for chan in chan_dict_data.keys():
             new_stylesheet = chan_dict_data[chan][1]
             frame_name = f"frame_{chan}_color"
@@ -99,6 +111,9 @@ class IMPFunctions(AppFunctions):
             ch_label.setText(new_value)
 
     def check_is_imp(self):
+        """
+        Check if impedance measurement is active. If so, disable
+        """
         if self.is_imp_measuring:
             self.display_msg(msg_text="Impedance mode will be disabled", type="info")
             self.disable_imp()
@@ -109,7 +124,7 @@ class IMPFunctions(AppFunctions):
         """
         Return the stylesheet corresponding to the impedance value
         """
-        if type(value) == str:
+        if isinstance(value, str):
             imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
         elif value > Settings.COLOR_RULES_WET["red"]:  # 500
             imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
@@ -128,7 +143,7 @@ class IMPFunctions(AppFunctions):
         """
         Return the stylesheet corresponding to the impedance value
         """
-        if type(value) == str:
+        if isinstance(value, str):
             imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
         elif value > Settings.COLOR_RULES_DRY["red"]:  # 500
             imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
@@ -144,6 +159,9 @@ class IMPFunctions(AppFunctions):
         return imp_stylesheet
 
     def reset_impedance(self):
+        """
+        Reset impedance frame to default
+        """
         if self.is_connected:
             # stream_processor = self.explorer.stream_processor
             # n_chan = stream_processor.device_info['adc_mask']
@@ -171,27 +189,34 @@ class IMPFunctions(AppFunctions):
         else:
             return
 
-    def _verify_samplingRate(self):
+    def _verify_sampling_rate(self):
+        """Check whether sampling rate is set to 250Hz. If not, ask the user if they want to change it
+
+        Returns:
+            bool: whether sampling rate is 250Hz
+        """
         self.explorer._check_connection()
-        sr = int(self.get_samplingRate())
-        if sr != 250:
+        s_rate = int(self.get_samplingRate())
+        if s_rate != 250:
             question = (
                 "Impedance mode only works in 250 Hz sampling rate!"
-                f"\nThe current sampling rate is {sr}."
+                f"\nThe current sampling rate is {s_rate}."
                 "Click on Confirm to change the sampling rate.")
 
-            # response = QMessageBox.question(self, "Confirmation", question)
             response = self.display_msg(msg_text=question, type="question")
 
             if response == QMessageBox.StandardButton.Yes:
                 self.explorer.set_sampling_rate(sampling_rate=250)
                 self.ui.value_sampling_rate.setCurrentText(str(250))
-                ok = True
+                accept = True
             else:
-                ok = False
+                accept = False
         else:
-            ok = True
-        return ok
+            accept = True
+        return accept
 
     def reset_imp_vars(self):
+        """
+        Reset class variables
+        """
         self.is_imp_measuring = False

@@ -37,32 +37,25 @@ class BTFunctions(AppFunctions):
     # Scan/Connect Functions
     #########################
 
-    def scan_devices(self):
+    def scan_devices(self) -> None:
         """"
         Scans for available explore devices.
         """
 
         self.ui.list_devices.clear()
 
-        # Change footer
-        self.ui.ft_label_device_3.setText("Scanning ...")
-        self.ui.ft_label_device_3.repaint()
-
-        # Change scan button
-        self.ui.btn_scan.setText("Scanning")
-        self.ui.btn_scan.setStyleSheet(DISABLED_STYLESHEET)
-        QApplication.processEvents()
+        # Change footer and scan button
+        self._scan_stylesheet()
 
         try:
             with self.wait_cursor():
                 explore_devices = bt_scan()
+
         except (ValueError, SystemError):
             msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
             self._connection_error_gui(msg, scan=True)
             logger.warning("No Bluetooth connection available.")
             return
-
-        explore_devices = [dev[0] for dev in explore_devices]
 
         if len(explore_devices) == 0:
             msg = "No explore devices found. Please make sure your device is turned on."
@@ -84,16 +77,17 @@ class BTFunctions(AppFunctions):
 
         self.ui.list_devices.addItems(devs)
 
-        # Reset footer
-        self.ui.ft_label_device_3.setText("Not connected")
-        self.ui.ft_label_device_3.repaint()
+        # Reset footer and button
+        self._scan_stylesheet(reset=True)
 
-        # Reset button
-        self.ui.btn_scan.setText("Scan")
-        self.ui.btn_scan.setStyleSheet("")
-        QApplication.processEvents()
+    def get_device_from_le(self) -> str:
+        """
+        Get device name from line edit widget.
+        If the input string does not contain the word Explore it will added
 
-    def get_device_from_le(self):
+        Returns:
+            str: full name of the device (Explore_XXXX). Empty if format is not correct
+        """
 
         input_name = self.ui.dev_name_input.text()
 
@@ -109,7 +103,13 @@ class BTFunctions(AppFunctions):
 
         return device_name
 
-    def get_device_from_list(self):
+    def get_device_from_list(self) -> str:
+        """
+        Get device name from the selected item in the list widget.
+
+        Returns:
+            str: full name of the device (Explore_XXXX). Empty if no device is selected
+        """
         try:
             device_name = self.ui.list_devices.selectedItems()[0].text()
             device_name = device_name[:12]
@@ -118,113 +118,150 @@ class BTFunctions(AppFunctions):
 
         return device_name
 
-    def connect2device(self, dev_name=None):
+    def get_dev_name(self) -> str:
+        """Get selected device name by looking at line edit and device list.
+
+        Returns:
+            str: Explore device name. Empty string if error happens
+        """
+        device_name_le = self.get_device_from_le()
+        device_name_list = self.get_device_from_list()
+        device_name = ""
+        if device_name_le != "":
+            device_name = device_name_le
+        elif device_name_list != "":
+            device_name = device_name_list
+        return device_name
+
+    def connect2device(self):
         """
         Connect to the explore device.
         """
-        if self.is_connected is False:
-            device_name_le = self.get_device_from_le()
-            device_name_list = self.get_device_from_list()
+        device_name = self.get_dev_name()
+        if device_name == "":
+            msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
+            self.display_msg(msg)
+            return
 
-            if dev_name is not None:
-                device_name = dev_name
-            elif device_name_le != "":
-                device_name = device_name_le
-            elif device_name_list != "":
-                device_name = device_name_list
-            else:
-                msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-                # QMessageBox.critical(self, "Error", msg)
-                logger.warning("No device name or invalid device name")
-                self.display_msg(msg)
-                return
+        # Change footer and button
+        self._connect_stylesheet(device_name=device_name)
 
-            # Change footer
-            self.ui.ft_label_device_3.setText(f"Connecting to {device_name}...")
-            self.ui.ft_label_device_3.adjustSize()
-            self.ui.ft_label_device_3.repaint()
-
-            # Change connect button
-            self.ui.btn_connect.setText("Connecting")
-            self.ui.btn_connect.setStyleSheet(DISABLED_STYLESHEET)
-
-            # If platform is windows, add instructions
-            if os.name == "nt":
-                self.ui.lbl_bt_instructions.setText("Follow Windows' instructions to pair your device.")
-                self.ui.lbl_bt_instructions.show()
-            QApplication.processEvents()
-
-            try:
-                with self.wait_cursor():
-                    self.explorer.connect(device_name=device_name)
-                    self.is_connected = True
-                    AppFunctions.is_connected = self.is_connected
-
-            except xpy_ex.DeviceNotFoundError as error:
-                msg = str(error)
-                self._connection_error_gui(msg)
-                logger.warning("Device not found.")
-                return
-            except (TypeError, UnboundLocalError):
-                msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-                self._connection_error_gui(msg)
-                logger.warning("Invalid Explore name")
-                return
-            except (ValueError, SystemError):
-                msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
-                self._connection_error_gui(msg)
-                logger.warning("No Bluetooth connection available.")
-                return
-            except Exception as error:
-                msg = str(error)
-                self._connection_error_gui(msg)
-                logger.debug(
-                    f"Got an exception while connecting to the device: {error} of type: {type(error)}")
-                return
-
-        else:
-            try:
-                self.explorer.stream_processor.remove_filters()
-                self.explorer.disconnect()
-                self.is_connected = False
+        try:
+            with self.wait_cursor():
+                self.explorer.connect(device_name=device_name)
+                self.is_connected = True
                 AppFunctions.is_connected = self.is_connected
 
-            except Exception as error:
-                msg = str(error)
-                self.display_msg(msg)
-                logger.debug(
-                    f"Got an exception while disconnecting from the device: {error} of type: {type(error)}")
+        except xpy_ex.DeviceNotFoundError as error:
+            msg = str(error)
+            self._connection_error_gui(msg)
+            logger.warning("Device not found.")
+            return
+        except (TypeError, UnboundLocalError):
+            msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
+            self._connection_error_gui(msg)
+            logger.warning("Invalid Explore name")
+            return
+        except (ValueError, SystemError):
+            msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
+            self._connection_error_gui(msg)
+            logger.warning("No Bluetooth connection available.")
+            return
+        except Exception as error:
+            msg = str(error)
+            self._connection_error_gui(msg)
+            logger.debug(
+                f"Got an exception while connecting to the device: {error} of type: {type(error)}")
+            return
 
-        self.ui.btn_connect.setStyleSheet("")
-        self.on_connection()
-        self.ui.lbl_bt_instructions.hide()
+        self._connect_stylesheet(reset=True)
+        self.on_connection_change()
+
+    def disconnect(self) -> None:
+        """
+        Disconnect from Explore device
+        """
+        try:
+            self.explorer.disconnect()
+            self.is_connected = False
+            AppFunctions.is_connected = self.is_connected
+
+        except Exception as error:
+            msg = str(error)
+            self.display_msg(msg)
+            logger.debug(
+                f"Got an exception while disconnecting from the device: {error} of type: {type(error)}")
+
+        self.on_connection_change()
 
     #########################
     # Visual feedback functions
     #########################
-    def _connection_error_gui(self, msg, scan=False):
+    def _scan_stylesheet(self, reset: bool = False) -> None:
+        """Change footer and scan button to stylesheet
+        Args:
+            resete (bool, optional): Whether to reset to default values. Defaults to False.
         """
-        Visual feedback when the scan or connection to device is not successful
-        """
-        # reset footer to Not connected
-        self.ui.ft_label_device_3.setText("Not connected")
+        lbl_footer = "Not connected" if reset else "Scanning ..."
+        btn_txt = "Scan" if reset else "Scanning"
+        btn_stylesheet = "" if reset else DISABLED_STYLESHEET
 
-        # hide instructions
-        self.ui.lbl_bt_instructions.hide()
+        # Set footer
+        self.ui.ft_label_device_3.setText(lbl_footer)
+        self.ui.ft_label_device_3.repaint()
+
+        # Set button
+        self.ui.btn_scan.setText(btn_txt)
+        self.ui.btn_scan.setStyleSheet(btn_stylesheet)
+        QApplication.processEvents()
+
+    def _connect_stylesheet(self, device_name: str = None, reset: bool = False) -> None:
+        """Change footer and connect button to stylesheet
+        Args:
+            device_name (str, optional): Name of the device to connect. Defaults to None.
+            reset (bool, optional): Whether to reset to default values. Defaults to False.
+        """
+        lbl_footer = "Not connected" if reset else f"Connecting to {device_name}..."
+        btn_txt = "Connect" if reset else "Connecting"
+        btn_stylesheet = "" if reset else DISABLED_STYLESHEET
+
+        # Set footer
+        self.ui.ft_label_device_3.setText(lbl_footer)
+        self.ui.ft_label_device_3.adjustSize()
+        self.ui.ft_label_device_3.repaint()
+
+        # Set button
+        self.ui.btn_connect.setText(btn_txt)
+        self.ui.btn_connect.setStyleSheet(btn_stylesheet)
+
+        # If platform is windows, add instructions
+        if os.name == "nt":
+            self.ui.lbl_bt_instructions.setText("Follow Windows' instructions to pair your device.")
+            self.ui.lbl_bt_instructions.setHidden(reset)
+        QApplication.processEvents()
+
+    def _connection_error_gui(self, msg: str, scan: bool = False) -> None:
+        """
+        Reset footer and buttons when scan/connect functions throw an error.
+        Display pop-up with the error
+
+        Args:
+            msg (str): error message to display
+            scan (bool, optional): whether is scanning or connecting. Defaults to False.
+        """
 
         if scan is False:
-            # change button stylesheet
-            self.ui.btn_connect.setStyleSheet("")
-            self.ui.btn_connect.setText("Connect")
+            self._connect_stylesheet(reset=True)
         else:
-            self.ui.btn_scan.setStyleSheet("")
-            self.ui.btn_scan.setText("Scan")
-        QApplication.processEvents()
+            self._scan_stylesheet(reset=True)
 
         # display error message
         self.display_msg(msg)
 
-    def on_connection(self):
+    def on_connection_change(self) -> None:
+        """
+        Update GUI when device is (dis)connected
+        """
         # set number of channels:
         self.set_n_chan()
         # self.n_chan = 8
@@ -232,14 +269,12 @@ class BTFunctions(AppFunctions):
 
         # change footer & button text:
         self.change_footer()
-        self.change_btn_connect()
+        self.change_btn_connect_txt()
 
-        # if self.self.is_connected:
-        # AppFunctions.info_device(self)
-        self.info_device()
-
-        # (un)hide settings frame
-        self.update_frame_dev_settings()
+        # Update device info and sttings frame
+        if self.is_connected:
+            self.info_callback_subscribe()
+            self.update_frame_dev_settings()
 
         # init plots and impedances
         # self.init_plots()
@@ -247,19 +282,17 @@ class BTFunctions(AppFunctions):
 
         self.ui.line_2.setHidden(True)
 
-    def change_btn_connect(self):
-        '''
-        Change connect buttonn to Connect/Disconnect depending on explore status
-        '''
+    def change_btn_connect_txt(self) -> None:
+        """
+        Change connect buttonn text to Connect/Disconnect depending on explore status
+        """
         if self.is_connected:
-            # self.signalConnectBtnText.emit("Disconnect")
             self.ui.btn_connect.setText("Disconnect")
 
         else:
-            # self.signalConnectBtnText.emit("Connect")
             self.ui.btn_connect.setText("Connect")
 
-    def change_footer(self):
+    def change_footer(self) -> None:
         """
         Change the fields for device and firmware in the GUI footer
         """
@@ -271,11 +304,9 @@ class BTFunctions(AppFunctions):
             self.ui.ft_label_temp.setHidden(False)
             self.ui.ft_label_temp_value.setHidden(False)
 
-            dev_name = self.explorer.stream_processor.device_info[
-                "device_name"]
+            dev_name = self.explorer.stream_processor.device_info["device_name"]
             device_lbl = f"Connected to {dev_name}"
-            firmware = self.explorer.stream_processor.device_info[
-                "firmware_version"]
+            firmware = self.explorer.stream_processor.device_info["firmware_version"]
             self._update_device_name(new_value=device_lbl)
             self._update_firmware(new_value=firmware)
         else:
@@ -288,112 +319,88 @@ class BTFunctions(AppFunctions):
             self.ui.ft_label_battery_value.setHidden(True)
             self.ui.ft_label_temp.setHidden(True)
             self.ui.ft_label_temp_value.setHidden(True)
-            # stylesheet = self._battery_stylesheet(value="NA")
-            # self._update_battery("NA", new_stylesheet=stylesheet)
-            # self._update_temperature("NA")
 
-    def update_frame_dev_settings(self, reset_data=True):
+    def update_frame_dev_settings(self, reset_data=True) -> None:
         """
         Update the frame with the device settings.
-        Only shown if a device is connected
+
+        Args:
+            reset_data (bool): whether to reset exg plot data. Defaults to True
         """
 
-        if self.is_connected:
-            stream_processor = self.explorer.stream_processor
+        stream_processor = self.explorer.stream_processor
 
-            # ///// CONFIGURE DEVICE FRAME /////
-            # Set device name
-            self.ui.label_explore_name.setText(
-                stream_processor.device_info["device_name"])
+        # Set device name
+        self.ui.label_explore_name.setText(
+            stream_processor.device_info["device_name"])
 
-            # Set active channels
-            chan = stream_processor.device_info['adc_mask']
-            chan = [i for i in reversed(chan)]
+        # Set active channels
+        chan = stream_processor.device_info['adc_mask']
+        chan = [i for i in reversed(chan)]
 
-            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], chan))
-            AppFunctions.chan_dict = self.chan_dict
+        self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], chan))
+        AppFunctions.chan_dict = self.chan_dict
 
-            for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
-                # print(w)
-                w.setChecked(self.chan_dict[w.objectName().replace("cb_", "")])
-                if w.objectName().replace("cb_", "") not in self.chan_list:
-                    w.hide()
-                if w.isHidden() and w.objectName().replace("cb_", "") in self.chan_list:
-                    w.show()
+        for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
+            w.setChecked(self.chan_dict[w.objectName().replace("cb_", "")])
+            if w.objectName().replace("cb_", "") not in self.chan_list:
+                w.hide()
+            if w.isHidden() and w.objectName().replace("cb_", "") in self.chan_list:
+                w.show()
 
-            if reset_data:
-                points = self.plot_points()
-                points_wo_ds = self.plot_points(downsampling=False)
-                self.exg_plot_data[0] = np.array([np.NaN] * points)
-                self.exg_plot_data[1] = {
-                    ch: np.array([np.NaN] * points) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
-                }
-                self.exg_plot_data[2] = {
-                    ch: np.array([np.NaN] * points_wo_ds) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1
-                }
-                AppFunctions.exg_plot_data = self.exg_plot_data
+        if reset_data:
+            self.reset_exg_plot_data()
 
-            # Set sampling rate (value_sampling_rate)
-            sr = stream_processor.device_info['sampling_rate']
-            self.ui.value_sampling_rate.setCurrentText(str(int(sr)))
-            # ////////
+        # Set sampling rate (value_sampling_rate)
+        sr = stream_processor.device_info['sampling_rate']
+        self.ui.value_sampling_rate.setCurrentText(str(int(sr)))
 
-            # Show the device frame
-            self.ui.frame_device.show()
-            self.ui.line_2.show()
+    def info_callback(self, packet) -> None:
+        """Update device information.
 
-        else:
-            # self.ui.frame_device.hide()
-            # self.ui.line_2.hide()
-            pass
-
-    def info_device(self):
-        r"""
-        Update device information
+        Args:
+            packet (explorepy.packet.Environment): Environment/DeviceInfo packet
         """
+        new_info = packet.get_data()
+        for key in new_info.keys():
+            if key == "temperature":
+                new_value = str(new_info[key][0]) if self.is_connected else "NA"
+                self._update_temperature(new_value=new_value)
 
-        def callback(packet):
-            # print(packet)
-            new_info = packet.get_data()
-            # print(new_info)
-            for key in new_info.keys():
-                if key == "temperature":
-                    new_value = str(new_info[key][0]) if self.is_connected else "NA"
-                    self._update_temperature(new_value=new_value)
-                    # print("\n\ntemperature", new_info[key])
+            elif key == "battery":
+                self._battery_percent_list.append(new_info[key][0])
+                if len(self._battery_percent_list) > Settings.BATTERY_N_MOVING_AVERAGE:
+                    del self._battery_percent_list[0]
+                value = int(np.mean(self._battery_percent_list))
+                value = 1 if value < 1 else value
+                new_value = value if self.is_connected else "NA"
+                stylesheet = self._battery_stylesheet(value=new_value)
+                self._update_battery(new_value=str(new_value), new_stylesheet=stylesheet)
 
-                elif key == "battery":
-                    self._battery_percent_list.append(new_info[key][0])
-                    if len(self._battery_percent_list) > Settings.BATTERY_N_MOVING_AVERAGE:
-                        del self._battery_percent_list[0]
-                    value = int(np.mean(self._battery_percent_list))
-                    value = 1 if value < 1 else value
-                    new_value = value if self.is_connected else "NA"
-                    stylesheet = self._battery_stylesheet(value=new_value)
-                    self._update_battery(new_value=str(new_value), new_stylesheet=stylesheet)
+            elif key == "fimrware":
+                new_value = new_info[key] if self.is_connected else "NA"
+                self._update_firmware(new_value=new_value)
 
-                elif key == "fimrware":
-                    # print("firmware callback: ", new_info[key])
-                    new_value = new_info[key] if self.is_connected else "NA"
-                    self._update_firmware(new_value=new_value)
+            elif key == "device_name":
+                connected_lbl = f"Connected to {new_info[key]}"
+                not_connected_lbl = "Not connected"
+                new_value = connected_lbl if self.is_connected else not_connected_lbl
+                self._update_device_name(new_value=new_value)
 
-                elif key == "device_name":
-                    # print("name callback: ", new_info[key])
-                    connected_lbl = f"Connected to {new_info[key]}"
-                    not_connected_lbl = "Not connected"
-                    new_value = connected_lbl if self.is_connected else not_connected_lbl
-                    self._update_device_name(new_value=new_value)
+            elif key == "light":
+                pass
 
-                elif key == "light":
-                    pass
+            else:
+                logger.warning("There is no field named: " + key)
 
-                else:
-                    logger.warning("There is no field named: " + key)
+        QApplication.processEvents()
 
-            QApplication.processEvents()
-
-        self.explorer.stream_processor.subscribe(callback=callback, topic=TOPICS.device_info)
-        self.explorer.stream_processor.subscribe(callback=callback, topic=TOPICS.env)
+    def info_callback_subscribe(self) -> None:
+        """
+        Subscribe info callback to stream processor
+        """
+        self.explorer.stream_processor.subscribe(callback=self.info_callback, topic=TOPICS.device_info)
+        self.explorer.stream_processor.subscribe(callback=self.info_callback, topic=TOPICS.env)
 
     #########################
     # Updater Functions
@@ -432,5 +439,8 @@ class BTFunctions(AppFunctions):
     # Reset Functions
     #########################
 
-    def reset_bt_vars(self):
+    def reset_bt_vars(self) -> None:
+        """
+        Reset class variables
+        """
         self._battery_percent_list = []
