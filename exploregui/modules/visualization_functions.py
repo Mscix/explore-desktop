@@ -299,10 +299,6 @@ class VisualizationFunctions(AppFunctions):
                 self._vis_time_offset = timestamp[0]
 
             time_vector = timestamp - self._vis_time_offset
-            # print(f"{self._vis_time_offset=}")
-            # print(f"{timestamp[-1]=}")
-            # print(f"{time_vector[-1]=}")
-            # print()
 
             # Downsampling
             if Settings.DOWNSAMPLING:
@@ -310,7 +306,6 @@ class VisualizationFunctions(AppFunctions):
                 time_vector = time_vector[::int(exg_fs / Settings.EXG_VIS_SRATE)]
 
             # Baseline correction
-            # if True: # if testing
             if self.plotting_filters is not None and self.plotting_filters['offset']:
                 samples_avg = exg.mean(axis=1)
                 if self._baseline_corrector['baseline'] is None:
@@ -338,6 +333,8 @@ class VisualizationFunctions(AppFunctions):
 
             except ValueError as e:
                 logger.warning(f"ValueError: {str(e)}")
+            except RuntimeError:
+                logger.warning("Error on close: Internal C++ object (MainWindow) already deleted.")
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
@@ -479,6 +476,8 @@ class VisualizationFunctions(AppFunctions):
         else:
             connection = np.full(len(self.exg_plot_data[0]), 1)
             connection[self.exg_pointer - 5: self.exg_pointer + 5] = 0
+            first_key = list(self.exg_plot_data[1].keys())[0]
+            connection[np.argwhere(np.isnan(self.exg_plot_data[1][first_key]))] = 0
             try:
                 if id_th > 100:
                     connection[:id_th] = 0
@@ -515,12 +514,7 @@ class VisualizationFunctions(AppFunctions):
         # Remove reploted r_peaks
         to_remove_replot = []
         for idx_t in range(len(self.r_peak_replot['t'])):
-            try:
-                self.r_peak_replot['t'][idx_t]
-            except IndexError:
-                print("\nindexerror line 472")
-                print(idx_t, self.r_peak_replot['t'])
-                print()
+            self.r_peak_replot['t'][idx_t]
             if self.r_peak_replot['t'][idx_t] < data['t'][-1]:
                 self.ui.plot_exg.removeItem(self.r_peak_replot['points'][idx_t])
                 to_remove_replot.append([self.r_peak_replot['t'][idx_t],
@@ -880,7 +874,6 @@ class VisualizationFunctions(AppFunctions):
         ticks = [
             (idx + 1, f'{ch}\n' + u'(\u00B1' + f'{self.y_string})') for idx, ch in enumerate(self.active_chan)]
         # ticks += [(i+1.5, self.y_string) for i in range(len(self.active_chan))]
-        # print(ticks)
         pw.getAxis('left').setTicks([ticks])
 
     def plot_heart_rate(self):
@@ -914,7 +907,6 @@ class VisualizationFunctions(AppFunctions):
         # f = self.exg_pointer
         ecg_data = (np.array(self.exg_plot_data[1]['ch1'])[i:f] - self.offsets[0]) * self.y_unit
         time_vector = np.array(self.exg_plot_data[0])[i:f]
-        # print(time_vector[-1])
 
         # Check if the peak2peak value is bigger than threshold
         if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
