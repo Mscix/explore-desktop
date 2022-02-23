@@ -156,6 +156,8 @@ class MainWindow(QMainWindow):
         self.ui.btn_scan.clicked.connect(self.bt_funct.scan_devices)
 
         # SETTING PAGE BUTTONS
+        self.ui.lbl_sr_warning.hide()
+        self.ui.value_sampling_rate.currentTextChanged.connect(self.config_funct.display_sr_warning)
         # self.ui.btn_import_data.clicked.connect(self.import_recorded_data)
         self.ui.btn_format_memory.clicked.connect(self.config_funct.format_memory)
         self.ui.btn_reset_settings.clicked.connect(self.soft_reset)

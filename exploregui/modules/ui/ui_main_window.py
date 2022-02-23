@@ -854,6 +854,14 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.frame_samplingrate)
 
+        self.lbl_sr_warning = QLabel(self.frame_device)
+        self.lbl_sr_warning.setObjectName(u"lbl_sr_warning")
+        self.lbl_sr_warning.setMaximumSize(QSize(16777215, 20))
+        self.lbl_sr_warning.setStyleSheet(u"color: red;\n"
+"font: 11pt;")
+
+        self.verticalLayout_2.addWidget(self.lbl_sr_warning)
+
         self.btn_apply_settings = QPushButton(self.frame_device)
         self.btn_apply_settings.setObjectName(u"btn_apply_settings")
         self.btn_apply_settings.setMinimumSize(QSize(150, 30))
@@ -2026,7 +2034,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(6)
+        self.stackedWidget.setCurrentIndex(2)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -2085,6 +2093,7 @@ class Ui_MainWindow(object):
         self.cb_ch7.setText(QCoreApplication.translate("MainWindow", u"7", None))
         self.cb_ch8.setText(QCoreApplication.translate("MainWindow", u"8", None))
         self.label_samping_rate.setText(QCoreApplication.translate("MainWindow", u"Sampling Rate", None))
+        self.lbl_sr_warning.setText(QCoreApplication.translate("MainWindow", u"Please note that 1000 Hz sampling rate is in beta phase", None))
         self.btn_apply_settings.setText(QCoreApplication.translate("MainWindow", u"Apply changes", None))
         self.btn_format_memory.setText(QCoreApplication.translate("MainWindow", u"Format MEM", None))
         self.btn_reset_settings.setText(QCoreApplication.translate("MainWindow", u"Reset Settings", None))

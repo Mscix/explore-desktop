@@ -689,7 +689,7 @@ QLabel#bt_title{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>6</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1722,6 +1722,23 @@ QLabel#bt_title{
                           </widget>
                          </item>
                         </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="lbl_sr_warning">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">color: red;
+font: 11pt;</string>
+                        </property>
+                        <property name="text">
+                         <string>Please note that 1000 Hz sampling rate is in beta phase</string>
+                        </property>
                        </widget>
                       </item>
                       <item alignment="Qt::AlignHCenter">
