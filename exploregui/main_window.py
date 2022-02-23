@@ -622,7 +622,8 @@ class MainWindow(QMainWindow):
         exist = False
         config = read_config("user settings", "share_logs")
         if config != "":
-            self.ui.cb_permission.setChecked(bool(config))
+            config = True if config == "True" else False
+            self.ui.cb_permission.setChecked(config)
             exist = True
         return exist
 
