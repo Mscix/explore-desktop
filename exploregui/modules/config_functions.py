@@ -1,17 +1,16 @@
 import logging
+
 import numpy as np
-
-from PySide6.QtCore import Slot
-from PySide6.QtWidgets import (
-    QCheckBox,
-    QMessageBox
-)
-
 from exploregui.modules import (
     AppFunctions,
     Settings
 )
 from exploregui.modules.bt_functions import DISABLED_STYLESHEET
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QMessageBox
+)
 
 
 logger = logging.getLogger("explorepy." + __name__)
