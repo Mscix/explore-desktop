@@ -90,7 +90,7 @@ class ConfigFunctions(AppFunctions):
         Display a popup asking for confirmation.
         If yes, the settinngs are set to default.
         """
-
+        reset = False
         question = (
             "Are you sure you want to reset your settings?\n"
             "The Explore device will disconnect after the soft reset."
@@ -100,8 +100,8 @@ class ConfigFunctions(AppFunctions):
         if response == QMessageBox.StandardButton.Yes:
             with self.wait_cursor():
                 self.explorer.reset_soft()
-        else:
-            return
+            reset = True
+        return reset
 
     def change_sampling_rate(self):
         """Change the sampling rate

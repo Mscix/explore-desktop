@@ -242,8 +242,8 @@ class MainWindow(QMainWindow):
     def soft_reset(self):
         """Reset device settings and disconnect it
         """
-        with self.funct.wait_cursor():
-            self.config_funct.reset_settings()
+        reset = self.config_funct.reset_settings()
+        if reset:
             self.bt_funct.disconnect()
             self.stop_processes()
             self.reset_vars()
