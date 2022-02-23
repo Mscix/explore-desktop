@@ -160,7 +160,6 @@ class MainWindow(QMainWindow):
         self.ui.btn_format_memory.clicked.connect(self.config_funct.format_memory)
         self.ui.btn_reset_settings.clicked.connect(self.soft_reset)
         self.ui.btn_apply_settings.clicked.connect(self.config_funct.change_settings)
-        # self.ui.btn_apply_settings.clicked.connect(self.settings_changed)
         self.ui.btn_calibrate.setHidden(True)
         # self.ui.btn_calibrate.clicked.connect(self.config_funct.calibrate_orn())
         self.ui.n_chan.currentTextChanged.connect(self.n_chan_changed)
