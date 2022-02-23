@@ -41,8 +41,7 @@ class PlotDialog(QDialog):
         self.ui.cb_offset.setToolTip("Remove the DC offset of the signal based on the previous signal values")
         self.close = False
 
-        self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(
-            lambda: self.cancelEvent())
+        self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.cancelEvent)
 
         self.s_rate = float(sr)
         if current_filters is None:  # default values
@@ -121,7 +120,6 @@ class PlotDialog(QDialog):
 
         if r_value != "" and l_value == "":  # lowpass
             if float(r_value) >= nyq_freq:
-                # print(hc_freq_warning)
                 lbl_txt = hc_freq_warning
                 r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
                 l_stylesheet = ""
@@ -130,7 +128,6 @@ class PlotDialog(QDialog):
         elif r_value == "" and l_value != "":
             lc_freq = float(l_value) / nyq_freq
             if lc_freq <= 0.003:
-                # print(lc_freq_warning)
                 lbl_txt = lc_freq_warning
                 r_stylesheet = ""
                 l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
@@ -139,21 +136,18 @@ class PlotDialog(QDialog):
         elif r_value != "" and l_value != "":
             lc_freq = float(l_value) / nyq_freq
             if float(l_value) >= float(r_value):
-                # print(bp_freq_warning)
                 lbl_txt = bp_freq_warning
                 r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
                 l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
                 accepted = False
 
             elif float(r_value) >= nyq_freq:
-                # print(hc_freq_warning)
                 lbl_txt = hc_freq_warning
                 r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
                 l_stylesheet = ""
                 accepted = False
 
             elif lc_freq <= 0.003:
-                # print(lc_freq_warning)
                 lbl_txt = lc_freq_warning
                 r_stylesheet = ""
                 l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
@@ -223,12 +217,19 @@ class RecordingDialog(QDialog):
 
         self.ui.btn_browse.clicked.connect(self.save_filename)
         self.ui.spinBox.setMaximum(10000000)
+        self.ui.spinBox.setValue(3600)
         self.ui.rdbtn_csv.setChecked(True)
 
+        self.close = False
+        self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.cancelEvent)
+
     def file_extension(self):
-        if self.ui.rdbtn_csv.isChecked():
-            self.recording_mode = "csv"
-        elif self.ui.rdbtn_edf.isChecked():
+        """Retrun file extension selected
+
+        Returns:
+            str: file extension (edf or csv)
+        """
+        if self.ui.rdbtn_edf.isChecked():
             self.recording_mode = "edf"
         else:
             self.recording_mode = "csv"
@@ -242,7 +243,6 @@ class RecordingDialog(QDialog):
 
         file_types = "CSV files(*.csv);;EFD files (*.efd)"
         dialog = QFileDialog()
-        # dialog.setDefaultSuffix(".csv")
         options = dialog.Options()
         file_name, _ = dialog.getSaveFileName(
             self,
@@ -251,12 +251,22 @@ class RecordingDialog(QDialog):
             filter=file_types, options=options
         )
 
-        self.recording_path = file_name  # + "." + self.recording_mode
+        self.recording_path = file_name
         self.ui.input_filepath.setText(self.recording_path)
         QApplication.processEvents()
 
+    def closeEvent(self, event):
+        self.close = True
+
+    def cancelEvent(self):
+        self.close = True
+
     def exec(self):
         super().exec()
+
+        if self.close:
+            return False
+
         return {
             "file_path": self.ui.input_filepath.text(),
             "file_type": self.file_extension(),
@@ -266,11 +276,12 @@ class RecordingDialog(QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
+    # plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
 
-    dialog = PlotDialog(sr=250, current_filters=plotting_filters)
+    # dialog = PlotDialog(sr=250, current_filters=plotting_filters)
+    # filt = dialog.exec()
+    # print(filt)
+    dialog = RecordingDialog()
     filt = dialog.exec()
     print(filt)
-    # dialog = RecordingDialog()
-    # dialog.show()
     sys.exit(app.exec())
