@@ -310,8 +310,9 @@ class MainWindow(QMainWindow):
 
         # If not navigating to impedance, verify if imp mode is active
         if btn_name != "btn_impedance":
-            self.imp_funct.check_is_imp()
-
+            imp_disabled = self.imp_funct.check_is_imp()
+            if not imp_disabled:
+                return False
         # If the page requires connection to a Explore device, verify
         if btn_name in Settings.LEFT_BTN_REQUIRE_CONNECTION and self.funct.is_connected is False:
             msg = "Please connect an Explore device."

@@ -112,13 +112,19 @@ class IMPFunctions(AppFunctions):
 
     def check_is_imp(self):
         """
-        Check if impedance measurement is active. If so, disable
+        Check if impedance measurement is active. 
+        If so ask the user whether to disable it.
         """
+        disabled = False
         if self.is_imp_measuring:
-            self.display_msg(msg_text="Impedance mode will be disabled", type="info")
+            msg = "Impedance mode will be disabled. Do you want to continue?"
+            response = self.display_msg(msg_text=msg, type="question")
+
+        if response == QMessageBox.StandardButton.Yes:
             self.disable_imp()
-        else:
-            return
+            disabled = True
+
+        return disabled
 
     def _impedance_stylesheet_wet(self, value):
         """
