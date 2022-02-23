@@ -689,7 +689,7 @@ QLabel#bt_title{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>5</number>
+             <number>6</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -3805,6 +3805,9 @@ color: #FFF;</string>
               </item>
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_6">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
                 <property name="leftMargin">
                  <number>250</number>
                 </property>
@@ -3855,6 +3858,19 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
+                <item alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="lbl_wdws_warning">
+                  <property name="styleSheet">
+                   <string notr="true">color: red;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="wordWrap">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <property name="spacing">
@@ -3864,7 +3880,7 @@ p, li { white-space: pre-wrap; }
                    <widget class="QListWidget" name="list_devices">
                     <property name="maximumSize">
                      <size>
-                      <width>200</width>
+                      <width>300</width>
                       <height>200</height>
                      </size>
                     </property>
@@ -3873,6 +3889,9 @@ p, li { white-space: pre-wrap; }
                     </property>
                     <property name="styleSheet">
                      <string notr="true"/>
+                    </property>
+                    <property name="wordWrap">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -4212,13 +4231,13 @@ p, li { white-space: pre-wrap; }
               <number>10</number>
              </property>
              <property name="topMargin">
-              <number>10</number>
+              <number>6</number>
              </property>
              <property name="rightMargin">
               <number>0</number>
              </property>
              <property name="bottomMargin">
-              <number>10</number>
+              <number>8</number>
              </property>
              <item>
               <widget class="QLabel" name="ft_label_device_3">
@@ -4295,7 +4314,7 @@ p, li { white-space: pre-wrap; }
                   <string notr="true"/>
                  </property>
                  <property name="text">
-                  <string>Battery %</string>
+                  <string>Battery </string>
                  </property>
                 </widget>
                </item>
