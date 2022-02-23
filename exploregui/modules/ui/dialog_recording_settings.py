@@ -158,4 +158,3 @@ class Ui_Dialog(object):
         self.label.setText(QCoreApplication.translate("Dialog", u"3. Select recording time (s):", None))
         self.label_4.setText(QCoreApplication.translate("Dialog", u"If recording time is 0, the default (3600 sec) will be used", None))
     # retranslateUi
-
