@@ -375,7 +375,7 @@ class BTFunctions(AppFunctions):
                 value = 1 if value < 1 else value
                 new_value = value if self.is_connected else "NA"
                 stylesheet = self._battery_stylesheet(value=new_value)
-                self._update_battery(new_value=str(new_value)+"%", new_stylesheet=stylesheet)
+                self._update_battery(new_value=str(new_value) + "%", new_stylesheet=stylesheet)
 
             elif key == "fimrware":
                 new_value = new_info[key] if self.is_connected else "NA"
