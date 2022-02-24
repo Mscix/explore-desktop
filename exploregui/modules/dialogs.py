@@ -47,7 +47,12 @@ class PlotDialog(QDialog):
         if current_filters is None:  # default values
             self.offset = True
             self.notch = "50"
-            self.lowpass = "1"
+            if sr == 250:
+                self.lowpass = "1"
+            elif sr == 500:
+                self.lowpass = "1"
+            else:
+                self.lowpass = "2"
             self.highpass = "30"
         else:
             self.offset = current_filters["offset"]
@@ -91,7 +96,7 @@ class PlotDialog(QDialog):
         nyq_freq = self.s_rate / 2.
 
         max_hc_freq = nyq_freq - 1
-        min_lc_freq = 0.003 * nyq_freq
+        min_lc_freq = 0.0035 * nyq_freq
 
         hc_freq_warning = (
             "High cutoff frequency cannot be larger than or equal to the nyquist frequency."
