@@ -229,7 +229,7 @@ class ConfigFunctions(AppFunctions):
         nyq_freq = sr / 2.
 
         max_hc_freq = round(nyq_freq - 1, 2)
-        min_lc_freq = round(0.003 * nyq_freq, 2)
+        min_lc_freq = round(0.0035 * nyq_freq, 2)
 
         warning = ""
 
