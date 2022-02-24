@@ -154,8 +154,7 @@ class Ui_Dialog(object):
         self.rdbtn_csv.setText(QCoreApplication.translate("Dialog", u"csv", None))
         self.rdbtn_edf.setText(QCoreApplication.translate("Dialog", u"edf", None))
         self.lbl_step1.setText(QCoreApplication.translate("Dialog", u"2. Select the folder and name to store the file:", None))
-        self.btn_browse.setText(QCoreApplication.translate("Dialog", u"Broswe", None))
+        self.btn_browse.setText(QCoreApplication.translate("Dialog", u"Browse", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"3. Select recording time (s):", None))
         self.label_4.setText(QCoreApplication.translate("Dialog", u"If recording time is 0, the default (3600 sec) will be used", None))
     # retranslateUi
-

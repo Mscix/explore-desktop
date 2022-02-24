@@ -23,10 +23,12 @@ class RecordFunctions(AppFunctions):
     def __init__(self, ui, explorer):
         super().__init__(ui, explorer)
         self.is_recording = False
-        # self.timer = QTimer()
 
     @Slot()
     def on_record(self):
+        """
+        Start or stop recording when button is pressed
+        """
         logger.debug("Pressed record button -> %s", not self.is_recording)
         if self.is_recording is False:
             self.start_record()
@@ -35,11 +37,13 @@ class RecordFunctions(AppFunctions):
 
     def start_record(self):
         '''
-        Start/Stop signal recording
+        Start signal recording
         '''
         dialog = RecordingDialog()
         data = dialog.exec()
-        print(data)
+
+        if data is False:
+            return
 
         file_name = data["file_path"]
         if os.path.isfile(file_name + "_ExG.csv"):
@@ -79,7 +83,6 @@ class RecordFunctions(AppFunctions):
         self.start_time = datetime.now()
 
         self.timer = QTimer()
-        # self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(lambda: self.displayTime(duration))
         self.timer.start()

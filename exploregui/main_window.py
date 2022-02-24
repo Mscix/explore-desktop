@@ -242,8 +242,8 @@ class MainWindow(QMainWindow):
     def soft_reset(self):
         """Reset device settings and disconnect it
         """
-        with self.funct.wait_cursor():
-            self.config_funct.reset_settings()
+        reset = self.config_funct.reset_settings()
+        if reset:
             self.bt_funct.disconnect()
             self.stop_processes()
             self.reset_vars()
@@ -309,9 +309,10 @@ class MainWindow(QMainWindow):
             "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
 
         # If not navigating to impedance, verify if imp mode is active
-        if btn_name != "btn_impedance":
-            self.imp_funct.check_is_imp()
-
+        if self.imp_funct.is_imp_measuring and btn_name != "btn_impedance":
+            imp_disabled = self.imp_funct.check_is_imp()
+            if not imp_disabled:
+                return False
         # If the page requires connection to a Explore device, verify
         if btn_name in Settings.LEFT_BTN_REQUIRE_CONNECTION and self.funct.is_connected is False:
             msg = "Please connect an Explore device."
@@ -621,7 +622,8 @@ class MainWindow(QMainWindow):
         exist = False
         config = read_config("user settings", "share_logs")
         if config != "":
-            self.ui.cb_permission.setChecked(bool(config))
+            config = True if config == "True" else False
+            self.ui.cb_permission.setChecked(config)
             exist = True
         return exist
 
