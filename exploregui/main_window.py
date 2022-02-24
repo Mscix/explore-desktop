@@ -394,9 +394,10 @@ class MainWindow(QMainWindow):
         btn_name = btn.objectName()
 
         # Navigate to active page
-        change = self.change_page(btn_name)
-        if change is False:
-            return
+        if btn_name != "btn_left_menu_toggle":
+            change = self.change_page(btn_name)
+            if change is False:
+                return
         # Apply stylesheet
         self.highlight_left_button(btn_name)
 
