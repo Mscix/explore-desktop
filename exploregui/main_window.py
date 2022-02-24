@@ -288,12 +288,7 @@ class MainWindow(QMainWindow):
     def imp_info_clicked(self):
         """Display message when impedance question mark is clicked
         """
-        imp_msg = (
-            "NOTE: The impedance value displayed for each channel also depends on"
-            " the impedance of the reference electrode.\n\n"
-            "If all channel’s impedances are high, try cleaning the skin under the reference electrode more thoroughly"
-            " (e.g. with alcohol, abrasive gel, EEG gel)"
-        )
+        imp_msg = "The displayed values are an approximation. Please refer to the manual for more information."
         self.funct.display_msg(imp_msg, type="info")
 
     #########################
