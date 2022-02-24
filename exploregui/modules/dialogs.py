@@ -1,5 +1,4 @@
 import os
-import sys
 
 from exploregui.modules.ui import (
     Ui_PlotDialog,
@@ -211,13 +210,13 @@ class RecordingDialog(QDialog):
         self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle("Recording Settings")
 
-        self.recording_time = int(self.ui.spinBox.value())
+        self.recording_time = int(self.ui.spinBox_recording_time.value())
         self.recording_mode = "csv"
         self.recording_path = ""
 
         self.ui.btn_browse.clicked.connect(self.save_filename)
-        self.ui.spinBox.setMaximum(10000000)
-        self.ui.spinBox.setValue(3600)
+        self.ui.spinBox_recording_time.setMaximum(10000000)
+        self.ui.spinBox_recording_time.setValue(3600)
         self.ui.rdbtn_csv.setChecked(True)
 
         self.close = False
@@ -268,18 +267,5 @@ class RecordingDialog(QDialog):
             "file_name": self.ui.input_file_name.text(),
             "file_path": self.ui.input_filepath.text(),
             "file_type": self.file_extension(),
-            "duration": int(self.ui.spinBox.value())
+            "duration": int(self.ui.spinBox_recording_time.value())
         }
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    # plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
-
-    # dialog = PlotDialog(sr=250, current_filters=plotting_filters)
-    # filt = dialog.exec()
-    # print(filt)
-    dialog = RecordingDialog()
-    filt = dialog.exec()
-    print(filt)
-    sys.exit(app.exec())
