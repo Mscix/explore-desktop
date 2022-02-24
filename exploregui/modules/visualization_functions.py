@@ -332,9 +332,9 @@ class VisualizationFunctions(AppFunctions):
                 self.signal_exg.emit(data)
 
             except ValueError as e:
-                logger.warning(f"ValueError: {str(e)}")
-            except RuntimeError:
-                logger.warning("Error on close: Internal C++ object (MainWindow) already deleted.")
+                logger.warning("ValueError: %s", str(e))
+            except RuntimeError as e:
+                logger.warning("RuntimeError: %s", str(e))
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
@@ -357,8 +357,8 @@ class VisualizationFunctions(AppFunctions):
             data['t'] = time_vector
             try:
                 self.signal_orn.emit(data)
-            except RuntimeError:
-                logger.warning("Error on close: Internal C++ object (MainWindow) already deleted.")
+            except RuntimeError as e:
+                logger.warning("RuntimeError: %s", str(e))
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.raw_orn, callback=callback)
