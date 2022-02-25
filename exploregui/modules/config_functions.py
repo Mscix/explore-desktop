@@ -152,8 +152,6 @@ class ConfigFunctions(AppFunctions):
         active_chan = list(reversed(active_chan))
         active_chan_int = [int(i) for i in active_chan]
         n_active = sum(active_chan_int)
-        print(f"{active_chan=}")
-        print(f"{active_chan_int=}")
         if n_active == 0:
             self.display_msg("Please select at least one channel")
             return
@@ -162,8 +160,6 @@ class ConfigFunctions(AppFunctions):
 
             mask = "".join(active_chan)
             int_mask = int(mask, 2)
-            print(f"{mask=}")
-            print(f"{int_mask=}")
             try:
                 self.explorer.set_channels(int_mask)
             except TypeError:
