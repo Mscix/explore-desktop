@@ -89,7 +89,7 @@ background-color: #2B851A;"""
         "low": "color: #FD0000;",
         "medium": "color: #CDB900;",
         "high": "color: #00FD19;",
-        "na": "color: #FFFFFF"
+        "na": "color: #000000"
     }
 
     POPUP_STYLESHEET = """

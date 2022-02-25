@@ -103,6 +103,14 @@ class ConfigFunctions(AppFunctions):
             reset = True
         return reset
 
+    def display_sr_warning(self):
+        """Display warning for 1000 Hz sampling rate
+        """
+        if int(self.ui.value_sampling_rate.currentText()) == 1000:
+            self.ui.lbl_sr_warning.show()
+        else:
+            self.ui.lbl_sr_warning.hide()
+
     def change_sampling_rate(self):
         """Change the sampling rate
 

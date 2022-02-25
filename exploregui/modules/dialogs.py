@@ -210,13 +210,13 @@ class RecordingDialog(QDialog):
         self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle("Recording Settings")
 
-        self.recording_time = int(self.ui.spinBox.value())
+        self.recording_time = int(self.ui.spinBox_recording_time.value())
         self.recording_mode = "csv"
         self.recording_path = ""
 
         self.ui.btn_browse.clicked.connect(self.save_filename)
-        self.ui.spinBox.setMaximum(10000000)
-        self.ui.spinBox.setValue(3600)
+        self.ui.spinBox_recording_time.setMaximum(10000000)
+        self.ui.spinBox_recording_time.setValue(3600)
         self.ui.rdbtn_csv.setChecked(True)
 
         self.close = False
@@ -240,17 +240,14 @@ class RecordingDialog(QDialog):
         Open a dialog to select file name to be saved
         """
 
-        file_types = "CSV files(*.csv);;EFD files (*.efd)"
         dialog = QFileDialog()
-        options = dialog.Options()
-        file_name, _ = dialog.getSaveFileName(
+        file_path = dialog.getExistingDirectory(
             self,
-            "Save File As",
-            "",
-            filter=file_types, options=options
-        )
+            "Choose Directory",
+            os.path.expanduser("~"),
+            QFileDialog.ShowDirsOnly)
 
-        self.recording_path = file_name
+        self.recording_path = file_path
         self.ui.input_filepath.setText(self.recording_path)
         QApplication.processEvents()
 
@@ -267,7 +264,8 @@ class RecordingDialog(QDialog):
             return False
 
         return {
+            "file_name": self.ui.input_file_name.text(),
             "file_path": self.ui.input_filepath.text(),
             "file_type": self.file_extension(),
-            "duration": int(self.ui.spinBox.value())
+            "duration": int(self.ui.spinBox_recording_time.value())
         }

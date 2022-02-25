@@ -39,21 +39,30 @@ class RecordFunctions(AppFunctions):
         '''
         Start signal recording
         '''
+
         dialog = RecordingDialog()
+        default_file_name = self.explorer.stream_processor.device_info["device_name"]
+        default_file_name += datetime.now().strftime("_%d%b%Y_%H%M")
+        dialog.ui.input_file_name.setPlaceholderText(default_file_name)
+
+        default_dir = str(os.path.expanduser("~"))
+        dialog.ui.input_filepath.setPlaceholderText(default_dir)
         data = dialog.exec()
 
         if data is False:
             return
 
-        file_name = data["file_path"]
+        file_name = data["file_name"] if data["file_name"] != "" else default_file_name
         if os.path.isfile(file_name + "_ExG.csv"):
             file_name += datetime.now().strftime("_%d%b%Y_%H%M")
-        file_type = data["file_type"]
 
+        file_path = data["file_path"] if data["file_path"] != "" else default_dir
+
+        file_type = data["file_type"]
         record_duration = data["duration"] if data["duration"] != 0 else None
 
         self.explorer.record_data(
-            file_name=file_name,
+            file_name=os.path.join(file_path, file_name),
             file_type=file_type,
             duration=record_duration)
 

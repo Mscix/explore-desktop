@@ -156,6 +156,8 @@ class MainWindow(QMainWindow):
         self.ui.btn_scan.clicked.connect(self.bt_funct.scan_devices)
 
         # SETTING PAGE BUTTONS
+        self.ui.lbl_sr_warning.hide()
+        self.ui.value_sampling_rate.currentTextChanged.connect(self.config_funct.display_sr_warning)
         # self.ui.btn_import_data.clicked.connect(self.import_recorded_data)
         self.ui.btn_format_memory.clicked.connect(self.config_funct.format_memory)
         self.ui.btn_reset_settings.clicked.connect(self.soft_reset)
@@ -286,12 +288,7 @@ class MainWindow(QMainWindow):
     def imp_info_clicked(self):
         """Display message when impedance question mark is clicked
         """
-        imp_msg = (
-            "NOTE: The impedance value displayed for each channel also depends on"
-            " the impedance of the reference electrode.\n\n"
-            "If all channel’s impedances are high, try cleaning the skin under the reference electrode more thoroughly"
-            " (e.g. with alcohol, abrasive gel, EEG gel)"
-        )
+        imp_msg = "The displayed values are an approximation. Please refer to the manual for more information."
         self.funct.display_msg(imp_msg, type="info")
 
     #########################
@@ -436,13 +433,11 @@ class MainWindow(QMainWindow):
         """
         Stop all ongoing processes when closing the app
         """
-        try:
+        if self.is_streaming:
             self.vis_funct.emit_orn(stop=True)
             self.vis_funct.emit_exg(stop=True)
             self.signal_orn.disconnect(self.vis_funct.plot_orn)
             self.signal_exg.disconnect(self.vis_funct.plot_exg)
-        except AttributeError:
-            pass
         self.stop_processes()
         self.close()
 
