@@ -1015,6 +1015,8 @@ class VisualizationFunctions(AppFunctions):
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
 
+        self.plotting_filters = None
+
     def _mode_change(self):
         """
         Log mode change (EEG or ECG)

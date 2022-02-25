@@ -327,7 +327,7 @@ class MainWindow(QMainWindow):
         elif btn_name == "btn_plots":
             filt = True
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-            if self.funct.plotting_filters is None:
+            if self.funct.plotting_filters is None and self.vis_funct.plotting_filters is None:
                 filt = self.vis_funct.popup_filters()
 
             if filt is False:
