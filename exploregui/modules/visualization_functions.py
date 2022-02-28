@@ -44,6 +44,7 @@ class VisualizationFunctions(AppFunctions):
         self.orig_exg_pointer = 0
         self.mrk_plot = {'t': [], 'code': [], 'line': []}
         self.mrk_replot = {'t': [], 'code': [], 'line': []}
+        self.packet_count = 1
 
         self.lines_orn = [None, None, None]
         self.orn_pointer = 0
@@ -302,6 +303,10 @@ class VisualizationFunctions(AppFunctions):
 
             # Downsampling
             if Settings.DOWNSAMPLING:
+                # correct packet for 4 chan device
+                if len(time_vector) == 33 and self.decide_drop(exg_fs):
+                    exg = exg[:, 1:]
+                    time_vector = time_vector[1:]
                 exg = exg[:, ::int(exg_fs / Settings.EXG_VIS_SRATE)]
                 time_vector = time_vector[::int(exg_fs / Settings.EXG_VIS_SRATE)]
 
@@ -335,11 +340,29 @@ class VisualizationFunctions(AppFunctions):
                 logger.warning("ValueError: %s", str(error))
             except RuntimeError as error:
                 logger.warning("RuntimeError: %s", str(error))
-
+            self.packet_count += 1
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
         else:
             stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
+
+    def decide_drop(self, exg_fs: int) -> bool:
+        """Decide whether to drop a data point from the packet based on the sampling rate
+
+        Args:
+            exg_fs (int): sampling rate
+
+        Returns:
+            bool: whether to drop a data point
+        """
+        drop = True
+        if exg_fs == 1000 and self.packet_count % 8 == 0:
+            drop = False
+        elif exg_fs == 500 and self.packet_count % 4 == 0:
+            drop = False
+        elif exg_fs == 250 and self.packet_count % 2 == 0:
+            drop = False
+        return drop
 
     def emit_orn(self, stop=False):
         """
@@ -992,6 +1015,7 @@ class VisualizationFunctions(AppFunctions):
         self.orig_exg_pointer = 0
         self.mrk_plot = {'t': [], 'code': [], 'line': []}
         self.mrk_replot = {'t': [], 'code': [], 'line': []}
+        self.packet_count = 1
 
         self.lines_orn = [None, None, None]
         self.orn_pointer = 0
