@@ -252,12 +252,12 @@ class VisualizationFunctions(AppFunctions):
 
         idxs = np.arange(self.orig_exg_pointer, self.orig_exg_pointer + n_new_points)
 
-        for ch in self.exg_plot_data[2].keys():
+        for chan in self.exg_plot_data[2].keys():
             try:
-                d = orig_exg[ch]
+                chan_data = orig_exg[chan]
             except KeyError:
-                d = np.array([np.NaN for i in range(n_new_points)])
-            self.exg_plot_data[2][ch].put(idxs, d, mode='wrap')
+                chan_data = np.array([np.NaN for i in range(n_new_points)])
+            self.exg_plot_data[2][chan].put(idxs, chan_data, mode='wrap')
 
         self.orig_exg_pointer += n_new_points
         if self.orig_exg_pointer >= len(self.exg_plot_data[2][first_chan]):
@@ -331,10 +331,10 @@ class VisualizationFunctions(AppFunctions):
                 data['t'] = time_vector
                 self.signal_exg.emit(data)
 
-            except ValueError as e:
-                logger.warning(f"ValueError: {str(e)}")
-            except RuntimeError:
-                logger.warning("Error on close: Internal C++ object (MainWindow) already deleted.")
+            except ValueError as error:
+                logger.warning("ValueError: %s", str(error))
+            except RuntimeError as error:
+                logger.warning("RuntimeError: %s", str(error))
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
@@ -357,8 +357,8 @@ class VisualizationFunctions(AppFunctions):
             data['t'] = time_vector
             try:
                 self.signal_orn.emit(data)
-            except RuntimeError:
-                logger.warning("Error on close: Internal C++ object (MainWindow) already deleted.")
+            except RuntimeError as error:
+                logger.warning("RuntimeError: %s", str(error))
 
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.raw_orn, callback=callback)
@@ -397,13 +397,13 @@ class VisualizationFunctions(AppFunctions):
         self.exg_plot_data[0].put(idxs, data['t'], mode='wrap')  # replace values with new points
         self.last_t = data['t'][-1]
 
-        for ch in self.exg_plot_data[1].keys():
+        for chan in self.exg_plot_data[1].keys():
             try:
-                d = data[ch]
+                chan_data = data[chan]
             except KeyError:
-                d = np.array([np.NaN for i in range(n_new_points)])
+                chan_data = np.array([np.NaN for i in range(n_new_points)])
 
-            self.exg_plot_data[1][ch].put(idxs, d, mode='wrap')
+            self.exg_plot_data[1][chan].put(idxs, chan_data, mode='wrap')
 
         self.exg_pointer += n_new_points
 
@@ -420,8 +420,8 @@ class VisualizationFunctions(AppFunctions):
 
             id_th = np.where(self.exg_plot_data[0] - t_min >= 0.5)[0][0]
             if id_th > 100:
-                for ch in self.exg_plot_data[1].keys():
-                    self.exg_plot_data[1][ch][:id_th] = np.NaN
+                for chan in self.exg_plot_data[1].keys():
+                    self.exg_plot_data[1][chan][:id_th] = np.NaN
 
             # Remove marker line and replot in the new axis
             for idx_t in range(len(self.mrk_plot['t'])):
@@ -469,8 +469,8 @@ class VisualizationFunctions(AppFunctions):
         # Add nans between new and old data
         if NANS[0]:
             exg_plot_nan = copy.deepcopy(self.exg_plot_data[1])
-            for ch in exg_plot_nan.keys():
-                exg_plot_nan[ch][self.exg_pointer - 1: self.exg_pointer + 9] = np.NaN
+            for chan in exg_plot_nan.keys():
+                exg_plot_nan[chan][self.exg_pointer - 1: self.exg_pointer + 9] = np.NaN
 
         # Define connection vector for lines
         else:
@@ -497,12 +497,12 @@ class VisualizationFunctions(AppFunctions):
             self.ui.plot_exg.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(vals, ticks)]])
 
         # Paint curves
-        for curve, ch in zip(self.curves_list, self.active_chan):
+        for curve, chan in zip(self.curves_list, self.active_chan):
             try:
                 if NANS[0]:
-                    curve.setData(self.exg_plot_data[0], exg_plot_nan[ch], connect='finite')
+                    curve.setData(self.exg_plot_data[0], exg_plot_nan[chan], connect='finite')
                 else:
-                    curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][ch], connect=connection)
+                    curve.setData(self.exg_plot_data[0], self.exg_plot_data[1][chan], connect=connection)
             except KeyError:
                 pass
 
@@ -514,7 +514,7 @@ class VisualizationFunctions(AppFunctions):
         # Remove reploted r_peaks
         to_remove_replot = []
         for idx_t in range(len(self.r_peak_replot['t'])):
-            self.r_peak_replot['t'][idx_t]
+            # self.r_peak_replot['t'][idx_t]
             if self.r_peak_replot['t'][idx_t] < data['t'][-1]:
                 self.ui.plot_exg.removeItem(self.r_peak_replot['points'][idx_t])
                 to_remove_replot.append([self.r_peak_replot['t'][idx_t],
@@ -531,7 +531,7 @@ class VisualizationFunctions(AppFunctions):
         """
         Plot and update marker data
         """
-        t, code = data
+        t_point, code = data
         if replot is False:
             mrk_dict = self.mrk_plot
             color = Settings.MARKER_LINE_COLOR
@@ -539,11 +539,11 @@ class VisualizationFunctions(AppFunctions):
             mrk_dict = self.mrk_replot
             color = Settings.MARKER_LINE_COLOR_ALPHA
 
-        mrk_dict['t'].append(t)
+        mrk_dict['t'].append(t_point)
         mrk_dict['code'].append(code)
         pen_marker = pg.mkPen(color=color, dash=[4, 4])
 
-        line = self.ui.plot_exg.addLine(t, label=code, pen=pen_marker)
+        line = self.ui.plot_exg.addLine(t_point, label=code, pen=pen_marker)
         mrk_dict['line'].append(line)
 
     @Slot(dict)
@@ -568,7 +568,6 @@ class VisualizationFunctions(AppFunctions):
 
             self.t_orn_plot[self.orn_pointer:] += self.get_timeScale()
 
-            # t_min = int(round(np.mean(data['t'])))
             t_min = np.nanmin(self.t_orn_plot)
             t_max = t_min + self.get_timeScale()
             for plt in self.plots_orn_list:
@@ -625,9 +624,9 @@ class VisualizationFunctions(AppFunctions):
         """
         Plot FFT
         """
-        pw = self.ui.plot_fft
+        plot_wdgt = self.ui.plot_fft
         # pw.clear()
-        pw.setXRange(0, 70, padding=0.01)
+        plot_wdgt.setXRange(0, 70, padding=0.01)
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
         exg_data = np.array([self.exg_plot_data[2][key][~np.isnan(self.exg_plot_data[2][key]
@@ -640,8 +639,8 @@ class VisualizationFunctions(AppFunctions):
         data = dict(zip(self.exg_plot_data[2].keys(), fft_content))
         data['f'] = freq
 
-        for curve, ch in zip(self.curves_fft_list, self.active_chan):
-            curve.setData(data['f'], data[ch])
+        for curve, chan in zip(self.curves_fft_list, self.active_chan):
+            curve.setData(data['f'], data[chan])
 
     #########################
     # Moving Plot Functions
@@ -755,18 +754,15 @@ class VisualizationFunctions(AppFunctions):
             return
         try:
             self.explorer.set_marker(event_code)
-        except ValueError as e:
-            self.display_msg(msg_text=str(e))
-
-        # Clean input text box
-        # self.ui.value_event_code.setText('')
+        except ValueError as error:
+            self.display_msg(msg_text=str(error))
 
     @Slot()
     def change_timescale(self):
         """
         Change ExG and ORN plots time scale
         """
-        logger.debug(f"Time scale has been changed to {self.get_timeScale()}")
+        logger.debug("Time scale has been changed to %.0f", self.get_timeScale())
         t_min = self.last_t
         t_max = t_min + self.get_timeScale()
         self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
@@ -795,8 +791,7 @@ class VisualizationFunctions(AppFunctions):
         """
         old = Settings.SCALE_MENU[self.y_string]
         new = Settings.SCALE_MENU[self.ui.value_yAxis.currentText()]
-        logger.debug(
-            f"ExG scale has been changed from {self.y_string} to {self.ui.value_yAxis.currentText()}")
+        logger.debug("ExG scale has been changed from %s to %s", self.y_string, self.ui.value_yAxis.currentText())
 
         old_unit = 10 ** (-old)
         new_unit = 10 ** (-new)
@@ -809,11 +804,9 @@ class VisualizationFunctions(AppFunctions):
                               for i, mask in enumerate(reversed(stream_processor.device_info['adc_mask'])) if
                               mask == 1]
 
-        # for chan, value in self.exg_plot.items():
         for chan, value in self.exg_plot_data[1].items():
             if self.chan_dict[chan] == 1:
                 temp_offset = self.offsets[self.chan_key_list.index(chan)]
-                # self.exg_plot[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
                 self.exg_plot_data[1][chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
 
         # Rescale r_peaks
@@ -854,26 +847,24 @@ class VisualizationFunctions(AppFunctions):
                                           symbolSize=8)
             self.r_peak_replot['points'].append(point)
 
-        # self.add_right_axis_ticks()
         self.add_left_axis_ticks()
 
     def add_right_axis_ticks(self):
-        # ticks_right = [(idx+1.5, self.y_string) for idx, _ in enumerate(self.active_chan)]
-        # # ticks_right += [(idx+0.5, f'-{self.y_string}') for idx, _ in enumerate(self.active_chan)]
-        # ticks_right += [(idx+1, f'0 {self.y_string[-2:]}') for idx, _ in enumerate(self.active_chan)]
-        # ticks_right += [(0.5, f'- {self.y_string}')]
-
+        """
+        Add upper and lower lines delimiting the channels in exg plot
+        """
         ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(self.active_chan)]
-        # ticks_right += [(idx+1, '') for idx, _ in enumerate(self.active_chan)]
         ticks_right += [(0.5, '')]
 
         self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
 
     def add_left_axis_ticks(self):
+        """
+        Add central lines and channel name ticks in exg plot
+        """
         pw = self.ui.plot_exg
         ticks = [
-            (idx + 1, f'{ch}\n' + u'(\u00B1' + f'{self.y_string})') for idx, ch in enumerate(self.active_chan)]
-        # ticks += [(i+1.5, self.y_string) for i in range(len(self.active_chan))]
+            (idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.y_string})') for idx, ch in enumerate(self.active_chan)]
         pw.getAxis('left').setTicks([ticks])
 
     def plot_heart_rate(self):
@@ -891,8 +882,6 @@ class VisualizationFunctions(AppFunctions):
                 self.display_msg(msg_text=msg, type='info')
                 self.rr_warning_displayed = True
             return
-
-        # first_chan = list(self.exg_plot.keys())[0]
 
         exg_fs = self.explorer.stream_processor.device_info['sampling_rate']
 
@@ -949,8 +938,6 @@ class VisualizationFunctions(AppFunctions):
         n_point = 1024
         exg -= exg.mean(axis=1)[:, np.newaxis]
         freq = s_rate * np.arange(int(n_point / 2)) / n_point
-        # freq = Settings.EXG_VIS_SRATE * np.arange(int(n_point / 2)) / n_point
-        # freq = np.fft.fftfreq()
         fft_content = np.fft.fft(exg, n=n_point) / n_point
         fft_content = np.abs(fft_content[:, range(int(n_point / 2))])
         fft_content = gaussian_filter1d(fft_content, 1)
@@ -962,8 +949,8 @@ class VisualizationFunctions(AppFunctions):
         """
         remove = True if self.plotting_filters is not None else False
         wait = True if self.plotting_filters is None else False
-        sr = self.explorer.stream_processor.device_info['sampling_rate']
-        dialog = PlotDialog(sr=sr, current_filters=self.plotting_filters)
+        s_rate = self.explorer.stream_processor.device_info['sampling_rate']
+        dialog = PlotDialog(sr=s_rate, current_filters=self.plotting_filters)
         filters = dialog.exec()  # returns false if popup is closed/click on cancel
         if filters is False:
             return False
@@ -1021,4 +1008,4 @@ class VisualizationFunctions(AppFunctions):
         """
         Log mode change (EEG or ECG)
         """
-        logger.debug(f"ExG mode has been changed to {self.ui.value_signal.currentText()}")
+        logger.debug("ExG mode has been changed to %s", self.ui.value_signal.currentText())

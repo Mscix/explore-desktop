@@ -37,7 +37,7 @@ class AppFunctions():
             ch_frame = self.get_widget_by_objName(frame_name)
 
             if ch_frame is None:
-                logger.warning(f"Could not find frame widget {frame_name}")
+                logger.warning("Could not find frame widget %s", frame_name)
             else:
                 if chan not in active_chan:
                     ch_frame.hide()
