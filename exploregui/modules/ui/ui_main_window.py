@@ -403,7 +403,7 @@ class Ui_MainWindow(object):
 
         self.label = QLabel(self.page_home)
         self.label.setObjectName(u"label")
-        self.label.setMaximumSize(QSize(16777215, 50))
+        self.label.setMaximumSize(QSize(16777215, 16777215))
         self.label.setStyleSheet(u"")
         self.label.setMargin(15)
 
