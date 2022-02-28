@@ -157,9 +157,6 @@ class ConfigFunctions(AppFunctions):
             return
 
         if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
-            if AppFunctions.plotting_filters is not None:
-                self.vis_functions._baseline_corrector["baseline"] = None
-                self.explorer.stream_processor.remove_filters()
 
             mask = "".join(active_chan)
             int_mask = int(mask, 2)
@@ -176,8 +173,6 @@ class ConfigFunctions(AppFunctions):
 
             self.vis_functions.offsets = np.arange(1, n_chan.count(1) + 1)[:, np.newaxis].astype(float)
             self.vis_functions._baseline_corrector["baseline"] = None
-            if self.plotting_filters is not None:
-                self.apply_filters()
             self.init_imp()
             changed = True
 
@@ -192,9 +187,16 @@ class ConfigFunctions(AppFunctions):
         stream_processor = self.explorer.stream_processor
 
         with self.wait_cursor():
+            if self.plotting_filters is not None:
+                self.vis_functions._baseline_corrector["baseline"] = None
+                self.explorer.stream_processor.remove_filters()
+
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
             self.reset_exg_plot_data()
+
+            if self.plotting_filters is not None:
+                self.apply_filters()
 
         if changed_sr or changed_chan:
             act_chan = ", ".join([ch for ch in self.chan_dict if self.chan_dict[ch] == 1])
@@ -208,13 +210,11 @@ class ConfigFunctions(AppFunctions):
         self.vis_functions.init_plots()
 
     def check_filters_new_sr(self):
-
+        """Check whether current filters are compatible with new sampling rate.
+        If not, update plotting_filters
+        """
         if self.plotting_filters is None:
             return
-
-        reapply = False
-        # r_value = self.plotting_filters["highpass"]
-        # l_value = self.plotting_filters["lowpass"]
 
         r_value = "" if self.plotting_filters["highpass"] in [None, 'None'] else self.plotting_filters["highpass"]
         l_value = "" if self.plotting_filters["lowpass"] in [None, 'None'] else self.plotting_filters["lowpass"]
@@ -224,36 +224,28 @@ class ConfigFunctions(AppFunctions):
 
         nyq_freq = sr / 2.
 
-        max_hc_freq = round(nyq_freq - 1, 2)
-        min_lc_freq = round(0.003 * nyq_freq, 2)
+        max_hc_freq = round(nyq_freq - 1, 1)
+        min_lc_freq = round(0.0035 * nyq_freq, 1)
 
         warning = ""
 
         hc_freq_warning = (
             "High cutoff frequency cannot be larger than or equal to the nyquist frequency.\n"
-            f"The high cutoff frequency has changed to {max_hc_freq:.2f} Hz!"
+            f"The high cutoff frequency has changed to {max_hc_freq:.1f} Hz!"
         )
 
         lc_freq_warning = (
             "Transient band for low cutoff frequency was too narrow.\n"
-            f"The low cutoff frequency has changed {min_lc_freq:.2f} Hz!"
+            f"The low cutoff frequency has changed {min_lc_freq:.1f} Hz!"
         )
 
-        if (l_value != "") and (float(l_value) / nyq_freq <= 0.003):
+        if (l_value != "") and (float(l_value) / nyq_freq <= 0.0035):
             warning += lc_freq_warning
             self.plotting_filters["lowpass"] = min_lc_freq
-            reapply = True
 
         if (r_value != "") and (float(r_value) >= nyq_freq):
             warning += hc_freq_warning
             self.plotting_filters["highpass"] = max_hc_freq
-            reapply = True
-
-        if reapply:
-            logger.info("Updating filters for new sampling rate")
-            self.explorer.stream_processor.remove_filters()
-            self.apply_filters()
-            AppFunctions.plotting_filters = self.plotting_filters
 
         if warning != "":
             self.display_msg(msg_text=warning, type="info")

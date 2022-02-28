@@ -327,7 +327,7 @@ class MainWindow(QMainWindow):
         elif btn_name == "btn_plots":
             filt = True
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-            if self.funct.plotting_filters is None:
+            if self.funct.plotting_filters is None and self.vis_funct.plotting_filters is None:
                 filt = self.vis_funct.popup_filters()
 
             if filt is False:
@@ -394,9 +394,10 @@ class MainWindow(QMainWindow):
         btn_name = btn.objectName()
 
         # Navigate to active page
-        change = self.change_page(btn_name)
-        if change is False:
-            return
+        if btn_name != "btn_left_menu_toggle":
+            change = self.change_page(btn_name)
+            if change is False:
+                return
         # Apply stylesheet
         self.highlight_left_button(btn_name)
 
