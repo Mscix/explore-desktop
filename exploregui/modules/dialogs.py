@@ -132,7 +132,7 @@ class PlotDialog(QDialog):
 
         elif r_value == "" and l_value != "":
             lc_freq = float(l_value) / nyq_freq
-            if lc_freq <= 0.003:
+            if lc_freq <= 0.0035:
                 lbl_txt = lc_freq_warning
                 r_stylesheet = ""
                 l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
@@ -152,7 +152,7 @@ class PlotDialog(QDialog):
                 l_stylesheet = ""
                 accepted = False
 
-            elif lc_freq <= 0.003:
+            elif lc_freq <= 0.0035:
                 lbl_txt = lc_freq_warning
                 r_stylesheet = ""
                 l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
