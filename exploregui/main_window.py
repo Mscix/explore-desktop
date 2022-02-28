@@ -434,13 +434,11 @@ class MainWindow(QMainWindow):
         """
         Stop all ongoing processes when closing the app
         """
-        try:
+        if self.is_streaming:
             self.vis_funct.emit_orn(stop=True)
             self.vis_funct.emit_exg(stop=True)
             self.signal_orn.disconnect(self.vis_funct.plot_orn)
             self.signal_exg.disconnect(self.vis_funct.plot_exg)
-        except AttributeError:
-            pass
         self.stop_processes()
         self.close()
 

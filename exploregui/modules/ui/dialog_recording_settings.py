@@ -17,8 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
     QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QRadioButton, QSizePolicy, QSpacerItem, QSpinBox,
-    QVBoxLayout)
+    QRadioButton, QSizePolicy, QSpinBox, QVBoxLayout)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -27,88 +26,84 @@ class Ui_Dialog(object):
         Dialog.resize(400, 200)
         self.verticalLayout = QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.lbl_step2 = QLabel(Dialog)
-        self.lbl_step2.setObjectName(u"lbl_step2")
+        self.layout_file_format = QHBoxLayout()
+        self.layout_file_format.setObjectName(u"layout_file_format")
+        self.lbl_step1_2 = QLabel(Dialog)
+        self.lbl_step1_2.setObjectName(u"lbl_step1_2")
 
-        self.horizontalLayout_3.addWidget(self.lbl_step2)
+        self.layout_file_format.addWidget(self.lbl_step1_2)
 
         self.rdbtn_csv = QRadioButton(Dialog)
         self.rdbtn_csv.setObjectName(u"rdbtn_csv")
 
-        self.horizontalLayout_3.addWidget(self.rdbtn_csv)
+        self.layout_file_format.addWidget(self.rdbtn_csv)
 
         self.rdbtn_edf = QRadioButton(Dialog)
         self.rdbtn_edf.setObjectName(u"rdbtn_edf")
 
-        self.horizontalLayout_3.addWidget(self.rdbtn_edf)
+        self.layout_file_format.addWidget(self.rdbtn_edf)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.verticalLayout.addLayout(self.layout_file_format)
 
-        self.lbl_step1 = QLabel(Dialog)
-        self.lbl_step1.setObjectName(u"lbl_step1")
+        self.lbl_step2 = QLabel(Dialog)
+        self.lbl_step2.setObjectName(u"lbl_step2")
 
-        self.verticalLayout.addWidget(self.lbl_step1)
+        self.verticalLayout.addWidget(self.lbl_step2)
 
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.label_2 = QLabel(Dialog)
-        self.label_2.setObjectName(u"label_2")
-        self.label_2.setMinimumSize(QSize(54, 0))
+        self.layout_folder_browse = QHBoxLayout()
+        self.layout_folder_browse.setObjectName(u"layout_folder_browse")
+        self.lbl_folder = QLabel(Dialog)
+        self.lbl_folder.setObjectName(u"lbl_folder")
+        self.lbl_folder.setMinimumSize(QSize(54, 0))
 
-        self.horizontalLayout.addWidget(self.label_2)
+        self.layout_folder_browse.addWidget(self.lbl_folder)
 
         self.input_filepath = QLineEdit(Dialog)
         self.input_filepath.setObjectName(u"input_filepath")
 
-        self.horizontalLayout.addWidget(self.input_filepath)
+        self.layout_folder_browse.addWidget(self.input_filepath)
 
         self.btn_browse = QPushButton(Dialog)
         self.btn_browse.setObjectName(u"btn_browse")
 
-        self.horizontalLayout.addWidget(self.btn_browse)
+        self.layout_folder_browse.addWidget(self.btn_browse)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.verticalLayout.addLayout(self.layout_folder_browse)
 
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.label_3 = QLabel(Dialog)
-        self.label_3.setObjectName(u"label_3")
-        self.label_3.setMinimumSize(QSize(54, 0))
+        self.layout_file_name = QHBoxLayout()
+        self.layout_file_name.setObjectName(u"layout_file_name")
+        self.lbl_file_name = QLabel(Dialog)
+        self.lbl_file_name.setObjectName(u"lbl_file_name")
+        self.lbl_file_name.setMinimumSize(QSize(54, 0))
 
-        self.horizontalLayout_4.addWidget(self.label_3)
+        self.layout_file_name.addWidget(self.lbl_file_name)
 
         self.input_file_name = QLineEdit(Dialog)
         self.input_file_name.setObjectName(u"input_file_name")
 
-        self.horizontalLayout_4.addWidget(self.input_file_name)
+        self.layout_file_name.addWidget(self.input_file_name)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout_4)
+        self.verticalLayout.addLayout(self.layout_file_name)
 
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.label = QLabel(Dialog)
-        self.label.setObjectName(u"label")
+        self.layout_recording_time = QHBoxLayout()
+        self.layout_recording_time.setObjectName(u"layout_recording_time")
+        self.lbl_step3 = QLabel(Dialog)
+        self.lbl_step3.setObjectName(u"lbl_step3")
 
-        self.horizontalLayout_2.addWidget(self.label)
+        self.layout_recording_time.addWidget(self.lbl_step3)
 
-        self.spinBox = QSpinBox(Dialog)
-        self.spinBox.setObjectName(u"spinBox")
-        self.spinBox.setMaximum(1000000)
-        self.spinBox.setValue(3600)
+        self.spinBox_recording_time = QSpinBox(Dialog)
+        self.spinBox_recording_time.setObjectName(u"spinBox_recording_time")
+        self.spinBox_recording_time.setMaximum(1000000)
+        self.spinBox_recording_time.setValue(3600)
 
-        self.horizontalLayout_2.addWidget(self.spinBox)
+        self.layout_recording_time.addWidget(self.spinBox_recording_time)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
-
-        self.verticalSpacer = QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.verticalLayout.addItem(self.verticalSpacer)
+        self.verticalLayout.addLayout(self.layout_recording_time)
 
         self.buttonBox = QDialogButtonBox(Dialog)
         self.buttonBox.setObjectName(u"buttonBox")
@@ -127,13 +122,13 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
-        self.lbl_step2.setText(QCoreApplication.translate("Dialog", u"1. Select the file format :     ", None))
+        self.lbl_step1_2.setText(QCoreApplication.translate("Dialog", u"1. Select the file format :     ", None))
         self.rdbtn_csv.setText(QCoreApplication.translate("Dialog", u"csv", None))
         self.rdbtn_edf.setText(QCoreApplication.translate("Dialog", u"edf", None))
-        self.lbl_step1.setText(QCoreApplication.translate("Dialog", u"2. Select the folder and name to store the file:", None))
-        self.label_2.setText(QCoreApplication.translate("Dialog", u"Folder:", None))
+        self.lbl_step2.setText(QCoreApplication.translate("Dialog", u"2. Select the folder and name to store the file:", None))
+        self.lbl_folder.setText(QCoreApplication.translate("Dialog", u"Folder:", None))
         self.btn_browse.setText(QCoreApplication.translate("Dialog", u"Browse", None))
-        self.label_3.setText(QCoreApplication.translate("Dialog", u"File name:", None))
-        self.label.setText(QCoreApplication.translate("Dialog", u"3. Select recording time (s):", None))
+        self.lbl_file_name.setText(QCoreApplication.translate("Dialog", u"File name:", None))
+        self.lbl_step3.setText(QCoreApplication.translate("Dialog", u"3. Select recording time (s):", None))
     # retranslateUi
 

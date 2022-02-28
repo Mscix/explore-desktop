@@ -341,6 +341,7 @@ class VisualizationFunctions(AppFunctions):
             except RuntimeError as error:
                 logger.warning("RuntimeError: %s", str(error))
             self.packet_count += 1
+
         if stop:
             stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
         else:

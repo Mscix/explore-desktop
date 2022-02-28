@@ -15,9 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="layout_file_format">
      <item>
-      <widget class="QLabel" name="lbl_step2">
+      <widget class="QLabel" name="lbl_step1_2">
        <property name="text">
         <string>1. Select the file format :     </string>
        </property>
@@ -40,16 +40,16 @@
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="lbl_step1">
+    <widget class="QLabel" name="lbl_step2">
      <property name="text">
       <string>2. Select the folder and name to store the file:</string>
      </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="layout_folder_browse">
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="lbl_folder">
        <property name="minimumSize">
         <size>
          <width>54</width>
@@ -74,9 +74,9 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <layout class="QHBoxLayout" name="layout_file_name">
      <item>
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="lbl_file_name">
        <property name="minimumSize">
         <size>
          <width>54</width>
@@ -94,16 +94,16 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="layout_recording_time">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="lbl_step3">
        <property name="text">
         <string>3. Select recording time (s):</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="spinBox">
+      <widget class="QSpinBox" name="spinBox_recording_time">
        <property name="maximum">
         <number>1000000</number>
        </property>
