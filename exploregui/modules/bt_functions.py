@@ -377,8 +377,8 @@ class BTFunctions(AppFunctions):
                 stylesheet = self._battery_stylesheet(value=new_value)
                 self._update_battery(new_value=str(new_value) + "%", new_stylesheet=stylesheet)
 
-            elif key == "fimrware":
-                new_value = new_info[key] if self.is_connected else "NA"
+            elif key == "firmware_version":
+                new_value = new_info[key][0] if self.is_connected else "NA"
                 self._update_firmware(new_value=new_value)
 
             elif key == "device_name":
