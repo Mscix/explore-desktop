@@ -539,14 +539,15 @@ class MainWindow(QMainWindow):
         if self.record_funct.is_recording:
             self.record_funct.stop_record()
             self.record_funct.is_recording = False
-        if self.is_started:
-            pass
         if self.lsl_funct.get_pushing_status():
             self.explorer.stop_lsl()
             self.lsl_funct.is_pushing = False
             self.ui.btn_push_lsl.setText("Push")
         if self.imp_funct.get_imp_status():
             self.imp_funct.disable_imp()
+        if self.is_streaming:
+            self.timer_fft.stop()
+            self.timer_hr.stop()
 
     def reset_vars(self):
         """Reset al variables in modules"""
@@ -588,9 +589,11 @@ class MainWindow(QMainWindow):
                     self.ui.ft_label_device_3.repaint()
                     self.funct.is_connected = False
                     self.bt_funct.is_connected = False
+                    self.stop_processes()
                     self.reset_vars()
                     self.bt_funct.on_connection_change()
                     self.change_page(btn_name="btn_bt")
+                    self.highlight_left_button("btn_bt")
         else:
             return
 
