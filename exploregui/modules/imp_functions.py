@@ -204,8 +204,8 @@ class IMPFunctions(AppFunctions):
         if s_rate != 250:
             question = (
                 "Impedance mode only works in 250 Hz sampling rate!"
-                f"\nThe current sampling rate is {s_rate}."
-                "Click on Confirm to change the sampling rate.")
+                f"\nThe current sampling rate is {s_rate}. "
+                "Click on Yes to change the sampling rate.")
 
             response = self.display_msg(msg_text=question, type="question")
 
