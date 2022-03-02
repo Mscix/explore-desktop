@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>ExploreGUI</DisplayName>
     <Description>Install ExploreGUI</Description>
-    <Version>0.1.0</Version>
-    <ReleaseDate>2022-01-15</ReleaseDate>
+    <Version>0.2.0</Version>
+    <ReleaseDate>2022-03-02</ReleaseDate>
     <Licenses>
         <License name="ExploreGUI License" file="license.txt" />
         <License name="Third Party Code Licenses" file="license3party.txt" />
