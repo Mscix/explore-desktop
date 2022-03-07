@@ -263,9 +263,7 @@ class BTFunctions(AppFunctions):
         Update GUI when device is (dis)connected
         """
         # set number of channels:
-        self.set_n_chan()
-        # self.n_chan = 8
-        # self.chan_list = Settings.CHAN_LIST[:self.n_chan]
+        self.get_n_chan()
 
         # change footer & button text:
         self.change_footer()

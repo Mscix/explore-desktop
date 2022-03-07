@@ -106,14 +106,10 @@ class VisualizationFunctions(AppFunctions):
         # Right axis
         pw.showAxis('right')
         pw.getAxis('right').linkToView(pw.getViewBox())
-        # pw.getAxis('right').setLabel('Voltage')
         self.add_right_axis_ticks()
-        # pw.getAxis('right').setPen(color=(255,255,255,200), style=QtCore.Qt.SolidLine)
-        # pw.getAxis('right').setPen(style=QtCore.Qt.DashLine)
         pw.getAxis('right').setGrid(200)
 
         # Add range of time axis
-        # pw.showGrid(x=False, y=True, alpha=0.5)
         timescale = self.get_timeScale()
         pw.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
         pw.setLabel('bottom', 'time (s)')
@@ -664,7 +660,10 @@ class VisualizationFunctions(AppFunctions):
         data['f'] = freq
 
         for curve, chan in zip(self.curves_fft_list, self.active_chan):
-            curve.setData(data['f'], data[chan])
+            try:
+                curve.setData(data['f'], data[chan])
+            except KeyError:
+                pass
 
     #########################
     # Moving Plot Functions
@@ -971,8 +970,8 @@ class VisualizationFunctions(AppFunctions):
         """
         Open plot filter dialog and apply filters
         """
-        remove = True if self.plotting_filters is not None else False
-        wait = True if self.plotting_filters is None else False
+        remove = True if self.plotting_filters is not None and AppFunctions.plotting_filters is not None else False
+        wait = True if self.plotting_filters is None and AppFunctions.plotting_filters is None else False
         s_rate = self.explorer.stream_processor.device_info['sampling_rate']
         dialog = PlotDialog(sr=s_rate, current_filters=self.plotting_filters)
         filters = dialog.exec()  # returns false if popup is closed/click on cancel

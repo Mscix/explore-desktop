@@ -1,8 +1,10 @@
 import logging
+import time
 from contextlib import contextmanager
 
 import numpy as np
 from exploregui.modules.app_settings import Settings
+from explorepy.stream_processor import TOPICS
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (
@@ -146,8 +148,20 @@ class AppFunctions():
     # Set/Get Functions
     #########################
 
-    def set_n_chan(self):
-        self.n_chan = int(self.ui.n_chan.currentText())
+    def get_n_chan(self):
+        stream_processor = self.explorer.stream_processor
+
+        def callback(packet):
+            exg_fs = stream_processor.device_info['sampling_rate']
+            timestamp, _ = packet.get_data(exg_fs)
+            n_chan = 4 if timestamp.shape[0] == 33 else 8
+            self.set_n_chan(n_chan)
+        stream_processor.subscribe(topic=TOPICS.filtered_ExG, callback=callback)
+        time.sleep(0.2)
+        stream_processor.unsubscribe(topic=TOPICS.filtered_ExG, callback=callback)
+
+    def set_n_chan(self, n_chan):
+        self.n_chan = n_chan
         self.chan_list = Settings.CHAN_LIST[:self.n_chan]
 
     def get_chan_dict(self):

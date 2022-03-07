@@ -169,14 +169,10 @@ class IMPFunctions(AppFunctions):
         Reset impedance frame to default
         """
         if self.is_connected:
-            # stream_processor = self.explorer.stream_processor
-            # n_chan = stream_processor.device_info['adc_mask']
-            # self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], n_chan))
             active_chan = [ch for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1]
             chan_dict_data = {ch: ["NA", self._impedance_stylesheet_wet("NA")] for ch in active_chan}
 
             for chan in chan_dict_data.keys():
-                # print(chan_dict[chan])
                 new_stylesheet = chan_dict_data[chan][1]
                 frame_name = f"frame_{chan}_color"
                 ch_frame = self.get_widget_by_objName(frame_name)
@@ -188,8 +184,10 @@ class IMPFunctions(AppFunctions):
                 ch_label.setText(new_value)
                 QApplication.processEvents()
 
-            self.ui.frame_ch1_color.setStyleSheet(self._impedance_stylesheet_wet("NA"))
-            self.ui.label_ch1_value.setText("NA")
+            first_label = self.get_widget_by_objName(f"label_{active_chan[0]}_value")
+            first_label.setText("NA")
+            first_frame = self.get_widget_by_objName(f"frame_{active_chan[0]}_color")
+            first_frame.setStyleSheet(self._impedance_stylesheet_wet("NA"))
             QApplication.processEvents()
 
         else:
@@ -206,8 +204,8 @@ class IMPFunctions(AppFunctions):
         if s_rate != 250:
             question = (
                 "Impedance mode only works in 250 Hz sampling rate!"
-                f"\nThe current sampling rate is {s_rate}."
-                "Click on Confirm to change the sampling rate.")
+                f"\nThe current sampling rate is {s_rate}. "
+                "Click on Yes to change the sampling rate.")
 
             response = self.display_msg(msg_text=question, type="question")
 
