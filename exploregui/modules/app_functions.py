@@ -1,10 +1,10 @@
 import logging
-from contextlib import contextmanager
 import time
-from explorepy.stream_processor import TOPICS
+from contextlib import contextmanager
 
 import numpy as np
 from exploregui.modules.app_settings import Settings
+from explorepy.stream_processor import TOPICS
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (

@@ -5,8 +5,9 @@ import os
 import sys
 
 import explorepy
-from PySide6.QtWidgets import QApplication
 from PySide6 import QtCore
+from PySide6.QtWidgets import QApplication
+
 
 import exploregui  # isort:skip
 from exploregui import MainWindow  # isort:skip
