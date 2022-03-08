@@ -250,48 +250,45 @@ class ConfigFunctions(AppFunctions):
         if warning != "":
             self.display_msg(msg_text=warning, type="info")
 
-    def enable_settings(self, enable=True):
+    def enable_settings(self, enable=True) -> None:
         """Disable or enable device settings widgets
 
         Args:
             enable (bool, optional): True will enable, False will disable. Defaults to True.
         """
+
+        enabled = True
+        hide = not enabled
+        s_rate_stylesheet = ""
+        stylesheet = ""
+        tooltip_apply_settings = ""
+        tooltip_reset_settings = ""
+        tooltip_format_mem = ""
+
         if enable is False:
-            for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
-                w.setEnabled(False)
+            enabled = False
+            s_rate_stylesheet = "color: gray;\nborder-color: gray;"
+            stylesheet = DISABLED_STYLESHEET
+            tooltip_apply_settings = "Changing the settings during recording and LSL streaming is not possible"
+            tooltip_reset_settings = "Resetting the settings during recording and LSL streaming is not possible"
+            tooltip_format_mem = "Formatting the memory during recording and LSL streaming is not possible"
 
-            self.ui.value_sampling_rate.setEnabled(False)
-            self.ui.value_sampling_rate.setStyleSheet("color: gray;\nborder-color: gray;")
+        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
+            wdgt.setEnabled(enabled)
 
-            self.ui.btn_apply_settings.setEnabled(False)
-            self.ui.btn_apply_settings.setStyleSheet(DISABLED_STYLESHEET)
-            self.ui.btn_apply_settings.setToolTip(
-                "Changing the settings during recording and LSL streaming is not possible")
+        self.ui.value_sampling_rate.setEnabled(enabled)
+        self.ui.value_sampling_rate.setStyleSheet(s_rate_stylesheet)
 
-            self.ui.btn_reset_settings.setEnabled(False)
-            self.ui.btn_reset_settings.setStyleSheet(DISABLED_STYLESHEET)
-            self.ui.btn_reset_settings.setToolTip(
-                "Resetting the settings during recording and LSL streaming is not possible")
+        self.ui.btn_apply_settings.setEnabled(enabled)
+        self.ui.btn_apply_settings.setStyleSheet(stylesheet)
+        self.ui.btn_apply_settings.setToolTip(tooltip_apply_settings)
 
-            self.ui.btn_format_memory.setEnabled(False)
-            self.ui.btn_format_memory.setStyleSheet(DISABLED_STYLESHEET)
-            self.ui.btn_format_memory.setToolTip(
-                "Formatting the memory during recording and LSL streaming is not possible")
-        else:
-            for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
-                w.setEnabled(True)
+        self.ui.btn_reset_settings.setEnabled(enabled)
+        self.ui.btn_reset_settings.setStyleSheet(stylesheet)
+        self.ui.btn_reset_settings.setToolTip(tooltip_reset_settings)
 
-            self.ui.value_sampling_rate.setEnabled(True)
-            self.ui.value_sampling_rate.setStyleSheet("")
+        self.ui.btn_format_memory.setEnabled(enabled)
+        self.ui.btn_format_memory.setStyleSheet(stylesheet)
+        self.ui.btn_format_memory.setToolTip(tooltip_format_mem)
 
-            self.ui.btn_apply_settings.setEnabled(True)
-            self.ui.btn_apply_settings.setStyleSheet("")
-            self.ui.btn_apply_settings.setToolTip("")
-
-            self.ui.btn_reset_settings.setEnabled(True)
-            self.ui.btn_reset_settings.setStyleSheet("")
-            self.ui.btn_reset_settings.setToolTip("")
-
-            self.ui.btn_format_memory.setEnabled(True)
-            self.ui.btn_format_memory.setStyleSheet("")
-            self.ui.btn_format_memory.setToolTip("")
+        self.ui.label_warning_disabled.setHidden(enabled)

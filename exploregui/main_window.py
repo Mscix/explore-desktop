@@ -156,6 +156,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_scan.clicked.connect(self.bt_funct.scan_devices)
 
         # SETTING PAGE BUTTONS
+        self.ui.label_warning_disabled.setHidden(True)
         self.ui.label_12.setHidden(True)
         self.ui.n_chan.setHidden(True)
         self.ui.lbl_sr_warning.hide()
