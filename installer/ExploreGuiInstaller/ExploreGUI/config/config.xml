@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>ExploreGUI</Name>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <Title>ExploreGUI</Title>
     <Publisher>Mentalab GmbH.</Publisher>
     <InstallerApplicationIcon>../packages/com.Mentalab.ExploreGUI/extras/MentalabLogo</InstallerApplicationIcon>

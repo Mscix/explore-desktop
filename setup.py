@@ -43,7 +43,7 @@ setup(
     test_suite='tests',
     extras_require=extras,
     url='https://github.com/Mentalab-hub/explorepy-gui',
-    version='0.2.0',
+    version='0.2.1',
     zip_safe=False,
     entry_points={'console_scripts': ['exploregui = exploregui.main:main']},
 )
