@@ -57,7 +57,7 @@ if sys.platform == 'darwin':
                  name='ExploreGUI.app',
                  icon=icon_path,
                  bundle_identifier='com.mentalab.exploregui',
-                 version='0.2.0',
+                 version='0.2.1',
                  info_plist={
                   'NSPrincipalClass': 'NSApplication',
                   'NSAppleScriptEnabled': False,

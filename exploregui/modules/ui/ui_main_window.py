@@ -727,10 +727,13 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.label_explore_name = QLabel(self.frame_device)
         self.label_explore_name.setObjectName(u"label_explore_name")
+        sizePolicy.setHeightForWidth(self.label_explore_name.sizePolicy().hasHeightForWidth())
+        self.label_explore_name.setSizePolicy(sizePolicy)
         self.label_explore_name.setMinimumSize(QSize(0, 0))
         self.label_explore_name.setMaximumSize(QSize(16777215, 75))
         self.label_explore_name.setStyleSheet(u"")
         self.label_explore_name.setAlignment(Qt.AlignCenter)
+        self.label_explore_name.setWordWrap(True)
 
         self.verticalLayout_2.addWidget(self.label_explore_name)
 
@@ -748,6 +751,12 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_8)
+
+        self.label_warning_disabled = QLabel(self.frame_device)
+        self.label_warning_disabled.setObjectName(u"label_warning_disabled")
+        self.label_warning_disabled.setWordWrap(True)
+
+        self.verticalLayout_2.addWidget(self.label_warning_disabled)
 
         self.frame_channels = QFrame(self.frame_device)
         self.frame_channels.setObjectName(u"frame_channels")
@@ -2083,6 +2092,7 @@ class Ui_MainWindow(object):
         self.settings_title.setText(QCoreApplication.translate("MainWindow", u"SETTINGS", None))
         self.label_explore_name.setText(QCoreApplication.translate("MainWindow", u"Explore_XXXXX", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"Number of channels: ", None))
+        self.label_warning_disabled.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:11pt; font-style:italic;\">Changing the settings during recording and LSL streaming is not possible</span></p></body></html>", None))
         self.label_activeChannels.setText(QCoreApplication.translate("MainWindow", u"Active channels", None))
         self.cb_ch1.setText(QCoreApplication.translate("MainWindow", u"1", None))
         self.cb_ch2.setText(QCoreApplication.translate("MainWindow", u"2", None))

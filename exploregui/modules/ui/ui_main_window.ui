@@ -1490,6 +1490,12 @@ QLabel#bt_title{
                      <layout class="QVBoxLayout" name="verticalLayout_2">
                       <item>
                        <widget class="QLabel" name="label_explore_name">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="minimumSize">
                          <size>
                           <width>0</width>
@@ -1511,6 +1517,9 @@ QLabel#bt_title{
                         <property name="alignment">
                          <set>Qt::AlignCenter</set>
                         </property>
+                        <property name="wordWrap">
+                         <bool>true</bool>
+                        </property>
                        </widget>
                       </item>
                       <item>
@@ -1526,6 +1535,16 @@ QLabel#bt_title{
                          <widget class="QComboBox" name="n_chan"/>
                         </item>
                        </layout>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_warning_disabled">
+                        <property name="text">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;Changing the settings during recording and LSL streaming is not possible&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                        <property name="wordWrap">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
                       </item>
                       <item>
                        <widget class="QFrame" name="frame_channels">
