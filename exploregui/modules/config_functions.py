@@ -258,7 +258,6 @@ class ConfigFunctions(AppFunctions):
         """
 
         enabled = True
-        hide = not enabled
         s_rate_stylesheet = ""
         stylesheet = ""
         tooltip_apply_settings = ""
