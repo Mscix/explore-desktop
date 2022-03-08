@@ -3,7 +3,7 @@
     <DisplayName>ExploreGUI</DisplayName>
     <Description>Install ExploreGUI</Description>
     <Version>0.2.1</Version>
-    <ReleaseDate>2022-03-02</ReleaseDate>
+    <ReleaseDate>2022-03-08</ReleaseDate>
     <Licenses>
         <License name="ExploreGUI License" file="license.txt" />
         <License name="Third Party Code Licenses" file="license3party.txt" />
