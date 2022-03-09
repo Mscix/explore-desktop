@@ -38,6 +38,8 @@ class VisualizationFunctions(AppFunctions):
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = '1 mV'
         self.last_t = 0
+        self.bt_drop_warning_displayed = False
+        self.t_drop = None
 
         self.line = None
         self.exg_pointer = 0
@@ -415,7 +417,16 @@ class VisualizationFunctions(AppFunctions):
         idxs = np.arange(self.exg_pointer, self.exg_pointer + n_new_points)
 
         self.exg_plot_data[0].put(idxs, data['t'], mode='wrap')  # replace values with new points
-        self.last_t = data['t'][-1]
+
+        if data['t'][0] < self.last_t and self.bt_drop_warning_displayed is False:
+            self.bt_drop_warning_displayed = True
+            self.t_drop = data['t'][0]
+            msg = "There is a problem with bluetooth connection."
+            self.display_msg(msg_text=msg, type="info")
+
+        elif (self.t_drop is not None) and (data['t'][0] > self.last_t) and \
+                (data['t'][0] - self.t_drop > 10) and self.bt_drop_warning_displayed is True:
+            self.bt_drop_warning_displayed = False
 
         for chan in self.exg_plot_data[1].keys():
             try:
@@ -426,6 +437,8 @@ class VisualizationFunctions(AppFunctions):
             self.exg_plot_data[1][chan].put(idxs, chan_data, mode='wrap')
 
         self.exg_pointer += n_new_points
+
+        self.last_t = data['t'][-1]
 
         # if wrap happen -> pointer>length:
         if self.exg_pointer >= len(self.exg_plot_data[0]):
@@ -1009,6 +1022,8 @@ class VisualizationFunctions(AppFunctions):
         self.y_string = '1 mV'
         self.ui.value_yAxis.setCurrentText(self.y_string)
         self.last_t = 0
+        self.bt_drop_warning_displayed = False
+        self.t_drop = None
 
         self.line = None
         self.exg_pointer = 0
@@ -1024,6 +1039,7 @@ class VisualizationFunctions(AppFunctions):
 
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
+        self.r_peak_replot = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
 
         self.plotting_filters = None
