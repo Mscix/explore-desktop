@@ -421,7 +421,10 @@ class VisualizationFunctions(AppFunctions):
         if data['t'][0] < self.last_t and self.bt_drop_warning_displayed is False:
             self.bt_drop_warning_displayed = True
             self.t_drop = data['t'][0]
-            msg = "The bluetooth connection is not stable, which might affect the ExG visualization."
+            msg = (
+                "The bluetooth connection is unstable. This may affect the ExG visualization."
+                "\nPlease read the troubleshooting section of the user manual for more."
+            )
             title = "Unstable Bluetooth connection"
             self.display_msg(msg_text=msg, title=title, type="info")
 
