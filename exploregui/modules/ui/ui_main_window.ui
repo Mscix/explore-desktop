@@ -502,7 +502,7 @@ QLabel#bt_title{
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>        HOME</string>
+                <string>        Home</string>
                </property>
                <property name="icon">
                 <iconset resource="../../app_resources.qrc">
@@ -525,7 +525,7 @@ QLabel#bt_title{
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>        CONNECT</string>
+                <string>        Connect</string>
                </property>
                <property name="icon">
                 <iconset resource="../../app_resources.qrc">
@@ -548,7 +548,7 @@ QLabel#bt_title{
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>        SETTINGS</string>
+                <string>        Settings</string>
                </property>
                <property name="icon">
                 <iconset resource="../../app_resources.qrc">
@@ -571,7 +571,7 @@ QLabel#bt_title{
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>        VISUALIZATION</string>
+                <string>        Visualization</string>
                </property>
                <property name="icon">
                 <iconset resource="../../app_resources.qrc">
@@ -594,7 +594,7 @@ QLabel#bt_title{
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>        IMPEDANCE</string>
+                <string>        Impedance</string>
                </property>
                <property name="icon">
                 <iconset resource="../../app_resources.qrc">
@@ -617,7 +617,7 @@ QLabel#bt_title{
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>        INTEGRATION</string>
+                <string>        Integration</string>
                </property>
                <property name="icon">
                 <iconset resource="../../app_resources.qrc">
@@ -689,7 +689,7 @@ QLabel#bt_title{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>7</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1168,7 +1168,7 @@ QLabel#bt_title{
                     </font>
                    </property>
                    <property name="text">
-                    <string>INTEGRATION</string>
+                    <string>Integration</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -1418,7 +1418,7 @@ QLabel#bt_title{
                     </font>
                    </property>
                    <property name="text">
-                    <string>SETTINGS</string>
+                    <string>Settings</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -2661,7 +2661,7 @@ background-color: rgb(169, 169, 169)
                     </font>
                    </property>
                    <property name="text">
-                    <string>IMPEDANCE MEASUREMENT</string>
+                    <string>Impedance Measurment</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -3813,7 +3813,7 @@ color: #FFF;</string>
                     </font>
                    </property>
                    <property name="text">
-                    <string>CONNECT</string>
+                    <string>Connect</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
