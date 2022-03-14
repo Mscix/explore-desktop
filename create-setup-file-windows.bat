@@ -25,24 +25,24 @@ call python -m pip install --upgrade pip
 @REM Install Pyinstaller
 call pip install pyinstaller==4.7
 
-@REM Install ExploreGUI
+@REM Install ExploreDesktop
 call pip install -e .
 
 @REM  Clean required directories
-call set exploregui_path="installer\ExploreGuiInstaller\ExploreGUI\packages\com.Mentalab.ExploreGUI\"
-call rd /S /Q %exploregui_path%data
-call md %exploregui_path%data
+call set exploredesktop_path="installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\"
+call rd /S /Q %exploredesktop_path%data
+call md %exploredesktop_path%data
 call rd /S /Q dist
 
 @REM Create executable files
-call pyinstaller --onedir --console ExploreGUI.spec
+call pyinstaller --onedir --console ExploreDesktop.spec
 
 @REM Copy files to data dir
-call xcopy /I /E /H /R /Q dist\ExploreGUI %exploregui_path%data\ExploreGUI
-call xcopy %exploregui_path%extras\MentalabLogo.ico %exploregui_path%data
+call xcopy /I /E /H /R /Q dist\ExploreDesktop %exploredesktop_path%data\ExploreDesktop
+call xcopy %exploredesktop_path%extras\MentalabLogo.ico %exploredesktop_path%data
 
 
 @REM Create installer file
-call set config_path= "installer\ExploreGuiInstaller\ExploreGUI\config\config.xml"
-call set package_path="installer\ExploreGuiInstaller\ExploreGUI\packages"
-call C:\Qt\QtIFW-4.2.0\bin\binarycreator -c %config_path% -p %package_path% --verbose ExploreGUIInstaller.exe
+call set config_path= "installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml"
+call set package_path="installer\ExploreDesktopInstaller\ExploreDesktop\packages"
+call C:\Qt\QtIFW-4.2.0\bin\binarycreator -c %config_path% -p %package_path% --verbose ExploreDesktopInstaller.exe

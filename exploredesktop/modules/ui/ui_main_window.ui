@@ -689,7 +689,7 @@ QLabel#bt_title{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>7</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -761,7 +761,7 @@ QLabel#bt_title{
                     <string notr="true"/>
                    </property>
                    <property name="text">
-                    <string>Welcome to Mentalab's ExplorePy</string>
+                    <string>Welcome to Mentalab's ExploreDesktop</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>

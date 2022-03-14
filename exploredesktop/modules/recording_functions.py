@@ -2,8 +2,8 @@ import logging
 import os
 from datetime import datetime
 
-from exploregui.modules.app_functions import AppFunctions
-from exploregui.modules.dialogs import RecordingDialog
+from exploredesktop.modules.app_functions import AppFunctions
+from exploredesktop.modules.dialogs import RecordingDialog
 from PySide6.QtCore import (
     QTimer,
     Slot

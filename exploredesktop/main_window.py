@@ -2,9 +2,9 @@ import datetime
 import os
 import sys
 
-import exploregui
+import exploredesktop
 import explorepy as xpy
-from exploregui.modules import (
+from exploredesktop.modules import (
     AppFunctions,
     BTFunctions,
     ConfigFunctions,
@@ -45,7 +45,7 @@ from PySide6.QtWidgets import (
 )
 
 
-VERSION_APP = exploregui.__version__
+VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
 
 
@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
         self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle('ExploreGUI')
+        self.setWindowTitle('ExploreDesktop')
 
         self.explorer = xpy.Explore()
         self.funct = AppFunctions(self.ui, self.explorer)

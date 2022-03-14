@@ -1,6 +1,6 @@
 import logging
 
-from exploregui.modules.app_functions import AppFunctions
+from exploredesktop.modules.app_functions import AppFunctions
 
 
 logger = logging.getLogger("explorepy." + __name__)

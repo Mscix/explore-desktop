@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
     QTabWidget, QVBoxLayout, QWidget)
 
 from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
-from exploregui import app_resources_rc
+from exploredesktop import app_resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -2043,7 +2043,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(7)
+        self.stackedWidget.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -2069,7 +2069,7 @@ class Ui_MainWindow(object):
         self.btn_plots.setText(QCoreApplication.translate("MainWindow", u"        Visualization", None))
         self.btn_impedance.setText(QCoreApplication.translate("MainWindow", u"        Impedance", None))
         self.btn_integration.setText(QCoreApplication.translate("MainWindow", u"        Integration", None))
-        self.home_title.setText(QCoreApplication.translate("MainWindow", u"Welcome to Mentalab's ExplorePy", None))
+        self.home_title.setText(QCoreApplication.translate("MainWindow", u"Welcome to Mentalab's ExploreDesktop", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">HOW TO</span></p></body></html>", None))
         self.btn_bt_2.setText("")
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Connect and disconnect from your device ", None))

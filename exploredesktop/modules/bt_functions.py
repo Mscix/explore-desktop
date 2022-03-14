@@ -4,8 +4,8 @@ import os
 
 import explorepy._exceptions as xpy_ex
 import numpy as np
-from exploregui.modules.app_functions import AppFunctions
-from exploregui.modules.app_settings import Settings
+from exploredesktop.modules.app_functions import AppFunctions
+from exploredesktop.modules.app_settings import Settings
 from explorepy.stream_processor import TOPICS
 from explorepy.tools import bt_scan
 from PySide6.QtWidgets import (

@@ -164,11 +164,12 @@ modules/old
 *.app
 *.exe
 
-ExploreGUIInstaller.app/Contents/Info.plist
-ExploreGUIInstaller.app/Contents/MacOS/ExploreGUIInstaller
-ExploreGUIInstaller.app/Contents/PkgInfo
-ExploreGUIInstaller.app/Contents/Resources/installer.dat
+ExploreDesktopInstaller.app/Contents/Info.plist
+ExploreDesktopInstaller.app/Contents/MacOS/ExploreDesktopInstaller
+ExploreDesktopInstaller.app/Contents/PkgInfo
+ExploreDesktopInstaller.app/Contents/Resources/installer.dat
 
 # data folder
-installer/ExploreGUIInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/data/*
+installer/ExploreDesktopInstaller/ExploreDesktop/packages/com.Mentalab.ExploreDesktop/data/*
 
+.qt_for_python/
