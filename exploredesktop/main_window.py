@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
         self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle('ExploreGUI')
+        self.setWindowTitle('ExploreDesktop')
 
         self.explorer = xpy.Explore()
         self.funct = AppFunctions(self.ui, self.explorer)
