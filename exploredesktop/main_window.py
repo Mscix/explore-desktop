@@ -2,9 +2,9 @@ import datetime
 import os
 import sys
 
-import exploregui
+import exploredesktop
 import explorepy as xpy
-from exploregui.modules import (
+from exploredesktop.modules import (
     AppFunctions,
     BTFunctions,
     ConfigFunctions,
@@ -45,7 +45,7 @@ from PySide6.QtWidgets import (
 )
 
 
-VERSION_APP = exploregui.__version__
+VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
 
 

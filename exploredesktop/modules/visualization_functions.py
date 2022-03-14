@@ -5,9 +5,9 @@ import warnings
 
 import numpy as np
 import pyqtgraph as pg
-from exploregui.modules.app_functions import AppFunctions
-from exploregui.modules.app_settings import Settings
-from exploregui.modules.dialogs import PlotDialog
+from exploredesktop.modules.app_functions import AppFunctions
+from exploredesktop.modules.app_settings import Settings
+from exploredesktop.modules.dialogs import PlotDialog
 from explorepy.stream_processor import TOPICS
 from explorepy.tools import HeartRateEstimator
 from PySide6.QtCore import Slot

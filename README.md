@@ -12,7 +12,7 @@
 3. `cd path/to/explorepy-gui`
 4. `pip install -e .`
 
-5. Launch the app: `python main.py` or `exploregui`
+5. Launch the app: `python main.py` or `exploredesktop`
 If there is any error with liblsl try to install it manually: `conda install -c conda-forge liblsl`
 
 ## Create installer file

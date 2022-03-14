@@ -3,7 +3,7 @@ import time
 from contextlib import contextmanager
 
 import numpy as np
-from exploregui.modules.app_settings import Settings
+from exploredesktop.modules.app_settings import Settings
 from explorepy.stream_processor import TOPICS
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor

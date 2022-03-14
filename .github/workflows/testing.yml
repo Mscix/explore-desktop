@@ -36,7 +36,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          # install exploregui with its test dependencies
+          # install exploredesktop with its test dependencies
           pip install -e .[test]
 
       - name: Run pytest

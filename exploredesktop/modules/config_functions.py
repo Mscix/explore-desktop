@@ -1,11 +1,11 @@
 import logging
 
 import numpy as np
-from exploregui.modules import (
+from exploredesktop.modules import (
     AppFunctions,
     Settings
 )
-from exploregui.modules.bt_functions import DISABLED_STYLESHEET
+from exploredesktop.modules.bt_functions import DISABLED_STYLESHEET
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
     QCheckBox,
