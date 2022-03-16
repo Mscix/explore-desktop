@@ -1,7 +1,7 @@
 import logging
 
-from exploregui.modules.app_functions import AppFunctions
-from exploregui.modules.app_settings import Settings
+from exploredesktop.modules.app_functions import AppFunctions
+from exploredesktop.modules.app_settings import Settings
 from explorepy.stream_processor import TOPICS
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (

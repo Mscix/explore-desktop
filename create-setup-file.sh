@@ -39,29 +39,29 @@ python -m pip install --upgrade pip
 # Install Pyinstaller
 pip install pyinstaller==4.7
 
-# Install ExploreGUI
+# Install ExploreDesktop
 pip install pylsl
 pip install -e .
 
 # Copy files to data dir
-exploregui_path="installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/"
+exploredesktop_path="installer/ExploreDesktopInstaller/ExploreDesktop/packages/com.Mentalab.ExploreDesktop/"
 
 # Clean required directories
-rm -rfv "$exploregui_path"data/*
+rm -rfv "$exploredesktop_path"data/*
 rm -rfv dist/*
 
 # Create executable files
-pyinstaller --onedir --console ExploreGUI.spec
+pyinstaller --onedir --console ExploreDesktop.spec
 
 
 
 if [[ "$uname" == "Linux" ]]
 then
-  cp -r dist/ExploreGUI "$exploregui_path"data
-  cp "$exploregui_path"extras/MentalabLogo.png "$exploregui_path"data/
-  cp "$exploregui_path"extras/exploregui.desktop "$exploregui_path"data/
+  cp -r dist/ExploreDesktop "$exploredesktop_path"data
+  cp "$exploredesktop_path"extras/MentalabLogo.png "$exploredesktop_path"data/
+  cp "$exploredesktop_path"extras/exploredesktop.desktop "$exploredesktop_path"data/
 else
-  cp -r dist/ExploreGUI.app "$exploregui_path"data
+  cp -r dist/ExploreDesktop.app "$exploredesktop_path"data
 fi
 
 
@@ -74,4 +74,4 @@ else
   extension=""
   binarycreator_path=/Users/"$(whoami)"/Qt/QtIFW-4.2.0/bin/
 fi
-"$binarycreator_path"binarycreator -c "$exploregui_path"../../config/config.xml -p "$exploregui_path"../ --verbose ExploreGUIInstaller"$extension"
+"$binarycreator_path"binarycreator -c "$exploredesktop_path"../../config/config.xml -p "$exploredesktop_path"../ --verbosDesktop"$extension"

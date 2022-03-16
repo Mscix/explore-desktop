@@ -1,4 +1,4 @@
-from exploregui.modules.app_settings import Settings
+from exploredesktop.modules.app_settings import Settings
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,

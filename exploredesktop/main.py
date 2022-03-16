@@ -9,12 +9,12 @@ from PySide6 import QtCore
 from PySide6.QtWidgets import QApplication
 
 
-import exploregui  # isort:skip
-from exploregui import MainWindow  # isort:skip
+import exploredesktop  # isort:skip
+from exploredesktop import MainWindow  # isort:skip
 
-logger = logging.getLogger("explorepy.exploregui.main")
-logger.debug("Starting ExploreGUI (version: %s) with Explorepy (version: %s)",
-             exploregui.__version__, explorepy.__version__)
+logger = logging.getLogger("explorepy.exploredesktop.main")
+logger.debug("Starting ExploreDesktop (version: %s) with Explorepy (version: %s)",
+             exploredesktop.__version__, explorepy.__version__)
 
 os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
 

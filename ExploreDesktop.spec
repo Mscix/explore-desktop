@@ -5,12 +5,12 @@ import pylsl
 from distutils.sysconfig import get_python_lib
 
 if sys.platform == "darwin":
-    icon_path = "./installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/extras/MentalabLogo.icns"
+    icon_path = "./installer/ExploreDesktopInstaller/ExploreDesktop/packages/com.Mentalab.ExploreDesktop/extras/MentalabLogo.icns"
 else:
-    icon_path = "./installer/ExploreGuiInstaller/ExploreGUI/packages/com.Mentalab.ExploreGUI/extras/MentalabLogo.ico"
+    icon_path = "./installer/ExploreDesktopInstaller/ExploreDesktop/packages/com.Mentalab.ExploreDesktop/extras/MentalabLogo.ico"
 
 block_cipher = None
-main_path = path.join('exploregui', 'main.py')
+main_path = path.join('exploredesktop', 'main.py')
 
 a = Analysis([main_path],
              pathex=[get_python_lib()],
@@ -33,7 +33,7 @@ exe = EXE(pyz,
           a.scripts, 
           [],
           exclude_binaries=True,
-          name='ExploreGUI',
+          name='ExploreDesktop',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -50,18 +50,18 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='ExploreGUI')
+               name='ExploreDesktop')
 
 if sys.platform == 'darwin':
     app = BUNDLE(coll,
-                 name='ExploreGUI.app',
+                 name='ExploreDesktop.app',
                  icon=icon_path,
-                 bundle_identifier='com.mentalab.exploregui',
-                 version='0.2.1',
+                 bundle_identifier='com.mentalab.exploredesktop',
+                 version='0.2.2',
                  info_plist={
                   'NSPrincipalClass': 'NSApplication',
                   'NSAppleScriptEnabled': False,
                   'NSHighResolutionCapable': True,
                   'LSBackgroundOnly': False,
-                  'NSBluetoothPeripheralUsageDescription': 'ExploreGUI uses Bluetooth to communicate with the Explore devices.'
+                  'NSBluetoothPeripheralUsageDescription': 'ExploreDesktop uses Bluetooth to communicate with the Explore devices.'
                  })
