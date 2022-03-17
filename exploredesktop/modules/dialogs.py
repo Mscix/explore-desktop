@@ -1,5 +1,7 @@
 import os
 
+import numpy as np
+
 from exploredesktop.modules.ui import (
     Ui_PlotDialog,
     Ui_RecordingDialog
@@ -99,12 +101,12 @@ class PlotDialog(QDialog):
 
         hc_freq_warning = (
             "High cutoff frequency cannot be larger than or equal to the nyquist frequency."
-            f"The maximum high cutoff frequency is {max_hc_freq:.1f} Hz!"
+            f"The maximum high cutoff frequency is {np.ceil(max_hc_freq*10)/10} Hz!"
         )
 
         lc_freq_warning = (
             "Transient band for low cutoff frequency is too narrow."
-            f"The minimum low cutoff frequency is {min_lc_freq:.1f} Hz!"
+            f"The minimum low cutoff frequency is {np.ceil(min_lc_freq*10)/10} Hz!"
         )
 
         bp_freq_warning = ("High cutoff frequency must be larger than low cutoff frequency.")
