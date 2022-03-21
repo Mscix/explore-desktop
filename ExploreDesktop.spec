@@ -11,10 +11,10 @@ else:
 
 block_cipher = None
 main_path = path.join('exploredesktop', 'main.py')
-
+liblsl_path = next(pylsl.pylsl.find_liblsl_libraries())
 a = Analysis([main_path],
              pathex=[get_python_lib()],
-             binaries=[],
+             binaries=[(liblsl_path, 'pylsl/lib'), (liblsl_path[:-7], 'pylsl/lib')],
              datas=[],
              hiddenimports=[],
              hookspath=[],
@@ -57,7 +57,7 @@ if sys.platform == 'darwin':
                  name='ExploreDesktop.app',
                  icon=icon_path,
                  bundle_identifier='com.mentalab.exploredesktop',
-                 version='0.2.2',
+                 version='0.2.3',
                  info_plist={
                   'NSPrincipalClass': 'NSApplication',
                   'NSAppleScriptEnabled': False,
