@@ -689,7 +689,7 @@ QLabel#bt_title{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>6</number>
+             <number>5</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -2938,7 +2938,7 @@ background-color: rgb(169, 169, 169)
                       </font>
                      </property>
                      <property name="text">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;Ch2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>Ch2</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>

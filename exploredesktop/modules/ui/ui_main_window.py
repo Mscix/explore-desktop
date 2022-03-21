@@ -1932,7 +1932,7 @@ class Ui_MainWindow(object):
         self.graphicsView.setGeometry(QRect(10, 100, 981, 371))
         self.splitter = QSplitter(self.page_settings_testing)
         self.splitter.setObjectName(u"splitter")
-        self.splitter.setGeometry(QRect(20, 500, 431, 31))
+        self.splitter.setGeometry(QRect(20, 500, 431, 30))
         self.splitter.setOrientation(Qt.Horizontal)
         self.pushButton_2 = QPushButton(self.splitter)
         self.pushButton_2.setObjectName(u"pushButton_2")
@@ -2160,7 +2160,7 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(accessibility)
         self.frame_ch2_color.setAccessibleName(QCoreApplication.translate("MainWindow", u"color_frame", None))
 #endif // QT_CONFIG(accessibility)
-        self.label_ch2.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:13pt;\">Ch2</span></p></body></html>", None))
+        self.label_ch2.setText(QCoreApplication.translate("MainWindow", u"Ch2", None))
         self.label_ch2_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
 #if QT_CONFIG(accessibility)
         self.frame_ch3_color.setAccessibleName(QCoreApplication.translate("MainWindow", u"color_frame", None))
@@ -2201,11 +2201,11 @@ class Ui_MainWindow(object):
         self.bt_title.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label_explore_name_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Connect your device</p></body></html>", None))
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DM Sans'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Segoe UI';\">Press the button on your device to turn it on.</span></p>\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Segoe UI';\">Scan the paired devices or directly input the name of your device.</span></p></body></html>", None))
+"</style></head><body style=\" font-family:'Segoe UI'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt;\">Press the button on your device to turn it on.</span></p>\n"
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt;\">Scan the paired devices or directly input the name of your device.</span></p></body></html>", None))
         self.lbl_wdws_warning.setText("")
         self.btn_scan.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
         self.btn_connect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))

@@ -153,7 +153,7 @@ QMessageBox QLabel {
         "yellow": 20,
         "orange": 30,
         "red": 50,
-        "open": 100
+        "open": 250
     }
 
     LEFT_BTN_REQUIRE_CONNECTION = ["btn_settings", "btn_plots", "btn_impedance", "btn_integration"]
