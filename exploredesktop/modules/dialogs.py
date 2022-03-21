@@ -1,7 +1,6 @@
 import os
 
 import numpy as np
-
 from exploredesktop.modules.ui import (
     Ui_PlotDialog,
     Ui_RecordingDialog
