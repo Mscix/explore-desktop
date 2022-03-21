@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>ExploreDesktop</Name>
-    <Version>0.2.2</Version>
+    <Version>0.2.3</Version>
     <Title>ExploreDesktop</Title>
     <Publisher>Mentalab GmbH.</Publisher>
     <InstallerApplicationIcon>../packages/com.Mentalab.ExploreDesktop/extras/MentalabLogo</InstallerApplicationIcon>
