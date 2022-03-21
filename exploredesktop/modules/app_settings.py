@@ -55,35 +55,17 @@ QPushButton:pressed{
     background-color: rgb(113, 120, 159);
     """
 
-    GRAY_IMPEDANCE_STYLESHEET = """
-border: 2px solid rgb(145, 145, 145);
-border-radius: 30px;
-background-color: rgb(169, 169, 169);"""
+    GRAY_IMPEDANCE_STYLESHEET = "rgb(169, 169, 169)"
 
-    BLACK_IMPEDANCE_STYLESHEET = """
-border: 2px solid #000000;
-border-radius: 30px;
-background-color: #111111;"""
+    BLACK_IMPEDANCE_STYLESHEET = "#111111"
 
-    RED_IMPEDANCE_STYLESHEET = """
-border: 2px solid #830000;
-border-radius: 30px;
-background-color: #CB0000;"""
+    RED_IMPEDANCE_STYLESHEET = "#CB0000"
 
-    ORANGE_IMPEDANCE_STYLESHEET = """
-border: 2px solid #976D28;
-border-radius: 30px;
-background-color: #CF8F25;"""
+    ORANGE_IMPEDANCE_STYLESHEET = "#CF8F25"
 
-    YELLOW_IMPEDANCE_STYLESHEET = """
-border: 2px solid #A0A036;
-border-radius: 30px;
-background-color: #C5C527;"""
+    YELLOW_IMPEDANCE_STYLESHEET = "#C5C527"
 
-    GREEN_IMPEDANCE_STYLESHEET = """
-border: 2px solid #25541C;
-border-radius: 30px;
-background-color: #2B851A;"""
+    GREEN_IMPEDANCE_STYLESHEET = "#2B851A"
 
     BATTERY_STYLESHEETS = {
         "low": "color: #FD0000;",

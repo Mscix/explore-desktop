@@ -1,16 +1,79 @@
 import logging
 
+import numpy as np
+
 from exploredesktop.modules.app_functions import AppFunctions
 from exploredesktop.modules.app_settings import Settings
 from explorepy.stream_processor import TOPICS
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QAbstractTableModel, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QMessageBox
 )
+from PySide6.QtGui import QColor
 
 
 logger = logging.getLogger("explorepy." + __name__)
+
+
+class ImpTableModel(QAbstractTableModel):
+    def __init__(self):
+        super(ImpTableModel, self).__init__()
+        # self._data = ["5" for i in range(1,9)]
+        self._data = np.array([f"ch{i}\nNA" for i in range(1,9)])
+        self.mode = "dry"
+
+    def get_stylesheet(self, value):
+        rules_dict = Settings.COLOR_RULES_DRY if self.mode == "dry" else Settings.COLOR_RULES_WET
+        if not value.isnumeric():
+            imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
+            print("gray")
+        else:
+            value = float(value)
+        if value > rules_dict["red"]:
+            imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
+            print("black")
+        elif value > rules_dict["orange"]:
+            imp_stylesheet = Settings.RED_IMPEDANCE_STYLESHEET
+            print("red")
+        elif value > rules_dict["yellow"]:
+            imp_stylesheet = Settings.ORANGE_IMPEDANCE_STYLESHEET
+        elif value > rules_dict["green"]:
+            imp_stylesheet = Settings.YELLOW_IMPEDANCE_STYLESHEET
+        else:
+            imp_stylesheet = Settings.GREEN_IMPEDANCE_STYLESHEET
+            print("green")
+
+        return imp_stylesheet
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            # See below for the nested-list data structure.
+            # .row() indexes into the outer list,
+            # .column() indexes into the sub-list
+            return self._data[index.row()][index.column()]
+
+        if role == Qt.BackgroundRole:
+            value = self._data[index.row()][index.column()]
+            
+            stylesheet = self.get_stylesheet(value)
+            return QColor(stylesheet)
+
+    def rowCount(self, index):
+        # The length of the outer list.
+        return len(self._data)
+
+    def columnCount(self, index):
+        # The following takes the first sub-list, and returns
+        # the length (only works if all rows are an equal length)
+        return len(self._data)
+
+    def setData(self, index, value, role=Qt.EditRole):
+        if value is not None and role == Qt.EditRole:
+            self._data[index.row()][index.column()] = value
+            self.dataChanged.emit()
+            return True
+        return False
 
 
 class IMPFunctions(AppFunctions):
