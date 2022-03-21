@@ -335,6 +335,7 @@ class MainWindow(QMainWindow):
 
             if filt is False:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+                self.highlight_left_button("btn_settings")
                 return False
 
             if not self.is_streaming and filt:

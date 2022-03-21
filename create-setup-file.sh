@@ -40,8 +40,11 @@ python -m pip install --upgrade pip
 pip install pyinstaller==4.7
 
 # Install ExploreDesktop
+conda install -c conda-forge liblsl==1.15.2 -y
 pip install pylsl
 pip install -e .
+pip uninstall explorepy -y
+pip install git+https://github.com/Mentalab-hub/explorepy.git@71df00a704b4a76676ee4e861da56cd0796e3b15
 
 # Copy files to data dir
 exploredesktop_path="installer/ExploreDesktopInstaller/ExploreDesktop/packages/com.Mentalab.ExploreDesktop/"
@@ -74,4 +77,4 @@ else
   extension=""
   binarycreator_path=/Users/"$(whoami)"/Qt/QtIFW-4.2.0/bin/
 fi
-"$binarycreator_path"binarycreator -c "$exploredesktop_path"../../config/config.xml -p "$exploredesktop_path"../ --verbosDesktop"$extension"
+"$binarycreator_path"binarycreator -c "$exploredesktop_path"../../config/config.xml -p "$exploredesktop_path"../ --verbose ExploreDesktopInstaller_x64"$extension"
