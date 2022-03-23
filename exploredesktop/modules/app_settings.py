@@ -55,7 +55,7 @@ QPushButton:pressed{
     background-color: rgb(113, 120, 159);
     """
 
-    GRAY_IMPEDANCE_STYLESHEET = "rgb(169, 169, 169)"
+    GRAY_IMPEDANCE_STYLESHEET = "#a9a9a9"
 
     BLACK_IMPEDANCE_STYLESHEET = "#111111"
 
@@ -139,3 +139,5 @@ QMessageBox QLabel {
     }
 
     LEFT_BTN_REQUIRE_CONNECTION = ["btn_settings", "btn_plots", "btn_impedance", "btn_integration"]
+
+    MAX_IMP_ROW = 8

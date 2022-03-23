@@ -1,4 +1,8 @@
 import logging
+from re import L
+import time
+from click import style
+import explorepy
 
 import numpy as np
 
@@ -15,34 +19,40 @@ from PySide6.QtGui import QColor
 
 logger = logging.getLogger("explorepy." + __name__)
 
+def is_number(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
 
 class ImpTableModel(QAbstractTableModel):
     def __init__(self):
         super(ImpTableModel, self).__init__()
         # self._data = ["5" for i in range(1,9)]
-        self._data = np.array([f"ch{i}\nNA" for i in range(1,9)])
+        # self._data = np.array([f"ch{i}\nNA" for i in range(1, 9)])
+        self._data = np.array([[f"ch{i}\nNA" for i in range(1, 9)]])
+        # self._data = np.array([[f"ch{i}\nNA" for i in range(1, 9)], [f"ch{i}\n5" for i in range(1, 9)]])
+        print(self._data)
         self.mode = "dry"
 
     def get_stylesheet(self, value):
         rules_dict = Settings.COLOR_RULES_DRY if self.mode == "dry" else Settings.COLOR_RULES_WET
-        if not value.isnumeric():
-            imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
-            print("gray")
-        else:
-            value = float(value)
-        if value > rules_dict["red"]:
+
+        if "Open" in value:
             imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
-            print("black")
-        elif value > rules_dict["orange"]:
+        elif not is_number(value): # or "NA" in value:
+            imp_stylesheet = Settings.GRAY_IMPEDANCE_STYLESHEET
+        elif float(value) > rules_dict["red"]:
+            imp_stylesheet = Settings.BLACK_IMPEDANCE_STYLESHEET
+        elif float(value) > rules_dict["orange"]:
             imp_stylesheet = Settings.RED_IMPEDANCE_STYLESHEET
-            print("red")
-        elif value > rules_dict["yellow"]:
+        elif float(value) > rules_dict["yellow"]:
             imp_stylesheet = Settings.ORANGE_IMPEDANCE_STYLESHEET
-        elif value > rules_dict["green"]:
+        elif float(value) > rules_dict["green"]:
             imp_stylesheet = Settings.YELLOW_IMPEDANCE_STYLESHEET
         else:
             imp_stylesheet = Settings.GREEN_IMPEDANCE_STYLESHEET
-            print("green")
 
         return imp_stylesheet
 
@@ -51,29 +61,80 @@ class ImpTableModel(QAbstractTableModel):
             # See below for the nested-list data structure.
             # .row() indexes into the outer list,
             # .column() indexes into the sub-list
-            return self._data[index.row()][index.column()]
+            return self._data[index.row(), index.column()]
 
         if role == Qt.BackgroundRole:
-            value = self._data[index.row()][index.column()]
-            
+            value = self._data[index.row(), index.column()]
+            print(value)
+            value = value.split("\n")[1]
+            value = value.replace(" K\u03A9", "")
+            value = value.replace("<", "")
+            print(value)
             stylesheet = self.get_stylesheet(value)
             return QColor(stylesheet)
+            # return QColor("#FFFFFF")
+
+        if role == Qt.TextAlignmentRole:
+            return Qt.AlignVCenter + Qt.AlignHCenter
+
+        if role == Qt.ForegroundRole:
+            return QColor("#FFFFFF")
 
     def rowCount(self, index):
         # The length of the outer list.
-        return len(self._data)
+        return self._data.shape[0]
 
     def columnCount(self, index):
         # The following takes the first sub-list, and returns
         # the length (only works if all rows are an equal length)
-        return len(self._data)
+        # if len(self._data) == 1:
+        #     return 1
+        # return self._data.shape[0]
+        return self._data.shape[1]
 
-    def setData(self, index, value, role=Qt.EditRole):
-        if value is not None and role == Qt.EditRole:
-            self._data[index.row()][index.column()] = value
-            self.dataChanged.emit()
+    def setData(self, new_data, role=Qt.EditRole):
+        if new_data is not None and role == Qt.EditRole:
+            self._data = new_data
+            self.layoutChanged.emit()
+            # self.dataChanged.emit()
             return True
         return False
+
+    def format_imp_value(self, value: float) -> str:
+        """Format impedance value to correct display format
+
+        Args:
+            value (float): _description_
+
+        Returns:
+            str: formatted impedance value
+        """
+        if value < 5:
+            str_value = "<5 K\u03A9"
+        elif (self.mode == "wet" and value > Settings.COLOR_RULES_WET["open"]) or \
+                (self.mode == "dry" and value > Settings.COLOR_RULES_DRY["open"]):
+            str_value = "Open"
+        else:
+            str_value = str(int(round(value, 0))) + " K\u03A9"
+        return str_value
+
+    def imp_callback(self, packet):
+        imp_values = packet.get_impedances()
+        # for chan, value in zip(active_chan, imp_values):
+        data_1d = []
+        for chan, value in enumerate(imp_values):
+            value = self.format_imp_value(value)
+            data_1d.append(f"ch{chan+1}\n{value}")
+        data = np.array([data_1d])
+        if data.shape[1] > Settings.MAX_IMP_ROW:
+            data = np.reshape(data.shape[1] // Settings.MAX_IMP_ROW, Settings.MAX_IMP_ROW)
+        self.setData(data)
+
+    def subscribe_callback(self, stream_processor):
+        stream_processor.imp_initialize(notch_freq=50)
+        stream_processor.subscribe(callback=self.imp_callback, topic=TOPICS.imp)
+
+
 
 
 class IMPFunctions(AppFunctions):
@@ -287,3 +348,51 @@ class IMPFunctions(AppFunctions):
         Reset class variables
         """
         self.is_imp_measuring = False
+
+if __name__ == "__main__":
+    from PySide6 import QtWidgets
+    import sys
+
+    class MainWindow(QtWidgets.QMainWindow):
+        def __init__(self):
+            super().__init__()
+
+            self.impTable = QtWidgets.QTableView()
+
+            self.button = QtWidgets.QPushButton("test", self)
+            layout = QtWidgets.QVBoxLayout()
+            layout.addWidget(self.impTable)
+            layout.addWidget(self.button)
+            widget = QtWidgets.QWidget()
+            widget.setLayout(layout)
+            self.button.clicked.connect(self.updatedata)
+            # data = [5 for i in range(1,9)]
+            # print(data)
+            self.model = ImpTableModel()
+            self.impTable.setModel(self.model)
+            self.impTable.horizontalHeader().setVisible(False)
+            self.impTable.verticalHeader().setVisible(False)
+            # self.impTable.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+            # self.impTable.verticalHeader().setDefaultSectionSize(30)
+            self.impTable.setRowHeight(0, 100)
+            self.impTable.setRowHeight(1, 100)
+
+            self.setCentralWidget(widget)
+            self.connect()
+            # self.setCentralWidget(self.impTable)
+
+        def connect(self):
+            explorer = explorepy.Explore()
+            explorer.connect(device_name="Explore_CA18")
+            self.stream_processor = explorer.stream_processor
+
+        def updatedata(self):
+            # data = np.array([[f"ch{i}\n20" for i in range(1, 9)], [f"ch{i}\n80" for i in range(1, 9)]])
+            # self.model.setData(data)
+            self.model.subscribe_callback(self.stream_processor)
+
+
+    app=QtWidgets.QApplication(sys.argv)
+    window=MainWindow()
+    window.show()
+    app.exec()
