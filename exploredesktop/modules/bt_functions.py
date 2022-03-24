@@ -5,7 +5,7 @@ import os
 import explorepy._exceptions as xpy_ex
 import numpy as np
 from exploredesktop.modules.app_functions import AppFunctions
-from exploredesktop.modules.app_settings import Settings
+from exploredesktop.modules.app_settings import Settings, Stylesheets, Messages
 from explorepy.stream_processor import TOPICS
 from explorepy.tools import bt_scan
 from PySide6.QtWidgets import (
@@ -15,11 +15,6 @@ from PySide6.QtWidgets import (
 
 
 logger = logging.getLogger("explorepy." + __name__)
-
-DISABLED_STYLESHEET = """
-    background-color: rgb(89,90,111);
-    color: rgb(155,155,155);
-"""
 
 
 class BTFunctions(AppFunctions):
@@ -52,14 +47,13 @@ class BTFunctions(AppFunctions):
                 explore_devices = bt_scan()
 
         except (ValueError, SystemError):
-            msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
-            self._connection_error_gui(msg, scan=True)
+            self._connection_error_gui(Messages.NO_BT_CONNECTION, scan=True)
             logger.warning("No Bluetooth connection available.")
             return
 
         if len(explore_devices) == 0:
             msg = "No explore devices found. Please make sure your device is turned on."
-            self._connection_error_gui(msg, scan=True)
+            self._connection_error_gui(Messages.NO_EXPLORE_DEVICES, scan=True)
             logger.info("No explore devices found.")
             return
 
@@ -68,7 +62,7 @@ class BTFunctions(AppFunctions):
             devs = [dev.name + "\t" + str(dev.is_paired) for dev in explore_devices]
             devs = [dev.replace("True", "Paired").replace("False", "Unpaired") for dev in devs]
             devs.sort(key=lambda x: x.endswith("Paired"))
-            self.ui.lbl_wdws_warning.setText("Note: Listed paired devices might not be advertising")
+            self.ui.lbl_wdws_warning.setText(Messages.WARNING_PAIRED_DEV_WINDOWS)
             self.ui.lbl_wdws_warning.setStyleSheet("font: 11pt; color: red;")
             self.ui.lbl_wdws_warning.show()
             self.ui.lbl_wdws_warning.repaint()
@@ -139,8 +133,7 @@ class BTFunctions(AppFunctions):
         """
         device_name = self.get_dev_name()
         if device_name == "":
-            msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-            self.display_msg(msg)
+            self.display_msg(Messages.INVALID_EXPLORE_NAME)
             return
 
         # Change footer and button
@@ -158,13 +151,11 @@ class BTFunctions(AppFunctions):
             logger.warning("Device not found.")
             return
         except (TypeError, UnboundLocalError):
-            msg = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
-            self._connection_error_gui(msg)
+            self._connection_error_gui(Messages.INVALID_EXPLORE_NAME)
             logger.warning("Invalid Explore name")
             return
         except (ValueError, SystemError):
-            msg = "No Bluetooth connection available.\nPlease make sure the bluetooth is on."
-            self._connection_error_gui(msg)
+            self._connection_error_gui(Messages.NO_BT_CONNECTION)
             logger.warning("No Bluetooth connection available.")
             return
         except Exception as error:
@@ -204,7 +195,7 @@ class BTFunctions(AppFunctions):
         """
         lbl_footer = "Not connected" if reset else "Scanning ..."
         btn_txt = "Scan" if reset else "Scanning"
-        btn_stylesheet = "" if reset else DISABLED_STYLESHEET
+        btn_stylesheet = "" if reset else Stylesheets.DISABLED_BTN_STYLESHEET
 
         # Set footer
         self.ui.ft_label_device_3.setText(lbl_footer)
@@ -223,7 +214,7 @@ class BTFunctions(AppFunctions):
         """
         lbl_footer = "Not connected" if reset else f"Connecting to {device_name}..."
         btn_txt = "Connect" if reset else "Connecting"
-        btn_stylesheet = "" if reset else DISABLED_STYLESHEET
+        btn_stylesheet = "" if reset else Stylesheets.DISABLED_BTN_STYLESHEET
 
         # Set footer
         self.ui.ft_label_device_3.setText(lbl_footer)
@@ -236,7 +227,7 @@ class BTFunctions(AppFunctions):
 
         # If platform is windows, add instructions
         if os.name == "nt":
-            self.ui.lbl_bt_instructions.setText("Follow Windows' instructions to pair your device.")
+            self.ui.lbl_bt_instructions.setText(Messages.WINDOWS_PAIR_INSTRUCTIONS)
             self.ui.lbl_bt_instructions.setHidden(reset)
         QApplication.processEvents()
 
@@ -406,11 +397,11 @@ class BTFunctions(AppFunctions):
 
     def _battery_stylesheet(self, value):
         if isinstance(value, str):
-            stylesheet = Settings.BATTERY_STYLESHEETS["na"]
+            stylesheet = Stylesheets.BATTERY_STYLESHEETS["na"]
         elif value <= 10:
-            stylesheet = Settings.BATTERY_STYLESHEETS["low"]
+            stylesheet = Stylesheets.BATTERY_STYLESHEETS["low"]
         else:
-            stylesheet = Settings.BATTERY_STYLESHEETS["na"]
+            stylesheet = Stylesheets.BATTERY_STYLESHEETS["na"]
         return stylesheet
 
     def _update_temperature(self, new_value):
