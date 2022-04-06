@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
         view_box = self.ui.imp_graph_layout.addViewBox()
         view_box.setAspectLocked()
         view_box.addItem(self.imp_graph)
-        self.ui.imp_graph_layout.addViewBox().setBackground("transparent")
+        self.ui.imp_graph_layout.setBackground("transparent")
 
     def style_ui(self):
         """Initial style for UI
