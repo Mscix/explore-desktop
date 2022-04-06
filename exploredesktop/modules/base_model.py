@@ -1,3 +1,9 @@
+"""Implement base model and define custom PySide6 signals used in GUI
+
+Classes:
+    BaseModel
+    SignalsConatiner
+"""
 import explorepy
 from PySide6.QtCore import (
     QObject,
