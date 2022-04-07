@@ -3,6 +3,22 @@
 from enum import Enum
 
 
+class EnvVariables(Enum):
+    """Enum for environmental keys
+    """
+    BATTERY = "battery"
+    TEMPERATURE = "temperature"
+    LIGHT = "light"
+
+
+class ConnectionStatus(Enum):
+    """Enum for connection status
+    """
+    CONNECTED = "Connected to dev_name"
+    RECONNECTING = "Reconnecting ..."
+    DISCONNECTED = "Not connected"
+
+
 class ImpModes(Enum):
     """Enum for impedance measuring modes
     """

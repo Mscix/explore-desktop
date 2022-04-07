@@ -2,6 +2,7 @@
 """
 Module containing impedance related functionalities
 """
+from enum import Enum
 import logging
 
 import numpy as np
@@ -12,7 +13,7 @@ from PySide6.QtCore import (
 )
 
 
-from exploredesktop.modules.app_settings import Settings, Stylesheets  # isort: skip
+from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables, Settings, Stylesheets  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
 
 
@@ -41,10 +42,10 @@ class FooterData(BaseModel):
         """
         new_info = packet.get_data()
         for key in new_info.keys():
-            if key == "temperature":
+            if key == EnvVariables.TEMPERATURE.value:
                 temperature = str(new_info[key][0]) + " ºC" if self.explorer.is_connected else "NA"
 
-            elif key == "battery":
+            elif key == EnvVariables.BATTERY.value:
                 self._battery_percent_list.append(new_info[key][0])
                 if len(self._battery_percent_list) > Settings.BATTERY_N_MOVING_AVERAGE:
                     del self._battery_percent_list[0]
@@ -53,15 +54,15 @@ class FooterData(BaseModel):
                 battery_val = value if self.explorer.is_connected else "NA"
                 battery_stylesheet = self._battery_stylesheet(value=battery_val)
 
-            elif key == "light":
+            elif key == EnvVariables.LIGHT.value:
                 pass
 
             else:
                 logger.warning("There is no field named: %s", key)
 
         data = {
-            "battery": [str(battery_val), battery_stylesheet],
-            "temperature": temperature,
+            EnvVariables.BATTERY: [str(battery_val), battery_stylesheet],
+            EnvVariables.TEMPERATURE: temperature,
         }
         self.signals.envInfoChanged.emit(data)
 
@@ -78,11 +79,11 @@ class FooterData(BaseModel):
         sp_connected = self.explorer.stream_processor.is_connected
         reconnecting = self.explorer.stream_processor.parser._is_reconnecting
         if sp_connected and reconnecting:
-            self.signals.connectionStatus.emit("Reconnecting")
+            self.signals.connectionStatus.emit(ConnectionStatus.RECONNECTING)
         elif sp_connected and reconnecting is False:
-            self.signals.connectionStatus.emit("Connected")
+            self.signals.connectionStatus.emit(ConnectionStatus.CONNECTED)
         elif sp_connected is False and reconnecting is False:
-            self.signals.connectionStatus.emit("Disconnected")
+            self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
         else:
             logger.warning("Connection status unknown. stream_processor.is_connected=%s", sp_connected)
 
@@ -137,30 +138,31 @@ class FooterFrameView():
             device_lbl = "Not connected"
             self._update_device_name(new_value=device_lbl)
 
-    @Slot(str)
-    def print_connection_status(self, status: str) -> None:
+    @Slot(Enum)
+    def print_connection_status(self, status: Enum) -> None:
         """_summary_
 
         Args:
             status (str): Connection status. Can be "Reconnecting", "Connected", "Disconnected"
         """
-        reconnecting_label = "Reconnecting ..."
-        not_connected_label = "Not connected"
-        connected_label = f"Connected to {self.model.explorer.device_name}"
+        reconnecting_label = ConnectionStatus.RECONNECTING.value
+        not_connected_label = ConnectionStatus.DISCONNECTED.value
+        connected_label = ConnectionStatus.CONNECTED.value.replace("dev_name", self.model.explorer.device_name)
         label_text = self.ui.ft_label_device_3.text()
 
-        if status == "Reconnecting" and label_text != reconnecting_label:
+        if status == ConnectionStatus.RECONNECTING and label_text != reconnecting_label:
             self.ui.ft_label_device_3.setText(reconnecting_label)
             self.ui.ft_label_device_3.repaint()
 
-        elif status == "Connected" and label_text != connected_label:
+        elif status == ConnectionStatus.CONNECTED and label_text != connected_label:
             self.ui.ft_label_device_3.setText(connected_label)
             self.ui.ft_label_device_3.repaint()
 
-        elif status == "Disconnected" and label_text != not_connected_label:
+        elif status == ConnectionStatus.DISCONNECTED and label_text != not_connected_label:
             self.ui.ft_label_device_3.setText(not_connected_label)
             self.ui.ft_label_device_3.repaint()
             self.explorer.is_connected = False
+            self.change_footer()
             # TODO: implement functions bellow when all the modules are together
             # self.stop_processes()
             # self.reset_vars()
@@ -175,15 +177,15 @@ class FooterFrameView():
         Args:
             data (dict): dictionary of data, must contain keys "battery" and "temperature"
         """
-        if "battery" not in data:
+        if EnvVariables.BATTERY not in data:
             logger.debug("battery key not found in env data dictionary")
             return
-        elif "temperature" not in data:
+        if EnvVariables.TEMPERATURE not in data:
             logger.debug("battery key not found in env data dictionary")
             return
 
-        battery, stylesheet_battery = data["battery"]
-        temperature = data["temperature"]
+        battery, stylesheet_battery = data[EnvVariables.BATTERY]
+        temperature = data[EnvVariables.TEMPERATURE]
 
         self._update_battery(new_value=battery, new_stylesheet=stylesheet_battery)
         self._update_temperature(new_value=temperature)

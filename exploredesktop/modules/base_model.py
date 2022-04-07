@@ -4,6 +4,7 @@ Classes:
     BaseModel
     SignalsConatiner
 """
+from enum import Enum
 from PySide6.QtCore import (
     QObject,
     Signal
@@ -22,7 +23,7 @@ class SignalsContainer(QObject):
 
     # Footer related signals
     envInfoChanged = Signal(dict)
-    connectionStatus = Signal(str)
+    connectionStatus = Signal(Enum)
 
 
 class BaseModel():
