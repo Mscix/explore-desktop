@@ -1,4 +1,5 @@
 import os
+from exploredesktop.modules.app_settings import Messages
 
 from exploredesktop.modules.ui import (
     Ui_PlotDialog,
@@ -37,7 +38,7 @@ class PlotDialog(QDialog):
         self.setWindowTitle("Visualization Settings")
 
         self.ui.lbl_warning.hide()
-        self.ui.cb_offset.setToolTip("Remove the DC offset of the signal based on the previous signal values")
+        self.ui.cb_offset.setToolTip(Messages.OFFSET_EXPLANATION)
         self.close = False
 
         self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.cancelEvent)

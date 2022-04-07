@@ -1,3 +1,4 @@
+from email.errors import MessageParseError
 import logging
 
 import numpy as np
@@ -5,12 +6,14 @@ from exploredesktop.modules import (
     AppFunctions,
     Settings
 )
+from exploredesktop.modules.app_settings import Messages, Stylesheets
 from exploredesktop.modules.bt_functions import DISABLED_STYLESHEET
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
     QCheckBox,
     QMessageBox
 )
+
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -36,7 +39,7 @@ class ConfigFunctions(AppFunctions):
         if sum(cbs.values()) == 1:
             unchecked_cb = list(cbs.keys())[list(cbs.values()).index(True)]
             unchecked_cb.setEnabled(False)
-            unchecked_cb.setToolTip("At least one channel must be active")
+            unchecked_cb.setToolTip(Messages.SELECT_1_CHAN)
 
         else:
             for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
@@ -50,8 +53,7 @@ class ConfigFunctions(AppFunctions):
         If yes, memory is formatted.
         """
 
-        question = "Are you sure you want to format the memory?"
-        response = self.display_msg(msg_text=question, type="question")
+        response = self.display_msg(msg_text=Messages.FORMAT_MEM_QUESTION, type="question")
 
         if response == QMessageBox.StandardButton.Yes:
             with self.wait_cursor():
@@ -66,11 +68,7 @@ class ConfigFunctions(AppFunctions):
         Calibrate the orientation
         """
         lbl = self.ui.ft_label_device_3.text()
-        question = ("Do you want to continue with the orientation sensors calibration?\n"
-                    "This will overwrite the calibration data if it already exists\n\n"
-                    "If yes, you would need to move and rotate the device for 100 seconds\n"
-                    )
-        response = self.display_msg(msg_text=question, type="question")
+        response = self.display_msg(msg_text=Messages.CALIBRATE_ORN_QUESTION, type="question")
 
         if response == QMessageBox.StandardButton.Yes:
             # QMessageBox.information(self, "", "Calibrating...\nPlease move and rotate the device")
@@ -91,11 +89,8 @@ class ConfigFunctions(AppFunctions):
         If yes, the settinngs are set to default.
         """
         reset = False
-        question = (
-            "Are you sure you want to reset your settings?\n"
-            "The Explore device will disconnect after the soft reset."
-        )
-        response = self.display_msg(msg_text=question, type="question")
+
+        response = self.display_msg(msg_text=Messages.RESET_SETTINGS_QUESTION, type="question")
 
         if response == QMessageBox.StandardButton.Yes:
             with self.wait_cursor():
@@ -153,7 +148,7 @@ class ConfigFunctions(AppFunctions):
         active_chan_int = [int(i) for i in active_chan]
         n_active = sum(active_chan_int)
         if n_active == 0:
-            self.display_msg("Please select at least one channel")
+            self.display_msg(Messages.SELECT_1_CHAN)
             return
 
         if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
@@ -267,10 +262,10 @@ class ConfigFunctions(AppFunctions):
         if enable is False:
             enabled = False
             s_rate_stylesheet = "color: gray;\nborder-color: gray;"
-            stylesheet = DISABLED_STYLESHEET
-            tooltip_apply_settings = "Changing the settings during recording and LSL streaming is not possible"
-            tooltip_reset_settings = "Resetting the settings during recording and LSL streaming is not possible"
-            tooltip_format_mem = "Formatting the memory during recording and LSL streaming is not possible"
+            stylesheet = Stylesheets.DISABLED_BTN_STYLESHEET
+            tooltip_apply_settings = Messages.DISABLED_SETTINGS
+            tooltip_reset_settings = Messages.DISABLED_RESET
+            tooltip_format_mem = Messages.DISABLED_FORMAT_MEM
 
         for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
             wdgt.setEnabled(enabled)

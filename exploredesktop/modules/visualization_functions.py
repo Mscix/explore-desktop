@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 import pyqtgraph as pg
 from exploredesktop.modules.app_functions import AppFunctions
-from exploredesktop.modules.app_settings import Settings
+from exploredesktop.modules.app_settings import Messages, Settings, Stylesheets
 from exploredesktop.modules.dialogs import PlotDialog
 from explorepy.stream_processor import TOPICS
 from explorepy.tools import HeartRateEstimator
@@ -91,7 +91,7 @@ class VisualizationFunctions(AppFunctions):
 
         # Set Background color
         pw = self.ui.plot_exg
-        pw.setBackground(Settings.PLOT_BACKGROUND)
+        pw.setBackground(Stylesheets.PLOT_BACKGROUND)
 
         # Disable zoom
         pw.setMouseEnabled(x=False, y=False)
@@ -117,14 +117,14 @@ class VisualizationFunctions(AppFunctions):
         pw.setLabel('bottom', 'time (s)')
 
         # Initialize curves for each channel
-        self.curve_ch1 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
-        self.curve_ch2 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
-        self.curve_ch3 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
-        self.curve_ch4 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
-        self.curve_ch5 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
-        self.curve_ch6 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
-        self.curve_ch7 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
-        self.curve_ch8 = pg.PlotCurveItem(pen=Settings.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch1 = pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch2 = pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch3 = pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch4 = pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch5 = pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch6 = pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch7 = pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
+        self.curve_ch8 = pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR)  # , skipFiniteCheck=True)
 
         all_curves_list = [
             self.curve_ch1, self.curve_ch2, self.curve_ch3, self.curve_ch4,
@@ -145,7 +145,7 @@ class VisualizationFunctions(AppFunctions):
         pw = self.ui.plot_orn
 
         # Set Background color
-        pw.setBackground(Settings.PLOT_BACKGROUND)
+        pw.setBackground(Stylesheets.PLOT_BACKGROUND)
 
         # Add subplots
         self.plot_acc = pw.addPlot()
@@ -176,23 +176,23 @@ class VisualizationFunctions(AppFunctions):
             plt.setMouseEnabled(x=False, y=False)
 
         # Initialize curves for each plot
-        self.curve_ax = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[0], name=' accX ')
-        self.curve_ay = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[1], name=' accY ')
-        self.curve_az = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[2], name=' accZ ')
+        self.curve_ax = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[0], name=' accX ')
+        self.curve_ay = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[1], name=' accY ')
+        self.curve_az = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[2], name=' accZ ')
         self.plot_acc.addItem(self.curve_ax)
         self.plot_acc.addItem(self.curve_ay)
         self.plot_acc.addItem(self.curve_az)
 
-        self.curve_gx = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[0], name='gyroX')
-        self.curve_gy = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[1], name='gyroY')
-        self.curve_gz = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[2], name='gyroZ')
+        self.curve_gx = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[0], name='gyroX')
+        self.curve_gy = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[1], name='gyroY')
+        self.curve_gz = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[2], name='gyroZ')
         self.plot_gyro.addItem(self.curve_gx)
         self.plot_gyro.addItem(self.curve_gy)
         self.plot_gyro.addItem(self.curve_gz)
 
-        self.curve_mx = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[0], name='magX ')
-        self.curve_my = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[1], name='magY ')
-        self.curve_mz = pg.PlotCurveItem(pen=Settings.ORN_LINE_COLORS[2], name='magZ ')
+        self.curve_mx = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[0], name='magX ')
+        self.curve_my = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[1], name='magY ')
+        self.curve_mz = pg.PlotCurveItem(pen=Stylesheets.ORN_LINE_COLORS[2], name='magZ ')
         self.plot_mag.addItem(self.curve_mx)
         self.plot_mag.addItem(self.curve_my)
         self.plot_mag.addItem(self.curve_mz)
@@ -202,7 +202,7 @@ class VisualizationFunctions(AppFunctions):
         Initialize FFT plot
         """
         pw = self.ui.plot_fft
-        pw.setBackground(Settings.PLOT_BACKGROUND)
+        pw.setBackground(Stylesheets.PLOT_BACKGROUND)
         # pw.setXRange(0, 70, padding=0.01)
         pw.showGrid(x=True, y=True, alpha=0.5)
         pw.addLegend(horSpacing=20, colCount=2, brush='k', offset=(0, -300))
@@ -210,14 +210,14 @@ class VisualizationFunctions(AppFunctions):
         pw.setLabel('bottom', 'Frequency (Hz)')
         pw.setLogMode(x=False, y=True)
         pw.setMouseEnabled(x=False, y=False)
-        self.curve_fft_ch1 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[0], name='ch1', skipFiniteCheck=True)
-        self.curve_fft_ch2 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[1], name='ch2', skipFiniteCheck=True)
-        self.curve_fft_ch3 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[2], name='ch3', skipFiniteCheck=True)
-        self.curve_fft_ch4 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[3], name='ch4', skipFiniteCheck=True)
-        self.curve_fft_ch5 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[4], name='ch5', skipFiniteCheck=True)
-        self.curve_fft_ch6 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[5], name='ch6', skipFiniteCheck=True)
-        self.curve_fft_ch7 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[6], name='ch7', skipFiniteCheck=True)
-        self.curve_fft_ch8 = pw.getPlotItem().plot(pen=Settings.FFT_LINE_COLORS[7], name='ch8', skipFiniteCheck=True)
+        self.curve_fft_ch1 = pw.getPlotItem().plot(pen=Stylesheets.FFT_LINE_COLORS[0], name='ch1', skipFiniteCheck=True)
+        self.curve_fft_ch2 = pw.getPlotItem().plot(pen=Stylesheets.FFT_LINE_COLORS[1], name='ch2', skipFiniteCheck=True)
+        self.curve_fft_ch3 = pw.getPlotItem().plot(pen=Stylesheets.FFT_LINE_COLORS[2], name='ch3', skipFiniteCheck=True)
+        self.curve_fft_ch4 = pw.getPlotItem().plot(pen=Stylesheets.FFT_LINE_COLORS[3], name='ch4', skipFiniteCheck=True)
+        self.curve_fft_ch5 = pw.getPlotItem().plot(pen=Stylesheets.FFT_LINE_COLORS[4], name='ch5', skipFiniteCheck=True)
+        self.curve_fft_ch6 = pw.getPlotItem().plot(pen=Stylesheets.FFT_LINE_COLORS[5], name='ch6', skipFiniteCheck=True)
+        self.curve_fft_ch7 = pw.getPlotItem().plot(pen=Stylesheets.FFT_LINE_COLORS[6], name='ch7', skipFiniteCheck=True)
+        self.curve_fft_ch8 = pw.getPlotItem().plot(pen=Stylesheets.FFT_LINE_COLORS[7], name='ch8', skipFiniteCheck=True)
 
         all_curves_fft_list = [
             self.curve_fft_ch1, self.curve_fft_ch2, self.curve_fft_ch3, self.curve_fft_ch4,
@@ -571,10 +571,10 @@ class VisualizationFunctions(AppFunctions):
         t_point, code = data
         if replot is False:
             mrk_dict = self.mrk_plot
-            color = Settings.MARKER_LINE_COLOR
+            color = Stylesheets.MARKER_LINE_COLOR
         else:
             mrk_dict = self.mrk_replot
-            color = Settings.MARKER_LINE_COLOR_ALPHA
+            color = Stylesheets.MARKER_LINE_COLOR_ALPHA
 
         mrk_dict['t'].append(t_point)
         mrk_dict['code'].append(code)
@@ -695,7 +695,7 @@ class VisualizationFunctions(AppFunctions):
         # if len(self.t_exg_plot) and self.t_exg_plot[-1]>time_scale:
         if len(self.t_exg_plot) > max_points:
             # self.plot_ch8.clear()
-            # self.curve_ch8 = self.plot_ch8.plot(pen=Settings.EXG_LINE_COLOR)
+            # self.curve_ch8 = self.plot_ch8.plot(pen=Stylesheets.EXG_LINE_COLOR)
             new_points = len(data['t'])
             self.t_exg_plot = self.t_exg_plot[new_points:]
             for ch in self.exg_plot.keys():
@@ -790,7 +790,7 @@ class VisualizationFunctions(AppFunctions):
         """
         event_code = int(self.ui.value_event_code.text())
         if event_code > 65535 or event_code < 8:
-            self.display_msg(msg_text='Marker code value is not valid')
+            self.display_msg(msg_text=Messages.INVALID_MARKER)
             return
         try:
             self.explorer.set_marker(event_code)
