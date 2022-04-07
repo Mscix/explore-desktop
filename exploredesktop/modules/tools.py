@@ -12,6 +12,11 @@ from PySide6.QtWidgets import (
     QMessageBox
 )
 
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCursor
+from contextlib import contextmanager
+
+
 logger = logging.getLogger("explorepy." + __name__)
 
 
@@ -22,7 +27,7 @@ def get_widget_by_obj_name(name: str):
         name (str): widget name
 
     Returns:
-        Union(None, PySide6.QtWidget): widget object corresponding to the input name. 
+        Union(None, PySide6.QtWidget): widget object corresponding to the input name.
                                         If no matching widget is found, returns None
     """
     widgets = QApplication.instance().allWidgets()
@@ -62,3 +67,11 @@ def display_msg(msg_text: str, title: str = None, popup_type: str = "error"):
     msg.setWindowTitle(wdw_title)
     response = msg.exec()
     return response
+
+@contextmanager
+def wait_cursor():
+    try:
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        yield
+    finally:
+        QApplication.restoreOverrideCursor()
