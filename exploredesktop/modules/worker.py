@@ -1,16 +1,20 @@
-from multiprocessing.connection import wait
+import logging
 import os
-import re
 import sys
 import traceback
-from PySide6.QtCore import QRunnable, Signal, QObject, Slot
-import explorepy
-import explorepy._exceptions as xpy_ex
-import logging
 
-from exploredesktop.modules.app_settings import Messages, Stylesheets
-from exploredesktop.modules.base_model import BaseModel
-from exploredesktop.modules.tools import display_msg, wait_cursor
+import explorepy._exceptions as xpy_ex
+from PySide6.QtCore import (
+    QObject,
+    QRunnable,
+    Signal,
+    Slot
+)
+
+
+from exploredesktop.modules.app_settings import Messages, Stylesheets  # isort: skip
+from exploredesktop.modules.base_model import BaseModel  # isort: skip
+from exploredesktop.modules.tools import display_msg, wait_cursor  # isort: skip
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -50,7 +54,7 @@ class Worker(QRunnable):
             try:
                 result = self.funct(*self.args, **self.kwargs)
             # pylint: disable=bare-except
-            except:
+            except:  # noqa: E722
                 exctype, value = sys.exc_info()[:2]
                 self.signals.error.emit((exctype, value, traceback.format_exc()))
             else:
@@ -129,10 +133,10 @@ class BTFrameView():
             scan (bool, optional): whether is scanning or connecting. Defaults to False.
         """
         self._connect_stylesheet(reset=True)
-        
+
         err_type = err_tuple[0]
         err_msg = err_tuple[1]
-        
+
         if err_type == xpy_ex.DeviceNotFoundError:
             msg = err_msg
             logger.warning("Device not found.")
@@ -177,14 +181,11 @@ class BTFrameView():
 
 
 if __name__ == "__main__":
-    from PySide6 import QtWidgets
-    from PySide6.QtWidgets import QMainWindow
-    from PySide6.QtCore import QThreadPool, Slot
-    import sys
     from exploredesktop.modules import Ui_MainWindow
+    from PySide6 import QtWidgets
+    from PySide6.QtCore import QThreadPool
 
-
-    class MainWindow(QMainWindow):
+    class MainWindow(QtWidgets.QMainWindow):
         """_summary_
 
         Args:
