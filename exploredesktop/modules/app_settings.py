@@ -10,6 +10,9 @@ class EnvVariables(Enum):
     TEMPERATURE = "temperature"
     LIGHT = "light"
 
+    DEVICE_NAME = "device_name"
+    FIRMWARE = "firmware"
+
 
 class ConnectionStatus(Enum):
     """Enum for connection status
