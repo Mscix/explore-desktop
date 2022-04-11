@@ -2,8 +2,8 @@
 """
 Module containing impedance related functionalities
 """
-from enum import Enum
 import logging
+from enum import Enum
 
 import numpy as np
 from explorepy.stream_processor import TOPICS
@@ -13,7 +13,12 @@ from PySide6.QtCore import (
 )
 
 
-from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables, Settings, Stylesheets  # isort: skip
+from exploredesktop.modules.app_settings import (  # isort: skip
+    ConnectionStatus,
+    EnvVariables,
+    Settings,
+    Stylesheets
+)
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
 
 
@@ -29,10 +34,11 @@ class FooterData(BaseModel):
     def __init__(self) -> None:
         self._battery_percent_list = []
 
-    def reset_vars(self) -> None:
+    def reset_vars(self, connection) -> None:
         """reset class variables
         """
-        self._battery_percent_list = []
+        if connection == ConnectionStatus.DISCONNECTED:
+            self._battery_percent_list = []
 
     def env_callback(self, packet) -> None:
         """Update device information.
@@ -40,6 +46,8 @@ class FooterData(BaseModel):
         Args:
             packet (explorepy.packet.Environment): Environment/DeviceInfo packet
         """
+        if not self.explorer.is_connected:
+            return
         new_info = packet.get_data()
         for key in new_info.keys():
             if key == EnvVariables.TEMPERATURE.value:
@@ -66,10 +74,11 @@ class FooterData(BaseModel):
         }
         self.signals.envInfoChanged.emit(data)
 
-    def subscribe_env_callback(self) -> None:
+    def subscribe_env_callback(self, connection) -> None:
         """subscribe env callback to stream processor
         """
-        self.explorer.subscribe(callback=self.env_callback, topic=TOPICS.env)
+        if connection == ConnectionStatus.CONNECTED:
+            self.explorer.subscribe(callback=self.env_callback, topic=TOPICS.env)
 
     def check_connection_status(self) -> None:
         """Check connection status
@@ -114,55 +123,38 @@ class FooterFrameView():
         self.model = model
         self.signals = model.get_signals()
         self.explorer = model.get_explorer()
-        self.signals.envInfoChanged.connect(self.update_env_info)
-        self.signals.connectionStatus.connect(self.print_connection_status)
 
-    def change_footer(self) -> None:
-        """Update footer data
+    def get_model(self):
+        """Retrun impedance model
+
+        Returns:
+            ImpModel: impedance data model
         """
-        hide = False if self.explorer.is_connected else True
-        self.ui.ft_label_firmware.setHidden(hide)
-        self.ui.ft_label_firmware_value.setHidden(hide)
-        self.ui.ft_label_battery.setHidden(hide)
-        self.ui.ft_label_battery_value.setHidden(hide)
-        self.ui.ft_label_temp.setHidden(hide)
-        self.ui.ft_label_temp_value.setHidden(hide)
-
-        if self.explorer.is_connected:
-            dev_name = self.explorer.stream_processor.device_info["device_name"]
-            device_lbl = f"Connected to {dev_name}"
-            firmware = self.explorer.stream_processor.device_info["firmware_version"]
-            self._update_device_name(new_value=device_lbl)
-            self._update_firmware(new_value=firmware)
-        else:
-            device_lbl = "Not connected"
-            self._update_device_name(new_value=device_lbl)
+        return self.model
 
     @Slot(Enum)
     def print_connection_status(self, status: Enum) -> None:
-        """_summary_
+        """Print the connection status in the Footer
 
         Args:
             status (str): Connection status. Can be "Reconnecting", "Connected", "Disconnected"
         """
         reconnecting_label = ConnectionStatus.RECONNECTING.value
         not_connected_label = ConnectionStatus.DISCONNECTED.value
-        connected_label = ConnectionStatus.CONNECTED.value.replace("dev_name", self.model.explorer.device_name)
+        dev_name = self.model.explorer.device_name if self.model.explorer.is_connected else ""
+        connected_label = ConnectionStatus.CONNECTED.value.replace("dev_name", dev_name)
         label_text = self.ui.ft_label_device_3.text()
 
         if status == ConnectionStatus.RECONNECTING and label_text != reconnecting_label:
-            self.ui.ft_label_device_3.setText(reconnecting_label)
-            self.ui.ft_label_device_3.repaint()
+            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: reconnecting_label})
 
         elif status == ConnectionStatus.CONNECTED and label_text != connected_label:
-            self.ui.ft_label_device_3.setText(connected_label)
-            self.ui.ft_label_device_3.repaint()
+            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: connected_label})
 
         elif status == ConnectionStatus.DISCONNECTED and label_text != not_connected_label:
-            self.ui.ft_label_device_3.setText(not_connected_label)
-            self.ui.ft_label_device_3.repaint()
             self.explorer.is_connected = False
-            self.change_footer()
+            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: not_connected_label})
+            self.signals.btnConnectChanged.emit("Connect")
             # TODO: implement functions bellow when all the modules are together
             # self.stop_processes()
             # self.reset_vars()
@@ -190,6 +182,29 @@ class FooterFrameView():
         self._update_battery(new_value=battery, new_stylesheet=stylesheet_battery)
         self._update_temperature(new_value=temperature)
 
+    @Slot(dict)
+    def update_dev_info(self, data: dict) -> None:
+        """Update footer with device information
+
+        Args:
+            data (dict): dictionary of data, must contain keys "device_name" or "firmware"
+        """
+        hide = False if self.explorer.is_connected else True
+        self.ui.ft_label_firmware.setHidden(hide)
+        self.ui.ft_label_firmware_value.setHidden(hide)
+        self.ui.ft_label_battery.setHidden(hide)
+        self.ui.ft_label_battery_value.setHidden(hide)
+        self.ui.ft_label_temp.setHidden(hide)
+        self.ui.ft_label_temp_value.setHidden(hide)
+
+        if len(data) == 0:
+            return
+
+        if EnvVariables.DEVICE_NAME in data:
+            self._update_device_name(data[EnvVariables.DEVICE_NAME])
+        if EnvVariables.FIRMWARE in data:
+            self._update_firmware(data[EnvVariables.FIRMWARE])
+
     def _update_battery(self, new_value, new_stylesheet) -> None:
         self.ui.ft_label_battery_value.setText(new_value)
         self.ui.ft_label_battery_value.setStyleSheet(new_stylesheet)
@@ -199,43 +214,8 @@ class FooterFrameView():
 
     def _update_device_name(self, new_value) -> None:
         self.ui.ft_label_device_3.setText(new_value)
+        self.ui.ft_label_device_3.adjustSize()
+        self.ui.ft_label_device_3.repaint()
 
     def _update_firmware(self, new_value) -> None:
         self.ui.ft_label_firmware_value.setText(new_value)
-
-
-if __name__ == "__main__":
-    import sys
-
-    from exploredesktop.modules import Ui_MainWindow
-    from PySide6 import QtWidgets
-
-    class MainWindow(QtWidgets.QMainWindow):
-        """_summary_
-
-        Args:
-            QtWidgets (_type_): _description_
-        """
-        def __init__(self):
-            super().__init__()
-            self.ui = Ui_MainWindow()
-            # self.ui = Ui_MainWindow()
-            self.ui.setupUi(self)
-            # self.signals = SignalsContainer()
-            self.signals = BaseModel().get_signals()
-
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
-
-            # Footer
-            self.footer_frame = FooterFrameView(self.ui, FooterData())
-            # add dev name and firmware
-            self.footer_frame.change_footer()
-            # update env data
-            self.footer_frame.model.subscribe_env_callback()
-            # start connection status check timer
-            self.footer_frame.model.timer_connection()
-
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
