@@ -48,9 +48,6 @@ class ExploreInterface(Explore):
 
         logger.debug("Device is not connected but the number of active channels method is called.")
         return None
-    # def is_connected(self) -> bool:
-    #     """Connection status property"""
-    #     return self.is_connected
 
     @property
     def is_recording(self) -> bool:
