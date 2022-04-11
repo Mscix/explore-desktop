@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
     """
 
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -111,6 +111,7 @@ class MainWindow(QMainWindow):
         view_box = self.ui.imp_graph_layout.addViewBox()
         view_box.setAspectLocked()
         view_box.addItem(self.imp_graph)
+        view_box.setMouseEnabled(x=False, y=False)
         self.ui.imp_graph_layout.setBackground("transparent")
 
     def style_ui(self):

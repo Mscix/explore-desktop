@@ -40,7 +40,8 @@ class ImpedanceGraph(pg.GraphItem):
         """Initialize impedance graph
         """
         chan_dict = self.model.explorer.get_chan_dict()
-        n_chan = list(chan_dict.values()).count(1)
+        n_chan = self.model.explorer.n_active_chan
+        # n_chan = list(chan_dict.values()).count(1)
         pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
         texts = [f"{key}\nNA" for key in chan_dict if chan_dict[key] == 1]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
@@ -164,7 +165,7 @@ class ImpModel(BaseModel):
             packet (explorepy.packet.imp): Impedance packet
         """
         chan_dict = self.explorer.get_chan_dict()
-        n_chan = list(chan_dict.values()).count(1)
+        n_chan = self.explorer.n_active_chan
 
         imp_values = packet.get_impedances()
         texts = []
