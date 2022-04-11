@@ -4,17 +4,17 @@ Tools/utils for GUI
 Functions:
     get_widget_by_object_name
     display_message
+    wait_cursor
 """
 import logging
+from contextlib import contextmanager
 
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (
     QApplication,
     QMessageBox
 )
-
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QCursor
-from contextlib import contextmanager
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -67,6 +67,7 @@ def display_msg(msg_text: str, title: str = None, popup_type: str = "error"):
     msg.setWindowTitle(wdw_title)
     response = msg.exec()
     return response
+
 
 @contextmanager
 def wait_cursor():
