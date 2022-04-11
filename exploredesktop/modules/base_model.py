@@ -23,7 +23,11 @@ class SignalsContainer(QObject):
 
     # Footer related signals
     envInfoChanged = Signal(dict)
+    devInfoChanged = Signal(dict)
     connectionStatus = Signal(Enum)
+
+    # BT related signals
+    btnConnectChanged = Signal(str)
 
 
 class BaseModel():
@@ -33,9 +37,7 @@ class BaseModel():
     explorer = ExploreInterface()
 
     def __init__(self) -> None:
-        # TODO: the connection will be handled by the Bluetooh module
-        dev_name = "Explore_" + input("Device name to connect (only the XXXX): ")
-        self.explorer.connect(device_name=dev_name)
+        pass
 
     def get_signals(self):
         """Returns model signals
