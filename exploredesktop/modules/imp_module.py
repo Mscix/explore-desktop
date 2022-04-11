@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QMessageBox
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
+    ConnectionStatus,
     ImpModes,
     Messages,
     Settings,
@@ -32,15 +33,12 @@ class ImpedanceGraph(pg.GraphItem):
         super().__init__()
         self.model = model
         self.signals = self.model.get_signals()
-        self.signals.impedanceChanged.connect(self.on_new_data)
-        self.signals.displayDefaultImp.connect(self.display_default_imp)
-        self.display_default_imp()
 
     def display_default_imp(self) -> None:
         """Initialize impedance graph
         """
         chan_dict = self.model.explorer.get_chan_dict()
-        n_chan = list(chan_dict.values()).count(1)
+        n_chan = self.model.explorer.n_active_chan
         pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
         texts = [f"{key}\nNA" for key in chan_dict if chan_dict[key] == 1]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
@@ -109,7 +107,7 @@ class ImpModel(BaseModel):
     """
     def __init__(self) -> None:
         # super().__init__()
-        self.mode = "wet"
+        self.mode = ImpModes.WET
 
     def get_stylesheet(self, value: str) -> str:
         """Get stylesheet based on impedance value
@@ -120,7 +118,7 @@ class ImpModel(BaseModel):
         Returns:
             str: stylesheet corresponding to input value
         """
-        rules_dict = Settings.COLOR_RULES_DRY if self.mode == "dry" else Settings.COLOR_RULES_WET
+        rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
             imp_stylesheet = Stylesheets.GRAY_IMPEDANCE_STYLESHEET
         elif float(value) > rules_dict["red"]:
@@ -150,8 +148,8 @@ class ImpModel(BaseModel):
             str_value = "5 K\u03A9"
             # str_value = "\u003C 5 K\u03A9"
             # str_value = "<5 K\u03A9"
-        elif (self.mode == "wet" and value > Settings.COLOR_RULES_WET["open"]) or \
-                (self.mode == "dry" and value > Settings.COLOR_RULES_DRY["open"]):
+        elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
+                (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
             str_value = "Open"
         else:
             str_value = str(int(round(value, 0))) + " K\u03A9"
@@ -164,7 +162,7 @@ class ImpModel(BaseModel):
             packet (explorepy.packet.imp): Impedance packet
         """
         chan_dict = self.explorer.get_chan_dict()
-        n_chan = list(chan_dict.values()).count(1)
+        n_chan = self.explorer.n_active_chan
 
         imp_values = packet.get_impedances()
         texts = []
@@ -186,13 +184,14 @@ class ImpModel(BaseModel):
         Args:
             text (str): electordes mode
         """
-        self.mode = "dry" if text == ImpModes.DRY.value else "wet"
+        self.mode = ImpModes.DRY if text == ImpModes.DRY.value else ImpModes.WET
         logger.debug("Impedance measurement mode has been changed to %s", self.mode)
 
-    def reset_vars(self) -> None:
+    def reset_vars(self, connection) -> None:
         """reset class variables
         """
-        self.mode = "wet"
+        if connection == ConnectionStatus.DISCONNECTED:
+            self.mode = ImpModes.WET
 
 
 class ImpFrameView():
@@ -207,6 +206,16 @@ class ImpFrameView():
         self.explorer = imp_model.get_explorer()
 
         self.set_dropdown()
+
+    def setup_ui_connections(self) -> None:
+        """_summary_
+        """
+        # change impedance mode
+        self.ui.imp_mode.currentTextChanged.connect(self.model.set_mode)
+        # start/stop impedance measurement
+        self.ui.btn_imp_meas.clicked.connect(self.measure_imp_clicked)
+        # question mark button clicked
+        self.ui.imp_meas_info.clicked.connect(self.imp_info_clicked)
 
     def set_dropdown(self) -> None:
         """Initialize dropdowns
