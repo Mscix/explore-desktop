@@ -186,6 +186,13 @@ class BTFrameView():
 
         self.ui.list_devices.addItems(devs)
 
+    def enable_scanning(self, connection):
+        """Enable scanning for devices only if device is not connected"""
+        if connection == ConnectionStatus.DISCONNECTED:
+            self.ui.btn_scan.setEnabled(True)
+        else:
+            self.ui.btn_scan.setEnabled(False)
+
     @Slot()
     def connection_error(self, err_tuple: tuple) -> None:
         """
@@ -297,11 +304,9 @@ class BTFrameView():
             firmware = self.explorer.stream_processor.device_info["firmware_version"]
             data = {EnvVariables.DEVICE_NAME: device_lbl, EnvVariables.FIRMWARE: firmware}
             self.signals.devInfoChanged.emit(data)
-            self.ui.btn_scan.setEnabled(False)
 
         else:
             self.signals.btnConnectChanged.emit("Connect")
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
             data = {EnvVariables.DEVICE_NAME: "Not Connected"}
             self.signals.devInfoChanged.emit(data)
-            self.ui.btn_scan.setEnabled(True)

@@ -127,6 +127,7 @@ class MainWindow(QMainWindow):
         self.signals.connectionStatus.connect(self.footer_frame.get_model().subscribe_env_callback)
         self.signals.connectionStatus.connect(self.footer_frame.get_model().reset_vars)
         self.signals.connectionStatus.connect(self.imp_frame.get_model().reset_vars)
+        self.signals.connectionStatus.connect(self.bt_frame.enable_scanning)
 
         self.signals.impedanceChanged.connect(self.imp_frame.get_graph().on_new_data)
         self.signals.displayDefaultImp.connect(self.imp_frame.get_graph().display_default_imp)
