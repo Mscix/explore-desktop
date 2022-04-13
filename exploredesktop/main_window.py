@@ -28,7 +28,7 @@ from PySide6.QtWidgets import (
     QSizeGrip
 )
 from exploredesktop.modules.bt_module import BTFrameView
-from exploredesktop.modules.footer_module import FooterData, FooterFrameView
+from exploredesktop.modules.footer_module import FooterFrameView
 
 
 from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # isort: skip
@@ -59,9 +59,6 @@ class MainWindow(QMainWindow, BaseModel):
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle('ExploreDesktop')
-
-        # threadpool
-        self.threadpool = QThreadPool()
 
         # Style UI
         self.style_ui()

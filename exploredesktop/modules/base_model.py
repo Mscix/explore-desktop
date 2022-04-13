@@ -37,7 +37,7 @@ class BaseModel():
     signals = SignalsContainer()
     explorer = ExploreInterface()
     threadpool = QThreadPool()
-    
+
     def __init__(self) -> None:
         pass
 

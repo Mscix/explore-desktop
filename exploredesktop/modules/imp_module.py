@@ -106,7 +106,7 @@ class ImpModel(BaseModel):
     """Impedance model
     """
     def __init__(self) -> None:
-        # super().__init__()
+        super().__init__()
         self.mode = ImpModes.WET
 
     def get_stylesheet(self, value: str) -> str:
