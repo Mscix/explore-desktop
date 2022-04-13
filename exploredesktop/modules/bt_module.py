@@ -106,11 +106,15 @@ class BTFrameView():
 
         # Change footer and button
         self._connect_stylesheet(device_name=device_name)
-        # TODO disable connect button and enable when finished
+        self.ui.btn_connect.setEnabled(False)
+
         worker = Worker(self.explorer.connect, device_name=device_name)
         worker.signals.error.connect(self.connection_error)
+
         worker.signals.finished.connect(lambda: self._connect_stylesheet(reset=True))
         worker.signals.finished.connect(self.on_connection_change)
+        worker.signals.finished.connect(lambda: self.ui.btn_connect.setEnabled(True))
+
         self.threadpool.start(worker)
 
     def disconnect(self):
@@ -144,11 +148,15 @@ class BTFrameView():
 
         # Change footer and scan button
         self._scan_stylesheet()
+        self.ui.btn_scan.setEnabled(False)
 
         worker = Worker(self.explorer.scan_devices)
         worker.signals.result.connect(self.add_scanned_devices)
         worker.signals.error.connect(self.scan_error)
+
         worker.signals.finished.connect(lambda: self._scan_stylesheet(reset=True))
+        worker.signals.finished.connect(lambda: self.ui.btn_scan.setEnabled(True))
+
         self.threadpool.start(worker)
 
     @Slot(list)
@@ -244,15 +252,17 @@ class BTFrameView():
         """
         lbl_footer = "Not connected" if reset else f"Connecting to {device_name}..."
         btn_txt = "Connect" if reset else "Connecting"
-        btn_stylesheet = "" if reset else Stylesheets.DISABLED_BTN_STYLESHEET
+        # btn_stylesheet = "" if reset else Stylesheets.DISABLED_BTN_STYLESHEET
 
         # Set footer
         self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: lbl_footer})
 
         # Set button
         self.signals.btnConnectChanged.emit(btn_txt)
-        self.ui.btn_connect.setStyleSheet(btn_stylesheet)
+        # TODO: decide which stylesheet to apply
+        # self.ui.btn_connect.setStyleSheet(btn_stylesheet)
 
+        # TODO: decide if we need to display the warning
         # If platform is windows, add instructions
         # if os.name == "nt":
         #     self.ui.lbl_bt_instructions.setText(Messages.WINDOWS_PAIR_INSTRUCTIONS)
@@ -265,14 +275,15 @@ class BTFrameView():
         """
         lbl_footer = "Not connected" if reset else "Scanning ..."
         btn_txt = "Scan" if reset else "Scanning"
-        btn_stylesheet = "" if reset else Stylesheets.DISABLED_BTN_STYLESHEET
+        # btn_stylesheet = "" if reset else Stylesheets.DISABLED_BTN_STYLESHEET
 
         # Set footer
         self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: lbl_footer})
 
         # Set button
         self.ui.btn_scan.setText(btn_txt)
-        self.ui.btn_scan.setStyleSheet(btn_stylesheet)
+        # TODO: decide which stylesheet to apply
+        # self.ui.btn_scan.setStyleSheet(btn_stylesheet)
 
     def on_connection_change(self):
         """_summary"""
