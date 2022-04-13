@@ -32,6 +32,7 @@ class FooterData(BaseModel):
         BaseModel (_type_): _description_
     """
     def __init__(self) -> None:
+        super().__init__()
         self._battery_percent_list = []
 
     def reset_vars(self, connection) -> None:
@@ -118,11 +119,13 @@ class FooterData(BaseModel):
 class FooterFrameView():
     """Footer frame functions
     """
-    def __init__(self, ui, model) -> None:
+    def __init__(self, ui) -> None:
         self.ui = ui
-        self.model = model
-        self.signals = model.get_signals()
-        self.explorer = model.get_explorer()
+        self.model = FooterData()
+        self.signals = self.model.get_signals()
+        self.explorer = self.model.get_explorer()
+
+        self.model.timer_connection()
 
     def get_model(self):
         """Retrun impedance model
