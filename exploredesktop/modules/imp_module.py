@@ -182,7 +182,7 @@ class ImpModel(BaseModel):
         """Set impedance mode
 
         Args:
-            text (str): electordes mode
+            text (str): electrodes mode
         """
         self.mode = ImpModes.DRY if text == ImpModes.DRY.value else ImpModes.WET
         logger.debug("Impedance measurement mode has been changed to %s", self.mode)
@@ -198,14 +198,33 @@ class ImpFrameView():
     """
     Impedance frame functions
     """
-    def __init__(self, ui, imp_model) -> None:
+    def __init__(self, ui) -> None:
         self.ui = ui
 
-        self.model = imp_model
-        self.signals = imp_model.get_signals()
-        self.explorer = imp_model.get_explorer()
+        self.imp_graph = ImpedanceGraph(ImpModel())
+        self.model = self.imp_graph.get_model()
+        self.signals = self.model.get_signals()
+        self.explorer = self.model.get_explorer()
 
         self.set_dropdown()
+        self.setup_imp_graph()
+
+    def get_model(self):
+        """Return impedance model"""
+        return self.model
+
+    def get_graph(self):
+        """Return impedance graph
+        """
+        return self.imp_graph
+
+    def setup_imp_graph(self):
+        """Add impedance graph to GraphicsLayoutWidget
+        """
+        view_box = self.ui.imp_graph_layout.addViewBox()
+        view_box.setAspectLocked()
+        view_box.addItem(self.imp_graph)
+        self.ui.imp_graph_layout.setBackground("transparent")
 
     def setup_ui_connections(self) -> None:
         """_summary_

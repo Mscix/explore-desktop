@@ -39,11 +39,8 @@ from exploredesktop.modules import (  # isort: skip
     BaseModel,
     Stylesheets
 )
-from exploredesktop.modules.imp_module import (  # isort: skip
-    ImpedanceGraph,
-    ImpFrameView,
-    ImpModel
-)
+from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
+
 
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
@@ -81,7 +78,6 @@ class MainWindow(QMainWindow):
         self.ui.btn_left_menu_toggle.clicked.connect(self.slide_left_menu)
 
         # Stacked pages - default open connect or home if permissions are not set
-        # TODO change impedance page to bt page
         existing_permission = self.check_permissions()
         if existing_permission:
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
@@ -100,11 +96,7 @@ class MainWindow(QMainWindow):
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
 
         # IMPEDANCE PAGE
-        self.imp_graph = ImpedanceGraph(ImpModel())
-        self.setup_imp_graph()
-
-        # ImpFrame
-        self.imp_frame = ImpFrameView(self.ui, self.imp_graph.get_model())
+        self.imp_frame = ImpFrameView(self.ui)
         self.imp_frame.setup_ui_connections()
 
         # BLUETOOTH PAGE
@@ -122,7 +114,7 @@ class MainWindow(QMainWindow):
     # UI Functions
     #########################
     def setup_signal_connections(self):
-        """_summary_
+        """connect custom signals to corresponding slots
         """
         # change button text
         self.signals.btnImpMeasureChanged.connect(self.ui.btn_imp_meas.setText)
@@ -134,18 +126,10 @@ class MainWindow(QMainWindow):
         self.signals.connectionStatus.connect(self.footer_frame.print_connection_status)
         self.signals.connectionStatus.connect(self.footer_frame.get_model().subscribe_env_callback)
         self.signals.connectionStatus.connect(self.footer_frame.get_model().reset_vars)
-        self.signals.connectionStatus.connect(self.imp_graph.get_model().reset_vars)
+        self.signals.connectionStatus.connect(self.imp_frame.get_model().reset_vars)
 
-        self.signals.impedanceChanged.connect(self.imp_graph.on_new_data)
-        self.signals.displayDefaultImp.connect(self.imp_graph.display_default_imp)
-
-    def setup_imp_graph(self):
-        """Add impedance graph to GraphicsLayoutWidget
-        """
-        view_box = self.ui.imp_graph_layout.addViewBox()
-        view_box.setAspectLocked()
-        view_box.addItem(self.imp_graph)
-        self.ui.imp_graph_layout.setBackground("transparent")
+        self.signals.impedanceChanged.connect(self.imp_frame.get_graph().on_new_data)
+        self.signals.displayDefaultImp.connect(self.imp_frame.get_graph().display_default_imp)
 
     def style_ui(self):
         """Initial style for UI
