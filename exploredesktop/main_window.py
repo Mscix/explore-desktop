@@ -37,9 +37,11 @@ from exploredesktop.modules import (  # isort: skip
     Settings,
     Ui_MainWindow,
     BaseModel,
-    Stylesheets
+    Stylesheets,
+    base_model
 )
-from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
+from exploredesktop.modules.imp_module import ImpFrameView
+from exploredesktop.modules.settings_module import SettingsFrameView  # isort: skip
 
 
 VERSION_APP = exploredesktop.__version__
@@ -63,6 +65,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('ExploreDesktop')
 
         # define signals and their connections to slots
+        # base_model = BaseModel()
         self.signals = BaseModel().get_signals()
 
         # threadpool
@@ -108,6 +111,10 @@ class MainWindow(QMainWindow):
         # start connection status check timer
         self.footer_frame.model.timer_connection()
 
+        # SETTINGS PAGE
+        self.settings_frame = SettingsFrameView(self.ui, BaseModel(), self.threadpool)
+        self.settings_frame.setup_ui_connections()
+        # signal connections
         self.setup_signal_connections()
 
     #########################
@@ -124,9 +131,11 @@ class MainWindow(QMainWindow):
         self.signals.devInfoChanged.connect(self.footer_frame.update_dev_info)
 
         self.signals.connectionStatus.connect(self.footer_frame.print_connection_status)
-        self.signals.connectionStatus.connect(self.footer_frame.get_model().subscribe_env_callback)
-        self.signals.connectionStatus.connect(self.footer_frame.get_model().reset_vars)
-        self.signals.connectionStatus.connect(self.imp_frame.get_model().reset_vars)
+
+        self.signals.connectionChanged.connect(self.footer_frame.get_model().subscribe_env_callback)
+        self.signals.connectionChanged.connect(self.footer_frame.get_model().reset_vars)
+        self.signals.connectionChanged.connect(self.imp_frame.get_model().reset_vars)
+        self.signals.connectionChanged.connect(self.settings_frame.setup_settings_frame)
 
         self.signals.impedanceChanged.connect(self.imp_frame.get_graph().on_new_data)
         self.signals.displayDefaultImp.connect(self.imp_frame.get_graph().display_default_imp)
@@ -194,7 +203,7 @@ class MainWindow(QMainWindow):
             "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
 
         # Temp code:
-        implemented_pages = ["btn_home", "btn_impedance", "btn_bt"]
+        implemented_pages = ["btn_home", "btn_impedance", "btn_bt", "btn_settings"]
 
         if btn_name not in implemented_pages:
             display_msg("still not implemented")

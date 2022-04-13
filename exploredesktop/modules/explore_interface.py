@@ -128,7 +128,7 @@ class ExploreInterface(Explore):
         timestamp, _ = packet.get_data(exg_fs)
         self.device_chan = 4 if timestamp.shape[0] == 33 else 8
 
-    def get_n_chan(self) -> int:
+    def get_device_chan(self) -> int:
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
         return self.device_chan
 

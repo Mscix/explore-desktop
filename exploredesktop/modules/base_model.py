@@ -24,10 +24,17 @@ class SignalsContainer(QObject):
     # Footer related signals
     envInfoChanged = Signal(dict)
     devInfoChanged = Signal(dict)
-    connectionStatus = Signal(Enum)
 
     # BT related signals
     btnConnectChanged = Signal(str)
+    
+    # Connection related status
+    connectionStatus = Signal(Enum)
+    connectionChanged = Signal(Enum)
+
+    # Settings related status
+    activeChanChanged = Signal(dict)
+    srChanged = Signal(int)
 
 
 class BaseModel():
