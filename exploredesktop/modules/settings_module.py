@@ -38,6 +38,8 @@ class SettingsFrameView():
         for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
             ch_wdgt.stateChanged.connect(self.one_chan_selected)
 
+        self.ui.value_sampling_rate.currentTextChanged.connect(self.display_sr_warning)
+
     def setup_settings_frame(self, connection=ConnectionStatus.CONNECTED):
         """Setup the settings frame
         """
@@ -79,4 +81,11 @@ class SettingsFrameView():
                 ch_wdgt.setEnabled(True)
                 ch_wdgt.setToolTip("")
 
-        
+    @Slot()
+    def display_sr_warning(self):
+        """Display warning for 1000 Hz sampling rate
+        """
+        if int(self.ui.value_sampling_rate.currentText()) == 1000:
+            self.ui.lbl_sr_warning.show()
+        else:
+            self.ui.lbl_sr_warning.hide()
