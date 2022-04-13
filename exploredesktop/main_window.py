@@ -56,7 +56,7 @@ class MainWindow(QMainWindow):
     """
 
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)

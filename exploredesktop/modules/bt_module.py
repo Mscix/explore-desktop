@@ -187,6 +187,13 @@ class BTFrameView():
 
         self.ui.list_devices.addItems(devs)
 
+    def enable_scanning(self, connection):
+        """Enable scanning for devices only if device is not connected"""
+        if connection == ConnectionStatus.DISCONNECTED:
+            self.ui.btn_scan.setEnabled(True)
+        else:
+            self.ui.btn_scan.setEnabled(False)
+
     @Slot()
     def connection_error(self, err_tuple: tuple) -> None:
         """
