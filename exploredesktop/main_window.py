@@ -28,7 +28,7 @@ from PySide6.QtWidgets import (
     QSizeGrip
 )
 from exploredesktop.modules.bt_module import BTFrameView
-from exploredesktop.modules.footer_module import FooterData, FooterFrameView
+from exploredesktop.modules.footer_module import FooterFrameView
 
 
 from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # isort: skip
@@ -48,11 +48,9 @@ VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, BaseModel):
     """
     Main window class. Connect signals and slots
-    Args:
-        QMainWindow (PySide.QtWidget.QMainWindow): MainWindow widget
     """
 
     def __init__(self):
@@ -63,13 +61,6 @@ class MainWindow(QMainWindow):
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle('ExploreDesktop')
-
-        # define signals and their connections to slots
-        # base_model = BaseModel()
-        self.signals = BaseModel().get_signals()
-
-        # threadpool
-        self.threadpool = QThreadPool()
 
         # Style UI
         self.style_ui()
@@ -103,13 +94,11 @@ class MainWindow(QMainWindow):
         self.imp_frame.setup_ui_connections()
 
         # BLUETOOTH PAGE
-        self.bt_frame = BTFrameView(self.ui, BaseModel(), self.threadpool)
+        self.bt_frame = BTFrameView(self.ui)
         self.bt_frame.setup_ui_connections()
 
         # FOOTER
-        self.footer_frame = FooterFrameView(self.ui, FooterData())
-        # start connection status check timer
-        self.footer_frame.model.timer_connection()
+        self.footer_frame = FooterFrameView(self.ui)
 
         # SETTINGS PAGE
         self.settings_frame = SettingsFrameView(self.ui, BaseModel(), self.threadpool)
@@ -353,8 +342,10 @@ class MainWindow(QMainWindow):
         self.ui.btn_close.clicked.connect(self.close)
 
     def close(self) -> bool:
+        """actions to perform on close
+        """
         # TODO: add other actions to perform on close, e.g. stop timers
-        self.threadpool.waitForDone()
+        QThreadPool().globalInstance().waitForDone()
         return super().close()
 
     def set_permissions(self):

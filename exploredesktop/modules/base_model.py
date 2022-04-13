@@ -7,7 +7,8 @@ Classes:
 from enum import Enum
 from PySide6.QtCore import (
     QObject,
-    Signal
+    Signal,
+    QThreadPool
 )
 
 from exploredesktop.modules.explore_interface import ExploreInterface  # isort: skip
@@ -42,6 +43,7 @@ class BaseModel():
     """
     signals = SignalsContainer()
     explorer = ExploreInterface()
+    threadpool = QThreadPool()
 
     def __init__(self) -> None:
         pass
