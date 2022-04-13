@@ -11,22 +11,24 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     Messages,
     Stylesheets
 )
+from exploredesktop.modules.base_model import BaseModel
 from exploredesktop.modules.tools import display_msg  # isort: skip
 from exploredesktop.modules.worker import Worker  # isort: skip
 
 logger = logging.getLogger("explorepy." + __name__)
 
 
-class BTFrameView():
+class BTFrameView(BaseModel):
     """_summary_
     """
-    def __init__(self, ui, model, threadpool) -> None:
+    def __init__(self, ui) -> None:
+        super().__init__()
         self.ui = ui
-        self.model = model
-        self.threadpool = threadpool
+        # self.model = model
+        # self.threadpool = threadpool
 
-        self.signals = model.get_signals()
-        self.explorer = model.get_explorer()
+        # self.signals = model.get_signals()
+        # self.explorer = model.get_explorer()
 
     def setup_ui_connections(self) -> None:
         """_summary_
@@ -116,6 +118,7 @@ class BTFrameView():
         worker.signals.finished.connect(lambda: self.ui.btn_connect.setEnabled(True))
 
         self.threadpool.start(worker)
+        # self.threadpool.start(worker)
 
     def disconnect(self):
         """Disconnect from explore device"""
