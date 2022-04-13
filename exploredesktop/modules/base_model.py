@@ -4,11 +4,12 @@ Classes:
     BaseModel
     SignalsConatiner
 """
-import explorepy
 from PySide6.QtCore import (
     QObject,
     Signal
 )
+
+from exploredesktop.modules.explore_interface import ExploreInterface  # isort: skip
 
 
 class SignalsContainer(QObject):
@@ -28,12 +29,11 @@ class BaseModel():
     """Base class for models
     """
     signals = SignalsContainer()
-    # TODO: change to explore interface
-    explorer = explorepy.Explore()
+    explorer = ExploreInterface()
 
     def __init__(self) -> None:
         # TODO: the connection will be handled by the Bluetooh module
-        dev_name = input("Device name to connect: ")
+        dev_name = "Explore_" + input("Device name to connect (only the XXXX): ")
         self.explorer.connect(device_name=dev_name)
 
     def get_signals(self):

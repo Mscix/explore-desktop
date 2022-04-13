@@ -3,28 +3,25 @@
 Module containing impedance related functionalities
 """
 import logging
+
 import numpy as np
 import pyqtgraph as pg
-
-from explorepy.stream_processor import TOPICS
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QMessageBox
 
-from exploredesktop.modules import (  # isort: skip
+
+from exploredesktop.modules.app_settings import (  # isort: skip
+    ImpModes,
     Messages,
     Settings,
     Stylesheets,
-    BaseModel
 )
 from exploredesktop.modules.tools import display_msg  # isort: skip
-
+from exploredesktop.modules.base_model import BaseModel  # isort: skip
 
 # Enable antialiasing for prettier plots
 pg.setConfigOptions(antialias=True)
 logger = logging.getLogger("explorepy." + __name__)
-
-n_chan = int(input("Number of channels (4/8): "))
-# TODO: get n_chan from explorer interface
 
 
 class ImpedanceGraph(pg.GraphItem):
@@ -42,11 +39,13 @@ class ImpedanceGraph(pg.GraphItem):
     def display_default_imp(self) -> None:
         """Initialize impedance graph
         """
-        # TODO: change n_chan to depend on explore active channels
-        # TODO; change texts to depend on explore active channels
+        chan_dict = self.model.explorer.get_chan_dict()
+        n_chan = self.model.explorer.n_active_chan
+        # n_chan = list(chan_dict.values()).count(1)
         pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
-        texts = [f"Ch{i}\nNA" for i in range(1, n_chan + 1)]
+        texts = [f"{key}\nNA" for key in chan_dict if chan_dict[key] == 1]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
+
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
 
     def get_model(self):
@@ -66,13 +65,13 @@ class ImpedanceGraph(pg.GraphItem):
         """
         text = kwds.pop('text', [])
         data = kwds
-
         if 'pos' in data:
             npts = data['pos'].shape[0]
             data['data'] = np.empty(npts, dtype=[('index', int)])
             data['data']['index'] = np.arange(npts)
         self.set_texts(text)
-        super().setData(**data, symbols=['o' for i in range(n_chan)], size=2, pxMode=False)
+        symbols = ['o'] * len(text)
+        super().setData(**data, symbols=symbols, size=2, pxMode=False)
         for id_item, item in enumerate(self.text_items):
             item.setPos(*data['pos'][id_item])
 
@@ -165,39 +164,22 @@ class ImpModel(BaseModel):
         Args:
             packet (explorepy.packet.imp): Impedance packet
         """
-        # TODO: change n_chan to depend on explore active channels
+        chan_dict = self.explorer.get_chan_dict()
+        n_chan = self.explorer.n_active_chan
+
         imp_values = packet.get_impedances()
         texts = []
         brushes = []
         pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
-
-        # for chan, value in zip(active_chan, imp_values):
-        for chan, value in enumerate(imp_values):
+        # for chan, value in zip([key for key in chan_dict if chan_dict[key] == 1], imp_values):
+        for chan, value in zip([item[0] for item in chan_dict.items() if item[1]], imp_values):
             value = value / 2
             brushes.append(self.get_stylesheet(value))
             value = self.format_imp_value(value)
-            # TODO: change to depend on active channels
-            texts.append(f"ch{chan+1}\n{value}")
+            texts.append(f"{chan}\n{value}")
 
         data = {"texts": texts, "brushes": brushes, "pos": pos}
         self.signals.impedanceChanged.emit(data)
-
-    def subscribe_callback(self, stream_processor) -> None:
-        """Subscribe impedance callback to explorepy stream_processor
-
-        Args:
-            stream_processor (_type_): _description_
-        """
-        stream_processor.imp_initialize(notch_freq=50)
-        stream_processor.subscribe(callback=self.imp_callback, topic=TOPICS.imp)
-
-    def unsubscribe_callback(self, stream_processor) -> None:
-        """Unsubscribe impedance callback from explorepy stream_processor
-
-        Args:
-            stream_processor (_type_): _description_
-        """
-        stream_processor.unsubscribe(callback=self.imp_callback, topic=TOPICS.imp)
 
     def set_mode(self, text: str) -> None:
         """Set impedance mode
@@ -205,7 +187,7 @@ class ImpModel(BaseModel):
         Args:
             text (str): electordes mode
         """
-        self.mode = "dry" if text == "Dry electrodes" else "wet"  # TODO: check if enum is supported by qt combobox
+        self.mode = "dry" if text == ImpModes.DRY.value else "wet"
         logger.debug("Impedance measurement mode has been changed to %s", self.mode)
 
     def reset_vars(self) -> None:
@@ -221,41 +203,33 @@ class ImpFrameView():
     def __init__(self, ui, imp_model) -> None:
         self.ui = ui
 
-        # TODO: replace linee below with ExploreInterface
-        self.is_imp_measuring = False
-
         self.model = imp_model
         self.signals = imp_model.get_signals()
         self.explorer = imp_model.get_explorer()
 
-        self.init_view()
+        self.set_dropdown()
 
-    def init_view(self) -> None:
+    def set_dropdown(self) -> None:
         """Initialize dropdowns
         """
-        self.ui.imp_mode.addItems(["Wet electrodes", "Dry electrodes"])
+        self.ui.imp_mode.addItems(ImpModes.all_values())
 
     def disable_imp(self) -> None:
         """
         Disable impedance measurement and reset GUI
         """
-        # TODO: change to interface flag
         if not self.explorer.is_connected:
             return
-        self.model.unsubscribe_callback(self.explorer.stream_processor)
-        self.explorer.stream_processor.disable_imp()
+        self.explorer.disable_imp(self.model.imp_callback)
         self.signals.btnImpMeasureChanged.emit("Measure Impedances")
         self.signals.displayDefaultImp.emit()
-        self.is_imp_measuring = False
 
     @Slot()
     def measure_imp_clicked(self) -> None:
         """
         Slot to run when button impedance measurement is clicked
         """
-        # TODO: move check to explorer
-        # if self.explorer.is_imp_measuring:
-        if self.is_imp_measuring:
+        if self.explorer.is_measuring_imp:
             self.disable_imp()
             return
 
@@ -264,8 +238,7 @@ class ImpFrameView():
             return
 
         self.signals.btnImpMeasureChanged.emit("Stop")
-        self.model.subscribe_callback(self.explorer.stream_processor)
-        self.is_imp_measuring = True
+        self.explorer.measure_imp(self.model.imp_callback)
 
     def verify_s_rate(self) -> bool:
         """Check whether sampling rate is set to 250Hz. If not, ask the user if they want to change it
@@ -274,9 +247,7 @@ class ImpFrameView():
             bool: whether sampling rate is 250Hz
         """
         accept = True
-        # TODO: replace (uncomment) with interface method
-        # s_rate = self.explorer.get_sampling_rate()
-        s_rate = self.explorer.stream_processor.device_info['sampling_rate']
+        s_rate = self.explorer.sampling_rate
         if s_rate != 250:
             accept = self.ask_change_s_rate(s_rate)
         return accept
@@ -296,11 +267,10 @@ class ImpFrameView():
         if response == QMessageBox.StandardButton.Yes:
             self.explorer.set_sampling_rate(sampling_rate=250)
             self.ui.value_sampling_rate.setCurrentText(str(250))
-            # emit signal to change ui or not necessary if settings frame is updated everytime the user access it
             changed = True
         return changed
 
-    # # TODO: implement later when implementing page navigation (change_page in main window)
+    # TODO: implement later when implementing page navigation (change_page in main window)
     # def check_is_imp(self):
     #     """
     #     Check if impedance measurement is active.
@@ -316,7 +286,8 @@ class ImpFrameView():
 
     #     return disabled
 
-    def imp_info_clicked(self) -> None:
+    @staticmethod
+    def imp_info_clicked() -> None:
         """Display message when impedance question mark is clicked
         """
         display_msg(Messages.IMP_INFO, popup_type="info")

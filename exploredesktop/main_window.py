@@ -1,5 +1,4 @@
-"""Main Application
-"""
+"""Main Application"""
 import os
 import sys
 
@@ -7,7 +6,6 @@ from explorepy.log_config import (
     read_config,
     write_config
 )
-
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
@@ -16,12 +14,11 @@ from PySide6.QtCore import (
     QTimer,
     Slot
 )
-
 from PySide6.QtGui import (
     QColor,
     QFont,
-    QIcon)
-
+    QIcon
+)
 from PySide6.QtWidgets import (
     QApplication,
     QGraphicsDropShadowEffect,
@@ -30,17 +27,16 @@ from PySide6.QtWidgets import (
     QSizeGrip
 )
 
+
 from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # isort: skip
 import exploredesktop  # isort: skip
 from exploredesktop.modules import (  # isort: skip
     Settings,
     Ui_MainWindow,
     BaseModel,
-    ImpFrameView,
-    ImpedanceGraph,
-    ImpModel,
     Stylesheets
 )
+from exploredesktop.modules.imp_module import ImpedanceGraph, ImpFrameView, ImpModel  # isort: skip
 
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
@@ -54,7 +50,7 @@ class MainWindow(QMainWindow):
     """
 
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -115,6 +111,7 @@ class MainWindow(QMainWindow):
         view_box = self.ui.imp_graph_layout.addViewBox()
         view_box.setAspectLocked()
         view_box.addItem(self.imp_graph)
+        view_box.setMouseEnabled(x=False, y=False)
         self.ui.imp_graph_layout.setBackground("transparent")
 
     def style_ui(self):

@@ -16,6 +16,9 @@ from explorepy.stream_processor import TOPICS
 from explorepy.tools import bt_scan
 
 
+from exploredesktop.modules.app_settings import Settings  # isort: skip
+
+
 logger = logging.getLogger("explorepy." + __name__)
 
 
@@ -24,7 +27,7 @@ class ExploreInterface(Explore):
     def __init__(self):
         super().__init__()
         self.is_measuring_imp = False
-        self.n_chan = None
+        self.device_chan = None
 
         self.chan_dict = {}
 
@@ -38,9 +41,13 @@ class ExploreInterface(Explore):
         return None
 
     @property
-    def is_connected(self) -> bool:
-        """Connection status property"""
-        return self.is_connected
+    def n_active_chan(self) -> Optional[int]:
+        """Retruns number of active channels"""
+        if self.is_connected:
+            return sum(self.stream_processor.device_info['adc_mask'])
+
+        logger.debug("Device is not connected but the number of active channels method is called.")
+        return None
 
     @property
     def is_recording(self) -> bool:
@@ -83,10 +90,25 @@ class ExploreInterface(Explore):
 
         # Find if the device is 4-ch or 8-ch
         self.subscribe(topic=TOPICS.raw_ExG, callback=self._set_n_chan)
-        while self.n_chan is None:
+        while self.device_chan is None:
             time.sleep(.05)
         self.unsubscribe(topic=TOPICS.raw_ExG, callback=self._set_n_chan)
+
+        # Set channel status
+        self.set_chan_dict()
         return True
+
+    def set_chan_dict(self):
+        """Set the channel status dictionary i.e. whether channels are active or inactive
+        """
+        if self.is_connected:
+            chan_mask = list(reversed(self.stream_processor.device_info['adc_mask']))
+            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], chan_mask))
+
+    def get_chan_dict(self) -> dict:
+        """Retrun channel status dictionary
+        """
+        return self.chan_dict
 
     def _set_n_chan(self, packet: explorepy.packet.EEG) -> None:
         """Set the number of channels i.e. device type (4-ch or 8-ch)
@@ -96,11 +118,11 @@ class ExploreInterface(Explore):
         """
         exg_fs = self.stream_processor.device_info['sampling_rate']
         timestamp, _ = packet.get_data(exg_fs)
-        self.n_chan = 4 if timestamp.shape[0] == 33 else 8
+        self.device_chan = 4 if timestamp.shape[0] == 33 else 8
 
     def get_n_chan(self) -> int:
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
-        return self.n_chan
+        return self.device_chan
 
     def measure_imp(self, imp_callback: Callable) -> bool:
         """Activate impedance measurement mode and subscribe to impedance topic"""
@@ -115,8 +137,8 @@ class ExploreInterface(Explore):
 
     def disable_imp(self, imp_callback: Callable) -> bool:
         """Disable impedance measurement mode and unsubscribe from impedance topic"""
+        self.unsubscribe(callback=imp_callback, topic=TOPICS.imp)
         if self.stream_processor.disable_imp():
-            self.unsubscribe(callback=imp_callback, topic=TOPICS.imp)
             self.is_measuring_imp = False
             return True
 

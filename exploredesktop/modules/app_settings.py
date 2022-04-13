@@ -1,3 +1,21 @@
+"""Module with app settings, stylesheets and messages displayed in the app
+"""
+from enum import Enum
+
+
+class ImpModes(Enum):
+    """Enum for impedance measuring modes
+    """
+    WET = "Wet Electrodes"
+    DRY = "Dry Electrodes"
+
+    @classmethod
+    def all_values(cls):
+        """Returns a list of all the values in the Enumeration
+        """
+        return [m.value for m in cls]
+
+
 class Stylesheets():
     """
     Class containig stylesheets for GUI
