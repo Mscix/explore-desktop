@@ -179,6 +179,7 @@ class FooterFrameView():
         battery, stylesheet_battery = data[EnvVariables.BATTERY]
         temperature = data[EnvVariables.TEMPERATURE]
 
+        battery = battery + "%" if battery != "NA" else battery
         self._update_battery(new_value=battery, new_stylesheet=stylesheet_battery)
         self._update_temperature(new_value=temperature)
 
