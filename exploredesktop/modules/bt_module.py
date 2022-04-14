@@ -23,14 +23,9 @@ class BTFrameView(BaseModel):
     def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui
-        # self.model = model
-        # self.threadpool = threadpool
-
-        # self.signals = model.get_signals()
-        # self.explorer = model.get_explorer()
 
     def setup_ui_connections(self) -> None:
-        """_summary_
+        """connect ui widgets to corresponding slot
         """
         self.ui.btn_connect.clicked.connect(self.connect_clicked)
         self.ui.dev_name_input.returnPressed.connect(self.connect_clicked)

@@ -227,7 +227,7 @@ class ImpFrameView():
         self.ui.imp_graph_layout.setBackground("transparent")
 
     def setup_ui_connections(self) -> None:
-        """_summary_
+        """connect ui widgets to corresponding slot
         """
         # change impedance mode
         self.ui.imp_mode.currentTextChanged.connect(self.model.set_mode)
