@@ -8,8 +8,7 @@ from PySide6.QtCore import Slot
 from exploredesktop.modules.app_settings import (  # isort: skip
     ConnectionStatus,
     EnvVariables,
-    Messages,
-    Stylesheets
+    Messages
 )
 from exploredesktop.modules.base_model import BaseModel
 from exploredesktop.modules.tools import display_msg  # isort: skip
