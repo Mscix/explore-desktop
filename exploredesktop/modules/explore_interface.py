@@ -98,6 +98,14 @@ class ExploreInterface(Explore):
         self.set_chan_dict()
         return True
 
+    def disconnect(self):
+        """Disconnect from explore device and reset variables
+        """
+        self.is_measuring_imp = False
+        self.device_chan = None
+        self.chan_dict = {}
+        return super().disconnect()
+
     def set_chan_dict(self):
         """Set the channel status dictionary i.e. whether channels are active or inactive
         """

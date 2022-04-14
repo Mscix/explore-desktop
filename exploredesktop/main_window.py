@@ -12,7 +12,8 @@ from PySide6.QtCore import (
     QPropertyAnimation,
     Qt,
     QTimer,
-    Slot
+    Slot,
+    QThreadPool
 )
 from PySide6.QtGui import (
     QColor,
@@ -26,6 +27,8 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizeGrip
 )
+from exploredesktop.modules.bt_module import BTFrameView
+from exploredesktop.modules.footer_module import FooterFrameView
 
 
 from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # isort: skip
@@ -36,17 +39,16 @@ from exploredesktop.modules import (  # isort: skip
     BaseModel,
     Stylesheets
 )
-from exploredesktop.modules.imp_module import ImpedanceGraph, ImpFrameView, ImpModel  # isort: skip
+from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
+
 
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, BaseModel):
     """
     Main window class. Connect signals and slots
-    Args:
-        QMainWindow (PySide.QtWidget.QMainWindow): MainWindow widget
     """
 
     def __init__(self):
@@ -58,8 +60,6 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle('ExploreDesktop')
 
-        # define signals
-        self.signals = BaseModel().get_signals()
         # Style UI
         self.style_ui()
 
@@ -72,8 +72,8 @@ class MainWindow(QMainWindow):
         # Stacked pages - default open connect or home if permissions are not set
         existing_permission = self.check_permissions()
         if existing_permission:
-            self.ui.stackedWidget.setCurrentWidget(self.ui.page_impedance)
-            self.highlight_left_button("btn_impedance")
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
+            self.highlight_left_button("btn_bt")
         else:
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
             self.highlight_left_button("btn_home")
@@ -88,31 +88,39 @@ class MainWindow(QMainWindow):
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
 
         # IMPEDANCE PAGE
-        self.imp_graph = ImpedanceGraph(ImpModel())
-        self.setup_imp_graph()
+        self.imp_frame = ImpFrameView(self.ui)
+        self.imp_frame.setup_ui_connections()
 
-        # ImpFrame
-        self.imp_frame = ImpFrameView(self.ui, self.imp_graph.get_model())
-        # change impedance mode
-        self.ui.imp_mode.currentTextChanged.connect(lambda data: self.imp_graph.get_model().set_mode(data))
-        # change button text
-        self.signals.btnImpMeasureChanged.connect(self.ui.btn_imp_meas.setText)
-        # start/stop impedance measurement
-        self.ui.btn_imp_meas.clicked.connect(self.imp_frame.measure_imp_clicked)
-        # question mark button clicked
-        self.ui.imp_meas_info.clicked.connect(self.imp_frame.imp_info_clicked)
+        # BLUETOOTH PAGE
+        self.bt_frame = BTFrameView(self.ui)
+        self.bt_frame.setup_ui_connections()
+
+        # FOOTER
+        self.footer_frame = FooterFrameView(self.ui)
+
+        self.setup_signal_connections()
 
     #########################
     # UI Functions
     #########################
-    def setup_imp_graph(self):
-        """Add impedance graph to GraphicsLayoutWidget
+    def setup_signal_connections(self):
+        """connect custom signals to corresponding slots
         """
-        view_box = self.ui.imp_graph_layout.addViewBox()
-        view_box.setAspectLocked()
-        view_box.addItem(self.imp_graph)
-        view_box.setMouseEnabled(x=False, y=False)
-        self.ui.imp_graph_layout.setBackground("transparent")
+        # change button text
+        self.signals.btnImpMeasureChanged.connect(self.ui.btn_imp_meas.setText)
+        self.signals.btnConnectChanged.connect(self.ui.btn_connect.setText)
+
+        self.signals.envInfoChanged.connect(self.footer_frame.update_env_info)
+        self.signals.devInfoChanged.connect(self.footer_frame.update_dev_info)
+
+        self.signals.connectionStatus.connect(self.footer_frame.print_connection_status)
+        self.signals.connectionStatus.connect(self.footer_frame.get_model().subscribe_env_callback)
+        self.signals.connectionStatus.connect(self.footer_frame.get_model().reset_vars)
+        self.signals.connectionStatus.connect(self.imp_frame.get_model().reset_vars)
+        self.signals.connectionStatus.connect(self.bt_frame.enable_scanning)
+
+        self.signals.impedanceChanged.connect(self.imp_frame.get_graph().on_new_data)
+        self.signals.displayDefaultImp.connect(self.imp_frame.get_graph().display_default_imp)
 
     def style_ui(self):
         """Initial style for UI
@@ -126,6 +134,9 @@ class MainWindow(QMainWindow):
         # Hide unnecessary labels
         # TODO: review in QtCreator if labels are needed in the future or can be deleted
         # self.ui.label_3.setHidden(self.file_names is None)
+
+        self.ui.line_2.setHidden(True)
+
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
@@ -174,7 +185,7 @@ class MainWindow(QMainWindow):
             "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
 
         # Temp code:
-        implemented_pages = ["btn_home", "btn_impedance"]
+        implemented_pages = ["btn_home", "btn_impedance", "btn_bt"]
 
         if btn_name not in implemented_pages:
             display_msg("still not implemented")
@@ -322,6 +333,13 @@ class MainWindow(QMainWindow):
         self.ui.btn_restore.clicked.connect(self.restore_or_maximize)
         # Restore/Maximize
         self.ui.btn_close.clicked.connect(self.close)
+
+    def close(self) -> bool:
+        """actions to perform on close
+        """
+        # TODO: add other actions to perform on close, e.g. stop timers
+        QThreadPool().globalInstance().waitForDone()
+        return super().close()
 
     def set_permissions(self):
         """

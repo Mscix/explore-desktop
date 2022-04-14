@@ -3,6 +3,25 @@
 from enum import Enum
 
 
+class EnvVariables(Enum):
+    """Enum for environmental keys
+    """
+    BATTERY = "battery"
+    TEMPERATURE = "temperature"
+    LIGHT = "light"
+
+    DEVICE_NAME = "device_name"
+    FIRMWARE = "firmware"
+
+
+class ConnectionStatus(Enum):
+    """Enum for connection status
+    """
+    CONNECTED = "Connected to dev_name"
+    RECONNECTING = "Reconnecting ..."
+    DISCONNECTED = "Not connected"
+
+
 class ImpModes(Enum):
     """Enum for impedance measuring modes
     """
@@ -195,11 +214,13 @@ class Messages():
     # config functions
     #########################
     FORMAT_MEM_QUESTION = "Are you sure you want to format the memory?"
-    CALIBRATE_ORN_QUESTION = ("Do you want to continue with the orientation sensors calibration?\n"
-                    "This will overwrite the calibration data if it already exists\n\n"
-                    "If yes, you would need to move and rotate the device for 100 seconds\n")
-    RESET_SETTINGS_QUESTION = ("Are you sure you want to reset your settings?\n"
-            "The Explore device will disconnect after the soft reset.")
+    CALIBRATE_ORN_QUESTION = (
+        "Do you want to continue with the orientation sensors calibration?\n"
+        "This will overwrite the calibration data if it already exists\n\n"
+        "If yes, you would need to move and rotate the device for 100 seconds\n")
+    RESET_SETTINGS_QUESTION = (
+        "Are you sure you want to reset your settings?\n"
+        "The Explore device will disconnect after the soft reset.")
     SELECT_1_CHAN = "At least one channel must be active."
     DISABLED_SETTINGS = "Changing the settings during recording and LSL streaming is not possible"
     DISABLED_RESET = "Resetting the settings during recording and LSL streaming is not possible"
