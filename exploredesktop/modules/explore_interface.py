@@ -26,9 +26,7 @@ class ExploreInterface(Explore):
     """Interface class for Explore"""
     def __init__(self):
         super().__init__()
-        self.is_measuring_imp = False
         self.device_chan = None
-
         self.chan_dict = {}
 
     @property
@@ -101,7 +99,6 @@ class ExploreInterface(Explore):
     def disconnect(self):
         """Disconnect from explore device and reset variables
         """
-        self.is_measuring_imp = False
         self.device_chan = None
         self.chan_dict = {}
         return super().disconnect()
