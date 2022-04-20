@@ -5,11 +5,13 @@ Classes:
     SignalsConatiner
 """
 from enum import Enum
+
 from PySide6.QtCore import (
     QObject,
-    Signal,
-    QThreadPool
+    QThreadPool,
+    Signal
 )
+
 
 from exploredesktop.modules.explore_interface import ExploreInterface  # isort: skip
 

@@ -5,8 +5,9 @@ import traceback
 from PySide6.QtCore import (
     QObject,
     QRunnable,
-    Signal,
+    Signal
 )
+
 
 logger = logging.getLogger("explorepy." + __name__)
 

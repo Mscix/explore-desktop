@@ -26,10 +26,7 @@ logger = logging.getLogger("explorepy." + __name__)
 
 
 class FooterData(BaseModel):
-    """_summary_
-
-    Args:
-        BaseModel (_type_): _description_
+    """Model for footer data
     """
     def __init__(self) -> None:
         super().__init__()
@@ -190,7 +187,7 @@ class FooterFrameView():
             logger.debug("battery key not found in env data dictionary")
             return
         if EnvVariables.TEMPERATURE not in data:
-            logger.debug("battery key not found in env data dictionary")
+            logger.debug("temperature key not found in env data dictionary")
             return
 
         battery, stylesheet_battery = data[EnvVariables.BATTERY]
