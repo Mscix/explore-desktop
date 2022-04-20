@@ -34,6 +34,7 @@ class FooterData(BaseModel):
     def __init__(self) -> None:
         super().__init__()
         self._battery_percent_list = []
+        self.connection_status = ConnectionStatus.DISCONNECTED
 
     def reset_vars(self, connection) -> None:
         """reset class variables
@@ -84,17 +85,30 @@ class FooterData(BaseModel):
     def check_connection_status(self) -> None:
         """Check connection status
         """
+        # TODO: note for the reviewer - this could change in the next pr, targetting the connection signals
+        # it can be reviewed in the future
         if not self.explorer.is_connected:
             return
         sp_connected = self.explorer.stream_processor.is_connected
         reconnecting = self.explorer.stream_processor.parser._is_reconnecting
-        if sp_connected and reconnecting:
+
+        if (sp_connected and reconnecting) and self.connection_status != ConnectionStatus.RECONNECTING:
+            self.connection_status = ConnectionStatus.RECONNECTING
             self.signals.connectionStatus.emit(ConnectionStatus.RECONNECTING)
-        elif sp_connected and reconnecting is False:
+
+        elif (sp_connected and reconnecting is False) and self.connection_status != ConnectionStatus.CONNECTED:
+            self.connection_status = ConnectionStatus.CONNECTED
             self.signals.connectionStatus.emit(ConnectionStatus.CONNECTED)
-        elif sp_connected is False and reconnecting is False:
+
+        elif (sp_connected is False and reconnecting is False) and self.connection_status != ConnectionStatus.DISCONNECTED:
+            self.connection_status = ConnectionStatus.DISCONNECTED
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
+
         else:
+            print(f"{self.explorer.stream_processor.is_connected=}")
+            print(f"{self.explorer.stream_processor.parser._is_reconnecting=}")
+            print(f"{self.connection_status=}")
+            print(f"{self.connection_status==ConnectionStatus.CONNECTED}\n")
             logger.warning("Connection status unknown. stream_processor.is_connected=%s", sp_connected)
 
     def timer_connection(self) -> None:
