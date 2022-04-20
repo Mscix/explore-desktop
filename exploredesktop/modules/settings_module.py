@@ -1,29 +1,33 @@
 """Settings module"""
-"""+ one_chan_selected()
-+ format_memory_clicked()
-+ calibrate_orn_clicked()
-+ reset_settings_clicked(): bool
-+ display_sr_warning()
-+ sampling_rate_changed(): bool
-+ active_channels_changed(): bool
-+ apply_settings_clicked()
-+ enable_settings()"""
+import logging
 
-from exploredesktop.modules.app_settings import ConnectionStatus, Messages, Settings
-from PySide6.QtWidgets import QCheckBox
+import numpy as np
+from exploredesktop.modules import Settings
+from exploredesktop.modules.app_settings import (
+    ConnectionStatus,
+    Messages,
+    Settings,
+    Stylesheets
+)
+from exploredesktop.modules.base_model import BaseModel
 from PySide6.QtCore import Slot
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QMessageBox
+)
+
+from exploredesktop.modules.tools import display_msg, wait_cursor
 
 
-class SettingsFrameView():
+logger = logging.getLogger("explorepy." + __name__)
+
+
+class SettingsFrameView(BaseModel):
     """_summary_
     """
-    def __init__(self, ui, model, threadpool) -> None:
+    def __init__(self, ui) -> None:
+        super().__init__()
         self.ui = ui
-        self.model = model
-        self.threadpool = threadpool
-
-        self.signals = model.get_signals()
-        self.explorer = model.get_explorer()
 
         self.setup_dropdown()
 
@@ -39,6 +43,12 @@ class SettingsFrameView():
             ch_wdgt.stateChanged.connect(self.one_chan_selected)
 
         self.ui.value_sampling_rate.currentTextChanged.connect(self.display_sr_warning)
+
+        self.ui.btn_reset_settings.clicked.connect(self.reset_settings)
+        # TODO uncomment when implemented
+        # self.ui.btn_format_memory.clicked.connect(self.config_funct.format_memory)
+        # self.ui.btn_apply_settings.clicked.connect(self.config_funct.change_settings)
+        # self.ui.btn_calibrate.setHidden(True)
 
     def setup_settings_frame(self, connection=ConnectionStatus.CONNECTED):
         """Setup the settings frame
@@ -64,6 +74,34 @@ class SettingsFrameView():
         sr = int(self.explorer.sampling_rate)
         self.ui.value_sampling_rate.setCurrentText(str(sr))
 
+    ###
+    # Button slots
+    ###
+    @Slot()
+    def reset_settings(self):
+        """
+        Display a popup asking for confirmation.
+        If yes, the settinngs are set to default.
+        """
+        reset = False
+
+        response = display_msg(msg_text=Messages.RESET_SETTINGS_QUESTION, popup_type="question")
+
+        if response == QMessageBox.StandardButton.Yes:
+            with wait_cursor():
+                reset = self.explorer.reset_soft()
+                disconnect = self.explorer.disconnect()
+                # TODO revisit signals, connection changed vs connection status
+                # self.signals.connectionChanged.emit(ConnectionStatus.DISCONNECTED)
+                self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
+                self.signals.pageChange.emit("btn_bt")
+                # TODO: move to bt page, and stop processes
+                # TODO: change change_page funct to work with signals
+        return reset
+
+    ###
+    # Vis feedback slots
+    ###
     @Slot()
     def one_chan_selected(self):
         """
