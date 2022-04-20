@@ -166,7 +166,6 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.envInfoChanged.connect(self.footer_frame.update_env_info)
         self.signals.devInfoChanged.connect(self.footer_frame.update_dev_info)
 
-        # TODO (next PR): unify connection status and connection changed signal
         self.signals.connectionStatus.connect(self.on_connection_change)
 
         self.signals.impedanceChanged.connect(self.imp_frame.get_graph().on_new_data)
