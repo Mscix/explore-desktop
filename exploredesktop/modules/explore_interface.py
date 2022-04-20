@@ -129,11 +129,11 @@ class ExploreInterface(Explore):
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
         return self.device_chan
 
+    # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:
         """Activate impedance measurement mode and subscribe to impedance topic"""
         try:
             self.stream_processor.imp_initialize(notch_freq=50)
-            self.is_measuring_imp = True
         except ConnectionError:
             return False
 
@@ -144,7 +144,6 @@ class ExploreInterface(Explore):
         """Disable impedance measurement mode and unsubscribe from impedance topic"""
         self.unsubscribe(callback=imp_callback, topic=TOPICS.imp)
         if self.stream_processor.disable_imp():
-            self.is_measuring_imp = False
             return True
 
         logger.warning("Failed to disable impedance measurement.")
