@@ -247,8 +247,6 @@ class MainWindow(QMainWindow, BaseModel):
         """
         Change style of the button clicked and move to the selected page
         """
-        # TODO ADDing btn name makes it not work
-        # if btn_name is None:
         if isinstance(no_click, str):
             btn_name = no_click
         else:
