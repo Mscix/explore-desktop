@@ -29,13 +29,16 @@ class SignalsContainer(QObject):
     # BT related signals
     btnConnectChanged = Signal(str)
     
-    # Connection related status
+    # Connection related signals
     connectionStatus = Signal(Enum)
     connectionChanged = Signal(Enum)
 
-    # Settings related status
+    # Settings related signals
     activeChanChanged = Signal(dict)
     srChanged = Signal(int)
+
+    # Navigation
+    pageChange = Signal(str)
 
 
 class BaseModel():
