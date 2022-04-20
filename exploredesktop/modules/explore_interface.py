@@ -133,7 +133,6 @@ class ExploreInterface(Explore):
         """Activate impedance measurement mode and subscribe to impedance topic"""
         try:
             self.stream_processor.imp_initialize(notch_freq=50)
-            self.is_measuring_imp = True
         except ConnectionError:
             return False
 
@@ -144,7 +143,6 @@ class ExploreInterface(Explore):
         """Disable impedance measurement mode and unsubscribe from impedance topic"""
         self.unsubscribe(callback=imp_callback, topic=TOPICS.imp)
         if self.stream_processor.disable_imp():
-            self.is_measuring_imp = False
             return True
 
         logger.warning("Failed to disable impedance measurement.")
