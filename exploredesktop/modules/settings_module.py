@@ -1,19 +1,20 @@
 """Settings module"""
 import logging
 
-from exploredesktop.modules.app_settings import (
-    ConnectionStatus,
-    Messages,
-    Settings
-)
-from exploredesktop.modules.base_model import BaseModel
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
     QCheckBox,
     QMessageBox
 )
 
-from exploredesktop.modules.tools import display_msg, wait_cursor
+
+from exploredesktop.modules import (  # isort: skip
+    Messages,
+    Settings,
+    BaseModel
+)
+from exploredesktop.modules.app_settings import ConnectionStatus  # isort: skip
+from exploredesktop.modules.tools import display_msg, wait_cursor  # isort: skip
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -135,6 +136,7 @@ class SettingsFrameView(BaseModel):
             #     self.explorer.stream_processor.remove_filters()
 
             changed_chan = self.change_active_channels()
+
             # TODO
             # changed_sr = self.change_sampling_rate()
             # self.reset_exg_plot_data()
@@ -171,8 +173,8 @@ class SettingsFrameView(BaseModel):
         active_chan = []
         # changed = False
 
-        for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
-            status = str(1) if w.isChecked() else str(0)
+        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
+            status = str(1) if wdgt.isChecked() else str(0)
             active_chan.append(status)
 
         active_chan = list(reversed(active_chan))
