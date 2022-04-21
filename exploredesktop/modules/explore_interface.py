@@ -152,7 +152,7 @@ class ExploreInterface(Explore):
     def set_sampling_rate(self, sampling_rate: int) -> Optional[bool]:
         """Change the sampling rate of the device"""
         if sampling_rate == self.sampling_rate:
-            return True
+            return False
         try:
             return super().set_sampling_rate(sampling_rate=int(sampling_rate))
         except (ValueError, ConnectionAbortedError) as error:

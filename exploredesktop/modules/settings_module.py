@@ -127,8 +127,6 @@ class SettingsFrameView(BaseModel):
         Apply changes in device settings
         """
 
-        # stream_processor = self.explorer.stream_processor
-
         with wait_cursor():
             # TODO
             # if self.plotting_filters is not None:
@@ -136,16 +134,14 @@ class SettingsFrameView(BaseModel):
             #     self.explorer.stream_processor.remove_filters()
 
             changed_chan = self.change_active_channels()
+            changed_sr = self.change_sampling_rate()
 
-            # TODO
-            # changed_sr = self.change_sampling_rate()
+            # TODO reset exg data and reapply filters
             # self.reset_exg_plot_data()
-
             # if self.plotting_filters is not None:
             #     self.apply_filters()
 
-        # if changed_sr or changed_chan:
-        if changed_chan:
+        if changed_sr or changed_chan:
             chan_dict = self.explorer.get_chan_dict()
             act_chan = ", ".join([item[0] for item in chan_dict.items() if item[1]])
             msg = (
@@ -159,9 +155,8 @@ class SettingsFrameView(BaseModel):
         # self.vis_functions.init_plots()
 
     ###
-    # Vis feedback slots
+    # Change settings functions
     ###
-
     def change_active_channels(self):
         """
         Read selected checkboxes and set the channel mask of the device
@@ -171,7 +166,7 @@ class SettingsFrameView(BaseModel):
         """
 
         active_chan = []
-        # changed = False
+        changed = False
 
         for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
             status = str(1) if wdgt.isChecked() else str(0)
@@ -203,6 +198,28 @@ class SettingsFrameView(BaseModel):
             # self.vis_functions.offsets = np.arange(1, n_chan.count(1) + 1)[:, np.newaxis].astype(float)
             # self.vis_functions._baseline_corrector["baseline"] = None
             self.signals.displayDefaultImp.emit()
+
+        return changed
+
+    def change_sampling_rate(self):
+        """Change the sampling rate
+
+        Returns:
+            bool: whether sampling rate has changed
+        """
+
+        current_sr = int(self.explorer.sampling_rate)
+        new_sr = int(self.ui.value_sampling_rate.currentText())
+        changed = False
+
+        if int(current_sr) != new_sr:
+            # TODO
+            # if self.plotting_filters is not None:
+            #     self.check_filters_new_sr()
+
+            logger.info("Old Sampling rate: %s", self.explorer.sampling_rate)
+            changed = self.explorer.set_sampling_rate(sampling_rate=new_sr)
+            logger.info("New Sampling rate: %s", self.explorer.sampling_rate)
 
         return changed
 
