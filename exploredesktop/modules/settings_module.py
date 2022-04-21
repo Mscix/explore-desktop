@@ -84,10 +84,17 @@ class SettingsFrameView(BaseModel):
         if response == QMessageBox.StandardButton.Yes:
             with wait_cursor():
                 reset = self.explorer.reset_soft()
-                self.explorer.disconnect()
-                self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
 
-        return reset
+        if reset:
+            self.explorer.disconnect()
+            self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
+
+        else:
+            msg = (
+                "There was an error while resetting the settings."
+                "\nPlease make sure the bluetooth connection is stable and try again."
+            )
+            display_msg(msg)
 
     @Slot()
     def format_memory(self):
@@ -102,8 +109,16 @@ class SettingsFrameView(BaseModel):
             return
 
         with wait_cursor():
-            self.explorer.format_memory()
-        display_msg(msg_text="Memory formatted", popup_type="info")
+            result = self.explorer.format_memory()
+            
+        if result:
+            display_msg(msg_text="Memory formatted", popup_type="info")
+        else:
+            msg = (
+                "There was an error while formatting the memory."
+                "\nPlease make sure the bluetooth connection is stable and try again."
+            )
+            display_msg(msg)
 
     ###
     # Vis feedback slots
