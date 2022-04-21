@@ -43,8 +43,8 @@ class SettingsFrameView(BaseModel):
 
         self.ui.btn_reset_settings.clicked.connect(self.reset_settings)
         self.ui.btn_format_memory.clicked.connect(self.format_memory)
+        self.ui.btn_apply_settings.clicked.connect(self.change_settings)
         # TODO uncomment when implemented
-        # self.ui.btn_apply_settings.clicked.connect(self.change_settings)
         # self.ui.btn_calibrate.setHidden(True)
 
     def setup_settings_frame(self):
@@ -110,7 +110,7 @@ class SettingsFrameView(BaseModel):
 
         with wait_cursor():
             result = self.explorer.format_memory()
-            
+
         if result:
             display_msg(msg_text="Memory formatted", popup_type="info")
         else:
@@ -119,6 +119,90 @@ class SettingsFrameView(BaseModel):
                 "\nPlease make sure the bluetooth connection is stable and try again."
             )
             display_msg(msg)
+
+    @Slot()
+    def change_settings(self):
+        """
+        Apply changes in device settings
+        """
+
+        # stream_processor = self.explorer.stream_processor
+
+        with wait_cursor():
+            # TODO
+            # if self.plotting_filters is not None:
+            #     self.vis_functions._baseline_corrector["baseline"] = None
+            #     self.explorer.stream_processor.remove_filters()
+
+            changed_chan = self.change_active_channels()
+            # TODO
+            # changed_sr = self.change_sampling_rate()
+            # self.reset_exg_plot_data()
+
+            # if self.plotting_filters is not None:
+            #     self.apply_filters()
+
+        # if changed_sr or changed_chan:
+        if changed_chan:
+            chan_dict = self.explorer.get_chan_dict()
+            act_chan = ", ".join([item[0] for item in chan_dict.items() if item[1]])
+            msg = (
+                "Device settings have been changed:"
+                f"\nSampling Rate: {self.explorer.sampling_rate}"
+                f"\nActive Channels: {act_chan}"
+            )
+            display_msg(msg_text=msg, popup_type="info")
+
+        # TODO init plots
+        # self.vis_functions.init_plots()
+
+    ###
+    # Vis feedback slots
+    ###
+
+    def change_active_channels(self):
+        """
+        Read selected checkboxes and set the channel mask of the device
+
+        Returns:
+            bool: whether sampling rate has changed
+        """
+
+        active_chan = []
+        # changed = False
+
+        for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
+            status = str(1) if w.isChecked() else str(0)
+            active_chan.append(status)
+
+        active_chan = list(reversed(active_chan))
+        active_chan_int = [int(i) for i in active_chan]
+
+        # verify at least one channel is selected
+        n_active = sum(active_chan_int)
+        if n_active == 0:
+            display_msg(Messages.SELECT_1_CHAN)
+            return
+
+        if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
+            mask = "".join(active_chan)
+            int_mask = int(mask, 2)
+            try:
+                changed = self.explorer.set_channels(int_mask)
+            except TypeError:
+                changed = self.explorer.set_channels(mask)
+
+            n_chan = self.explorer.stream_processor.device_info['adc_mask']
+            n_chan = list(reversed(n_chan))
+
+            self.explorer.set_chan_dict()
+
+            # TODO when signal data is implemented -  reset offsets and baseline corrector
+            # self.vis_functions.offsets = np.arange(1, n_chan.count(1) + 1)[:, np.newaxis].astype(float)
+            # self.vis_functions._baseline_corrector["baseline"] = None
+            self.signals.displayDefaultImp.emit()
+
+        return changed
 
     ###
     # Vis feedback slots
