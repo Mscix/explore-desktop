@@ -30,6 +30,7 @@ class BTFrameView(BaseModel):
         """
         self.ui.btn_connect.clicked.connect(self.connect_clicked)
         self.ui.dev_name_input.returnPressed.connect(self.connect_clicked)
+        self.ui.dev_name_input.textChanged.connect(self.auto_capital)
         self.ui.btn_scan.clicked.connect(self.scan_clicked)
 
     #########################
@@ -128,6 +129,11 @@ class BTFrameView(BaseModel):
     #########################
     # Slots
     #########################
+    @Slot(str)
+    def auto_capital(self):
+        """change input to capital letters"""
+        text = self.ui.dev_name_input.text()
+        self.ui.dev_name_input.setText(text.upper())
 
     @Slot()
     def connect_clicked(self):
