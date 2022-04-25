@@ -124,8 +124,7 @@ class DataContainer(BaseModel):
 
 
 class ORNData(DataContainer):
-    """_summary_
-    """
+    """_summary_"""
     def __init__(self) -> None:
         super().__init__()
         self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
@@ -149,6 +148,116 @@ class ORNData(DataContainer):
             self.signals.ornChanged.emit([self.t_plot_data, self.plot_data])
         except RuntimeError as error:
             logger.warning("RuntimeError: %s", str(error))
+
+
+class ExGData(DataContainer):
+    """_summary_"""
+    def __init__(self) -> None:
+        super().__init__()
+        self.packet_count = 0
+        self._baseline = None
+
+    def callback(self, packet):
+        """_summary_"""
+        chan_list = self.explorer.active_chan_list
+        exg_fs = self.explorer.sampling_rate
+        timestamp, exg = packet.get_data(exg_fs)
+
+        # TODO in fft data - Original data
+        # orig_exg = dict(zip(chan_list, exg))
+        # self.add_original_exg(orig_exg)
+
+        # TODO: handle disconnection errors (through conn status signal)
+        # if self._vis_time_offset is not None and timestamp[0] < self._vis_time_offset:
+        #     self.reset_vis_vars()
+        #     new_size = self.plot_points()
+        #     self.exg_plot_data[0] = np.array([np.NaN] * new_size)
+        #     self.exg_plot_data[1] = {
+        #         ch: np.array([np.NaN] * new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+        #     self.exg_plot_data[2] = {
+        #         ch: np.array([np.NaN] * self.plot_points(downsampling=False)
+        #                         ) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
+
+        #     t_min = 0
+        #     t_max = t_min + self.get_timeScale()
+        #     self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
+
+        # From timestamp to seconds
+        if self._vis_time_offset is None:
+            self._vis_time_offset = timestamp[0]
+
+        time_vector = timestamp - self._vis_time_offset
+
+        # Downsampling
+        if Settings.DOWNSAMPLING:
+            time_vector, exg = self.downsampling(time_vector, exg, exg_fs)
+
+        # Baseline Correction
+        # TODO change if condition when filters are implemented
+        # if self.plotting_filters is not None and self.plotting_filters['offset']:
+        if True:
+            exg = self.baseline_correction(exg)
+
+        exg = self.update_unit(exg)
+        data = dict(zip(chan_list, exg))
+        data['t'] = time_vector
+
+        try:
+            self.signals.exgChanged.emit(data)
+        except ValueError:
+            pass
+
+    def downsampling(self, time_vector, exg, exg_fs):
+        """Downsample"""
+        # Correct packet for 4 chan device
+        if len(time_vector) == 33 and self.decide_drop(exg_fs):
+            exg = exg[:, 1:]
+            time_vector = time_vector[1:]
+
+        # Downsample
+        exg = exg[:, ::int(exg_fs / Settings.EXG_VIS_SRATE)]
+        time_vector = time_vector[::int(exg_fs / Settings.EXG_VIS_SRATE)]
+        return time_vector, exg
+
+    def decide_drop(self, exg_fs: int) -> bool:
+        """Decide whether to drop a data point from the packet based on the sampling rate
+
+        Args:
+            exg_fs (int): sampling rate
+
+        Returns:
+            bool: whether to drop a data point
+        """
+        drop = True
+        if exg_fs == 1000 and self.packet_count % 8 == 0:
+            drop = False
+        elif exg_fs == 500 and self.packet_count % 4 == 0:
+            drop = False
+        elif exg_fs == 250 and self.packet_count % 2 == 0:
+            drop = False
+        return drop
+
+    def baseline_correction(self, exg):
+        """baseline correction"""
+        samples_avg = exg.mean(axis=1)
+
+        if self._baseline is None:
+            self._baseline = samples_avg
+        else:
+            try:
+                self._baseline = self._baseline - (
+                    (self._baseline - samples_avg) / Settings.BASELINE_MA_LENGTH * exg.shape[1]
+                )
+            except ValueError:
+                self._baseline = samples_avg
+
+        exg = exg - self._baseline[:, np.newaxis]
+
+        return exg
+
+    def update_unit(self, exg):
+        exg = self.offsets + exg / self.y_unit
+        return exg
 
 
 class BasePlots:
@@ -200,10 +309,45 @@ class BasePlots:
 
     @abstractmethod
     def init_plot(self):
+        """initialize the plot"""
+        raise NotImplementedError
+    
+    @abstractmethod
+    def swipe_plot(self, data):
+        """swipping plot"""
         raise NotImplementedError
 
-    def add_active_curves(self):
-        pass
+    # TODO implement later and have option in gui
+    # @abstractmethod
+    # def moving_plot(self):
+    #     """moving window plot"""
+    #     raise NotImplementedError
+
+
+    def add_active_curves(self, all_curves: list, plot_widget: pg.PlotWidget) -> list:
+        """Add curves from a list to a plot widget if the corresponding channel is active
+
+        Args:
+            all_curves (list): list of all potential curves
+            chan_dict (dict): dictionary with active channels
+            plot_widget (pg.PlotWidget): pyqtgraph plotWidget
+
+        Returns:
+            list: list of curves added to plot
+        """
+        # Verify curves and chan dict have the same length, if not reset chan_dict
+        chan_dict = self.model.explorer.get_chan_dict()
+
+        # TODO: check if this is needed
+        # if len(all_curves) != len(list(chan_dict.values())):
+        #     self.set_chan_dict()
+
+        active_curves = []
+        for curve, act in zip(all_curves, list(chan_dict.values())):
+            if act == 1:
+                plot_widget.addItem(curve)
+                active_curves.append(curve)
+        return active_curves
 
     @Slot(float)
     def set_t_range(self, data):
@@ -311,7 +455,7 @@ class ORNPlot(BasePlots):
     def init_plot(self):
         layout_wdgt = self.ui.plot_orn
 
-        if None in self.plots_list:
+        if self.ui.plot_orn.getItem(0, 0) is not None:
             layout_wdgt.clear()
             self.lines = [None, None, None]
 
@@ -369,7 +513,7 @@ class ORNPlot(BasePlots):
         self.plot_mag.addItem(self.curve_mz)
 
     @Slot(dict)
-    def plot(self, data):
+    def swipe_plot(self, data):
         """plot orientation data"""
         t, y = data
 
@@ -390,3 +534,84 @@ class ORNPlot(BasePlots):
         self.curve_mx.setData(t, y['magX'], connect=connection)
         self.curve_my.setData(t, y['magY'], connect=connection)
         self.curve_mz.setData(t, y['magZ'], connect=connection)
+
+
+class ExGPlot(BasePlots):
+    """_summary_
+    """
+    def __init__(self, ui) -> None:
+        super().__init__(ui)
+        self.model = ExGData()
+
+        self.lines = [None]
+
+        self.y_string = "1mV"
+
+    def reset_vars(self):
+        pass
+
+    def init_plot(self):
+        plot_wdgt = self.ui.plot_exg
+
+        n_chan = self.model.explorer.n_active_chan
+        timescale = self.time_scale
+
+        if self.ui.plot_orn.getItem(0, 0) is not None:
+            plot_wdgt.clear()
+            self.lines = [None]
+
+        # TODO move to exg data
+        # Create offsets for each chan line
+        # self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
+
+        # Set Background color
+        plot_wdgt.setBackground(Stylesheets.PLOT_BACKGROUND)
+
+        # Disable zoom
+        plot_wdgt.setMouseEnabled(x=False, y=False)
+
+        # Add chan ticks to y axis
+        # Left axis
+        plot_wdgt.setLabel('left', 'Voltage')
+        self.add_left_axis_ticks()
+        plot_wdgt.getAxis('left').setWidth(60)
+        plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
+        plot_wdgt.getAxis('left').setGrid(50)
+
+        # Right axis
+        plot_wdgt.showAxis('right')
+        plot_wdgt.getAxis('right').linkToView(plot_wdgt.getViewBox())
+        self.add_right_axis_ticks()
+        plot_wdgt.getAxis('right').setGrid(200)
+
+        # Add range of time axis
+        plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
+        plot_wdgt.setLabel('bottom', 'time (s)')
+
+        all_curves_list = [pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
+        self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
+
+    def add_right_axis_ticks(self):
+        """
+        Add upper and lower lines delimiting the channels in exg plot
+        """
+        active_chan = self.model.explorer.active_chan_list
+
+        ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
+        ticks_right += [(0.5, '')]
+
+        self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
+
+    def add_left_axis_ticks(self):
+        """
+        Add central lines and channel name ticks in exg plot
+        """
+        active_chan = self.model.explorer.active_chan_list
+
+        ticks = [
+            (idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.y_string})') for idx, ch in enumerate(active_chan)]
+        self.ui.plot_exg.getAxis('left').setTicks([ticks])
+
+    @Slot(dict)
+    def swipe_plot(self, data):
+        return super().swipe_plot(data)
