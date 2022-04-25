@@ -2,20 +2,20 @@
 import logging
 import os
 import sys
-from exploredesktop.modules.data_module import ORNPlot
 
 from explorepy.log_config import (
     read_config,
     write_config
 )
+from explorepy.stream_processor import TOPICS
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
     QPropertyAnimation,
     Qt,
+    QThreadPool,
     QTimer,
-    Slot,
-    QThreadPool
+    Slot
 )
 from PySide6.QtGui import (
     QColor,
@@ -30,7 +30,6 @@ from PySide6.QtWidgets import (
     QSizeGrip
 )
 
-from explorepy.stream_processor import TOPICS
 
 import exploredesktop  # isort: skip
 from exploredesktop.modules import (  # isort: skip
@@ -41,6 +40,7 @@ from exploredesktop.modules import (  # isort: skip
 )
 from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables  # isort: skip
 from exploredesktop.modules.bt_module import BTFrameView  # isort: skip
+from exploredesktop.modules.data_module import ORNPlot  # isort: skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort: skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
 from exploredesktop.modules.settings_module import SettingsFrameView  # isort: skip
@@ -110,11 +110,12 @@ class MainWindow(QMainWindow, BaseModel):
         # SETTINGS PAGE
         self.settings_frame = SettingsFrameView(self.ui)
         self.settings_frame.setup_ui_connections()
-        # signal connections
-        self.setup_signal_connections()
 
         # PLOTS
         self.orn_plot = ORNPlot(self.ui)
+
+        # signal connections
+        self.setup_signal_connections()
 
     #########################
     # UI Functions
@@ -179,6 +180,11 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.displayDefaultImp.connect(self.imp_frame.get_graph().display_default_imp)
 
         self.signals.pageChange.connect(self.left_menu_button_clicked)
+
+        self.signals.ornChanged.connect(self.orn_plot.plot)
+
+        self.signals.tRangeChanged.connect(self.orn_plot.set_t_range)
+        self.signals.tAxisChanged.connect(self.orn_plot.set_t_axis)
 
     def style_ui(self):
         """Initial style for UI

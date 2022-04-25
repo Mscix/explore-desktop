@@ -296,20 +296,20 @@ class ImpFrameView():
         return changed
 
     # TODO: implement later when implementing page navigation (change_page in main window)
-    # def check_is_imp(self):
-    #     """
-    #     Check if impedance measurement is active.
-    #     If so ask the user whether to disable it.
-    #     """
-    #     disabled = False
-    #     if self.is_imp_measuring:
-    #         response = self.display_msg(msg_text=Messages.DISABLE_IMP_QUESTION, type="question")
+    def check_is_imp(self):
+        """
+        Check if impedance measurement is active.
+        If so ask the user whether to disable it.
+        """
+        disabled = False
+        if self.explorer.is_measuring_imp:
+            response = display_msg(msg_text=Messages.DISABLE_IMP_QUESTION, popup_type="question")
 
-    #         if response == QMessageBox.StandardButton.Yes:
-    #             self.disable_imp()
-    #             disabled = True
+            if response == QMessageBox.StandardButton.Yes:
+                self.disable_imp()
+                disabled = True
 
-    #     return disabled
+        return disabled
 
     @staticmethod
     def imp_info_clicked() -> None:

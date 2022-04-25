@@ -1,14 +1,20 @@
 
-from abc import abstractmethod
 import logging
-import numpy as np
-from exploredesktop.modules import BaseModel
-from exploredesktop.modules.app_settings import ORNLegend, Settings, Stylesheets
-import pyqtgraph as pg
+from abc import abstractmethod
 
-from PySide6.QtGui import (
-    QIntValidator
+import numpy as np
+import pyqtgraph as pg
+from PySide6.QtCore import Slot
+from PySide6.QtGui import QIntValidator
+
+
+from exploredesktop.modules import BaseModel  # isort:skip
+from exploredesktop.modules.app_settings import (  # isort:skip
+    ORNLegend,
+    Settings,
+    Stylesheets
 )
+
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -21,12 +27,14 @@ class DataContainer(BaseModel):
         self.plot_data = {}
         self.t_plot_data = np.array([])
 
-        self.pointer = {}
+        self.pointer = 0
 
         self.mrk_plot = {'t': [], 'code': [], 'line': []}
         self.mrk_replot = {'t': [], 'code': [], 'line': []}
 
         self._vis_time_offset = None
+
+        self.timescale = 10
 
     @abstractmethod
     def callback(self, packet):
@@ -47,8 +55,72 @@ class DataContainer(BaseModel):
     def change_timescale(self):
         pass
 
-    def plot_points(self):
-        pass
+    def plot_points(self, orn=False, downsampling=Settings.DOWNSAMPLING):
+        """_summary_
+
+        Args:
+            orn (bool, optional): _description_. Defaults to False.
+            downsampling (_type_, optional): _description_. Defaults to Settings.DOWNSAMPLING.
+
+        Returns:
+            _type_: _description_
+        """
+        time_scale = self.timescale
+        sr = self.explorer.sampling_rate
+
+        if not orn:
+            if downsampling:
+                points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
+            else:
+                points = (time_scale * sr)
+        else:
+            points = time_scale * Settings.ORN_SRATE
+
+        return int(points)
+
+    @staticmethod
+    def get_n_new_points(data):
+        """get indexes where to insert new data"""
+        n_new_points = len(data['t'])
+        return n_new_points
+
+    def insert_new_data(self, data):
+        """insert new data"""
+        n_new_points = self.get_n_new_points(data)
+        idxs = np.arange(self.pointer, self.pointer + n_new_points)
+
+        self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
+
+        for key, val in self.plot_data.items():
+            val.put(idxs, data[key], mode='wrap')
+
+    def update_pointer(self, data):
+        """update pointer"""
+        self.pointer += self.get_n_new_points(data)
+
+        if self.pointer >= len(self.t_plot_data):
+            self.pointer -= len(self.t_plot_data)
+            self.t_plot_data[self.pointer:] += self.timescale
+            self.signals.tRangeChanged.emit(np.nanmin(self.t_plot_data))
+
+    def new_t_axis(self):
+        """
+        Update t-axis
+
+        Args:
+            t_vector (np.array): time vector
+            pointer (int): index with current position in time
+        """
+        if np.nanmax(self.t_plot_data) < self.timescale:
+            return
+
+        t_ticks = self.t_plot_data.copy()
+        t_ticks[self.pointer:] -= self.timescale
+        t_ticks = t_ticks.astype(int)
+        l_points = int(len(self.t_plot_data) / int(self.timescale))
+        vals = self.t_plot_data[::l_points]
+        ticks = t_ticks[::l_points]
+        self.signals.tAxisChanged.emit([vals, ticks])
 
 
 class ORNData(DataContainer):
@@ -56,6 +128,8 @@ class ORNData(DataContainer):
     """
     def __init__(self) -> None:
         super().__init__()
+        self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
+        self.t_plot_data = np.array([np.NaN] * 200)
 
     def callback(self, packet):
         """ORN callback"""
@@ -66,9 +140,13 @@ class ORNData(DataContainer):
 
         data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
         data['t'] = time_vector
+
+        self.insert_new_data(data)
+        self.update_pointer(data)
+        self.new_t_axis()
+
         try:
-            print(data)
-            # self.signal_orn.emit(data)
+            self.signals.ornChanged.emit([self.t_plot_data, self.plot_data])
         except RuntimeError as error:
             logger.warning("RuntimeError: %s", str(error))
 
@@ -78,10 +156,12 @@ class BasePlots:
     """
     def __init__(self, ui) -> None:
         self.ui = ui
+        self.model = ""
 
         # self.time_scale = 10
         self.lines = []
-        self.setup_dropdowns()
+        self.set_dropdowns()
+        self.plots_list = []
 
     @property
     def time_scale(self):
@@ -91,7 +171,8 @@ class BasePlots:
         t = int(Settings.TIME_RANGE_MENU[t_str])
         return t
 
-    def setup_dropdowns(self):
+    def set_dropdowns(self):
+        """Initialize dropdowns"""
         # value_signal_type
         self.ui.value_signal.addItems(Settings.MODE_LIST)
         self.ui.value_signal_rec.addItems(Settings.MODE_LIST)
@@ -114,7 +195,8 @@ class BasePlots:
         # TODO revisit this
         if isinstance(value, str):
             value = Settings.TIME_RANGE_MENU[value]
-        self.time_scale = value
+        # self.time_scale = value
+        self.model.timescale = value
 
     @abstractmethod
     def init_plot(self):
@@ -123,11 +205,42 @@ class BasePlots:
     def add_active_curves(self):
         pass
 
-    def set_t_axis(self, t_vector, pointer):
-        pass
+    @Slot(float)
+    def set_t_range(self, data):
+        """set t range"""
+        t_min = data
+        t_max = t_min + self.time_scale
+        for plt in self.plots_list:
+            plt.setXRange(t_min, t_max, padding=0.01)
 
-    def connection_vector(self, length, n_nans):
-        pass
+    # TODO> check this when implementing exg plot
+    @Slot(list)
+    def set_t_axis(self, data):
+        """_summary_
+
+        Args:
+            data (_type_): _description_
+        """
+        values, ticks = data
+        for plt in self.plots_list:
+            plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
+
+    def _connection_vector(self, length, n_nans=10, id_th=None):
+        """
+        Create connection vector to connect old and new data with a gap
+
+        Args:
+            length (int): length of the connection vector. Must be the same as the array to plot
+            id_th (int): threshold obtained when dev is disconnected
+            n_nans (int): number of nans to introduce
+        """
+        connection = np.full(length, 1)
+        # connection = np.full(length, 1)
+        connection[self.model.pointer - int(n_nans / 2): self.model.pointer + int(n_nans / 2)] = 0
+        if id_th is not None and id_th > 100:
+            connection[:id_th] = 0
+
+        return connection
 
     def plot_marker(self):
         pass
@@ -141,8 +254,33 @@ class BasePlots:
     def remove_old_item(self, item_dict, t_vector, item_type):
         pass
 
-    def add_pos_line(self, lines, plot_wdgt, t_vector):
-        pass
+    def _add_pos_line(self, lines: list, plot_widgets: list, t_vector: list):
+        """
+        Add position line to plot based on last value in the time vector
+
+        Args:
+            lines (list): list of position line
+            plot_widget (list): list of pyqtgraph PlotWidget to add the line
+            t_vector (list): time vector used as reference for the position
+
+        Return:
+            lines (list): position line with updated time pos
+        """
+        # pos = t_vector[-1]
+        # pos = np.nanmax(t_vector)
+        pos = t_vector[self.model.pointer - 1]
+
+        if None in lines:
+            for idx, plt in enumerate(plot_widgets):
+                lines[idx] = plt.addLine(pos, pen=Stylesheets.POS_LINE_COLOR)
+        else:
+            for line in lines:
+                try:
+                    line.setPos(pos)
+                except RuntimeError:
+                    lines = [None for i in range(len(lines))]
+
+        return lines
 
 
 class ORNPlot(BasePlots):
@@ -229,3 +367,26 @@ class ORNPlot(BasePlots):
         self.plot_mag.addItem(self.curve_mx)
         self.plot_mag.addItem(self.curve_my)
         self.plot_mag.addItem(self.curve_mz)
+
+    @Slot(dict)
+    def plot(self, data):
+        """plot orientation data"""
+        t, y = data
+
+        # position line
+        if None in self.lines:
+            self.ui.plot_orn.clear()
+            self.init_plot()
+        self._add_pos_line(self.lines, self.plots_list, t)
+
+        connection = self._connection_vector(len(t), n_nans=2)
+
+        self.curve_ax.setData(t, y['accX'], connect=connection)
+        self.curve_ay.setData(t, y['accY'], connect=connection)
+        self.curve_az.setData(t, y['accZ'], connect=connection)
+        self.curve_gx.setData(t, y['gyroX'], connect=connection)
+        self.curve_gy.setData(t, y['gyroY'], connect=connection)
+        self.curve_gz.setData(t, y['gyroZ'], connect=connection)
+        self.curve_mx.setData(t, y['magX'], connect=connection)
+        self.curve_my.setData(t, y['magY'], connect=connection)
+        self.curve_mz.setData(t, y['magZ'], connect=connection)
