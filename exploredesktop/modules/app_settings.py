@@ -3,7 +3,17 @@
 from enum import Enum
 
 
-class EnvVariables(Enum):
+class BaseEnum(Enum):
+    """Base class for Enums
+    """
+    @classmethod
+    def all_values(cls):
+        """Returns a list of all the values in the Enumeration
+        """
+        return [m.value for m in cls]
+
+
+class EnvVariables(BaseEnum):
     """Enum for environmental keys
     """
     BATTERY = "battery"
@@ -14,7 +24,7 @@ class EnvVariables(Enum):
     FIRMWARE = "firmware"
 
 
-class ConnectionStatus(Enum):
+class ConnectionStatus(BaseEnum):
     """Enum for connection status
     """
     CONNECTED = "Connected to dev_name"
@@ -22,17 +32,18 @@ class ConnectionStatus(Enum):
     DISCONNECTED = "Not connected"
 
 
-class ImpModes(Enum):
+class ImpModes(BaseEnum):
     """Enum for impedance measuring modes
     """
     WET = "Wet Electrodes"
     DRY = "Dry Electrodes"
 
-    @classmethod
-    def all_values(cls):
-        """Returns a list of all the values in the Enumeration
-        """
-        return [m.value for m in cls]
+
+class ORNLegend(BaseEnum):
+    # TODO convert to list in settings
+    ACC = 'Acc [mg/LSB]'
+    GYRO = 'Gyro [mdps/LSB]'
+    MAG = 'Mag [mgauss/LSB]'
 
 
 class Stylesheets():
@@ -91,6 +102,8 @@ class Stylesheets():
     ORN_LINE_COLORS = ["#00FF00", "#42C4F7", "#FF0000"]
 
     PLOT_BACKGROUND = "#120b28"
+
+    POS_LINE_COLOR = "#FF0000"  # red
 
     #########################
     # Not in use for now
