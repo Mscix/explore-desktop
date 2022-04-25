@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+from exploredesktop.modules.data_module import ExGPlot
 
 from explorepy.log_config import (
     read_config,
@@ -113,6 +114,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         # PLOTS
         self.orn_plot = ORNPlot(self.ui)
+        self.exg_plot = ExGPlot(self.ui)
 
         # signal connections
         self.setup_signal_connections()
@@ -181,7 +183,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.pageChange.connect(self.left_menu_button_clicked)
 
-        self.signals.ornChanged.connect(self.orn_plot.plot)
+        self.signals.ornChanged.connect(self.orn_plot.swipe_plot)
 
         self.signals.tRangeChanged.connect(self.orn_plot.set_t_range)
         self.signals.tAxisChanged.connect(self.orn_plot.set_t_axis)
@@ -290,6 +292,8 @@ class MainWindow(QMainWindow, BaseModel):
             if not self.is_streaming:
                 self.orn_plot.init_plot()
                 self.explorer.subscribe(callback=self.orn_plot.model.callback, topic=TOPICS.raw_orn)
+
+                self.exg_plot.init_plot()
                 # TODO
                 # self.vis_funct.emit_signals()
                 # self.update_fft()
