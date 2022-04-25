@@ -129,6 +129,11 @@ class ExploreInterface(Explore):
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
         return self.device_chan
 
+    @property
+    def active_chan_list(self):
+        """Return list of active channels"""
+        return [item[0] for item in self.chan_dict.items() if item[1]]
+
     # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:
         """Activate impedance measurement mode and subscribe to impedance topic"""
