@@ -1,9 +1,11 @@
 from abc import abstractmethod
-import numpy as np
 
+import numpy as np
+import pyqtgraph as pg
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QIntValidator
-import pyqtgraph as pg
+
+
 from exploredesktop.modules.app_settings import Settings, Stylesheets  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
 

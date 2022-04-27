@@ -1,6 +1,9 @@
 """Module with app settings, stylesheets and messages displayed in the app
 """
-from enum import Enum, auto
+from enum import (
+    Enum,
+    auto
+)
 
 
 class BaseEnum(Enum):

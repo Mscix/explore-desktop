@@ -40,7 +40,8 @@ from exploredesktop.modules import (  # isort: skip
     Stylesheets
 )
 from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables, ExGAttributes  # isort: skip
-from exploredesktop.modules.bt_module import BTFrameView  # isort: skip
+from exploredesktop.modules.bt_module import BTFrameView
+from exploredesktop.modules.fft_module import FFTPlot  # isort: skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort: skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
 from exploredesktop.modules.settings_module import SettingsFrameView  # isort: skip
@@ -115,6 +116,7 @@ class MainWindow(QMainWindow, BaseModel):
         # PLOTS
         self.orn_plot = ORNPlot(self.ui)
         self.exg_plot = ExGPlot(self.ui)
+        self.fft_plot = FFTPlot(self.ui)
 
         # signal connections
         self.setup_signal_connections()
@@ -306,6 +308,9 @@ class MainWindow(QMainWindow, BaseModel):
 
                 self.exg_plot.init_plot()
                 self.explorer.subscribe(callback=self.exg_plot.model.callback, topic=TOPICS.filtered_ExG)
+                
+                self.fft_plot.init_plot()
+                
                 # TODO
                 # self.vis_funct.emit_signals()
                 # self.update_fft()
