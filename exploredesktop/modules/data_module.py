@@ -186,6 +186,10 @@ class ExGData(DataContainer):
 
         self.signals.updateDataAttributes.connect(self.update_attributes)
 
+    def new_t_axis(self, signal=None):
+        signal = self.signals.tAxisEXGChanged
+        return super().new_t_axis(signal)
+
     def update_pointer(self, data, signal=None):
         signal = self.signals.tRangeEXGChanged
         return super().update_pointer(data, signal)
@@ -259,13 +263,12 @@ class ExGData(DataContainer):
 
         self.insert_new_data(data)
         self.update_pointer(data)
-        # self.new_t_axis()
+        self.new_t_axis()
 
         self.last_t = data['t'][-1]
 
         try:
             self.signals.exgChanged.emit([self.t_plot_data, self.plot_data])
-            # print(f"{self.t_plot_data=}\n{self.plot_data=}\n\n")
         except ValueError:
             pass
 
@@ -356,7 +359,6 @@ class BasePlots:
         # TODO revisit this
         if isinstance(value, str):
             value = Settings.TIME_RANGE_MENU[value]
-        # self.time_scale = value
         self.model.timescale = value
 
     def set_dropdowns(self):
@@ -440,27 +442,8 @@ class BasePlots:
             data (_type_): _description_
         """
         values, ticks = data
-        print("received")
         for plt in self.plots_list:
             plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
-    
-    # def set_t_axis(self, t):
-    #     """_summary_
-
-    #     Args:
-    #         t (_type_): _description_
-    #     """
-    #     if np.nanmax(t) < self.time_scale:
-    #         return
-
-    #     t_ticks = t.copy()
-    #     t_ticks[self.model.pointer:] -= self.time_scale
-    #     t_ticks = t_ticks.astype(int)
-    #     l_points = int(len(t) / int(self.time_scale))
-    #     vals = t[::l_points]
-    #     ticks = t_ticks[::l_points]
-    #     # for plt in self.plots_list:
-    #     self.plots_list[-1].getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(vals, ticks)]])
 
     def _connection_vector(self, length, n_nans=10, id_th=None):
         """
@@ -618,7 +601,6 @@ class ORNPlot(BasePlots):
 
         # position line
         self._add_pos_line(t_vector)
-        # self.set_t_axis(t_vector)
 
         # connection vector
         connection = self._connection_vector(len(t_vector), n_nans=2)
@@ -727,8 +709,15 @@ class ExGPlot(BasePlots):
         # position line
         self._add_pos_line(t_vector)
 
-        # self.set_t_axis(t_vector)
+        # connection vector
+        connection = self._connection_vector(len(t_vector))
+
         # Paint curves
+        for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list):
+            try:
+                curve.setData(t_vector, plot_data[chan], connect=connection)
+            except KeyError:
+                pass
 
         # TODO:
         # remove reploted markers

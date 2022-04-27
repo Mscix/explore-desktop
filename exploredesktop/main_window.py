@@ -193,11 +193,10 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.exgChanged.connect(self.exg_plot.swipe_plot)
 
         self.signals.tRangeORNChanged.connect(self.orn_plot.set_t_range)
-        # TODO add when implemented
         self.signals.tAxisORNChanged.connect(self.orn_plot.set_t_axis)
 
         self.signals.tRangeEXGChanged.connect(self.exg_plot.set_t_range)
-        # self.signals.tAxisChanged.connect(self.exg_plot.set_t_axis)
+        self.signals.tAxisEXGChanged.connect(self.exg_plot.set_t_axis)
 
     def style_ui(self):
         """Initial style for UI
