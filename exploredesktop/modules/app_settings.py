@@ -1,6 +1,6 @@
 """Module with app settings, stylesheets and messages displayed in the app
 """
-from enum import Enum
+from enum import Enum, auto
 
 
 class BaseEnum(Enum):
@@ -44,6 +44,14 @@ class ORNLegend(BaseEnum):
     ACC = 'Acc [mg/LSB]'
     GYRO = 'Gyro [mdps/LSB]'
     MAG = 'Mag [mgauss/LSB]'
+
+
+class ExGAttributes(BaseEnum):
+    OFFSETS = auto()
+    BASELINE = auto()
+    DATA = auto()
+    # FILTERS = auto()
+    INIT = auto()
 
 
 class Stylesheets():
