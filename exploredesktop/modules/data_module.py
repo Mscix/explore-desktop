@@ -1,5 +1,4 @@
 
-from enum import Enum
 import logging
 from abc import abstractmethod
 
@@ -106,7 +105,6 @@ class DataContainer(BaseModel):
         if self.pointer >= len(self.t_plot_data):
             self.pointer -= len(self.t_plot_data)
             self.t_plot_data[self.pointer:] += self.timescale
-            # self.signals.tRangeChanged.emit(np.nanmin(self.t_plot_data))
             signal.emit(np.nanmin(self.t_plot_data))
 
     def new_t_axis(self, signal):
@@ -176,7 +174,6 @@ class ExGData(DataContainer):
         self.last_t = 0
 
         self.packet_count = 0
-        self.bt_drop_warning_displayed = False
         self.t_bt_drop = None
 
         self.rr_estimator = None
@@ -208,7 +205,6 @@ class ExGData(DataContainer):
         if ExGAttributes.BASELINE in attributes:
             self._baseline = None
         if ExGAttributes.DATA in attributes:
-            # TODO: reset data
             points = self.plot_points()
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
             self.t_plot_data = np.array([np.NaN] * points)
@@ -340,7 +336,6 @@ class BasePlots:
         self.ui = ui
         self.model = ""
 
-        # self.time_scale = 10
         self.lines = []
         self.plots_list = []
 
@@ -433,7 +428,6 @@ class BasePlots:
         for plt in self.plots_list:
             plt.setXRange(t_min, t_max, padding=0.01)
 
-    # TODO> check this when implementing exg plot
     @Slot(list)
     def set_t_axis(self, data):
         """_summary_
@@ -487,8 +481,6 @@ class BasePlots:
         Return:
             lines (list): position line with updated time pos
         """
-        # pos = t_vector[-1]
-        # pos = np.nanmax(t_vector)
         pos = t_vector[self.model.pointer - 1]
 
         if None in self.lines:
@@ -625,8 +617,8 @@ class ExGPlot(BasePlots):
 
         self.lines = [None]
 
-        self.y_string = "1mV"
         self.plots_list = [self.ui.plot_exg]
+        self.bt_drop_warning_displayed = False
 
     def reset_vars(self):
         pass
@@ -640,10 +632,6 @@ class ExGPlot(BasePlots):
         if self.ui.plot_orn.getItem(0, 0) is not None:
             plot_wdgt.clear()
             self.lines = [None]
-
-        # TODO move to exg data
-        # Create offsets for each chan line
-        # self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
 
         # Set Background color
         plot_wdgt.setBackground(Stylesheets.PLOT_BACKGROUND)
@@ -691,7 +679,7 @@ class ExGPlot(BasePlots):
         active_chan = self.model.explorer.active_chan_list
 
         ticks = [
-            (idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.y_string})') for idx, ch in enumerate(active_chan)]
+            (idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})') for idx, ch in enumerate(active_chan)]
         self.ui.plot_exg.getAxis('left').setTicks([ticks])
 
     @Slot(dict)
@@ -722,20 +710,6 @@ class ExGPlot(BasePlots):
         # TODO:
         # remove reploted markers
         # remove reploted r_peaks
-
-    # def set_t_axis(self, t):
-        
-    #     if np.nanmax(t) < self.time_scale:
-    #         return
-
-    #     t_ticks = t.copy()
-    #     t_ticks[self.model.pointer:] -= self.time_scale
-    #     t_ticks = t_ticks.astype(int)
-    #     l_points = int(len(t) / int(self.time_scale))
-    #     vals = t[::l_points]
-    #     ticks = t_ticks[::l_points]
-    #     for plt in self.plots_list:
-    #         plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(vals, ticks)]])
 
     def handle_bt_drop(self):
         """_summary_
