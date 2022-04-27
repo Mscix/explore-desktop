@@ -1,4 +1,5 @@
 
+from enum import Enum
 import logging
 from abc import abstractmethod
 
@@ -10,6 +11,7 @@ from PySide6.QtGui import QIntValidator
 
 from exploredesktop.modules import BaseModel  # isort:skip
 from exploredesktop.modules.app_settings import (  # isort:skip
+    ExGAttributes,
     ORNLegend,
     Settings,
     Stylesheets
@@ -92,18 +94,22 @@ class DataContainer(BaseModel):
         self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
 
         for key, val in self.plot_data.items():
-            val.put(idxs, data[key], mode='wrap')
+            try:
+                val.put(idxs, data[key], mode='wrap')
+            except KeyError:
+                val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
 
-    def update_pointer(self, data):
+    def update_pointer(self, data, signal):
         """update pointer"""
         self.pointer += self.get_n_new_points(data)
 
         if self.pointer >= len(self.t_plot_data):
             self.pointer -= len(self.t_plot_data)
             self.t_plot_data[self.pointer:] += self.timescale
-            self.signals.tRangeChanged.emit(np.nanmin(self.t_plot_data))
+            # self.signals.tRangeChanged.emit(np.nanmin(self.t_plot_data))
+            signal.emit(np.nanmin(self.t_plot_data))
 
-    def new_t_axis(self):
+    def new_t_axis(self, signal):
         """
         Update t-axis
 
@@ -120,7 +126,7 @@ class DataContainer(BaseModel):
         l_points = int(len(self.t_plot_data) / int(self.timescale))
         vals = self.t_plot_data[::l_points]
         ticks = t_ticks[::l_points]
-        self.signals.tAxisChanged.emit([vals, ticks])
+        signal.emit([vals, ticks])
 
 
 class ORNData(DataContainer):
@@ -129,6 +135,14 @@ class ORNData(DataContainer):
         super().__init__()
         self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
         self.t_plot_data = np.array([np.NaN] * 200)
+
+    def new_t_axis(self, signal=None):
+        signal = self.signals.tAxisORNChanged
+        return super().new_t_axis(signal)
+
+    def update_pointer(self, data, signal=None):
+        signal = self.signals.tRangeORNChanged
+        return super().update_pointer(data, signal)
 
     def callback(self, packet):
         """ORN callback"""
@@ -154,8 +168,48 @@ class ExGData(DataContainer):
     """_summary_"""
     def __init__(self) -> None:
         super().__init__()
-        self.packet_count = 0
+
         self._baseline = None
+        self.offsets = np.array([])
+        self.y_unit = Settings.DEFAULT_SCALE
+        self.y_string = '1 mV'
+        self.last_t = 0
+
+        self.packet_count = 0
+        self.bt_drop_warning_displayed = False
+        self.t_bt_drop = None
+
+        self.rr_estimator = None
+        self.r_peak = {'t': [], 'r_peak': [], 'points': []}
+        self.r_peak_replot = {'t': [], 'r_peak': [], 'points': []}
+        self.rr_warning_displayed = False
+
+        self.signals.updateDataAttributes.connect(self.update_attributes)
+
+    def update_pointer(self, data, signal=None):
+        signal = self.signals.tRangeEXGChanged
+        return super().update_pointer(data, signal)
+
+    @Slot(list)
+    def update_attributes(self, attributes: list):
+        """_summary_
+
+        Args:
+            attribute (str): _description_
+        """
+        n_chan = self.explorer.n_active_chan
+        active_chan = self.explorer.active_chan_list
+        if ExGAttributes.OFFSETS in attributes:
+            self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
+        if ExGAttributes.BASELINE in attributes:
+            self._baseline = None
+        if ExGAttributes.DATA in attributes:
+            # TODO: reset data
+            points = self.plot_points()
+            self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
+            self.t_plot_data = np.array([np.NaN] * points)
+        # if ExGAttributes.INIT in attributes:
+        #     self.
 
     def callback(self, packet):
         """_summary_"""
@@ -195,6 +249,7 @@ class ExGData(DataContainer):
         # Baseline Correction
         # TODO change if condition when filters are implemented
         # if self.plotting_filters is not None and self.plotting_filters['offset']:
+        # pylint: disable=using-constant-test
         if True:
             exg = self.baseline_correction(exg)
 
@@ -202,8 +257,15 @@ class ExGData(DataContainer):
         data = dict(zip(chan_list, exg))
         data['t'] = time_vector
 
+        self.insert_new_data(data)
+        self.update_pointer(data)
+        # self.new_t_axis()
+
+        self.last_t = data['t'][-1]
+
         try:
-            self.signals.exgChanged.emit(data)
+            self.signals.exgChanged.emit([self.t_plot_data, self.plot_data])
+            # print(f"{self.t_plot_data=}\n{self.plot_data=}\n\n")
         except ValueError:
             pass
 
@@ -256,6 +318,14 @@ class ExGData(DataContainer):
         return exg
 
     def update_unit(self, exg):
+        """_summary_
+
+        Args:
+            exg (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         exg = self.offsets + exg / self.y_unit
         return exg
 
@@ -269,8 +339,9 @@ class BasePlots:
 
         # self.time_scale = 10
         self.lines = []
-        self.set_dropdowns()
         self.plots_list = []
+
+        self.set_dropdowns()
 
     @property
     def time_scale(self):
@@ -280,8 +351,20 @@ class BasePlots:
         t = int(Settings.TIME_RANGE_MENU[t_str])
         return t
 
+    @time_scale.setter
+    def time_scale(self, value):
+        # TODO revisit this
+        if isinstance(value, str):
+            value = Settings.TIME_RANGE_MENU[value]
+        # self.time_scale = value
+        self.model.timescale = value
+
     def set_dropdowns(self):
         """Initialize dropdowns"""
+        # Avoid double initialization
+        if self.ui.value_signal.count() > 0:
+            return
+
         # value_signal_type
         self.ui.value_signal.addItems(Settings.MODE_LIST)
         self.ui.value_signal_rec.addItems(Settings.MODE_LIST)
@@ -299,19 +382,11 @@ class BasePlots:
 
         self.ui.value_event_code.setValidator(QIntValidator(8, 65535))
 
-    @time_scale.setter
-    def time_scale(self, value):
-        # TODO revisit this
-        if isinstance(value, str):
-            value = Settings.TIME_RANGE_MENU[value]
-        # self.time_scale = value
-        self.model.timescale = value
-
     @abstractmethod
     def init_plot(self):
         """initialize the plot"""
         raise NotImplementedError
-    
+
     @abstractmethod
     def swipe_plot(self, data):
         """swipping plot"""
@@ -322,7 +397,6 @@ class BasePlots:
     # def moving_plot(self):
     #     """moving window plot"""
     #     raise NotImplementedError
-
 
     def add_active_curves(self, all_curves: list, plot_widget: pg.PlotWidget) -> list:
         """Add curves from a list to a plot widget if the corresponding channel is active
@@ -366,8 +440,27 @@ class BasePlots:
             data (_type_): _description_
         """
         values, ticks = data
+        print("received")
         for plt in self.plots_list:
             plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
+    
+    # def set_t_axis(self, t):
+    #     """_summary_
+
+    #     Args:
+    #         t (_type_): _description_
+    #     """
+    #     if np.nanmax(t) < self.time_scale:
+    #         return
+
+    #     t_ticks = t.copy()
+    #     t_ticks[self.model.pointer:] -= self.time_scale
+    #     t_ticks = t_ticks.astype(int)
+    #     l_points = int(len(t) / int(self.time_scale))
+    #     vals = t[::l_points]
+    #     ticks = t_ticks[::l_points]
+    #     # for plt in self.plots_list:
+    #     self.plots_list[-1].getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(vals, ticks)]])
 
     def _connection_vector(self, length, n_nans=10, id_th=None):
         """
@@ -379,8 +472,9 @@ class BasePlots:
             n_nans (int): number of nans to introduce
         """
         connection = np.full(length, 1)
-        # connection = np.full(length, 1)
         connection[self.model.pointer - int(n_nans / 2): self.model.pointer + int(n_nans / 2)] = 0
+        first_key = list(self.model.plot_data.keys())[0]
+        connection[np.argwhere(np.isnan(self.model.plot_data[first_key]))] = 0
         if id_th is not None and id_th > 100:
             connection[:id_th] = 0
 
@@ -398,7 +492,7 @@ class BasePlots:
     def remove_old_item(self, item_dict, t_vector, item_type):
         pass
 
-    def _add_pos_line(self, lines: list, plot_widgets: list, t_vector: list):
+    def _add_pos_line(self, t_vector: list):
         """
         Add position line to plot based on last value in the time vector
 
@@ -414,17 +508,17 @@ class BasePlots:
         # pos = np.nanmax(t_vector)
         pos = t_vector[self.model.pointer - 1]
 
-        if None in lines:
-            for idx, plt in enumerate(plot_widgets):
-                lines[idx] = plt.addLine(pos, pen=Stylesheets.POS_LINE_COLOR)
+        if None in self.lines:
+            for idx, plt in enumerate(self.plots_list):
+                self.lines[idx] = plt.addLine(pos, pen=Stylesheets.POS_LINE_COLOR)
         else:
-            for line in lines:
+            for line in self.lines:
                 try:
                     line.setPos(pos)
                 except RuntimeError:
-                    lines = [None for i in range(len(lines))]
+                    self.lines = [None for i in range(len(self.lines))]
 
-        return lines
+        return self.lines
 
 
 class ORNPlot(BasePlots):
@@ -515,25 +609,29 @@ class ORNPlot(BasePlots):
     @Slot(dict)
     def swipe_plot(self, data):
         """plot orientation data"""
-        t, y = data
+        t_vector, plot_data = data
 
-        # position line
+        # Reset plot if position line is not properly set
         if None in self.lines:
             self.ui.plot_orn.clear()
             self.init_plot()
-        self._add_pos_line(self.lines, self.plots_list, t)
 
-        connection = self._connection_vector(len(t), n_nans=2)
+        # position line
+        self._add_pos_line(t_vector)
+        # self.set_t_axis(t_vector)
 
-        self.curve_ax.setData(t, y['accX'], connect=connection)
-        self.curve_ay.setData(t, y['accY'], connect=connection)
-        self.curve_az.setData(t, y['accZ'], connect=connection)
-        self.curve_gx.setData(t, y['gyroX'], connect=connection)
-        self.curve_gy.setData(t, y['gyroY'], connect=connection)
-        self.curve_gz.setData(t, y['gyroZ'], connect=connection)
-        self.curve_mx.setData(t, y['magX'], connect=connection)
-        self.curve_my.setData(t, y['magY'], connect=connection)
-        self.curve_mz.setData(t, y['magZ'], connect=connection)
+        # connection vector
+        connection = self._connection_vector(len(t_vector), n_nans=2)
+
+        self.curve_ax.setData(t_vector, plot_data['accX'], connect=connection)
+        self.curve_ay.setData(t_vector, plot_data['accY'], connect=connection)
+        self.curve_az.setData(t_vector, plot_data['accZ'], connect=connection)
+        self.curve_gx.setData(t_vector, plot_data['gyroX'], connect=connection)
+        self.curve_gy.setData(t_vector, plot_data['gyroY'], connect=connection)
+        self.curve_gz.setData(t_vector, plot_data['gyroZ'], connect=connection)
+        self.curve_mx.setData(t_vector, plot_data['magX'], connect=connection)
+        self.curve_my.setData(t_vector, plot_data['magY'], connect=connection)
+        self.curve_mz.setData(t_vector, plot_data['magZ'], connect=connection)
 
 
 class ExGPlot(BasePlots):
@@ -546,6 +644,7 @@ class ExGPlot(BasePlots):
         self.lines = [None]
 
         self.y_string = "1mV"
+        self.plots_list = [self.ui.plot_exg]
 
     def reset_vars(self):
         pass
@@ -588,7 +687,8 @@ class ExGPlot(BasePlots):
         plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
         plot_wdgt.setLabel('bottom', 'time (s)')
 
-        all_curves_list = [pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
+        all_curves_list = [
+            pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
         self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
 
     def add_right_axis_ticks(self):
@@ -614,4 +714,56 @@ class ExGPlot(BasePlots):
 
     @Slot(dict)
     def swipe_plot(self, data):
-        return super().swipe_plot(data)
+        t_vector, plot_data = data
+
+        # TODO implement bt drop handling
+        # self.handle_bt_drop()
+
+        # TODO: if wrap handle
+        # 1. check id_th (check if necessary)
+        # 2. Remove marker line and replot in the new axis
+        # 3. Remove rr peaks and replot in new axis
+
+        # position line
+        self._add_pos_line(t_vector)
+
+        # self.set_t_axis(t_vector)
+        # Paint curves
+
+        # TODO:
+        # remove reploted markers
+        # remove reploted r_peaks
+
+    # def set_t_axis(self, t):
+        
+    #     if np.nanmax(t) < self.time_scale:
+    #         return
+
+    #     t_ticks = t.copy()
+    #     t_ticks[self.model.pointer:] -= self.time_scale
+    #     t_ticks = t_ticks.astype(int)
+    #     l_points = int(len(t) / int(self.time_scale))
+    #     vals = t[::l_points]
+    #     ticks = t_ticks[::l_points]
+    #     for plt in self.plots_list:
+    #         plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(vals, ticks)]])
+
+    def handle_bt_drop(self):
+        """_summary_
+        """
+        # TODO implement
+        # if data['t'][0] < self.last_t and self.bt_drop_warning_displayed is False:
+        #     self.bt_drop_warning_displayed = True
+        #     self.t_drop = data['t'][0]
+        #     msg = (
+        #         "The bluetooth connection is unstable. This may affect the ExG visualization."
+        #         "\nPlease read the troubleshooting section of the user manual for more."
+        #     )
+        #     title = "Unstable Bluetooth connection"
+        #     self.display_msg(msg_text=msg, title=title, type="info")
+
+        # elif (self.t_drop is not None) and (data['t'][0] > self.last_t) and \
+        #         (data['t'][0] - self.t_drop > 10) and self.bt_drop_warning_displayed is True:
+        #     self.bt_drop_warning_displayed = False
+        pass
+        
