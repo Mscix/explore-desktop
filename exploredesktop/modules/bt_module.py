@@ -126,6 +126,7 @@ class BTFrameView(BaseModel):
             logger.debug("Got an exception while disconnecting from the device: %s of type: %s", error, type(error))
 
         self.on_connection_change()
+
     #########################
     # Slots
     #########################

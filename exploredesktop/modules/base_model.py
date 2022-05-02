@@ -52,6 +52,7 @@ class SignalsContainer(QObject):
 
     updateDataAttributes = Signal(list)
 
+
 class BaseModel():
     """Base class for models
     """

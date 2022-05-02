@@ -70,7 +70,11 @@ class FooterData(BaseModel):
             EnvVariables.BATTERY: [str(battery_val), battery_stylesheet],
             EnvVariables.TEMPERATURE: temperature,
         }
-        self.signals.envInfoChanged.emit(data)
+
+        try:
+            self.signals.envInfoChanged.emit(data)
+        except RuntimeError as error:
+            logger.warning("footer_module>line75: RuntimeError: %s", str(error))
 
     def subscribe_env_callback(self) -> None:
         """subscribe env callback to stream processor
