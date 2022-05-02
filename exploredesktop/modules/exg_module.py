@@ -187,7 +187,6 @@ class ExGData(DataContainer):
 
     def change_timescale(self):
         super().change_timescale()
-        print("in exg change timescale")
         self.signals.tRangeEXGChanged.emit(self.last_t)
         self.signals.updateDataAttributes.emit([DataAttributes.POINTER, DataAttributes.DATA])
 

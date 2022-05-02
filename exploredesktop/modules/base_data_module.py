@@ -32,6 +32,10 @@ class DataContainer(BaseModel):
     def callback(self, packet):
         raise NotImplementedError
 
+    @abstractmethod
+    def update_attributes(self, attributes):
+        raise NotImplementedError
+
     def set_marker(self):
         pass
 

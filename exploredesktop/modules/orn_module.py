@@ -7,6 +7,7 @@ from PySide6.QtCore import Slot
 
 
 from exploredesktop.modules.app_settings import (  # isort:skip
+    DataAttributes,
     ORNLegend,
     Settings,
     Stylesheets
@@ -24,6 +25,8 @@ class ORNData(DataContainer):
         self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
         self.t_plot_data = np.array([np.NaN] * 200)
 
+        self.signals.updateDataAttributes.connect(self.update_attributes)
+
     def new_t_axis(self, signal=None):
         signal = self.signals.tAxisORNChanged
         return super().new_t_axis(signal)
@@ -31,6 +34,14 @@ class ORNData(DataContainer):
     def update_pointer(self, data, signal=None):
         signal = self.signals.tRangeORNChanged
         return super().update_pointer(data, signal)
+
+    def update_attributes(self, attributes: list):
+        if DataAttributes.ORNPOINTER in attributes:
+            self.pointer = 0
+        if DataAttributes.ORNDATA in attributes:
+            points = self.plot_points(orn=True)
+            self.t_plot_data = np.array([np.NaN] * points)
+            self.plot_data = {k: np.array([np.NaN] * points) for k in Settings.ORN_LIST}
 
     def callback(self, packet):
         """ORN callback"""
@@ -51,6 +62,10 @@ class ORNData(DataContainer):
         except RuntimeError as error:
             logger.warning("RuntimeError: %s", str(error))
 
+    def change_timescale(self):
+        self.signals.tRangeORNChanged.emit(self.t_plot_data[self.pointer])
+        self.signals.updateDataAttributes.emit([DataAttributes.ORNPOINTER, DataAttributes.ORNDATA])
+
 
 class ORNPlot(BasePlots):
     """_summary_
@@ -66,6 +81,8 @@ class ORNPlot(BasePlots):
         self.plots_list = [self.plot_acc, self.plot_gyro, self.plot_mag]
 
         self.lines = [None, None, None]
+
+        self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
 
     def reset_vars(self):
         """Reset attributes"""
