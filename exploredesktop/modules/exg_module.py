@@ -7,7 +7,7 @@ from PySide6.QtCore import Slot
 
 
 from exploredesktop.modules.app_settings import (  # isort:skip
-    ExGAttributes,
+    DataAttributes,
     Settings,
     Stylesheets
 )
@@ -55,16 +55,18 @@ class ExGData(DataContainer):
         """
         n_chan = self.explorer.n_active_chan
         active_chan = self.explorer.active_chan_list
-        if ExGAttributes.OFFSETS in attributes:
+        if DataAttributes.OFFSETS in attributes:
             self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
-        if ExGAttributes.BASELINE in attributes:
+        if DataAttributes.BASELINE in attributes:
             self._baseline = None
-        if ExGAttributes.DATA in attributes:
+        if DataAttributes.DATA in attributes:
             points = self.plot_points()
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
             self.t_plot_data = np.array([np.NaN] * points)
         # if ExGAttributes.INIT in attributes:
         #     self.
+        if DataAttributes.POINTER in attributes:
+            self.pointer = 0
 
     def callback(self, packet):
         """_summary_"""
@@ -183,6 +185,12 @@ class ExGData(DataContainer):
         exg = self.offsets + exg / self.y_unit
         return exg
 
+    def change_timescale(self):
+        super().change_timescale()
+        print("in exg change timescale")
+        self.signals.tRangeEXGChanged.emit(self.last_t)
+        self.signals.updateDataAttributes.emit([DataAttributes.POINTER, DataAttributes.DATA])
+
 
 class ExGPlot(BasePlots):
     """_summary_
@@ -195,6 +203,8 @@ class ExGPlot(BasePlots):
 
         self.plots_list = [self.ui.plot_exg]
         self.bt_drop_warning_displayed = False
+
+        self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
 
     def reset_vars(self):
         pass

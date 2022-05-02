@@ -1,4 +1,5 @@
 from abc import abstractmethod
+import logging
 import numpy as np
 
 from PySide6.QtCore import Slot
@@ -6,6 +7,8 @@ from PySide6.QtGui import QIntValidator
 import pyqtgraph as pg
 from exploredesktop.modules.app_settings import Settings, Stylesheets  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class DataContainer(BaseModel):
@@ -42,7 +45,7 @@ class DataContainer(BaseModel):
         pass
 
     def change_timescale(self):
-        pass
+        logger.debug("Time scale has been changed to %.0f", self.timescale)
 
     def plot_points(self, orn=False, downsampling=Settings.DOWNSAMPLING):
         """_summary_
@@ -120,12 +123,16 @@ class BasePlots:
     """
     def __init__(self, ui) -> None:
         self.ui = ui
-        self.model = ""
+        self.model = DataContainer()
 
         self.lines = []
         self.plots_list = []
 
         self.set_dropdowns()
+        self.setup_ui_connections()
+
+    def setup_ui_connections(self):
+        self.ui.value_timeScale.currentTextChanged.connect(self.set_time_scale)
 
     @property
     def time_scale(self):
@@ -135,8 +142,8 @@ class BasePlots:
         t = int(Settings.TIME_RANGE_MENU[t_str])
         return t
 
-    @time_scale.setter
-    def time_scale(self, value):
+    # @time_scale.setter
+    def set_time_scale(self, value):
         # TODO revisit this
         if isinstance(value, str):
             value = Settings.TIME_RANGE_MENU[value]

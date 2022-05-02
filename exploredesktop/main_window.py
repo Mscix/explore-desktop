@@ -2,7 +2,7 @@
 import logging
 import os
 import sys
-from exploredesktop.modules.data_module import ExGPlot
+
 
 from explorepy.log_config import (
     read_config,
@@ -39,14 +39,14 @@ from exploredesktop.modules import (  # isort: skip
     BaseModel,
     Stylesheets
 )
-from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables, ExGAttributes  # isort: skip
+from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables, DataAttributes  # isort: skip
 from exploredesktop.modules.bt_module import BTFrameView  # isort: skip
-from exploredesktop.modules.data_module import ORNPlot  # isort: skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort: skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
 from exploredesktop.modules.settings_module import SettingsFrameView  # isort: skip
 from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # isort: skip
-
+from exploredesktop.modules.exg_module import ExGPlot  # isort: skip
+from exploredesktop.modules.orn_module import ORNPlot  # isort: skip
 
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
@@ -149,7 +149,7 @@ class MainWindow(QMainWindow, BaseModel):
             # initialize settings frame
             self.settings_frame.setup_settings_frame()
             # initialize visualization offsets
-            self.signals.updateDataAttributes.emit([ExGAttributes.OFFSETS, ExGAttributes.DATA])
+            self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.DATA])
 
             # TODO: delete when filters are implemented
             self.explorer.add_filter((1, 30), "bandpass")
@@ -216,6 +216,7 @@ class MainWindow(QMainWindow, BaseModel):
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
+        self.ui.btn_stream.setHidden(True)
         # imp page
         self.ui.label_6.setHidden(True)
         # settings page
@@ -276,8 +277,8 @@ class MainWindow(QMainWindow, BaseModel):
         if btn_name == "btn_settings":
             self.settings_frame.setup_settings_frame()
             self.settings_frame.one_chan_selected()
-            enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
             # TODO enable settings depending on recording/pushing status
+            # enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
             # self.settings_frame.enable_settings(enable)
             # self.ui.value_sampling_rate.setEnabled(True)
 

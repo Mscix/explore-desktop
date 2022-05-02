@@ -46,12 +46,15 @@ class ORNLegend(BaseEnum):
     MAG = 'Mag [mgauss/LSB]'
 
 
-class ExGAttributes(BaseEnum):
+class DataAttributes(BaseEnum):
     OFFSETS = auto()
     BASELINE = auto()
     DATA = auto()
     # FILTERS = auto()
     INIT = auto()
+    ORNDATA = auto()
+    POINTER = auto()
+    ORNPOINTER = auto()
 
 
 class Stylesheets():
