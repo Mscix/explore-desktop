@@ -109,10 +109,10 @@ class ExGData(DataContainer):
         #     self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
         # From timestamp to seconds
-        if self._vis_time_offset is None:
-            self._vis_time_offset = timestamp[0]
+        if DataContainer.vis_time_offset is None:
+            DataContainer.vis_time_offset = timestamp[0]
 
-        time_vector = timestamp - self._vis_time_offset
+        time_vector = timestamp - DataContainer.vis_time_offset
 
         # Downsampling
         if Settings.DOWNSAMPLING:
@@ -249,6 +249,7 @@ class ExGPlot(BasePlots):
         self.bt_drop_warning_displayed = False
 
     def setup_ui_connections(self):
+        super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
 
