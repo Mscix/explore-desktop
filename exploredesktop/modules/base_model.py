@@ -54,6 +54,8 @@ class SignalsContainer(QObject):
     updateDataAttributes = Signal(list)
     updateYAxis = Signal()
 
+    restartPlot = Signal()
+
 
 class BaseModel(object):
     """Base class for models

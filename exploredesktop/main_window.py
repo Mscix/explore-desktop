@@ -212,6 +212,8 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.updateYAxis.connect(self.exg_plot.add_left_axis_ticks)
 
+        self.signals.restartPlot.connect(self.exg_plot.init_plot)
+
     def style_ui(self):
         """Initial style for UI
         """

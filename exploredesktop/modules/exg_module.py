@@ -125,7 +125,12 @@ class ExGData(DataContainer):
         if True:
             exg = self.baseline_correction(exg)
 
-        exg = self.update_unit(exg)
+        # ValueError thrown when changing the channels. Can be ignored
+        try:
+            exg = self.update_unit(exg)
+        except ValueError as error:
+            logger.warning("ValueError: %s", str(error))
+
         data = dict(zip(chan_list, exg))
         data['t'] = time_vector
 
@@ -134,11 +139,12 @@ class ExGData(DataContainer):
         self.new_t_axis()
 
         self.last_t = data['t'][-1]
+        self.packet_count += 1
 
         try:
             self.signals.exgChanged.emit([self.t_plot_data, self.plot_data])
-        except ValueError:
-            pass
+        except RuntimeError as error:
+            logger.warning("RuntimeError: %s", str(error))
 
     def downsampling(self, time_vector, exg, exg_fs):
         """Downsample"""
