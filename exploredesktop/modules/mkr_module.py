@@ -85,8 +85,13 @@ class MarkerPlot(BasePlots):
         mrk_dict['t'].append(t_point)
         mrk_dict['code'].append(code)
         pen_marker = pg.mkPen(color=color, dash=[4, 4])
-
-        lines = [plt.addLine(t_point, label=code, pen=pen_marker) for plt in self.plots_list]
-        # line = self.ui.plot_exg.addLine(t_point, label=code, pen=pen_marker)
+        lines = []
+        line = self.ui.plot_orn.getItem(0, 0).addLine(t_point, label=code, pen=pen_marker)
+        lines.append(line)
+        line = self.ui.plot_orn.getItem(1, 0).addLine(t_point, label=code, pen=pen_marker)
+        lines.append(line)
+        line = self.ui.plot_orn.getItem(2, 0).addLine(t_point, label=code, pen=pen_marker)
+        lines.append(line)
+        line = self.ui.plot_exg.addLine(t_point, label=code, pen=pen_marker)
+        lines.append(line)
         mrk_dict['line'].append(lines)
-

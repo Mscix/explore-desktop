@@ -23,17 +23,7 @@ class DataContainer(BaseModel):
 
         self.pointer = 0
 
-        # self.vis_time_offset = None
-
         self.timescale = 10
-
-    # @property
-    # def vis_time_offset(self):
-    #     return self._vis_time_offset
-
-    # @vis_time_offset.setter
-    # def vis_time_offset(self, value):
-    #     self._vis_time_offset = value
 
     def reset_vars(self):
         self.plot_data = {}
