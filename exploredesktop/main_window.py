@@ -115,7 +115,7 @@ class MainWindow(QMainWindow, BaseModel):
         # PLOTS
         self.orn_plot = ORNPlot(self.ui)
         self.exg_plot = ExGPlot(self.ui)
-
+        self.exg_plot.setup_ui_connections()
         # signal connections
         self.setup_signal_connections()
 
@@ -163,6 +163,8 @@ class MainWindow(QMainWindow, BaseModel):
             # TODO:
             # stop processes
             # reset vars:
+            self.exg_plot.reset_vars()
+            self.exg_plot.get_model().reset_vars()
             self.footer_frame.get_model().reset_vars()
             self.imp_frame.get_model().reset_vars()
 
@@ -197,6 +199,8 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.tRangeEXGChanged.connect(self.exg_plot.set_t_range)
         self.signals.tAxisEXGChanged.connect(self.exg_plot.set_t_axis)
+
+        self.signals.updateYAxis.connect(self.exg_plot.add_left_axis_ticks)
 
     def style_ui(self):
         """Initial style for UI

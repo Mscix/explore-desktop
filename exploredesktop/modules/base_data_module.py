@@ -133,10 +133,11 @@ class BasePlots:
         self.plots_list = []
 
         self.set_dropdowns()
-        self.setup_ui_connections()
-
-    def setup_ui_connections(self):
         self.ui.value_timeScale.currentTextChanged.connect(self.set_time_scale)
+
+    def get_model(self):
+        """Return data model"""
+        return self.model
 
     @property
     def time_scale(self):
