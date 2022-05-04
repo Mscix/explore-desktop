@@ -165,6 +165,8 @@ class MainWindow(QMainWindow, BaseModel):
             # reset vars:
             self.exg_plot.reset_vars()
             self.exg_plot.get_model().reset_vars()
+            self.orn_plot.reset_vars()
+            self.orn_plot.get_model().reset_vars()
             self.footer_frame.get_model().reset_vars()
             self.imp_frame.get_model().reset_vars()
 

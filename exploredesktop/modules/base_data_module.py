@@ -28,6 +28,19 @@ class DataContainer(BaseModel):
 
         self.timescale = 10
 
+    def reset_vars(self):
+        self.plot_data = {}
+        self.t_plot_data = np.array([])
+
+        self.pointer = 0
+
+        self.mrk_plot = {'t': [], 'code': [], 'line': []}
+        self.mrk_replot = {'t': [], 'code': [], 'line': []}
+
+        self._vis_time_offset = None
+
+        self.timescale = 10
+
     @abstractmethod
     def callback(self, packet):
         raise NotImplementedError
