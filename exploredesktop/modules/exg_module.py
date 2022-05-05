@@ -330,7 +330,9 @@ class ExGPlot(BasePlots):
         # TODO implement bt drop handling
         # self.handle_bt_drop()
 
-        # TODO: if wrap handle
+        # TODO: if wrap handle - check if there is a way to to it without model access
+        if self.model.pointer >= len(self.model.t_plot_data):
+            self.model.signals.mkrReplot.emit(self.model.t_plot_data[0])
         # 1. check id_th (check if necessary)
         # 2. Remove marker line and replot in the new axis
         # 3. Remove rr peaks and replot in new axis
@@ -348,8 +350,9 @@ class ExGPlot(BasePlots):
             except KeyError:
                 pass
 
-        # TODO:
         # remove reploted markers
+        self.model.signals.mkrRemove.emit(self.model.last_t)
+        # TODO:
         # remove reploted r_peaks
 
     def handle_bt_drop(self):

@@ -202,7 +202,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.ornChanged.connect(self.orn_plot.swipe_plot)
         self.signals.exgChanged.connect(self.exg_plot.swipe_plot)
-        self.signals.mkrChanged.connect(self.mkr_plot.plot_marker)
 
         self.signals.tRangeORNChanged.connect(self.orn_plot.set_t_range)
         self.signals.tAxisORNChanged.connect(self.orn_plot.set_t_axis)
@@ -213,6 +212,13 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.updateYAxis.connect(self.exg_plot.add_left_axis_ticks)
 
         self.signals.restartPlot.connect(self.exg_plot.init_plot)
+
+        self.signals.mkrPlot.connect(self.mkr_plot.plot_marker)
+        self.signals.mkrChanged.connect(self.mkr_plot.model.add_mkr)
+
+        # self.signals.mkrReplot.connect(lambda data: self.mkr_plot.plot_marker(data, replot=True))
+        self.signals.mkrReplot.connect(self.mkr_plot.model.add_mkr_replot)
+        self.signals.mkrRemove.connect(self.mkr_plot.remove_old_item)
 
     def style_ui(self):
         """Initial style for UI

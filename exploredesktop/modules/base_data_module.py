@@ -5,7 +5,7 @@ import numpy as np
 from PySide6.QtCore import Slot
 
 import pyqtgraph as pg
-from exploredesktop.modules.app_settings import Settings, Stylesheets 
+from exploredesktop.modules.app_settings import Settings, Stylesheets
 from exploredesktop.modules.base_model import BaseModel
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -108,6 +108,8 @@ class DataContainer(BaseModel):
             self.pointer -= len(self.t_plot_data)
             self.t_plot_data[self.pointer:] += self.timescale
             signal.emit(np.nanmin(self.t_plot_data))
+            # TODO create signal onWrap to update data and emit6
+            self.signals.mkrReplot.emit(self.t_plot_data[0])
 
     def new_t_axis(self, signal):
         """
@@ -126,7 +128,10 @@ class DataContainer(BaseModel):
         l_points = int(len(self.t_plot_data) / int(self.timescale))
         vals = self.t_plot_data[::l_points]
         ticks = t_ticks[::l_points]
-        signal.emit([vals, ticks])
+        try:
+            signal.emit([vals, ticks])
+        except RuntimeError as error:
+            logger.warning("RuntimeError: %s", str(error))
 
 
 class BasePlots:
@@ -269,9 +274,6 @@ class BasePlots:
     def remove_markers(self, mrk_dict):
         pass
 
-    def remove_old_item(self, item_dict, t_vector, item_type):
-        pass
-
     def _add_pos_line(self, t_vector: list):
         """
         Add position line to plot based on last value in the time vector
@@ -298,3 +300,28 @@ class BasePlots:
 
         return self.lines
 
+    def remove_old_item(self, item_dict: dict, last_t: np.array, item_type: str) -> list:
+        """
+        Remove line or point element from plot widget
+
+        Args:
+            item_dict (dict): dictionary with items to remove
+            t_vector (np.array): time vector used as a condition to remove
+            item_type (str): specifies item to remove (line or points).
+            plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
+
+        Retrun:
+            list: list with objects to remove
+        """
+        assert item_type in ['lines', 'points'], 'item type parameter must be line or points'
+        assert 't' in item_dict.keys(), 'the items dictionary must have the key \'t\''
+
+        to_remove = []
+        for idx_t in range(len(item_dict['t'])):
+            if item_dict['t'][idx_t] < last_t:
+                for plt_wdgt in self.plots_list:
+                    for item in item_dict[item_type][idx_t]:
+                        plt_wdgt.removeItem(item)
+                to_remove.append([item_dict[key][idx_t] for key in item_dict.keys()])
+                # [item_dict['t'][idx_t], item_dict['r_peak'][idx_t], item_dict['points'][idx_t]])
+        return to_remove
