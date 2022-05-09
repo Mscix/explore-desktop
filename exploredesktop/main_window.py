@@ -21,6 +21,7 @@ from exploredesktop.modules.fft_module import FFTPlot
 from exploredesktop.modules.footer_module import FooterFrameView
 from exploredesktop.modules.imp_module import ImpFrameView
 from exploredesktop.modules.orn_module import ORNPlot
+from exploredesktop.modules.recording_module import RecordFunctions
 from exploredesktop.modules.settings_module import SettingsFrameView
 from exploredesktop.modules.tools import (
     display_msg,
@@ -129,6 +130,10 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.mkr_plot = MarkerPlot(self.ui)
         self.mkr_plot.setup_ui_connections()
+
+        # recording
+        self.recording = RecordFunctions(self.ui)
+        self.recording.setup_ui_connections()
 
         # signal connections
         self.setup_signal_connections()

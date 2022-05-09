@@ -2,11 +2,12 @@ import logging
 import os
 from datetime import datetime
 
-from exploredesktop.modules.app_functions import AppFunctions
+from exploredesktop.modules.base_model import BaseModel
 from exploredesktop.modules.dialogs import RecordingDialog
 from PySide6.QtCore import (
     QTimer,
-    Slot
+    Slot,
+    QSettings
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
@@ -15,22 +16,25 @@ from PySide6.QtWidgets import QApplication
 logger = logging.getLogger("explorepy." + __name__)
 
 
-class RecordFunctions(AppFunctions):
+class RecordFunctions(BaseModel):
     """
     Functions for recording functionality
     """
 
-    def __init__(self, ui, explorer):
-        super().__init__(ui, explorer)
-        self.is_recording = False
+    def __init__(self, ui):
+        super().__init__()
+        self.ui = ui
+
+    def setup_ui_connections(self):
+        self.ui.btn_record.clicked.connect(self.on_record_clicked)
 
     @Slot()
-    def on_record(self):
+    def on_record_clicked(self):
         """
         Start or stop recording when button is pressed
         """
-        logger.debug("Pressed record button -> %s", not self.is_recording)
-        if self.is_recording is False:
+        logger.debug("Pressed record button -> %s", not self.explorer.is_recording)
+        if self.explorer.is_recording is False:
             self.start_record()
         else:
             self.stop_record()
@@ -45,7 +49,10 @@ class RecordFunctions(AppFunctions):
         default_file_name += datetime.now().strftime("_%d%b%Y_%H%M")
         dialog.ui.input_file_name.setPlaceholderText(default_file_name)
 
-        default_dir = str(os.path.expanduser("~"))
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        default_dir = settings.value("last_record_folder")
+        if not default_dir:
+            default_dir = str(os.path.expanduser("~"))
         dialog.ui.input_filepath.setPlaceholderText(default_dir)
         data = dialog.exec()
 
@@ -66,7 +73,7 @@ class RecordFunctions(AppFunctions):
             file_type=file_type,
             duration=record_duration)
 
-        self.is_recording = True
+        # self.is_recording = True
         self.start_timer_recorder(duration=record_duration)
 
         self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-stop.png"))
@@ -78,7 +85,7 @@ class RecordFunctions(AppFunctions):
         Stop recording
         """
         self.explorer.stop_recording()
-        self.is_recording = False
+        # self.is_recording = False
         self.timer.stop()
         self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-record.png"))
         self.ui.btn_record.setText("Record")
@@ -93,10 +100,10 @@ class RecordFunctions(AppFunctions):
 
         self.timer = QTimer()
         self.timer.setInterval(1000)
-        self.timer.timeout.connect(lambda: self.displayTime(duration))
+        self.timer.timeout.connect(lambda: self.display_rec_time(duration))
         self.timer.start()
 
-    def displayTime(self, duration):
+    def display_rec_time(self, duration):
         """
         Display recording time in label
         """
@@ -108,5 +115,5 @@ class RecordFunctions(AppFunctions):
         else:
             self.stop_record()
 
-    def reset_record_vars(self):
-        self.is_recording = False
+    # def reset_record_vars(self):
+    #     self.is_recording = False
