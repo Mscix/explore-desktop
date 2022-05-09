@@ -261,6 +261,8 @@ class BasePlots:
             if act == 1:
                 plot_widget.addItem(curve)
                 active_curves.append(curve)
+            else:
+                plot_widget.removeItem(curve)
         return active_curves
 
     @Slot(float)

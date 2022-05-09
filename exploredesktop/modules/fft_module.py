@@ -1,6 +1,16 @@
 """FFT visualization module"""
+import logging
+from datetime import datetime as dt
+
 import numpy as np
-from exploredesktop.modules.app_settings import ExGAttributes, Stylesheets
+from exploredesktop.modules.app_settings import (
+    DataAttributes,
+    Stylesheets
+)
+from PySide6.QtCore import (
+    QTimer,
+    Slot
+)
 from scipy.ndimage.filters import gaussian_filter1d
 
 
@@ -9,41 +19,30 @@ from exploredesktop.modules.base_data_module import (  # isort:skip
     DataContainer
 )
 
-from PySide6.QtCore import Slot, QTimer
-from datetime import datetime as dt
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class FFTData(DataContainer):
     def __init__(self) -> None:
         super().__init__()
 
-        self.timer = QTimer()
         self.signals.updateDataAttributes.connect(self.update_attributes)
-
-    def start_timer(self, fn):
-        if self.timer.isActive():
-            print("timer is active")
-            return
-        self.timer.setInterval(2000)
-        self.timer.timeout.connect(fn)
-        self.timer.start()
-
-    def stop_timer(self):
-        self.timer.stop()
 
     @Slot(list)
     def update_attributes(self, attributes: list):
-        """_summary_
+        """Update class attributes
 
         Args:
-            attributes (list): _description_
+            attributes (list): list of attributes to update
         """
         active_chan = self.explorer.active_chan_list
-        if ExGAttributes.DATA in attributes:
+        if DataAttributes.DATA in attributes:
             points = self.plot_points()
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
 
-    def get_fft(self, exg, s_rate):
+    @staticmethod
+    def get_fft(exg, s_rate):
         """
         Compute FFT
         Args:
@@ -64,25 +63,17 @@ class FFTData(DataContainer):
 
         _, exg = packet.get_data(exg_fs)
         orig_exg = dict(zip(chan_list, exg))
-        first_chan = list(self.plot_data.keys())[0]
-        n_new_points = len(orig_exg[list(orig_exg.keys())[0]])
+        # first_chan = list(self.plot_data.keys())[0]
+        # n_new_points = len(orig_exg[list(orig_exg.keys())[0]])
+        self.insert_new_data(data=orig_exg, fft=True)
+        self.update_pointer(data=orig_exg, fft=True)
 
-        idxs = np.arange(self.pointer, self.pointer + n_new_points)
-
-        for chan in self.plot_data.keys():
-            try:
-                chan_data = orig_exg[chan]
-            except KeyError:
-                chan_data = np.array([np.NaN for i in range(n_new_points)])
-            self.plot_data[chan].put(idxs, chan_data, mode='wrap')
-
-        self.pointer += n_new_points
-        if self.pointer >= len(self.plot_data[first_chan]):
-            self.pointer -= len(self.plot_data[first_chan])
-
+    def fft_plot_data(self):
+        exg_fs = self.explorer.sampling_rate
         exg_data = np.array(
             [self.plot_data[key][~np.isnan(self.plot_data[key])] for key in self.plot_data.keys()], dtype=object)
 
+        print(f"{exg_data.shape=}")
         if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
             return
 
@@ -90,19 +81,14 @@ class FFTData(DataContainer):
         data = dict(zip(self.plot_data.keys(), fft_content))
         data['f'] = freq
 
-        def emit_fft(data):
-            self.signals.fftChanged.emit(data)
-
-        try:
-            self.start_timer(emit_fft(data))
-        except ValueError:
-            pass
+        return data
 
 
 class FFTPlot(BasePlots):
     def __init__(self, ui) -> None:
         super().__init__(ui)
         self.model = FFTData()
+        self.timer = QTimer()
 
     def init_plot(self):
         if self.ui.plot_orn.getItem(0, 0) is not None:
@@ -110,9 +96,8 @@ class FFTPlot(BasePlots):
 
         plot_wdgt = self.ui.plot_fft
         plot_wdgt.setBackground(Stylesheets.PLOT_BACKGROUND)
-
-        plot_wdgt.showGrid(x=True, y=True, alpha=0.5)
         plot_wdgt.addLegend(horSpacing=20, colCount=2, brush='k', offset=(0, -300))
+        plot_wdgt.showGrid(x=True, y=True, alpha=0.5)
         plot_wdgt.setLabel('left', 'Amplitude (uV)')
         plot_wdgt.setLabel('bottom', 'Frequency (Hz)')
         plot_wdgt.setLogMode(x=False, y=True)
@@ -125,13 +110,29 @@ class FFTPlot(BasePlots):
         ]
         self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
 
-    @Slot(dict)
-    def plot(self, data):
+    def plot(self):
         plot_wdgt = self.ui.plot_fft
         plot_wdgt.setXRange(0, 70, padding=0.01)
-        print(dt.now())
-        # for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list):
-        #     try:
-        #         curve.setData(data['f'], data[chan])
-        #     except KeyError:
-        #         pass
+        data = self.model.fft_plot_data()
+        if data is None:
+            return
+
+        for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list):
+            try:
+                curve.setData(data['f'], data[chan])
+            except KeyError:
+                pass
+
+    def reset_vars(self):
+        if self.timer.isActive():
+            self.stop_timer()
+
+    def start_timer(self, fn=None):
+        if self.timer.isActive():
+            return
+        self.timer.setInterval(2000)
+        self.timer.timeout.connect(self.plot)
+        self.timer.start()
+
+    def stop_timer(self):
+        self.timer.stop()
