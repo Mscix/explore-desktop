@@ -117,15 +117,16 @@ class DataContainer(BaseModel):
     @staticmethod
     def get_n_new_points(data):
         """get indexes where to insert new data"""
-        n_new_points = len(data['t'])
+        n_new_points = len(data[list(data.keys())[0]])
         return n_new_points
 
-    def insert_new_data(self, data):
+    def insert_new_data(self, data, fft=False):
         """insert new data"""
         n_new_points = self.get_n_new_points(data)
         idxs = np.arange(self.pointer, self.pointer + n_new_points)
 
-        self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
+        if fft is False:
+            self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
 
         for key, val in self.plot_data.items():
             try:
@@ -133,16 +134,17 @@ class DataContainer(BaseModel):
             except KeyError:
                 val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
 
-    def update_pointer(self, data, signal):
+    def update_pointer(self, data, signal=None, fft=False):
         """update pointer"""
         self.pointer += self.get_n_new_points(data)
 
         if self.pointer >= len(self.t_plot_data):
             self.pointer -= len(self.t_plot_data)
-            self.t_plot_data[self.pointer:] += self.timescale
-            signal.emit(np.nanmin(self.t_plot_data))
-            # TODO create signal onWrap to update data and emit6
-            self.signals.replotMkrAdd.emit(self.t_plot_data[0])
+            if fft is False:
+                self.t_plot_data[self.pointer:] += self.timescale
+                signal.emit(np.nanmin(self.t_plot_data))
+                # TODO create signal onWrap to update data and emit6
+                self.signals.replotMkrAdd.emit(self.t_plot_data[0])
 
     def new_t_axis(self, signal):
         """
