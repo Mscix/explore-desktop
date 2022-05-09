@@ -2189,7 +2189,7 @@ font: 11pt;</string>
                   <item>
                    <widget class="QLabel" name="label_13">
                     <property name="text">
-                     <string>Set marker (8 - 65535)</string>
+                     <string>Set marker (0 - 65535)</string>
                     </property>
                    </widget>
                   </item>

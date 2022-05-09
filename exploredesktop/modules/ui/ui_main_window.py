@@ -1820,7 +1820,7 @@ class Ui_MainWindow(object):
         self.btn_stream.setText(QCoreApplication.translate("MainWindow", u"Start Data Stream", None))
         self.btn_record.setText(QCoreApplication.translate("MainWindow", u" Record", None))
         self.label_recording_time.setText(QCoreApplication.translate("MainWindow", u"00:00:00", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Set marker (8 - 65535)", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Set marker (0 - 65535)", None))
         self.value_event_code.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Event Code", None))
         self.btn_marker.setText(QCoreApplication.translate("MainWindow", u" Set", None))
         self.btn_plot_filters.setText(QCoreApplication.translate("MainWindow", u"Filters", None))
