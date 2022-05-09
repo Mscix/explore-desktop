@@ -76,15 +76,6 @@ class DataContainer(BaseModel):
 
         return item_dict, to_remove
 
-    def set_marker(self):
-        pass
-
-    def reset_marker(self):
-        pass
-
-    def remove_marker(self):
-        pass
-
     def add_nans(self):
         pass
 
@@ -301,15 +292,6 @@ class BasePlots:
             connection[:id_th] = 0
 
         return connection
-
-    def plot_marker(self):
-        pass
-
-    def replot_marker(self):
-        pass
-
-    def remove_markers(self, mrk_dict):
-        pass
 
     def _add_pos_line(self, t_vector: list):
         """
