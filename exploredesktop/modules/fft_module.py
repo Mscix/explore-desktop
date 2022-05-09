@@ -1,6 +1,5 @@
 """FFT visualization module"""
 import logging
-from datetime import datetime as dt
 
 import numpy as np
 from exploredesktop.modules.app_settings import (
@@ -38,7 +37,7 @@ class FFTData(DataContainer):
         """
         active_chan = self.explorer.active_chan_list
         if DataAttributes.DATA in attributes:
-            points = self.plot_points()
+            points = self.plot_points(downsampling=False)
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
 
     @staticmethod
@@ -73,7 +72,6 @@ class FFTData(DataContainer):
         exg_data = np.array(
             [self.plot_data[key][~np.isnan(self.plot_data[key])] for key in self.plot_data.keys()], dtype=object)
 
-        print(f"{exg_data.shape=}")
         if (len(exg_data.shape) == 1) or (exg_data.shape[1] < exg_fs * 5):
             return
 
