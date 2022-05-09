@@ -331,10 +331,9 @@ class ExGPlot(BasePlots):
         # self.handle_bt_drop()
 
         # TODO: if wrap handle - check if there is a way to to it without model access
-        if self.model.pointer >= len(self.model.t_plot_data):
-            self.model.signals.mkrReplot.emit(self.model.t_plot_data[0])
+        # if self.model.pointer >= len(self.model.t_plot_data):
+        #     self.model.signals.mkrReplot.emit(self.model.t_plot_data[0])
         # 1. check id_th (check if necessary)
-        # 2. Remove marker line and replot in the new axis
         # 3. Remove rr peaks and replot in new axis
 
         # position line

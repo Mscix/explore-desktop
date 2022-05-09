@@ -1,5 +1,6 @@
 from abc import abstractmethod
 import logging
+from typing import Tuple
 import numpy as np
 
 from PySide6.QtCore import Slot
@@ -42,6 +43,38 @@ class DataContainer(BaseModel):
     @abstractmethod
     def update_attributes(self, attributes):
         raise NotImplementedError
+
+    def remove_dict_item(self, item_dict: dict, item_type: str, to_remove: list) -> Tuple[dict, list]:
+        """Remove item from a dictionary
+
+        Args:
+            item_dict (dict): dictionary with the items to remvoe
+            item_type (str): type of item to remove.
+            to_remove (list): list with the item to remove
+
+        Returns:
+            Tuple[dict, list]: `item_dict` and `to_remove` without the removed items
+
+        Raises:
+            AssertionError: if `item_type` is neither `lines` or `points`
+        """
+        assert item_type in ['lines', 'points'], "item_type must be either 'lines' or 'points'"
+        # if to_remove is emtpy, return
+        if len(to_remove) < 1:
+            return item_dict, to_remove
+
+        if item_type == 'lines':
+            key = 'code'
+        elif item_type == 'points':
+            key = 'r_peak'
+
+        for item in to_remove:
+            item_dict['t'].remove(item[0])
+            item_dict[key].remove(item[1])
+            item_dict[item_type].remove(item[2])
+            to_remove.remove(item)
+
+        return item_dict, to_remove
 
     def set_marker(self):
         pass
@@ -109,7 +142,7 @@ class DataContainer(BaseModel):
             self.t_plot_data[self.pointer:] += self.timescale
             signal.emit(np.nanmin(self.t_plot_data))
             # TODO create signal onWrap to update data and emit6
-            self.signals.mkrReplot.emit(self.t_plot_data[0])
+            self.signals.replotMkrAdd.emit(self.t_plot_data[0])
 
     def new_t_axis(self, signal):
         """
