@@ -1,4 +1,6 @@
+from abc import abstractmethod
 import os
+from typing import Union
 from exploredesktop.modules.app_settings import Messages
 
 from exploredesktop.modules.ui import (
@@ -8,7 +10,8 @@ from exploredesktop.modules.ui import (
 from PySide6.QtCore import QRegularExpression
 from PySide6.QtGui import (
     QIcon,
-    QRegularExpressionValidator
+    QRegularExpressionValidator,
+    QCloseEvent
 )
 from PySide6.QtWidgets import (
     QApplication,
@@ -21,6 +24,126 @@ from PySide6.QtWidgets import (
 CWD = os.path.dirname(os.path.abspath(__file__))
 ICON_PATH = os.path.join(
     os.path.join(CWD, os.pardir), "images", "MentalabLogo.png")
+
+
+class CustomDialog(QDialog):
+    """Base class for custom pop-up dialogs
+
+    Args:
+       QDialog (Pyside6.QtWidgets.QDialog): pyside widget
+    """
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.setWindowIcon(QIcon(ICON_PATH))
+        self.close = False
+
+    # pylint: disable=invalid-name
+    def closeEvent(self, arg__1: QCloseEvent) -> None:
+        """Rewrite close event
+
+        Args:
+            arg__1 (PySide6.QtGui.QCloseEvent): pyside close event
+        """
+        self.close = True
+        return super().closeEvent(arg__1)
+
+    def reject(self) -> None:
+        """Rewrite reject event, i.e. clicking on cancel
+        """
+        self.close = True
+        return super().reject()
+
+    @abstractmethod
+    def get_data(self):
+        """Abstract function to be implemented in child classes
+
+        Raises:
+            NotImplementedError: method has to be override in child class
+        """
+        raise NotImplementedError("Must override get_data method")
+
+    def exec(self) -> Union[bool, dict]:
+        """Rewrite exec method
+
+        Returns:
+            Union[bool, dict]: False if dialog was closed or canceled. Otherwise dictionary with data from pop-up
+        """
+        super().exec()
+
+        if self.close:
+            return False
+
+        data = self.get_data()
+        return data
+
+
+class RecordingDialog(CustomDialog):
+    """Dialog Recording Settings pop up
+
+    Args:
+        QDialog (Pyside6.QtWidgets.QDialog): pyside widget
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_RecordingDialog()
+        self.ui.setupUi(self)
+
+        self.setWindowIcon(QIcon(ICON_PATH))
+        self.setWindowTitle("Recording Settings")
+
+        self.recording_time = int(self.ui.spinBox_recording_time.value())
+        self.recording_mode = "csv"
+        self.recording_path = ""
+
+        self.ui.btn_browse.clicked.connect(self.save_filename)
+        self.ui.spinBox_recording_time.setMaximum(10000000)
+        self.ui.spinBox_recording_time.setValue(3600)
+        self.ui.rdbtn_csv.setChecked(True)
+
+        # self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.cancelEvent)
+
+    def file_extension(self) -> str:
+        """Retrun file extension selected
+
+        Returns:
+            str: file extension (edf or csv)
+        """
+        if self.ui.rdbtn_edf.isChecked():
+            self.file_type = "edf"
+        else:
+            self.file_type = "csv"
+
+        return self.file_type
+
+    def save_filename(self):
+        """
+        Open a dialog to select file name to be saved
+        """
+
+        dialog = QFileDialog()
+        file_path = dialog.getExistingDirectory(
+            self,
+            "Choose Directory",
+            os.path.expanduser("~"),
+            QFileDialog.ShowDirsOnly)
+
+        self.recording_path = file_path
+        self.ui.input_filepath.setText(self.recording_path)
+        QApplication.processEvents()
+
+    def get_data(self) -> dict:
+        """Get dialog data
+
+        Returns:
+            dict: _description_
+        """
+        data = {
+            "file_name": self.ui.input_file_name.text(),
+            "file_path": self.ui.input_filepath.text(),
+            "file_type": self.file_extension(),
+            "duration": int(self.ui.spinBox_recording_time.value())
+        }
+        return data
 
 
 class PlotDialog(QDialog):
@@ -202,76 +325,14 @@ class PlotDialog(QDialog):
         }
 
 
-class RecordingDialog(QDialog):
-    """Dialog Recording Settings pop up
+if __name__ == "__main__":
+    import sys
+    app = QApplication(sys.argv)
+    plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
 
-    Args:
-        QDialog (Pyside6.QtWidgets.QDialog): pyside widget
-    """
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.ui = Ui_RecordingDialog()
-        self.ui.setupUi(self)
-
-        self.setWindowIcon(QIcon(ICON_PATH))
-        self.setWindowTitle("Recording Settings")
-
-        self.recording_time = int(self.ui.spinBox_recording_time.value())
-        self.recording_mode = "csv"
-        self.recording_path = ""
-
-        self.ui.btn_browse.clicked.connect(self.save_filename)
-        self.ui.spinBox_recording_time.setMaximum(10000000)
-        self.ui.spinBox_recording_time.setValue(3600)
-        self.ui.rdbtn_csv.setChecked(True)
-
-        self.close = False
-        self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.cancelEvent)
-
-    def file_extension(self):
-        """Retrun file extension selected
-
-        Returns:
-            str: file extension (edf or csv)
-        """
-        if self.ui.rdbtn_edf.isChecked():
-            self.recording_mode = "edf"
-        else:
-            self.recording_mode = "csv"
-
-        return self.recording_mode
-
-    def save_filename(self):
-        """
-        Open a dialog to select file name to be saved
-        """
-
-        dialog = QFileDialog()
-        file_path = dialog.getExistingDirectory(
-            self,
-            "Choose Directory",
-            os.path.expanduser("~"),
-            QFileDialog.ShowDirsOnly)
-
-        self.recording_path = file_path
-        self.ui.input_filepath.setText(self.recording_path)
-        QApplication.processEvents()
-
-    def closeEvent(self, event):
-        self.close = True
-
-    def cancelEvent(self):
-        self.close = True
-
-    def exec(self):
-        super().exec()
-
-        if self.close:
-            return False
-
-        return {
-            "file_name": self.ui.input_file_name.text(),
-            "file_path": self.ui.input_filepath.text(),
-            "file_type": self.file_extension(),
-            "duration": int(self.ui.spinBox_recording_time.value())
-        }
+    # dialog = FiltersDialog(sr=250, current_filters=plotting_filters)
+    # filt = dialog.exec()
+    # print(filt)
+    dialog = RecordingDialog()
+    filt = dialog.exec()
+    print(filt)
