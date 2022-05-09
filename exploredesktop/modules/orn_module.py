@@ -7,6 +7,7 @@ from PySide6.QtCore import Slot
 
 
 from exploredesktop.modules.app_settings import (  # isort:skip
+    DataAttributes,
     ORNLegend,
     Settings,
     Stylesheets
@@ -24,6 +25,13 @@ class ORNData(DataContainer):
         self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
         self.t_plot_data = np.array([np.NaN] * 200)
 
+        self.signals.updateDataAttributes.connect(self.update_attributes)
+
+    def reset_vars(self):
+        super().reset_vars()
+        self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
+        self.t_plot_data = np.array([np.NaN] * 200)
+
     def new_t_axis(self, signal=None):
         signal = self.signals.tAxisORNChanged
         return super().new_t_axis(signal)
@@ -32,12 +40,20 @@ class ORNData(DataContainer):
         signal = self.signals.tRangeORNChanged
         return super().update_pointer(data, signal)
 
+    def update_attributes(self, attributes: list):
+        if DataAttributes.ORNPOINTER in attributes:
+            self.pointer = 0
+        if DataAttributes.ORNDATA in attributes:
+            points = self.plot_points(orn=True)
+            self.t_plot_data = np.array([np.NaN] * points)
+            self.plot_data = {k: np.array([np.NaN] * points) for k in Settings.ORN_LIST}
+
     def callback(self, packet):
         """ORN callback"""
         timestamp, orn_data = packet.get_data()
-        if self._vis_time_offset is None:
-            self._vis_time_offset = timestamp[0]
-        time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
+        if DataContainer.vis_time_offset is None:
+            DataContainer.vis_time_offset = timestamp[0]
+        time_vector = list(np.asarray(timestamp) - DataContainer.vis_time_offset)
 
         data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
         data['t'] = time_vector
@@ -50,6 +66,10 @@ class ORNData(DataContainer):
             self.signals.ornChanged.emit([self.t_plot_data, self.plot_data])
         except RuntimeError as error:
             logger.warning("RuntimeError: %s", str(error))
+
+    def change_timescale(self):
+        self.signals.tRangeORNChanged.emit(self.t_plot_data[self.pointer])
+        self.signals.updateDataAttributes.emit([DataAttributes.ORNPOINTER, DataAttributes.ORNDATA])
 
 
 class ORNPlot(BasePlots):
@@ -66,6 +86,10 @@ class ORNPlot(BasePlots):
         self.plots_list = [self.plot_acc, self.plot_gyro, self.plot_mag]
 
         self.lines = [None, None, None]
+
+        self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
+
+        self.init_plot()
 
     def reset_vars(self):
         """Reset attributes"""

@@ -74,7 +74,7 @@ class FooterData(BaseModel):
         try:
             self.signals.envInfoChanged.emit(data)
         except RuntimeError as error:
-            logger.warning("footer_module>line77: RuntimeError: %s", str(error))
+            logger.warning("footer_module>line75: RuntimeError: %s", str(error))
 
     def subscribe_env_callback(self) -> None:
         """subscribe env callback to stream processor

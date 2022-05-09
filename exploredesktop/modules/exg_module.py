@@ -7,7 +7,7 @@ from PySide6.QtCore import Slot
 
 
 from exploredesktop.modules.app_settings import (  # isort:skip
-    ExGAttributes,
+    DataAttributes,
     Settings,
     Stylesheets
 )
@@ -38,6 +38,21 @@ class ExGData(DataContainer):
 
         self.signals.updateDataAttributes.connect(self.update_attributes)
 
+    def reset_vars(self):
+        self._baseline = None
+        self.offsets = np.array([])
+        self.y_unit = Settings.DEFAULT_SCALE
+        self.y_string = '1 mV'
+        self.last_t = 0
+
+        self.packet_count = 0
+        self.t_bt_drop = None
+
+        self.rr_estimator = None
+        self.r_peak = {'t': [], 'r_peak': [], 'points': []}
+        self.r_peak_replot = {'t': [], 'r_peak': [], 'points': []}
+        self.rr_warning_displayed = False
+
     def new_t_axis(self, signal=None):
         signal = self.signals.tAxisEXGChanged
         return super().new_t_axis(signal)
@@ -55,16 +70,16 @@ class ExGData(DataContainer):
         """
         n_chan = self.explorer.n_active_chan
         active_chan = self.explorer.active_chan_list
-        if ExGAttributes.OFFSETS in attributes:
+        if DataAttributes.OFFSETS in attributes:
             self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
-        if ExGAttributes.BASELINE in attributes:
+        if DataAttributes.BASELINE in attributes:
             self._baseline = None
-        if ExGAttributes.DATA in attributes:
+        if DataAttributes.DATA in attributes:
             points = self.plot_points()
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
             self.t_plot_data = np.array([np.NaN] * points)
-        # if ExGAttributes.INIT in attributes:
-        #     self.
+        if DataAttributes.POINTER in attributes:
+            self.pointer = 0
 
     def callback(self, packet):
         """_summary_"""
@@ -92,10 +107,10 @@ class ExGData(DataContainer):
         #     self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
         # From timestamp to seconds
-        if self._vis_time_offset is None:
-            self._vis_time_offset = timestamp[0]
+        if DataContainer.vis_time_offset is None:
+            DataContainer.vis_time_offset = timestamp[0]
 
-        time_vector = timestamp - self._vis_time_offset
+        time_vector = timestamp - DataContainer.vis_time_offset
 
         # Downsampling
         if Settings.DOWNSAMPLING:
@@ -108,7 +123,12 @@ class ExGData(DataContainer):
         if True:
             exg = self.baseline_correction(exg)
 
-        exg = self.update_unit(exg)
+        # ValueError thrown when changing the channels. Can be ignored
+        try:
+            exg = self.update_unit(exg)
+        except ValueError as error:
+            logger.warning("ValueError: %s", str(error))
+
         data = dict(zip(chan_list, exg))
         data['t'] = time_vector
 
@@ -117,11 +137,12 @@ class ExGData(DataContainer):
         self.new_t_axis()
 
         self.last_t = data['t'][-1]
+        self.packet_count += 1
 
         try:
             self.signals.exgChanged.emit([self.t_plot_data, self.plot_data])
-        except ValueError:
-            pass
+        except RuntimeError as error:
+            logger.warning("RuntimeError: %s", str(error))
 
     def downsampling(self, time_vector, exg, exg_fs):
         """Downsample"""
@@ -183,6 +204,41 @@ class ExGData(DataContainer):
         exg = self.offsets + exg / self.y_unit
         return exg
 
+    def change_timescale(self):
+        super().change_timescale()
+        self.signals.tRangeEXGChanged.emit(self.last_t)
+        self.signals.updateDataAttributes.emit([DataAttributes.POINTER, DataAttributes.DATA])
+
+    @Slot(str)
+    def change_scale(self, new_val: str):
+        """
+        Change y-axis scale in ExG plot
+        """
+        old = Settings.SCALE_MENU[self.y_string]
+        new = Settings.SCALE_MENU[new_val]
+        logger.debug("ExG scale has been changed from %s to %s", self.y_string, new_val)
+
+        old_unit = 10 ** (-old)
+        new_unit = 10 ** (-new)
+
+        self.y_string = new_val
+        self.y_unit = new_unit
+
+        chan_list = self.explorer.active_chan_list
+        for chan, value in self.plot_data.items():
+            if chan in chan_list:
+                temp_offset = self.offsets[chan_list.index(chan)]
+                self.plot_data[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
+        # TODO
+        # # Rescale r_peaks
+        # # Remove old rpeaks
+        # # Plot rescaled rpeaks
+
+        # # Rescale replotted rpeaks
+        # # Remove old replotted rpeaks
+        # # Plot rescaled rpeaks
+        self.signals.updateYAxis.emit()
+
 
 class ExGPlot(BasePlots):
     """_summary_
@@ -196,8 +252,15 @@ class ExGPlot(BasePlots):
         self.plots_list = [self.ui.plot_exg]
         self.bt_drop_warning_displayed = False
 
+    def setup_ui_connections(self):
+        super().setup_ui_connections()
+        self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
+        self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
+
     def reset_vars(self):
-        pass
+        self.lines = [None]
+        self.plots_list = [self.ui.plot_exg]
+        self.bt_drop_warning_displayed = False
 
     def init_plot(self):
         plot_wdgt = self.ui.plot_exg
@@ -265,9 +328,10 @@ class ExGPlot(BasePlots):
         # TODO implement bt drop handling
         # self.handle_bt_drop()
 
-        # TODO: if wrap handle
+        # TODO: if wrap handle - check if there is a way to to it without model access
+        # if self.model.pointer >= len(self.model.t_plot_data):
+        #     self.model.signals.mkrReplot.emit(self.model.t_plot_data[0])
         # 1. check id_th (check if necessary)
-        # 2. Remove marker line and replot in the new axis
         # 3. Remove rr peaks and replot in new axis
 
         # position line
@@ -283,8 +347,9 @@ class ExGPlot(BasePlots):
             except KeyError:
                 pass
 
-        # TODO:
         # remove reploted markers
+        self.model.signals.mkrRemove.emit(self.model.last_t)
+        # TODO:
         # remove reploted r_peaks
 
     def handle_bt_drop(self):

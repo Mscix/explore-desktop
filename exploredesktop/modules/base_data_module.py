@@ -1,18 +1,22 @@
 from abc import abstractmethod
-
+import logging
+from typing import Tuple
 import numpy as np
-import pyqtgraph as pg
+
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QIntValidator
 
+import pyqtgraph as pg
+from exploredesktop.modules.app_settings import Settings, Stylesheets
+from exploredesktop.modules.base_model import BaseModel
 
-from exploredesktop.modules.app_settings import Settings, Stylesheets  # isort: skip
-from exploredesktop.modules.base_model import BaseModel  # isort: skip
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class DataContainer(BaseModel):
     """_summary_
     """
+    vis_time_offset = None
+
     def __init__(self) -> None:
         super().__init__()
         self.plot_data = {}
@@ -20,16 +24,57 @@ class DataContainer(BaseModel):
 
         self.pointer = 0
 
-        self.mrk_plot = {'t': [], 'code': [], 'line': []}
-        self.mrk_replot = {'t': [], 'code': [], 'line': []}
+        self.timescale = 10
 
-        self._vis_time_offset = None
+    def reset_vars(self):
+        self.plot_data = {}
+        self.t_plot_data = np.array([])
+
+        self.pointer = 0
+
+        self.vis_time_offset = None
 
         self.timescale = 10
 
     @abstractmethod
     def callback(self, packet):
         raise NotImplementedError
+
+    @abstractmethod
+    def update_attributes(self, attributes):
+        raise NotImplementedError
+
+    def remove_dict_item(self, item_dict: dict, item_type: str, to_remove: list) -> Tuple[dict, list]:
+        """Remove item from a dictionary
+
+        Args:
+            item_dict (dict): dictionary with the items to remvoe
+            item_type (str): type of item to remove.
+            to_remove (list): list with the item to remove
+
+        Returns:
+            Tuple[dict, list]: `item_dict` and `to_remove` without the removed items
+
+        Raises:
+            AssertionError: if `item_type` is neither `lines` or `points`
+        """
+        assert item_type in ['lines', 'points'], "item_type must be either 'lines' or 'points'"
+        # if to_remove is emtpy, return
+        if len(to_remove) < 1:
+            return item_dict, to_remove
+
+        if item_type == 'lines':
+            key = 'code'
+        elif item_type == 'points':
+            key = 'r_peak'
+
+        for item in to_remove:
+            item_dict['t'].remove(item[0])
+            item_dict[key].remove(item[1])
+            item_dict[item_type].remove(item[2])
+            to_remove.remove(item)
+
+        return item_dict, to_remove
 
     def set_marker(self):
         pass
@@ -44,7 +89,7 @@ class DataContainer(BaseModel):
         pass
 
     def change_timescale(self):
-        pass
+        logger.debug("Time scale has been changed to %.0f", self.timescale)
 
     def plot_points(self, orn=False, downsampling=Settings.DOWNSAMPLING):
         """_summary_
@@ -96,6 +141,8 @@ class DataContainer(BaseModel):
             self.pointer -= len(self.t_plot_data)
             self.t_plot_data[self.pointer:] += self.timescale
             signal.emit(np.nanmin(self.t_plot_data))
+            # TODO create signal onWrap to update data and emit6
+            self.signals.replotMkrAdd.emit(self.t_plot_data[0])
 
     def new_t_axis(self, signal):
         """
@@ -114,7 +161,10 @@ class DataContainer(BaseModel):
         l_points = int(len(self.t_plot_data) / int(self.timescale))
         vals = self.t_plot_data[::l_points]
         ticks = t_ticks[::l_points]
-        signal.emit([vals, ticks])
+        try:
+            signal.emit([vals, ticks])
+        except RuntimeError as error:
+            logger.warning("RuntimeError: %s", str(error))
 
 
 class BasePlots:
@@ -122,12 +172,19 @@ class BasePlots:
     """
     def __init__(self, ui) -> None:
         self.ui = ui
-        self.model = ""
+        self.model = DataContainer()
 
         self.lines = []
         self.plots_list = []
 
         self.set_dropdowns()
+
+    def setup_ui_connections(self):
+        self.ui.value_timeScale.currentTextChanged.connect(self.set_time_scale)
+
+    def get_model(self):
+        """Return data model"""
+        return self.model
 
     @property
     def time_scale(self):
@@ -137,9 +194,7 @@ class BasePlots:
         t = int(Settings.TIME_RANGE_MENU[t_str])
         return t
 
-    @time_scale.setter
-    def time_scale(self, value):
-        # TODO revisit this
+    def set_time_scale(self, value):
         if isinstance(value, str):
             value = Settings.TIME_RANGE_MENU[value]
         self.model.timescale = value
@@ -164,8 +219,6 @@ class BasePlots:
         # value_time_scale
         self.ui.value_timeScale.addItems(Settings.TIME_RANGE_MENU.keys())
         self.ui.value_timeScale_rec.addItems(Settings.TIME_RANGE_MENU.keys())
-
-        self.ui.value_event_code.setValidator(QIntValidator(8, 65535))
 
     @abstractmethod
     def init_plot(self):
@@ -254,9 +307,6 @@ class BasePlots:
     def remove_markers(self, mrk_dict):
         pass
 
-    def remove_old_item(self, item_dict, t_vector, item_type):
-        pass
-
     def _add_pos_line(self, t_vector: list):
         """
         Add position line to plot based on last value in the time vector
@@ -282,3 +332,29 @@ class BasePlots:
                     self.lines = [None for i in range(len(self.lines))]
 
         return self.lines
+
+    def remove_old_item(self, item_dict: dict, last_t: np.array, item_type: str) -> list:
+        """
+        Remove line or point element from plot widget
+
+        Args:
+            item_dict (dict): dictionary with items to remove
+            t_vector (np.array): time vector used as a condition to remove
+            item_type (str): specifies item to remove (line or points).
+            plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
+
+        Retrun:
+            list: list with objects to remove
+        """
+        assert item_type in ['lines', 'points'], 'item type parameter must be line or points'
+        assert 't' in item_dict.keys(), 'the items dictionary must have the key \'t\''
+
+        to_remove = []
+        for idx_t in range(len(item_dict['t'])):
+            if item_dict['t'][idx_t] < last_t:
+                for plt_wdgt in self.plots_list:
+                    for item in item_dict[item_type][idx_t]:
+                        plt_wdgt.removeItem(item)
+                to_remove.append([item_dict[key][idx_t] for key in item_dict.keys()])
+                # [item_dict['t'][idx_t], item_dict['r_peak'][idx_t], item_dict['points'][idx_t]])
+        return to_remove

@@ -52,9 +52,18 @@ class SignalsContainer(QObject):
     tAxisEXGChanged = Signal(list)
 
     updateDataAttributes = Signal(list)
+    updateYAxis = Signal()
+
+    restartPlot = Signal()
+
+    # TODO: change signal names to make it more clear
+    mkrAdd = Signal(list)
+    mkrPlot = Signal(list)
+    replotMkrAdd = Signal(float)
+    mkrRemove = Signal(float)
 
 
-class BaseModel():
+class BaseModel(object):
     """Base class for models
     """
     signals = SignalsContainer()
