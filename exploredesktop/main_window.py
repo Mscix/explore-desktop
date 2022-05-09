@@ -20,6 +20,7 @@ from exploredesktop.modules.exg_module import ExGPlot
 from exploredesktop.modules.fft_module import FFTPlot
 from exploredesktop.modules.footer_module import FooterFrameView
 from exploredesktop.modules.imp_module import ImpFrameView
+from exploredesktop.modules.lsl_module import IntegrationFrameView
 from exploredesktop.modules.orn_module import ORNPlot
 from exploredesktop.modules.recording_module import RecordFunctions
 from exploredesktop.modules.settings_module import SettingsFrameView
@@ -134,6 +135,10 @@ class MainWindow(QMainWindow, BaseModel):
         # recording
         self.recording = RecordFunctions(self.ui)
         self.recording.setup_ui_connections()
+
+        # INTEGRATION PAGE
+        self.integration_frame = IntegrationFrameView(self.ui)
+        self.integration_frame.setup_ui_connections()
 
         # signal connections
         self.setup_signal_connections()
@@ -268,6 +273,11 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.label_16.setHidden(True)
         self.ui.line_2.hide()
         self.ui.lbl_bt_instructions.hide()
+        # integration page
+        # TODO: decide if we want to enable duration
+        self.ui.lsl_duration_value.hide()
+        self.ui.cb_lsl_duration.hide()
+        self.ui.label_lsl_duration.setHidden(True)
 
         # Hide os bar
         self.setWindowFlags(Qt.FramelessWindowHint)
