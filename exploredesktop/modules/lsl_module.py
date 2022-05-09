@@ -26,7 +26,7 @@ class IntegrationFrameView(BaseModel):
 
         if self.explorer.is_pushing_lsl is False:
             self.start_lsl_push()
-            
+
         else:
             self.stop_lsl_push()
 
