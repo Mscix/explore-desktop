@@ -194,6 +194,8 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.ornChanged.connect(self.orn_plot.swipe_plot)
         self.signals.exgChanged.connect(self.exg_plot.swipe_plot)
 
+        self.signals.fftChanged.connect(self.fft_plot.plot)
+
         self.signals.tRangeORNChanged.connect(self.orn_plot.set_t_range)
         self.signals.tAxisORNChanged.connect(self.orn_plot.set_t_axis)
 
@@ -308,9 +310,10 @@ class MainWindow(QMainWindow, BaseModel):
 
                 self.exg_plot.init_plot()
                 self.explorer.subscribe(callback=self.exg_plot.model.callback, topic=TOPICS.filtered_ExG)
-                
+
                 self.fft_plot.init_plot()
-                
+                self.explorer.subscribe(callback=self.fft_plot.model.callback, topic=TOPICS.filtered_ExG)
+
                 # TODO
                 # self.vis_funct.emit_signals()
                 # self.update_fft()

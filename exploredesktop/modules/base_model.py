@@ -44,6 +44,7 @@ class SignalsContainer(QObject):
     # Visualization
     ornChanged = Signal(list)
     exgChanged = Signal(list)
+    fftChanged = Signal(dict)
 
     tRangeORNChanged = Signal(float)
     tRangeEXGChanged = Signal(float)
