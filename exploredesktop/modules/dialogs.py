@@ -151,7 +151,7 @@ class RecordingDialog(CustomDialog):
         return data
 
 
-class PlotDialog(QDialog):
+class FiltersDialog(CustomDialog):
     """Dialog Filters Pop-up
 
     Args:
@@ -160,57 +160,65 @@ class PlotDialog(QDialog):
     def __init__(self, sr, current_filters, parent=None):
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
-        self.ui.setupUi(self)
+        self.s_rate = float(sr)
+        self.current_filters = current_filters
 
-        self.setWindowIcon(QIcon(ICON_PATH))
+        self.ui.setupUi(self)
         self.setWindowTitle("Visualization Settings")
 
         self.ui.lbl_warning.hide()
         self.ui.cb_offset.setToolTip(Messages.OFFSET_EXPLANATION)
-        self.close = False
 
-        self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.cancelEvent)
+        self.set_current_values()
+        self.display_current_values()
+        self.add_validators()
 
-        self.s_rate = float(sr)
-        if current_filters is None:  # default values
+        # Verify input without output message when typing
+        self.ui.value_lowpass.textChanged.connect(self.verify_input)
+        self.ui.value_highpass.textChanged.connect(self.verify_input)
+
+        # Verify input without output message when typing
+        self.ui.value_lowpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
+        self.ui.value_highpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
+
+    def set_current_values(self) -> None:
+        """Set values from current filters to attributes
+        """
+        if self.current_filters is None:  # default values
             self.offset = True
             self.notch = "50"
-            if sr == 250:
-                self.lowpass = "1"
-            elif sr == 500:
-                self.lowpass = "1"
-            else:
-                self.lowpass = "2"
+            self.lowpass = "1"
             self.highpass = "30"
         else:
-            self.offset = current_filters["offset"]
-            self.notch = str(current_filters["notch"])
-            self.lowpass = str(current_filters["lowpass"])
-            self.highpass = str(current_filters["highpass"])
+            self.offset = self.current_filters["offset"]
+            self.notch = str(self.current_filters["notch"])
+            self.lowpass = str(self.current_filters["lowpass"])
+            self.highpass = str(self.current_filters["highpass"])
 
         if self.highpass == "None":
             self.highpass = ""
         if self.lowpass == "None":
             self.lowpass = ""
 
+    def display_current_values(self) -> None:
+        """Add filter values to UI
+        """
         # Add options to notch combobox
         self.ui.value_notch.addItems(["", "50", "60"])
 
-        # Set current values
+        # Display current values
         self.ui.value_notch.setCurrentText(self.notch)
         self.ui.value_highpass.setText(self.highpass)
         self.ui.value_lowpass.setText(self.lowpass)
         self.ui.cb_offset.setChecked(self.offset)
 
+    def add_validators(self) -> None:
+        """Add validator to text boxes to only accept doubles
+        """
         # Set validators (only accept doubles)
         regex = QRegularExpression(r"([0-9]+\.?[0-9]|\.[0-9])")
-
         self.ui.value_highpass.setValidator(QRegularExpressionValidator(regex))
         self.ui.value_lowpass.setValidator(QRegularExpressionValidator(regex))
-
-        # Verify input without output message when typing
-        self.ui.value_lowpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
-        self.ui.value_highpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
 
     def verify_input(self, borderOnly=False):
         """Verify frequencies are not above/below the threshold
@@ -306,19 +314,13 @@ class PlotDialog(QDialog):
             self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(accepted))
         return accepted
 
-    def closeEvent(self, event):
-        self.close = True
+    def get_data(self) -> dict:
+        """Get filter data from dialog
 
-    def cancelEvent(self):
-        self.close = True
-
-    def exec(self):
-        super().exec()
-
-        if self.close:
-            return False
-
-        return {
+        Returns:
+            dict: dictionary containing filter values
+        """
+        data = {
             "offset":
                 self.ui.cb_offset.isChecked(),
             "notch":
@@ -328,6 +330,7 @@ class PlotDialog(QDialog):
             "highpass":
                 None if self.ui.value_highpass.text() in [None, 'None', ""] else float(self.ui.value_highpass.text())
         }
+        return data
 
 
 if __name__ == "__main__":
@@ -335,9 +338,9 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
 
-    # dialog = FiltersDialog(sr=250, current_filters=plotting_filters)
+    dialog = FiltersDialog(sr=250, current_filters=plotting_filters)
     # filt = dialog.exec()
     # print(filt)
-    dialog = RecordingDialog()
+    # dialog = RecordingDialog()
     filt = dialog.exec()
     print(filt)
