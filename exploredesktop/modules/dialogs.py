@@ -7,7 +7,7 @@ from exploredesktop.modules.ui import (
     Ui_PlotDialog,
     Ui_RecordingDialog
 )
-from PySide6.QtCore import QRegularExpression
+from PySide6.QtCore import QRegularExpression, QSettings
 from PySide6.QtGui import (
     QIcon,
     QRegularExpressionValidator,
@@ -119,17 +119,22 @@ class RecordingDialog(CustomDialog):
         """
         Open a dialog to select file name to be saved
         """
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = settings.value("last_record_folder")
+        if not path:
+            path = os.path.expanduser("~")
 
         dialog = QFileDialog()
         file_path = dialog.getExistingDirectory(
             self,
             "Choose Directory",
-            os.path.expanduser("~"),
+            path,
             QFileDialog.ShowDirsOnly)
 
         self.recording_path = file_path
         self.ui.input_filepath.setText(self.recording_path)
-        QApplication.processEvents()
+        if path != self.recording_path:
+            settings.setValue("last_record_folder", self.recording_path)
 
     def get_data(self) -> dict:
         """Get dialog data
