@@ -252,3 +252,46 @@ class SettingsFrameView(BaseModel):
             self.ui.lbl_sr_warning.show()
         else:
             self.ui.lbl_sr_warning.hide()
+
+    def enable_settings(self, enable=True) -> None:
+        """Disable or enable device settings widgets
+
+        Args:
+            enable (bool, optional): True will enable, False will disable. Defaults to True.
+        """
+
+        enabled = True
+        s_rate_stylesheet = ""
+        # TODO decide which stylesheet to use
+        # stylesheet = ""
+        tooltip_apply_settings = ""
+        tooltip_reset_settings = ""
+        tooltip_format_mem = ""
+
+        if enable is False:
+            enabled = False
+            s_rate_stylesheet = "color: gray;\nborder-color: gray;"
+            # stylesheet = Stylesheets.DISABLED_BTN_STYLESHEET
+            tooltip_apply_settings = Messages.DISABLED_SETTINGS
+            tooltip_reset_settings = Messages.DISABLED_RESET
+            tooltip_format_mem = Messages.DISABLED_FORMAT_MEM
+
+        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
+            wdgt.setEnabled(enabled)
+
+        self.ui.value_sampling_rate.setEnabled(enabled)
+        self.ui.value_sampling_rate.setStyleSheet(s_rate_stylesheet)
+
+        self.ui.btn_apply_settings.setEnabled(enabled)
+        # self.ui.btn_apply_settings.setStyleSheet(stylesheet)
+        self.ui.btn_apply_settings.setToolTip(tooltip_apply_settings)
+
+        self.ui.btn_reset_settings.setEnabled(enabled)
+        # self.ui.btn_reset_settings.setStyleSheet(stylesheet)
+        self.ui.btn_reset_settings.setToolTip(tooltip_reset_settings)
+
+        self.ui.btn_format_memory.setEnabled(enabled)
+        # self.ui.btn_format_memory.setStyleSheet(stylesheet)
+        self.ui.btn_format_memory.setToolTip(tooltip_format_mem)
+
+        self.ui.label_warning_disabled.setHidden(enabled)
