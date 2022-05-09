@@ -10,7 +10,7 @@ from PySide6.QtCore import (
     QSettings
 )
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QDialog
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -40,20 +40,13 @@ class RecordFunctions(BaseModel):
             self.stop_record()
 
     def start_record(self):
-        '''
+        """
         Start signal recording
-        '''
+        """
 
         dialog = RecordingDialog()
-        default_file_name = self.explorer.stream_processor.device_info["device_name"]
-        default_file_name += datetime.now().strftime("_%d%b%Y_%H%M")
-        dialog.ui.input_file_name.setPlaceholderText(default_file_name)
-
-        settings = QSettings("Mentalab", "ExploreDesktop")
-        default_dir = settings.value("last_record_folder")
-        if not default_dir:
-            default_dir = str(os.path.expanduser("~"))
-        dialog.ui.input_filepath.setPlaceholderText(default_dir)
+        default_file_name = self._set_filename_placeholder(dialog)
+        default_dir = self._set_dir_placeholder(dialog)
         data = dialog.exec()
 
         if data is False:
@@ -64,9 +57,8 @@ class RecordFunctions(BaseModel):
             file_name += datetime.now().strftime("_%d%b%Y_%H%M")
 
         file_path = data["file_path"] if data["file_path"] != "" else default_dir
-
-        file_type = data["file_type"]
         record_duration = data["duration"] if data["duration"] != 0 else None
+        file_type = data["file_type"]
 
         self.explorer.record_data(
             file_name=os.path.join(file_path, file_name),
@@ -80,12 +72,41 @@ class RecordFunctions(BaseModel):
         self.ui.btn_record.setText("Stop")
         QApplication.processEvents()
 
+    def _set_dir_placeholder(self, dialog: QDialog) -> str:
+        """Define default saving directory and set it up as a placeholder.
+
+        Args:
+            dialog (QDialog): Recording dialog with the line edit that needs the placeholder
+
+        Returns:
+            str: default directory path
+        """
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        default_dir = settings.value("last_record_folder")
+        if not default_dir:
+            default_dir = str(os.path.expanduser("~"))
+        dialog.ui.input_filepath.setPlaceholderText(default_dir)
+        return default_dir
+
+    def _set_filename_placeholder(self, dialog: QDialog) -> str:
+        """Define default saving file name and set it up as a placeholder.
+
+        Args:
+            dialog (QDialog): Recording dialog with the line edit that needs the placeholder
+
+        Returns:
+            str: default file name
+        """
+        default_file_name = self.explorer.device_name
+        default_file_name += datetime.now().strftime("_%d%b%Y_%H%M")
+        dialog.ui.input_file_name.setPlaceholderText(default_file_name)
+        return default_file_name
+
     def stop_record(self):
         """
         Stop recording
         """
         self.explorer.stop_recording()
-        # self.is_recording = False
         self.timer.stop()
         self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-record.png"))
         self.ui.btn_record.setText("Record")
@@ -114,6 +135,3 @@ class RecordFunctions(BaseModel):
             self.ui.label_recording_time.setText(strtime)
         else:
             self.stop_record()
-
-    # def reset_record_vars(self):
-    #     self.is_recording = False
