@@ -2,16 +2,20 @@ import logging
 import os
 from datetime import datetime
 
-from exploredesktop.modules.base_model import BaseModel
-from exploredesktop.modules.dialogs import RecordingDialog
-from PySide6.QtCore import (
-    QTimer,
-    Slot,
-    QSettings
-)
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QDialog
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog
+)
 
+
+from exploredesktop.modules.base_model import BaseModel  # isort: skip
+from exploredesktop.modules.dialogs import RecordingDialog  # isort: skip
+from PySide6.QtCore import (  # isort: skip
+    QSettings,
+    QTimer,
+    Slot
+)
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -65,7 +69,6 @@ class RecordFunctions(BaseModel):
             file_type=file_type,
             duration=record_duration)
 
-        # self.is_recording = True
         self.start_timer_recorder(duration=record_duration)
 
         self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-stop.png"))
