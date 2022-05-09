@@ -3,7 +3,29 @@ import logging
 import os
 import sys
 
-
+import exploredesktop
+from exploredesktop.modules import (
+    BaseModel,
+    Settings,
+    Stylesheets,
+    Ui_MainWindow
+)
+from exploredesktop.modules.app_settings import (
+    ConnectionStatus,
+    DataAttributes,
+    EnvVariables
+)
+from exploredesktop.modules.bt_module import BTFrameView
+from exploredesktop.modules.exg_module import ExGPlot
+from exploredesktop.modules.fft_module import FFTPlot
+from exploredesktop.modules.footer_module import FooterFrameView
+from exploredesktop.modules.imp_module import ImpFrameView
+from exploredesktop.modules.orn_module import ORNPlot
+from exploredesktop.modules.settings_module import SettingsFrameView
+from exploredesktop.modules.tools import (
+    display_msg,
+    get_widget_by_obj_name
+)
 from explorepy.log_config import (
     read_config,
     write_config
@@ -31,24 +53,6 @@ from PySide6.QtWidgets import (
     QSizeGrip
 )
 
-
-import exploredesktop  # isort: skip
-from exploredesktop.modules import (  # isort: skip
-    Settings,
-    Ui_MainWindow,
-    BaseModel,
-    Stylesheets
-)
-from exploredesktop.modules.fft_module import FFTPlot  # isort: skip
-from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables, DataAttributes  # isort: skip
-from exploredesktop.modules.bt_module import BTFrameView  # isort: skip
-from exploredesktop.modules.footer_module import FooterFrameView  # isort: skip
-from exploredesktop.modules.imp_module import ImpFrameView
-from exploredesktop.modules.mkr_module import MarkerPlot  # isort: skip
-from exploredesktop.modules.settings_module import SettingsFrameView  # isort: skip
-from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # isort: skip
-from exploredesktop.modules.exg_module import ExGPlot  # isort: skip
-from exploredesktop.modules.orn_module import ORNPlot  # isort: skip
 
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
@@ -121,8 +125,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.fft_plot = FFTPlot(self.ui)
 
-        self.mkr_plot = MarkerPlot(self.ui)
-        self.mkr_plot.setup_ui_connections()
         # signal connections
         self.setup_signal_connections()
 
@@ -207,8 +209,6 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.ornChanged.connect(self.orn_plot.swipe_plot)
         self.signals.exgChanged.connect(self.exg_plot.swipe_plot)
 
-        self.signals.fftChanged.connect(self.fft_plot.plot)
-
         self.signals.tRangeORNChanged.connect(self.orn_plot.set_t_range)
         self.signals.tAxisORNChanged.connect(self.orn_plot.set_t_axis)
 
@@ -218,13 +218,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.updateYAxis.connect(self.exg_plot.add_left_axis_ticks)
 
         self.signals.restartPlot.connect(self.exg_plot.init_plot)
-
-        self.signals.mkrPlot.connect(self.mkr_plot.plot_marker)
-        self.signals.mkrAdd.connect(self.mkr_plot.model.add_mkr)
-
-        # self.signals.mkrReplot.connect(lambda data: self.mkr_plot.plot_marker(data, replot=True))
-        self.signals.replotMkrAdd.connect(self.mkr_plot.model.add_mkr_replot)
-        self.signals.mkrRemove.connect(self.mkr_plot.remove_old_item)
+        self.signals.restartPlot.connect(self.fft_plot.init_plot)
 
     def style_ui(self):
         """Initial style for UI
@@ -337,8 +331,8 @@ class MainWindow(QMainWindow, BaseModel):
 
                 self.fft_plot.init_plot()
                 self.explorer.subscribe(callback=self.fft_plot.model.callback, topic=TOPICS.filtered_ExG)
+                self.fft_plot.start_timer()
 
-                self.explorer.subscribe(callback=self.mkr_plot.model.callback, topic=TOPICS.marker)
                 # TODO
                 # self.vis_funct.emit_signals()
                 # self.update_fft()

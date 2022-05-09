@@ -348,7 +348,7 @@ class ExGPlot(BasePlots):
                 pass
 
         # remove reploted markers
-        self.model.signals.mkrRemove.emit(self.model.last_t)
+        # self.model.signals.mkrRemove.emit(self.model.last_t)
         # TODO:
         # remove reploted r_peaks
 
