@@ -1,13 +1,10 @@
 """Settings module"""
 import logging
 
-import numpy as np
-from exploredesktop.modules import Settings
 from exploredesktop.modules.app_settings import (
     ConnectionStatus,
     Messages,
-    Settings,
-    Stylesheets
+    Settings
 )
 from exploredesktop.modules.base_model import BaseModel
 from PySide6.QtCore import Slot
@@ -87,16 +84,18 @@ class SettingsFrameView(BaseModel):
 
         response = display_msg(msg_text=Messages.RESET_SETTINGS_QUESTION, popup_type="question")
 
-        if response == QMessageBox.StandardButton.Yes:
-            with wait_cursor():
-                reset = self.explorer.reset_soft()
-                disconnect = self.explorer.disconnect()
-                # TODO revisit signals, connection changed vs connection status
-                # self.signals.connectionChanged.emit(ConnectionStatus.DISCONNECTED)
-                self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
-                self.signals.pageChange.emit("btn_bt")
-                # TODO: move to bt page, and stop processes
-                # TODO: change change_page funct to work with signals
+        if response == QMessageBox.StandardButton.No:
+            return reset
+
+        with wait_cursor():
+            reset = self.explorer.reset_soft()
+            disconnect = self.explorer.disconnect()
+            # TODO revisit signals, connection changed vs connection status
+            # self.signals.connectionChanged.emit(ConnectionStatus.DISCONNECTED)
+            self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
+            self.signals.pageChange.emit("btn_bt")
+            # TODO: move to bt page, and stop processes
+            # TODO: change change_page funct to work with signals
         return reset
 
     ###

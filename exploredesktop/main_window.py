@@ -250,8 +250,8 @@ class MainWindow(QMainWindow, BaseModel):
         if isinstance(no_click, str):
             btn_name = no_click
         else:
-            btn = self.sender()
-            btn_name = btn.objectName()
+            # btn = self.sender()
+            btn_name = self.sender().objectName()
 
         # Navigate to active page
         if btn_name != "btn_left_menu_toggle":
