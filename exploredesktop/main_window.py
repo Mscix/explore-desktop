@@ -519,6 +519,8 @@ class MainWindow(QMainWindow, BaseModel):
             self.recording.stop_record()
         if self.explorer.is_measuring_imp:
             self.imp_frame.disable_imp()
+        if self.explorer.is_pushing_lsl:
+            self.integration_frame.stop_lsl_push()
         return super().close()
 
     def set_permissions(self):
