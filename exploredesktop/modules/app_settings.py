@@ -16,6 +16,12 @@ class BaseEnum(Enum):
         return [m.value for m in cls]
 
 
+class FilterTypes(BaseEnum):
+    LOWPASS = "lowpass"
+    HIGHPASS = "highpass"
+    BANDPASS = "bandpass"
+
+
 class EnvVariables(BaseEnum):
     """Enum for environmental keys
     """
@@ -225,6 +231,8 @@ class Settings():
     LEFT_BTN_REQUIRE_CONNECTION = ["btn_settings", "btn_plots", "btn_impedance", "btn_integration"]
 
     BASELINE_MA_LENGTH = 1.5 * EXG_VIS_SRATE
+
+    MIN_LC_WEIGHT = 0.0035
 
 
 class Messages():
