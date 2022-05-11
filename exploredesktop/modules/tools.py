@@ -104,7 +104,6 @@ def verify_filters(filter_values: tuple, sampling_rate):
     min_lc_freq = Settings.MIN_LC_WEIGHT * nyq_freq
 
     filter_type = identify_filter((lc_freq, hc_freq))
-    print(filter_type)
     if (filter_type == FilterTypes.HIGHPASS) and (lc_freq <= min_lc_freq):
         lc_valid = False
 
@@ -112,8 +111,6 @@ def verify_filters(filter_values: tuple, sampling_rate):
         hc_valid = False
 
     elif (filter_type == FilterTypes.BANDPASS):
-        print(f"{lc_freq=}")
-        print(f"{hc_freq=}")
         if lc_freq >= hc_freq:
             bp_valid = False
         elif hc_freq >= nyq_freq:
