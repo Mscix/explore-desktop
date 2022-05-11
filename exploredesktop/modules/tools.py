@@ -16,6 +16,8 @@ from PySide6.QtWidgets import (
     QMessageBox
 )
 
+from exploredesktop.modules.app_settings import FilterTypes, Settings
+
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -76,3 +78,47 @@ def wait_cursor():
         yield
     finally:
         QApplication.restoreOverrideCursor()
+
+
+def identify_filter(filter_values: tuple):
+    if filter_values[0] is not None and filter_values[1] is None:
+        filter_type = FilterTypes.HIGHPASS
+    elif filter_values[0] is None and filter_values[1] is not None:
+        filter_type = FilterTypes.LOWPASS
+    elif filter_values[0] is not None and filter_values[1] is not None:
+        filter_type = FilterTypes.BANDPASS
+    else:
+        logger.warning(f"Filter with values {filter_values} not identified")
+        filter_type = None
+    return filter_type
+
+
+def verify_filters(filter_values: tuple, sampling_rate):
+    lc_valid = True
+    hc_valid = True
+    bp_valid = True
+    lc_freq = float(filter_values[0]) if filter_values[0] != "" else None
+    hc_freq = float(filter_values[1]) if filter_values[1] != "" else None
+
+    nyq_freq = sampling_rate / 2.
+    min_lc_freq = Settings.MIN_LC_WEIGHT * nyq_freq
+
+    filter_type = identify_filter((lc_freq, hc_freq))
+    print(filter_type)
+    if (filter_type == FilterTypes.HIGHPASS) and (lc_freq <= min_lc_freq):
+        lc_valid = False
+
+    elif (filter_type == FilterTypes.LOWPASS) and (hc_freq >= nyq_freq):
+        hc_valid = False
+
+    elif (filter_type == FilterTypes.BANDPASS):
+        print(f"{lc_freq=}")
+        print(f"{hc_freq=}")
+        if lc_freq >= hc_freq:
+            bp_valid = False
+        elif hc_freq >= nyq_freq:
+            hc_valid = False
+        elif lc_freq <= min_lc_freq:
+            lc_valid = False
+
+    return {'lc_freq': lc_valid, 'hc_freq': hc_valid, 'bp_valid': bp_valid}
