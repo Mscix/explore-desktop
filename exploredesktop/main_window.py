@@ -26,6 +26,7 @@ from exploredesktop.modules.tools import (
     display_msg,
     get_widget_by_obj_name
 )
+from exploredesktop.modules.mkr_module import MarkerPlot
 from explorepy.log_config import (
     read_config,
     write_config
@@ -120,10 +121,14 @@ class MainWindow(QMainWindow, BaseModel):
 
         # PLOTS
         self.orn_plot = ORNPlot(self.ui)
+
         self.exg_plot = ExGPlot(self.ui)
         self.exg_plot.setup_ui_connections()
 
         self.fft_plot = FFTPlot(self.ui)
+
+        self.mkr_plot = MarkerPlot(self.ui)
+        self.mkr_plot.setup_ui_connections()
 
         # signal connections
         self.setup_signal_connections()
@@ -174,12 +179,10 @@ class MainWindow(QMainWindow, BaseModel):
             # reset vars:
             self.exg_plot.reset_vars()
             self.exg_plot.get_model().reset_vars()
-            # self.ui.plot_exg.clear()
-            # self.ui.plot_fft.clear()
-            # self.ui.plot_orn.clear()
             self.is_streaming = False
             self.orn_plot.reset_vars()
             self.orn_plot.get_model().reset_vars()
+            self.fft_plot.reset_vars()
             self.footer_frame.get_model().reset_vars()
             self.imp_frame.get_model().reset_vars()
 
@@ -219,6 +222,12 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.restartPlot.connect(self.exg_plot.init_plot)
         self.signals.restartPlot.connect(self.fft_plot.init_plot)
+
+        self.signals.mkrPlot.connect(self.mkr_plot.plot_marker)
+        self.signals.mkrAdd.connect(self.mkr_plot.model.add_mkr)
+        # self.signals.mkrReplot.connect(lambda data: self.mkr_plot.plot_marker(data, replot=True))
+        self.signals.replotMkrAdd.connect(self.mkr_plot.model.add_mkr_replot)
+        self.signals.mkrRemove.connect(self.mkr_plot.remove_old_item)
 
     def style_ui(self):
         """Initial style for UI
@@ -332,6 +341,8 @@ class MainWindow(QMainWindow, BaseModel):
                 self.fft_plot.init_plot()
                 self.explorer.subscribe(callback=self.fft_plot.model.callback, topic=TOPICS.filtered_ExG)
                 self.fft_plot.start_timer()
+
+                self.explorer.subscribe(callback=self.mkr_plot.model.callback, topic=TOPICS.marker)
 
                 # TODO
                 # self.vis_funct.emit_signals()

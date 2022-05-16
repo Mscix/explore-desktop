@@ -76,15 +76,6 @@ class DataContainer(BaseModel):
 
         return item_dict, to_remove
 
-    def set_marker(self):
-        pass
-
-    def reset_marker(self):
-        pass
-
-    def remove_marker(self):
-        pass
-
     def add_nans(self):
         pass
 
@@ -141,10 +132,17 @@ class DataContainer(BaseModel):
         if self.pointer >= len(self.t_plot_data):
             self.pointer -= len(self.t_plot_data)
             if fft is False:
-                self.t_plot_data[self.pointer:] += self.timescale
-                signal.emit(np.nanmin(self.t_plot_data))
-                # TODO create signal onWrap to update data and emit6
-                self.signals.replotMkrAdd.emit(self.t_plot_data[0])
+                self.on_wrap(signal)
+
+    def on_wrap(self, signal):
+        """Actions to perform when pointer reaches end of the graph
+
+        Args:
+            signal (_type_): _description_
+        """
+        self.t_plot_data[self.pointer:] += self.timescale
+        signal.emit(np.nanmin(self.t_plot_data))
+        # self.signals.replotMkrAdd.emit(self.t_plot_data[0])
 
     def new_t_axis(self, signal):
         """
@@ -301,15 +299,6 @@ class BasePlots:
             connection[:id_th] = 0
 
         return connection
-
-    def plot_marker(self):
-        pass
-
-    def replot_marker(self):
-        pass
-
-    def remove_markers(self, mrk_dict):
-        pass
 
     def _add_pos_line(self, t_vector: list):
         """

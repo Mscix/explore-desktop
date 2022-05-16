@@ -55,7 +55,6 @@ class SignalsContainer(QObject):
 
     restartPlot = Signal()
 
-    # TODO: change signal names to make it more clear
     mkrAdd = Signal(list)
     mkrPlot = Signal(list)
     replotMkrAdd = Signal(float)
