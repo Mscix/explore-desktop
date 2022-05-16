@@ -129,6 +129,7 @@ class ExploreInterface(Explore):
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
         return self.device_chan
 
+    # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:
         """Activate impedance measurement mode and subscribe to impedance topic"""
         try:

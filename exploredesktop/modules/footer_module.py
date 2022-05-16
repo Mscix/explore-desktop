@@ -33,11 +33,10 @@ class FooterData(BaseModel):
         self._battery_percent_list = []
         self.connection_status = ConnectionStatus.DISCONNECTED
 
-    def reset_vars(self, connection) -> None:
+    def reset_vars(self) -> None:
         """reset class variables
         """
-        if connection == ConnectionStatus.DISCONNECTED:
-            self._battery_percent_list = []
+        self._battery_percent_list = []
 
     def env_callback(self, packet) -> None:
         """Update device information.
@@ -73,20 +72,19 @@ class FooterData(BaseModel):
         }
         self.signals.envInfoChanged.emit(data)
 
-    def subscribe_env_callback(self, connection) -> None:
+    def subscribe_env_callback(self) -> None:
         """subscribe env callback to stream processor
         """
-        if connection == ConnectionStatus.CONNECTED:
-            self.explorer.subscribe(callback=self.env_callback, topic=TOPICS.env)
+        self.explorer.subscribe(callback=self.env_callback, topic=TOPICS.env)
 
     def check_connection_status(self) -> None:
         """Check connection status
         """
-        # TODO: note for the reviewer - this could change in the next pr, targetting the connection signals
-        # it can be reviewed in the future
+
         if not self.explorer.is_connected:
             return
         sp_connected = self.explorer.stream_processor.is_connected
+        # pylint: disable=protected-access
         reconnecting = self.explorer.stream_processor.parser._is_reconnecting
 
         if (sp_connected and reconnecting) and self.connection_status != ConnectionStatus.RECONNECTING:
@@ -97,16 +95,13 @@ class FooterData(BaseModel):
             self.connection_status = ConnectionStatus.CONNECTED
             self.signals.connectionStatus.emit(ConnectionStatus.CONNECTED)
 
-        elif (sp_connected is False and reconnecting is False) and self.connection_status != ConnectionStatus.DISCONNECTED:
+        elif (sp_connected is False and reconnecting is False) and \
+                self.connection_status != ConnectionStatus.DISCONNECTED:
             self.connection_status = ConnectionStatus.DISCONNECTED
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
 
         else:
-            print(f"{self.explorer.stream_processor.is_connected=}")
-            print(f"{self.explorer.stream_processor.parser._is_reconnecting=}")
-            print(f"{self.connection_status=}")
-            print(f"{self.connection_status==ConnectionStatus.CONNECTED}\n")
-            logger.warning("Connection status unknown. stream_processor.is_connected=%s", sp_connected)
+            pass
 
     def timer_connection(self) -> None:
         """Timer for checking connection status
@@ -168,13 +163,6 @@ class FooterFrameView():
         elif status == ConnectionStatus.DISCONNECTED and label_text != not_connected_label:
             self.explorer.is_connected = False
             self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: not_connected_label})
-            self.signals.btnConnectChanged.emit("Connect")
-            # TODO: implement functions bellow when all the modules are together
-            # self.stop_processes()
-            # self.reset_vars()
-            # self.bt_funct.on_connection_change()
-            # self.change_page(btn_name="btn_bt")
-            # self.highlight_left_button("btn_bt")
 
     @Slot(dict)
     def update_env_info(self, data: dict) -> None:

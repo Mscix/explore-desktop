@@ -11,7 +11,6 @@ from PySide6.QtWidgets import QMessageBox
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
-    ConnectionStatus,
     ImpModes,
     Messages,
     Settings,
@@ -187,11 +186,10 @@ class ImpModel(BaseModel):
         self.mode = ImpModes.DRY if text == ImpModes.DRY.value else ImpModes.WET
         logger.debug("Impedance measurement mode has been changed to %s", self.mode)
 
-    def reset_vars(self, connection) -> None:
+    def reset_vars(self) -> None:
         """reset class variables
         """
-        if connection == ConnectionStatus.DISCONNECTED:
-            self.mode = ImpModes.WET
+        self.mode = ImpModes.WET
 
 
 class ImpFrameView():

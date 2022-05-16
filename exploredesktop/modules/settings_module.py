@@ -47,12 +47,9 @@ class SettingsFrameView(BaseModel):
         # self.ui.btn_apply_settings.clicked.connect(self.config_funct.change_settings)
         # self.ui.btn_calibrate.setHidden(True)
 
-    def setup_settings_frame(self, connection=ConnectionStatus.CONNECTED):
+    def setup_settings_frame(self):
         """Setup the settings frame
         """
-        if connection != ConnectionStatus.CONNECTED or not self.explorer.is_connected:
-            return
-
         # Set device name
         self.ui.label_explore_name.setText(self.explorer.device_name)
 
@@ -60,16 +57,16 @@ class SettingsFrameView(BaseModel):
         chan_dict = self.explorer.get_chan_dict()
         chan_list = Settings.CHAN_LIST[:self.explorer.get_device_chan()]
 
-        for w in self.ui.frame_cb_channels.findChildren(QCheckBox):
-            w.setChecked(chan_dict[w.objectName().replace("cb_", "")])
-            if w.objectName().replace("cb_", "") not in chan_list:
-                w.hide()
-            if w.isHidden() and w.objectName().replace("cb_", "") in chan_list:
-                w.show()
+        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
+            wdgt.setChecked(chan_dict[wdgt.objectName().replace("cb_", "")])
+            if wdgt.objectName().replace("cb_", "") not in chan_list:
+                wdgt.hide()
+            if wdgt.isHidden() and wdgt.objectName().replace("cb_", "") in chan_list:
+                wdgt.show()
 
         # Set sampling rate
-        sr = int(self.explorer.sampling_rate)
-        self.ui.value_sampling_rate.setCurrentText(str(sr))
+        s_rate = int(self.explorer.sampling_rate)
+        self.ui.value_sampling_rate.setCurrentText(str(s_rate))
 
     ###
     # Button slots
@@ -90,12 +87,9 @@ class SettingsFrameView(BaseModel):
         with wait_cursor():
             reset = self.explorer.reset_soft()
             disconnect = self.explorer.disconnect()
-            # TODO revisit signals, connection changed vs connection status
-            # self.signals.connectionChanged.emit(ConnectionStatus.DISCONNECTED)
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
             self.signals.pageChange.emit("btn_bt")
-            # TODO: move to bt page, and stop processes
-            # TODO: change change_page funct to work with signals
+
         return reset
 
     ###

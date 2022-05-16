@@ -1,4 +1,5 @@
 """Main Application"""
+import logging
 import os
 import sys
 
@@ -34,8 +35,9 @@ from exploredesktop.modules import (  # isort: skip
     Settings,
     Ui_MainWindow,
     BaseModel,
-    Stylesheets,
+    Stylesheets
 )
+from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables  # isort: skip
 from exploredesktop.modules.bt_module import BTFrameView  # isort: skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort: skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
@@ -45,6 +47,8 @@ from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # 
 
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class MainWindow(QMainWindow, BaseModel):
@@ -108,6 +112,50 @@ class MainWindow(QMainWindow, BaseModel):
     #########################
     # UI Functions
     #########################
+
+    def on_connection_change(self, connection):
+        """Actions to perfom when connection status changes
+
+        Args:
+            connection (Enum): connection status
+        """
+        self.footer_frame.print_connection_status(connection)
+
+        if connection == ConnectionStatus.CONNECTED:
+            btn_connect_text = "Disconnect"
+            btn_scan_enabled = False
+
+            if self.ui.stackedWidget.currentWidget() == self.ui.page_bt:
+                self.signals.pageChange.emit("btn_settings")
+
+            firmware = self.explorer.stream_processor.device_info["firmware_version"]
+            data = {EnvVariables.FIRMWARE: firmware}
+            self.signals.devInfoChanged.emit(data)
+
+            # initialize impedance
+            self.signals.displayDefaultImp.emit()
+            # subscribe environmental data callback
+            self.footer_frame.get_model().subscribe_env_callback()
+            # initialize settings frame
+            self.settings_frame.setup_settings_frame()
+
+        elif connection == ConnectionStatus.DISCONNECTED:
+            btn_connect_text = "Connect"
+            btn_scan_enabled = True
+            self.signals.pageChange.emit("btn_bt")
+
+            # TODO:
+            # stop processes
+            # reset vars:
+            self.footer_frame.get_model().reset_vars()
+            self.imp_frame.get_model().reset_vars()
+
+        else:
+            return
+
+        self.signals.btnConnectChanged.emit(btn_connect_text)
+        self.ui.btn_scan.setEnabled(btn_scan_enabled)
+
     def setup_signal_connections(self):
         """connect custom signals to corresponding slots
         """
@@ -118,13 +166,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.envInfoChanged.connect(self.footer_frame.update_env_info)
         self.signals.devInfoChanged.connect(self.footer_frame.update_dev_info)
 
-        # TODO (next PR): unify connection status and connection changed signal
-        self.signals.connectionStatus.connect(self.footer_frame.print_connection_status)
-
-        self.signals.connectionChanged.connect(self.footer_frame.get_model().subscribe_env_callback)
-        self.signals.connectionChanged.connect(self.footer_frame.get_model().reset_vars)
-        self.signals.connectionChanged.connect(self.imp_frame.get_model().reset_vars)
-        self.signals.connectionChanged.connect(self.settings_frame.setup_settings_frame)
+        self.signals.connectionStatus.connect(self.on_connection_change)
 
         self.signals.impedanceChanged.connect(self.imp_frame.get_graph().on_new_data)
         self.signals.displayDefaultImp.connect(self.imp_frame.get_graph().display_default_imp)
