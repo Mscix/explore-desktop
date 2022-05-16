@@ -1,3 +1,4 @@
+"""BlueTooth module"""
 import logging
 import os
 
@@ -294,7 +295,7 @@ class BTFrameView(BaseModel):
         if self.explorer.is_connected:
             self.signals.btnConnectChanged.emit("Disconnect")
             self.signals.displayDefaultImp.emit()
-            self.signals.connectionStatus.emit(ConnectionStatus.CONNECTED)
+            self.signals.connectionChanged.emit(ConnectionStatus.CONNECTED)
 
             dev_name = self.explorer.stream_processor.device_info["device_name"]
             device_lbl = f"Connected to {dev_name}"
@@ -304,6 +305,6 @@ class BTFrameView(BaseModel):
 
         else:
             self.signals.btnConnectChanged.emit("Connect")
-            self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
+            self.signals.connectionChanged.emit(ConnectionStatus.DISCONNECTED)
             data = {EnvVariables.DEVICE_NAME: "Not Connected"}
             self.signals.devInfoChanged.emit(data)

@@ -27,19 +27,20 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizeGrip
 )
-from exploredesktop.modules.bt_module import BTFrameView
-from exploredesktop.modules.footer_module import FooterFrameView
 
 
-from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # isort: skip
 import exploredesktop  # isort: skip
 from exploredesktop.modules import (  # isort: skip
     Settings,
     Ui_MainWindow,
     BaseModel,
-    Stylesheets
+    Stylesheets,
 )
+from exploredesktop.modules.bt_module import BTFrameView  # isort: skip
+from exploredesktop.modules.footer_module import FooterFrameView  # isort: skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
+from exploredesktop.modules.settings_module import SettingsFrameView  # isort: skip
+from exploredesktop.modules.tools import display_msg, get_widget_by_obj_name  # isort: skip
 
 
 VERSION_APP = exploredesktop.__version__
@@ -98,6 +99,10 @@ class MainWindow(QMainWindow, BaseModel):
         # FOOTER
         self.footer_frame = FooterFrameView(self.ui)
 
+        # SETTINGS PAGE
+        self.settings_frame = SettingsFrameView(self.ui)
+        self.settings_frame.setup_ui_connections()
+        # signal connections
         self.setup_signal_connections()
 
     #########################
@@ -113,14 +118,18 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.envInfoChanged.connect(self.footer_frame.update_env_info)
         self.signals.devInfoChanged.connect(self.footer_frame.update_dev_info)
 
+        # TODO (next PR): unify connection status and connection changed signal
         self.signals.connectionStatus.connect(self.footer_frame.print_connection_status)
-        self.signals.connectionStatus.connect(self.footer_frame.get_model().subscribe_env_callback)
-        self.signals.connectionStatus.connect(self.footer_frame.get_model().reset_vars)
-        self.signals.connectionStatus.connect(self.imp_frame.get_model().reset_vars)
-        self.signals.connectionStatus.connect(self.bt_frame.enable_scanning)
+
+        self.signals.connectionChanged.connect(self.footer_frame.get_model().subscribe_env_callback)
+        self.signals.connectionChanged.connect(self.footer_frame.get_model().reset_vars)
+        self.signals.connectionChanged.connect(self.imp_frame.get_model().reset_vars)
+        self.signals.connectionChanged.connect(self.settings_frame.setup_settings_frame)
 
         self.signals.impedanceChanged.connect(self.imp_frame.get_graph().on_new_data)
         self.signals.displayDefaultImp.connect(self.imp_frame.get_graph().display_default_imp)
+
+        self.signals.pageChange.connect(self.left_menu_button_clicked)
 
     def style_ui(self):
         """Initial style for UI
@@ -185,8 +194,7 @@ class MainWindow(QMainWindow, BaseModel):
             "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
 
         # Temp code:
-        implemented_pages = ["btn_home", "btn_impedance", "btn_bt"]
-
+        implemented_pages = ["btn_home", "btn_impedance", "btn_bt", "btn_settings"]
         if btn_name not in implemented_pages:
             display_msg("still not implemented")
             return False
@@ -235,12 +243,15 @@ class MainWindow(QMainWindow, BaseModel):
             new_style = btn.styleSheet() + (Stylesheets.BTN_LEFT_MENU_SELECTED_STYLESHEET)
             btn.setStyleSheet(new_style)
 
-    def left_menu_button_clicked(self):
+    def left_menu_button_clicked(self, no_click=False):
         """
         Change style of the button clicked and move to the selected page
         """
-        btn = self.sender()
-        btn_name = btn.objectName()
+        if isinstance(no_click, str):
+            btn_name = no_click
+        else:
+            # btn = self.sender()
+            btn_name = self.sender().objectName()
 
         # Navigate to active page
         if btn_name != "btn_left_menu_toggle":
