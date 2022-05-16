@@ -13,6 +13,9 @@ class Filters(BaseModel):
         self.ui = ui
         self.current_filters = None
 
+    def setup_ui_connections(self):
+        self.ui.btn_plot_filters.clicked.connect(self.popup_filters)
+
     def popup_filters(self):
 
         # filters_applied = True

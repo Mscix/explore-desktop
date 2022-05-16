@@ -18,6 +18,7 @@ from exploredesktop.modules.app_settings import (
 from exploredesktop.modules.bt_module import BTFrameView
 from exploredesktop.modules.exg_module import ExGPlot
 from exploredesktop.modules.fft_module import FFTPlot
+from exploredesktop.modules.filters_module import Filters
 from exploredesktop.modules.footer_module import FooterFrameView
 from exploredesktop.modules.imp_module import ImpFrameView
 from exploredesktop.modules.lsl_module import IntegrationFrameView
@@ -136,6 +137,10 @@ class MainWindow(QMainWindow, BaseModel):
         self.recording = RecordFunctions(self.ui)
         self.recording.setup_ui_connections()
 
+        # filters
+        self.filters = Filters(self.ui)
+        self.filters.setup_ui_connections()
+
         # INTEGRATION PAGE
         self.integration_frame = IntegrationFrameView(self.ui)
         self.integration_frame.setup_ui_connections()
@@ -176,8 +181,8 @@ class MainWindow(QMainWindow, BaseModel):
             self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.DATA])
 
             # TODO: delete when filters are implemented
-            self.explorer.add_filter((1, 30), "bandpass")
-            self.explorer.add_filter(50, "notch")
+            # self.explorer.add_filter((1, 30), "bandpass")
+            # self.explorer.add_filter(50, "notch")
 
         elif connection == ConnectionStatus.DISCONNECTED:
             btn_connect_text = "Connect"
@@ -333,35 +338,31 @@ class MainWindow(QMainWindow, BaseModel):
 
         elif btn_name == "btn_plots":
             # TODO check filters if not set, display popup
-            # filt = True
-            # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-            # if self.funct.plotting_filters is None and self.vis_funct.plotting_filters is None:
-            #     filt = self.vis_funct.popup_filters()
+            filt = True
+            self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+            self.orn_plot.init_plot()
+            self.exg_plot.init_plot()
+            self.fft_plot.init_plot()
+
+            if self.filters.current_filters is None:
+                filt = self.filters.popup_filters()
 
             # TODO if filters popup is canceled, go to settings
             # TODO instead of going to settings go back to previous page
-            # if filt is False:
-            #     self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
-            #     self.highlight_left_button("btn_settings")
-            #     return False
+            if filt is False:
+                self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+                self.highlight_left_button("btn_settings")
+                return False
 
             # if not self.is_streaming and filt:
-            if not self.is_streaming:
-                self.orn_plot.init_plot()
+            if not self.is_streaming and filt:
                 self.explorer.subscribe(callback=self.orn_plot.model.callback, topic=TOPICS.raw_orn)
-
-                self.exg_plot.init_plot()
                 self.explorer.subscribe(callback=self.exg_plot.model.callback, topic=TOPICS.filtered_ExG)
-
-                self.fft_plot.init_plot()
                 self.explorer.subscribe(callback=self.fft_plot.model.callback, topic=TOPICS.filtered_ExG)
                 self.fft_plot.start_timer()
-
                 self.explorer.subscribe(callback=self.mkr_plot.model.callback, topic=TOPICS.marker)
 
                 # TODO
-                # self.vis_funct.emit_signals()
-                # self.update_fft()
                 # self.update_heart_rate()
                 self.is_streaming = True
 
