@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+from exploredesktop.modules.data_module import ExGPlot
 
 from explorepy.log_config import (
     read_config,
@@ -38,7 +39,7 @@ from exploredesktop.modules import (  # isort: skip
     BaseModel,
     Stylesheets
 )
-from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables  # isort: skip
+from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables, ExGAttributes  # isort: skip
 from exploredesktop.modules.bt_module import BTFrameView  # isort: skip
 from exploredesktop.modules.data_module import ORNPlot  # isort: skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort: skip
@@ -113,6 +114,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         # PLOTS
         self.orn_plot = ORNPlot(self.ui)
+        self.exg_plot = ExGPlot(self.ui)
 
         # signal connections
         self.setup_signal_connections()
@@ -146,6 +148,12 @@ class MainWindow(QMainWindow, BaseModel):
             self.footer_frame.get_model().subscribe_env_callback()
             # initialize settings frame
             self.settings_frame.setup_settings_frame()
+            # initialize visualization offsets
+            self.signals.updateDataAttributes.emit([ExGAttributes.OFFSETS, ExGAttributes.DATA])
+
+            # TODO: delete when filters are implemented
+            self.explorer.add_filter((1, 30), "bandpass")
+            self.explorer.add_filter(50, "notch")
 
         elif connection == ConnectionStatus.DISCONNECTED:
             btn_connect_text = "Connect"
@@ -181,10 +189,14 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.pageChange.connect(self.left_menu_button_clicked)
 
-        self.signals.ornChanged.connect(self.orn_plot.plot)
+        self.signals.ornChanged.connect(self.orn_plot.swipe_plot)
+        self.signals.exgChanged.connect(self.exg_plot.swipe_plot)
 
-        self.signals.tRangeChanged.connect(self.orn_plot.set_t_range)
-        self.signals.tAxisChanged.connect(self.orn_plot.set_t_axis)
+        self.signals.tRangeORNChanged.connect(self.orn_plot.set_t_range)
+        self.signals.tAxisORNChanged.connect(self.orn_plot.set_t_axis)
+
+        self.signals.tRangeEXGChanged.connect(self.exg_plot.set_t_range)
+        self.signals.tAxisEXGChanged.connect(self.exg_plot.set_t_axis)
 
     def style_ui(self):
         """Initial style for UI
@@ -290,6 +302,9 @@ class MainWindow(QMainWindow, BaseModel):
             if not self.is_streaming:
                 self.orn_plot.init_plot()
                 self.explorer.subscribe(callback=self.orn_plot.model.callback, topic=TOPICS.raw_orn)
+
+                self.exg_plot.init_plot()
+                self.explorer.subscribe(callback=self.exg_plot.model.callback, topic=TOPICS.filtered_ExG)
                 # TODO
                 # self.vis_funct.emit_signals()
                 # self.update_fft()

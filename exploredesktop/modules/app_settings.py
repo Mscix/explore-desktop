@@ -1,6 +1,6 @@
 """Module with app settings, stylesheets and messages displayed in the app
 """
-from enum import Enum
+from enum import Enum, auto
 
 
 class BaseEnum(Enum):
@@ -44,6 +44,14 @@ class ORNLegend(BaseEnum):
     ACC = 'Acc [mg/LSB]'
     GYRO = 'Gyro [mdps/LSB]'
     MAG = 'Mag [mgauss/LSB]'
+
+
+class ExGAttributes(BaseEnum):
+    OFFSETS = auto()
+    BASELINE = auto()
+    DATA = auto()
+    # FILTERS = auto()
+    INIT = auto()
 
 
 class Stylesheets():
@@ -209,6 +217,8 @@ class Settings():
     }
 
     LEFT_BTN_REQUIRE_CONNECTION = ["btn_settings", "btn_plots", "btn_impedance", "btn_integration"]
+
+    BASELINE_MA_LENGTH = 1.5 * EXG_VIS_SRATE
 
 
 class Messages():
