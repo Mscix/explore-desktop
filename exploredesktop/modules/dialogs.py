@@ -148,7 +148,8 @@ class RecordingDialog(CustomDialog):
         data = {
             "file_name": self.ui.input_file_name.text(),
             "file_path": self.ui.input_filepath.text(),
-            "duration": int(self.ui.spinBox_recording_time.value())
+            "duration": int(self.ui.spinBox_recording_time.value()),
+            "file_type": self.file_extension()
         }
         return data
 
