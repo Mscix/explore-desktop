@@ -51,9 +51,9 @@ class ORNData(DataContainer):
     def callback(self, packet):
         """ORN callback"""
         timestamp, orn_data = packet.get_data()
-        if self._vis_time_offset is None:
-            self._vis_time_offset = timestamp[0]
-        time_vector = list(np.asarray(timestamp) - self._vis_time_offset)
+        if DataContainer.vis_time_offset is None:
+            DataContainer.vis_time_offset = timestamp[0]
+        time_vector = list(np.asarray(timestamp) - DataContainer.vis_time_offset)
 
         data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
         data['t'] = time_vector
@@ -88,6 +88,8 @@ class ORNPlot(BasePlots):
         self.lines = [None, None, None]
 
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
+
+        self.init_plot()
 
     def reset_vars(self):
         """Reset attributes"""

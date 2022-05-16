@@ -13,7 +13,7 @@ from exploredesktop.modules import (  # isort: skip
     Settings,
     BaseModel
 )
-from exploredesktop.modules.app_settings import ConnectionStatus  # isort: skip
+from exploredesktop.modules.app_settings import ConnectionStatus, DataAttributes  # isort: skip
 from exploredesktop.modules.tools import display_msg, wait_cursor  # isort: skip
 
 
@@ -133,18 +133,22 @@ class SettingsFrameView(BaseModel):
         """
 
         with wait_cursor():
-            # TODO
+            # TODO add if statement when filters are implemented
             # if self.plotting_filters is not None:
-            #     self.vis_functions._baseline_corrector["baseline"] = None
-            #     self.explorer.stream_processor.remove_filters()
+            if True:
+                self.signals.updateDataAttributes.emit([DataAttributes.BASELINE])
+                self.explorer.stream_processor.remove_filters()
 
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
 
             # TODO reset exg data and reapply filters
-            # self.reset_exg_plot_data()
+            self.signals.updateDataAttributes.emit([DataAttributes.DATA])
             # if self.plotting_filters is not None:
             #     self.apply_filters()
+            if True:
+                self.explorer.add_filter((1, 30), "bandpass")
+                self.explorer.add_filter(50, "notch")
 
         if changed_sr or changed_chan:
             chan_dict = self.explorer.get_chan_dict()
@@ -156,8 +160,7 @@ class SettingsFrameView(BaseModel):
             )
             display_msg(msg_text=msg, popup_type="info")
 
-        # TODO init plots
-        # self.vis_functions.init_plots()
+        self.signals.restartPlot.emit()
 
     ###
     # Change settings functions
@@ -195,9 +198,7 @@ class SettingsFrameView(BaseModel):
 
             self.explorer.set_chan_dict()
 
-            # TODO when signal data is implemented -  reset offsets and baseline corrector
-            # self.vis_functions.offsets = np.arange(1, n_chan.count(1) + 1)[:, np.newaxis].astype(float)
-            # self.vis_functions._baseline_corrector["baseline"] = None
+            self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.BASELINE])
             self.signals.displayDefaultImp.emit()
 
         return changed

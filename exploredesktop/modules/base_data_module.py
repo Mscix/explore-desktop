@@ -3,10 +3,10 @@ import logging
 import numpy as np
 
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QIntValidator
+
 import pyqtgraph as pg
-from exploredesktop.modules.app_settings import Settings, Stylesheets  # isort: skip
-from exploredesktop.modules.base_model import BaseModel  # isort: skip
+from exploredesktop.modules.app_settings import Settings, Stylesheets 
+from exploredesktop.modules.base_model import BaseModel
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -14,6 +14,8 @@ logger = logging.getLogger("explorepy." + __name__)
 class DataContainer(BaseModel):
     """_summary_
     """
+    vis_time_offset = None
+
     def __init__(self) -> None:
         super().__init__()
         self.plot_data = {}
@@ -21,12 +23,17 @@ class DataContainer(BaseModel):
 
         self.pointer = 0
 
-        self.mrk_plot = {'t': [], 'code': [], 'line': []}
-        self.mrk_replot = {'t': [], 'code': [], 'line': []}
-
-        self._vis_time_offset = None
+        # self.vis_time_offset = None
 
         self.timescale = 10
+
+    # @property
+    # def vis_time_offset(self):
+    #     return self._vis_time_offset
+
+    # @vis_time_offset.setter
+    # def vis_time_offset(self, value):
+    #     self._vis_time_offset = value
 
     def reset_vars(self):
         self.plot_data = {}
@@ -34,10 +41,7 @@ class DataContainer(BaseModel):
 
         self.pointer = 0
 
-        self.mrk_plot = {'t': [], 'code': [], 'line': []}
-        self.mrk_replot = {'t': [], 'code': [], 'line': []}
-
-        self._vis_time_offset = None
+        self.vis_time_offset = None
 
         self.timescale = 10
 
@@ -146,6 +150,8 @@ class BasePlots:
         self.plots_list = []
 
         self.set_dropdowns()
+
+    def setup_ui_connections(self):
         self.ui.value_timeScale.currentTextChanged.connect(self.set_time_scale)
 
     def get_model(self):
@@ -160,9 +166,7 @@ class BasePlots:
         t = int(Settings.TIME_RANGE_MENU[t_str])
         return t
 
-    # @time_scale.setter
     def set_time_scale(self, value):
-        # TODO revisit this
         if isinstance(value, str):
             value = Settings.TIME_RANGE_MENU[value]
         self.model.timescale = value
@@ -187,8 +191,6 @@ class BasePlots:
         # value_time_scale
         self.ui.value_timeScale.addItems(Settings.TIME_RANGE_MENU.keys())
         self.ui.value_timeScale_rec.addItems(Settings.TIME_RANGE_MENU.keys())
-
-        self.ui.value_event_code.setValidator(QIntValidator(8, 65535))
 
     @abstractmethod
     def init_plot(self):
@@ -305,3 +307,4 @@ class BasePlots:
                     self.lines = [None for i in range(len(self.lines))]
 
         return self.lines
+

@@ -109,10 +109,10 @@ class ExGData(DataContainer):
         #     self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
 
         # From timestamp to seconds
-        if self._vis_time_offset is None:
-            self._vis_time_offset = timestamp[0]
+        if DataContainer.vis_time_offset is None:
+            DataContainer.vis_time_offset = timestamp[0]
 
-        time_vector = timestamp - self._vis_time_offset
+        time_vector = timestamp - DataContainer.vis_time_offset
 
         # Downsampling
         if Settings.DOWNSAMPLING:
@@ -125,7 +125,12 @@ class ExGData(DataContainer):
         if True:
             exg = self.baseline_correction(exg)
 
-        exg = self.update_unit(exg)
+        # ValueError thrown when changing the channels. Can be ignored
+        try:
+            exg = self.update_unit(exg)
+        except ValueError as error:
+            logger.warning("ValueError: %s", str(error))
+
         data = dict(zip(chan_list, exg))
         data['t'] = time_vector
 
@@ -134,11 +139,12 @@ class ExGData(DataContainer):
         self.new_t_axis()
 
         self.last_t = data['t'][-1]
+        self.packet_count += 1
 
         try:
             self.signals.exgChanged.emit([self.t_plot_data, self.plot_data])
-        except ValueError:
-            pass
+        except RuntimeError as error:
+            logger.warning("RuntimeError: %s", str(error))
 
     def downsampling(self, time_vector, exg, exg_fs):
         """Downsample"""
@@ -249,6 +255,7 @@ class ExGPlot(BasePlots):
         self.bt_drop_warning_displayed = False
 
     def setup_ui_connections(self):
+        super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
 
