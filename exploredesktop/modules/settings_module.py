@@ -42,9 +42,9 @@ class SettingsFrameView(BaseModel):
         self.ui.value_sampling_rate.currentTextChanged.connect(self.display_sr_warning)
 
         self.ui.btn_reset_settings.clicked.connect(self.reset_settings)
+        self.ui.btn_format_memory.clicked.connect(self.format_memory)
         # TODO uncomment when implemented
-        # self.ui.btn_format_memory.clicked.connect(self.config_funct.format_memory)
-        # self.ui.btn_apply_settings.clicked.connect(self.config_funct.change_settings)
+        # self.ui.btn_apply_settings.clicked.connect(self.change_settings)
         # self.ui.btn_calibrate.setHidden(True)
 
     def setup_settings_frame(self):
@@ -90,7 +90,40 @@ class SettingsFrameView(BaseModel):
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
             self.signals.pageChange.emit("btn_bt")
 
-        return reset
+        if reset:
+            self.explorer.disconnect()
+            self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
+
+        else:
+            msg = (
+                "There was an error while resetting the settings."
+                "\nPlease make sure the bluetooth connection is stable and try again."
+            )
+            display_msg(msg)
+
+    @Slot()
+    def format_memory(self):
+        """
+        Display a popup asking for confirmation.
+        If yes, memory is formatted.
+        """
+
+        response = display_msg(msg_text=Messages.FORMAT_MEM_QUESTION, popup_type="question")
+
+        if response != QMessageBox.StandardButton.Yes:
+            return
+
+        with wait_cursor():
+            result = self.explorer.format_memory()
+            
+        if result:
+            display_msg(msg_text="Memory formatted", popup_type="info")
+        else:
+            msg = (
+                "There was an error while formatting the memory."
+                "\nPlease make sure the bluetooth connection is stable and try again."
+            )
+            display_msg(msg)
 
     ###
     # Vis feedback slots
