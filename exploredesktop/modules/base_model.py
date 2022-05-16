@@ -44,7 +44,6 @@ class SignalsContainer(QObject):
     # Visualization
     ornChanged = Signal(list)
     exgChanged = Signal(list)
-    mkrChanged = Signal(list)
 
     tRangeORNChanged = Signal(float)
     tRangeEXGChanged = Signal(float)
@@ -55,6 +54,12 @@ class SignalsContainer(QObject):
     updateYAxis = Signal()
 
     restartPlot = Signal()
+
+    # TODO: change signal names to make it more clear
+    mkrAdd = Signal(list)
+    mkrPlot = Signal(list)
+    replotMkrAdd = Signal(float)
+    mkrRemove = Signal(float)
 
 
 class BaseModel(object):
