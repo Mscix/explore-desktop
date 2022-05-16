@@ -188,11 +188,7 @@ class SettingsFrameView(BaseModel):
 
         if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
             mask = "".join(active_chan)
-            int_mask = int(mask, 2)
-            try:
-                changed = self.explorer.set_channels(int_mask)
-            except TypeError:
-                changed = self.explorer.set_channels(mask)
+            changed = self.explorer.set_channels(mask)
 
             n_chan = self.explorer.stream_processor.device_info['adc_mask']
             n_chan = list(reversed(n_chan))
