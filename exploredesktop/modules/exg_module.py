@@ -38,6 +38,21 @@ class ExGData(DataContainer):
 
         self.signals.updateDataAttributes.connect(self.update_attributes)
 
+    def reset_vars(self):
+        self._baseline = None
+        self.offsets = np.array([])
+        self.y_unit = Settings.DEFAULT_SCALE
+        self.y_string = '1 mV'
+        self.last_t = 0
+
+        self.packet_count = 0
+        self.t_bt_drop = None
+
+        self.rr_estimator = None
+        self.r_peak = {'t': [], 'r_peak': [], 'points': []}
+        self.r_peak_replot = {'t': [], 'r_peak': [], 'points': []}
+        self.rr_warning_displayed = False
+
     def new_t_axis(self, signal=None):
         signal = self.signals.tAxisEXGChanged
         return super().new_t_axis(signal)
@@ -190,6 +205,36 @@ class ExGData(DataContainer):
         self.signals.tRangeEXGChanged.emit(self.last_t)
         self.signals.updateDataAttributes.emit([DataAttributes.POINTER, DataAttributes.DATA])
 
+    @Slot(str)
+    def change_scale(self, new_val: str):
+        """
+        Change y-axis scale in ExG plot
+        """
+        old = Settings.SCALE_MENU[self.y_string]
+        new = Settings.SCALE_MENU[new_val]
+        logger.debug("ExG scale has been changed from %s to %s", self.y_string, new_val)
+
+        old_unit = 10 ** (-old)
+        new_unit = 10 ** (-new)
+
+        self.y_string = new_val
+        self.y_unit = new_unit
+
+        chan_list = self.explorer.active_chan_list
+        for chan, value in self.plot_data.items():
+            if chan in chan_list:
+                temp_offset = self.offsets[chan_list.index(chan)]
+                self.plot_data[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
+        # TODO
+        # # Rescale r_peaks
+        # # Remove old rpeaks
+        # # Plot rescaled rpeaks
+
+        # # Rescale replotted rpeaks
+        # # Remove old replotted rpeaks
+        # # Plot rescaled rpeaks
+        self.signals.updateYAxis.emit()
+
 
 class ExGPlot(BasePlots):
     """_summary_
@@ -203,10 +248,14 @@ class ExGPlot(BasePlots):
         self.plots_list = [self.ui.plot_exg]
         self.bt_drop_warning_displayed = False
 
+    def setup_ui_connections(self):
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
+        self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
 
     def reset_vars(self):
-        pass
+        self.lines = [None]
+        self.plots_list = [self.ui.plot_exg]
+        self.bt_drop_warning_displayed = False
 
     def init_plot(self):
         plot_wdgt = self.ui.plot_exg

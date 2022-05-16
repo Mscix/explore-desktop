@@ -51,6 +51,7 @@ class SignalsContainer(QObject):
     tAxisEXGChanged = Signal(list)
 
     updateDataAttributes = Signal(list)
+    updateYAxis = Signal()
 
 
 class BaseModel():

@@ -27,6 +27,11 @@ class ORNData(DataContainer):
 
         self.signals.updateDataAttributes.connect(self.update_attributes)
 
+    def reset_vars(self):
+        super().reset_vars()
+        self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
+        self.t_plot_data = np.array([np.NaN] * 200)
+
     def new_t_axis(self, signal=None):
         signal = self.signals.tAxisORNChanged
         return super().new_t_axis(signal)

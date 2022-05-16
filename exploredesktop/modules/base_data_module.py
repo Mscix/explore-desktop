@@ -28,6 +28,19 @@ class DataContainer(BaseModel):
 
         self.timescale = 10
 
+    def reset_vars(self):
+        self.plot_data = {}
+        self.t_plot_data = np.array([])
+
+        self.pointer = 0
+
+        self.mrk_plot = {'t': [], 'code': [], 'line': []}
+        self.mrk_replot = {'t': [], 'code': [], 'line': []}
+
+        self._vis_time_offset = None
+
+        self.timescale = 10
+
     @abstractmethod
     def callback(self, packet):
         raise NotImplementedError
@@ -133,10 +146,11 @@ class BasePlots:
         self.plots_list = []
 
         self.set_dropdowns()
-        self.setup_ui_connections()
-
-    def setup_ui_connections(self):
         self.ui.value_timeScale.currentTextChanged.connect(self.set_time_scale)
+
+    def get_model(self):
+        """Return data model"""
+        return self.model
 
     @property
     def time_scale(self):
