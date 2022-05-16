@@ -189,7 +189,7 @@ class FiltersDialog(CustomDialog):
         if self.current_filters is None:  # default values
             self.offset = True
             self.notch = "50"
-            self.low_cutoff = "1"
+            self.low_cutoff = "1" if self.s_rate < 1000 else "2"
             self.high_cutoff = "30"
         else:
             self.offset = self.current_filters["offset"]
