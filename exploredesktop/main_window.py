@@ -123,23 +123,24 @@ class MainWindow(QMainWindow, BaseModel):
         self.settings_frame.setup_ui_connections()
 
         # PLOTS
+        # filters
+        self.filters = Filters(self.ui)
+        self.filters.setup_ui_connections()
+
+        # orn plot
         self.orn_plot = ORNPlot(self.ui)
-
-        self.exg_plot = ExGPlot(self.ui)
+        # exg plot
+        self.exg_plot = ExGPlot(self.ui, self.filters)
         self.exg_plot.setup_ui_connections()
-
+        # fft plot
         self.fft_plot = FFTPlot(self.ui)
-
+        # markers
         self.mkr_plot = MarkerPlot(self.ui)
         self.mkr_plot.setup_ui_connections()
 
         # recording
         self.recording = RecordFunctions(self.ui)
         self.recording.setup_ui_connections()
-
-        # filters
-        self.filters = Filters(self.ui)
-        self.filters.setup_ui_connections()
 
         # INTEGRATION PAGE
         self.integration_frame = IntegrationFrameView(self.ui)

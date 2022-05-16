@@ -19,8 +19,10 @@ logger = logging.getLogger("explorepy." + __name__)
 
 class ExGData(DataContainer):
     """_summary_"""
-    def __init__(self) -> None:
+    def __init__(self, filters) -> None:
         super().__init__()
+
+        self.filters = filters
 
         self._baseline = None
         self.offsets = np.array([])
@@ -87,10 +89,6 @@ class ExGData(DataContainer):
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
 
-        # TODO in fft data - Original data
-        # orig_exg = dict(zip(chan_list, exg))
-        # self.add_original_exg(orig_exg)
-
         # TODO: handle disconnection errors (through conn status signal)
         # if self._vis_time_offset is not None and timestamp[0] < self._vis_time_offset:
         #     self.reset_vis_vars()
@@ -117,10 +115,7 @@ class ExGData(DataContainer):
             time_vector, exg = self.downsampling(time_vector, exg, exg_fs)
 
         # Baseline Correction
-        # TODO change if condition when filters are implemented
-        # if self.plotting_filters is not None and self.plotting_filters['offset']:
-        # pylint: disable=using-constant-test
-        if True:
+        if self.filters.current_filters is not None and self.filters.current_filters['offset']:
             exg = self.baseline_correction(exg)
 
         # ValueError thrown when changing the channels. Can be ignored
@@ -243,9 +238,9 @@ class ExGData(DataContainer):
 class ExGPlot(BasePlots):
     """_summary_
     """
-    def __init__(self, ui) -> None:
+    def __init__(self, ui, filters) -> None:
         super().__init__(ui)
-        self.model = ExGData()
+        self.model = ExGData(filters)
 
         self.lines = [None]
 
