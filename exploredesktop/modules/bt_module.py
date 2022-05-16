@@ -1,4 +1,4 @@
-"""BlueTooth module"""
+"""Bluetooth module"""
 import logging
 import os
 
@@ -284,7 +284,7 @@ class BTFrameView(BaseModel):
         # self.ui.btn_scan.setStyleSheet(btn_stylesheet)
 
     def on_connection_change(self):
-        """emit connection status signal"""
+        """Emit connection status signal"""
         if self.explorer.is_connected:
             self.signals.connectionStatus.emit(ConnectionStatus.CONNECTED)
 

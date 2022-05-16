@@ -81,9 +81,14 @@ class SettingsFrameView(BaseModel):
 
         response = display_msg(msg_text=Messages.RESET_SETTINGS_QUESTION, popup_type="question")
 
-        if response == QMessageBox.StandardButton.Yes:
-            with wait_cursor():
-                reset = self.explorer.reset_soft()
+        if response == QMessageBox.StandardButton.No:
+            return reset
+
+        with wait_cursor():
+            reset = self.explorer.reset_soft()
+            disconnect = self.explorer.disconnect()
+            self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
+            self.signals.pageChange.emit("btn_bt")
 
         if reset:
             self.explorer.disconnect()

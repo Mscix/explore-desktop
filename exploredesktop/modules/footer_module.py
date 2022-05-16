@@ -95,7 +95,8 @@ class FooterData(BaseModel):
             self.connection_status = ConnectionStatus.CONNECTED
             self.signals.connectionStatus.emit(ConnectionStatus.CONNECTED)
 
-        elif (sp_connected is False and reconnecting is False) and self.connection_status != ConnectionStatus.DISCONNECTED:
+        elif (sp_connected is False and reconnecting is False) and \
+                self.connection_status != ConnectionStatus.DISCONNECTED:
             self.connection_status = ConnectionStatus.DISCONNECTED
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
 
