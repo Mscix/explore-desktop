@@ -21,6 +21,7 @@ from exploredesktop.modules.fft_module import FFTPlot
 from exploredesktop.modules.footer_module import FooterFrameView
 from exploredesktop.modules.imp_module import ImpFrameView
 from exploredesktop.modules.orn_module import ORNPlot
+from exploredesktop.modules.recording_module import RecordFunctions
 from exploredesktop.modules.settings_module import SettingsFrameView
 from exploredesktop.modules.tools import (
     display_msg,
@@ -129,6 +130,10 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.mkr_plot = MarkerPlot(self.ui)
         self.mkr_plot.setup_ui_connections()
+
+        # recording
+        self.recording = RecordFunctions(self.ui)
+        self.recording.setup_ui_connections()
 
         # signal connections
         self.setup_signal_connections()
@@ -309,9 +314,9 @@ class MainWindow(QMainWindow, BaseModel):
             self.settings_frame.setup_settings_frame()
             self.settings_frame.one_chan_selected()
             # TODO enable settings depending on recording/pushing status
-            # enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
-            # self.settings_frame.enable_settings(enable)
-            # self.ui.value_sampling_rate.setEnabled(True)
+            enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
+            self.settings_frame.enable_settings(enable)
+            self.ui.value_sampling_rate.setEnabled(enable)
 
         # elif btn_name == "btn_impedance":
         #     self.signals.displayDefaultImp.emit()
@@ -500,6 +505,10 @@ class MainWindow(QMainWindow, BaseModel):
         """
         # TODO: add other actions to perform on close, e.g. stop timers
         QThreadPool().globalInstance().waitForDone()
+        if self.explorer.is_recording:
+            self.recording.stop_record()
+        if self.explorer.is_measuring_imp:
+            self.imp_frame.disable_imp()
         return super().close()
 
     def set_permissions(self):
