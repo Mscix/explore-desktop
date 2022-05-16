@@ -26,9 +26,7 @@ class ExploreInterface(Explore):
     """Interface class for Explore"""
     def __init__(self):
         super().__init__()
-        self.is_measuring_imp = False
         self.device_chan = None
-
         self.chan_dict = {}
 
     @property
@@ -101,7 +99,6 @@ class ExploreInterface(Explore):
     def disconnect(self):
         """Disconnect from explore device and reset variables
         """
-        self.is_measuring_imp = False
         self.device_chan = None
         self.chan_dict = {}
         return super().disconnect()
@@ -136,7 +133,6 @@ class ExploreInterface(Explore):
         """Activate impedance measurement mode and subscribe to impedance topic"""
         try:
             self.stream_processor.imp_initialize(notch_freq=50)
-            self.is_measuring_imp = True
         except ConnectionError:
             return False
 
@@ -147,7 +143,6 @@ class ExploreInterface(Explore):
         """Disable impedance measurement mode and unsubscribe from impedance topic"""
         self.unsubscribe(callback=imp_callback, topic=TOPICS.imp)
         if self.stream_processor.disable_imp():
-            self.is_measuring_imp = False
             return True
 
         logger.warning("Failed to disable impedance measurement.")
