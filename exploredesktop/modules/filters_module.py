@@ -3,6 +3,7 @@ import logging
 import time
 from exploredesktop.modules.base_model import BaseModel
 from exploredesktop.modules.dialogs import FiltersDialog
+from exploredesktop.modules.tools import display_msg, get_filter_limits, verify_filters
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -66,3 +67,36 @@ class Filters(BaseModel):
 
     def reset_vars(self):
         self.current_filters = None
+
+    def check_filters_sr(self, s_rate):
+        if self.current_filters is None:
+            return
+
+        min_lc_freq, max_hc_freq = get_filter_limits(s_rate)
+
+        warning = ""
+
+        hc_freq_warning = (
+            "High cutoff frequency cannot be larger than or equal to the nyquist frequency.\n"
+            f"The high cutoff frequency has changed to {max_hc_freq:.1f} Hz!"
+        )
+
+        lc_freq_warning = (
+            "Transient band for low cutoff frequency was too narrow.\n"
+            f"The low cutoff frequency has changed {min_lc_freq:.1f} Hz!"
+        )
+
+        filter_ok = verify_filters(
+            (self.current_filters['low_cutoff'], self.current_filters['high_cutoff']),
+            s_rate)
+
+        if filter_ok['lc_freq'] is False:
+            warning += lc_freq_warning
+            self.current_filters["low_cutoff"] = min_lc_freq
+
+        if filter_ok['hc_freq'] is False:
+            warning += hc_freq_warning
+            self.current_filters["high_cutoff"] = max_hc_freq
+
+        if warning != "":
+            display_msg(msg_text=warning, popup_type="info")

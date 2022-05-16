@@ -119,3 +119,11 @@ def verify_filters(filter_values: tuple, sampling_rate):
             lc_valid = False
 
     return {'lc_freq': lc_valid, 'hc_freq': hc_valid, 'bp_valid': bp_valid}
+
+
+def get_filter_limits(s_rate):
+    nyq_freq = s_rate / 2.
+    max_hc_freq = round(nyq_freq - 1, 1)
+    min_lc_freq = round(0.0035 * nyq_freq, 1)
+
+    return min_lc_freq, max_hc_freq

@@ -118,27 +118,23 @@ class MainWindow(QMainWindow, BaseModel):
         # FOOTER
         self.footer_frame = FooterFrameView(self.ui)
 
-        # SETTINGS PAGE
-        self.settings_frame = SettingsFrameView(self.ui)
-        self.settings_frame.setup_ui_connections()
-
-        # PLOTS
-        # filters
+        # FILTERS
         self.filters = Filters(self.ui)
         self.filters.setup_ui_connections()
 
-        # orn plot
+        # SETTINGS PAGE
+        self.settings_frame = SettingsFrameView(self.ui, self.filters)
+        self.settings_frame.setup_ui_connections()
+
+        # PLOTS
         self.orn_plot = ORNPlot(self.ui)
-        # exg plot
         self.exg_plot = ExGPlot(self.ui, self.filters)
         self.exg_plot.setup_ui_connections()
-        # fft plot
         self.fft_plot = FFTPlot(self.ui)
-        # markers
         self.mkr_plot = MarkerPlot(self.ui)
         self.mkr_plot.setup_ui_connections()
 
-        # recording
+        # RECORDING
         self.recording = RecordFunctions(self.ui)
         self.recording.setup_ui_connections()
 
@@ -181,9 +177,9 @@ class MainWindow(QMainWindow, BaseModel):
             # initialize visualization offsets
             self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.DATA])
 
-            # TODO: delete when filters are implemented
-            # self.explorer.add_filter((1, 30), "bandpass")
-            # self.explorer.add_filter(50, "notch")
+            self.orn_plot.init_plot()
+            self.exg_plot.init_plot()
+            self.fft_plot.init_plot()
 
         elif connection == ConnectionStatus.DISCONNECTED:
             btn_connect_text = "Connect"
@@ -329,7 +325,6 @@ class MainWindow(QMainWindow, BaseModel):
         if btn_name == "btn_settings":
             self.settings_frame.setup_settings_frame()
             self.settings_frame.one_chan_selected()
-            # TODO enable settings depending on recording/pushing status
             enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
             self.settings_frame.enable_settings(enable)
             self.ui.value_sampling_rate.setEnabled(enable)
@@ -338,12 +333,8 @@ class MainWindow(QMainWindow, BaseModel):
         #     self.signals.displayDefaultImp.emit()
 
         elif btn_name == "btn_plots":
-            # TODO check filters if not set, display popup
             filt = True
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
-            self.orn_plot.init_plot()
-            self.exg_plot.init_plot()
-            self.fft_plot.init_plot()
 
             if self.filters.current_filters is None:
                 filt = self.filters.popup_filters()

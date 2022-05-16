@@ -23,10 +23,10 @@ logger = logging.getLogger("explorepy." + __name__)
 class SettingsFrameView(BaseModel):
     """_summary_
     """
-    def __init__(self, ui) -> None:
+    def __init__(self, ui, filters) -> None:
         super().__init__()
         self.ui = ui
-
+        self.filters = filters
         self.setup_dropdown()
 
     def setup_dropdown(self):
@@ -128,22 +128,18 @@ class SettingsFrameView(BaseModel):
         """
 
         with wait_cursor():
-            # TODO add if statement when filters are implemented
-            # if self.plotting_filters is not None:
-            if True:
+            if self.filters.current_filters is not None:
                 self.signals.updateDataAttributes.emit([DataAttributes.BASELINE])
                 self.explorer.stream_processor.remove_filters()
 
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
 
-            # TODO reset exg data and reapply filters
+            # Reset exg data and reapply filters
             self.signals.updateDataAttributes.emit([DataAttributes.DATA])
-            # if self.plotting_filters is not None:
-            #     self.apply_filters()
-            if True:
-                self.explorer.add_filter((1, 30), "bandpass")
-                self.explorer.add_filter(50, "notch")
+            if self.filters.current_filters is not None:
+                print(self.filters.current_filters)
+                self.filters.apply_filters()
 
         if changed_sr or changed_chan:
             chan_dict = self.explorer.get_chan_dict()
@@ -215,8 +211,8 @@ class SettingsFrameView(BaseModel):
 
         if int(current_sr) != new_sr:
             # TODO
-            # if self.plotting_filters is not None:
-            #     self.check_filters_new_sr()
+            if self.filters.current_filters is not None:
+                self.filters.check_filters_sr(new_sr)
 
             logger.info("Old Sampling rate: %s", self.explorer.sampling_rate)
             changed = self.explorer.set_sampling_rate(sampling_rate=new_sr)
