@@ -41,6 +41,13 @@ class SignalsContainer(QObject):
     # Navigation
     pageChange = Signal(str)
 
+    # Visualization
+    ornChanged = Signal(list)
+    exgChanged = Signal(dict)
+
+    tRangeChanged = Signal(float)
+    tAxisChanged = Signal(list)
+
 
 class BaseModel():
     """Base class for models

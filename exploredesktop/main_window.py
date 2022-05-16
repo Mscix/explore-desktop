@@ -7,14 +7,15 @@ from explorepy.log_config import (
     read_config,
     write_config
 )
+from explorepy.stream_processor import TOPICS
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
     QPropertyAnimation,
     Qt,
+    QThreadPool,
     QTimer,
-    Slot,
-    QThreadPool
+    Slot
 )
 from PySide6.QtGui import (
     QColor,
@@ -39,6 +40,7 @@ from exploredesktop.modules import (  # isort: skip
 )
 from exploredesktop.modules.app_settings import ConnectionStatus, EnvVariables  # isort: skip
 from exploredesktop.modules.bt_module import BTFrameView  # isort: skip
+from exploredesktop.modules.data_module import ORNPlot  # isort: skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort: skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort: skip
 from exploredesktop.modules.settings_module import SettingsFrameView  # isort: skip
@@ -64,6 +66,8 @@ class MainWindow(QMainWindow, BaseModel):
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle('ExploreDesktop')
+
+        self.is_streaming = False
 
         # Style UI
         self.style_ui()
@@ -106,6 +110,10 @@ class MainWindow(QMainWindow, BaseModel):
         # SETTINGS PAGE
         self.settings_frame = SettingsFrameView(self.ui)
         self.settings_frame.setup_ui_connections()
+
+        # PLOTS
+        self.orn_plot = ORNPlot(self.ui)
+
         # signal connections
         self.setup_signal_connections()
 
@@ -173,6 +181,11 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.pageChange.connect(self.left_menu_button_clicked)
 
+        self.signals.ornChanged.connect(self.orn_plot.plot)
+
+        self.signals.tRangeChanged.connect(self.orn_plot.set_t_range)
+        self.signals.tAxisChanged.connect(self.orn_plot.set_t_axis)
+
     def style_ui(self):
         """Initial style for UI
         """
@@ -235,12 +248,53 @@ class MainWindow(QMainWindow, BaseModel):
             "btn_settings": self.ui.page_settings, "btn_plots": self.ui.page_plotsNoWidget,
             "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
 
-        # Temp code:
-        implemented_pages = ["btn_home", "btn_impedance", "btn_bt", "btn_settings"]
-        if btn_name not in implemented_pages:
-            display_msg("still not implemented")
+        # If not navigating to impedance, verify if imp mode is active
+        if self.explorer.is_measuring_imp and btn_name != "btn_impedance":
+            imp_disabled = self.imp_frame.check_is_imp()
+            if not imp_disabled:
+                return False
+
+        # If the page requires connection to a Explore device, verify
+        if btn_name in Settings.LEFT_BTN_REQUIRE_CONNECTION and self.explorer.is_connected is False:
+            msg = "Please connect an Explore device."
+            display_msg(msg_text=msg, popup_type="info")
             return False
-        # End temp code
+
+        # Actions for specific pages
+        if btn_name == "btn_settings":
+            self.settings_frame.setup_settings_frame()
+            self.settings_frame.one_chan_selected()
+            enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
+            # TODO enable settings depending on recording/pushing status
+            # self.settings_frame.enable_settings(enable)
+            # self.ui.value_sampling_rate.setEnabled(True)
+
+        # elif btn_name == "btn_impedance":
+        #     self.signals.displayDefaultImp.emit()
+
+        elif btn_name == "btn_plots":
+            # TODO check filters if not set, display popup
+            # filt = True
+            # self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
+            # if self.funct.plotting_filters is None and self.vis_funct.plotting_filters is None:
+            #     filt = self.vis_funct.popup_filters()
+
+            # TODO if filters popup is canceled, go to settings
+            # TODO instead of going to settings go back to previous page
+            # if filt is False:
+            #     self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
+            #     self.highlight_left_button("btn_settings")
+            #     return False
+
+            # if not self.is_streaming and filt:
+            if not self.is_streaming:
+                self.orn_plot.init_plot()
+                self.explorer.subscribe(callback=self.orn_plot.model.callback, topic=TOPICS.raw_orn)
+                # TODO
+                # self.vis_funct.emit_signals()
+                # self.update_fft()
+                # self.update_heart_rate()
+                self.is_streaming = True
 
         # Move to page
         self.ui.stackedWidget.setCurrentWidget(btn_page_map[btn_name])
