@@ -17,6 +17,7 @@ class BaseEnum(Enum):
 
 
 class FilterTypes(BaseEnum):
+    """Enum for filter types"""
     LOWPASS = "lowpass"
     HIGHPASS = "highpass"
     BANDPASS = "bandpass"
@@ -48,14 +49,9 @@ class ImpModes(BaseEnum):
     DRY = "Dry Electrodes"
 
 
-class ORNLegend(BaseEnum):
-    # TODO convert to list in settings
-    ACC = 'Acc [mg/LSB]'
-    GYRO = 'Gyro [mdps/LSB]'
-    MAG = 'Mag [mgauss/LSB]'
-
-
 class DataAttributes(BaseEnum):
+    """Enum for data attributes
+    """
     OFFSETS = auto()
     BASELINE = auto()
     DATA = auto()
@@ -233,6 +229,8 @@ class Settings():
     BASELINE_MA_LENGTH = 1.5 * EXG_VIS_SRATE
 
     MIN_LC_WEIGHT = 0.0035
+
+    ORN_LEGEND = ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']
 
 
 class Messages():
