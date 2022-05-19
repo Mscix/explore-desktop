@@ -1,13 +1,21 @@
-from abc import abstractmethod
+"""Base module for data classes"""
 import logging
-from typing import Tuple
-import numpy as np
+from abc import abstractmethod
+from typing import (
+    Tuple,
+    Union
+)
 
+import numpy as np
+import pyqtgraph as pg
 from PySide6.QtCore import Slot
 
-import pyqtgraph as pg
-from exploredesktop.modules.app_settings import Settings, Stylesheets
-from exploredesktop.modules.base_model import BaseModel
+
+from exploredesktop.modules.app_settings import (  # isort: skip
+    Settings,
+    Stylesheets
+)
+from exploredesktop.modules.base_model import BaseModel  # isort: skip
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -26,7 +34,8 @@ class DataContainer(BaseModel):
 
         self.timescale = 10
 
-    def reset_vars(self):
+    def reset_vars(self) -> None:
+        """Reset class and instance variables values"""
         self.plot_data = {}
         self.t_plot_data = np.array([])
 
@@ -38,13 +47,16 @@ class DataContainer(BaseModel):
 
     @abstractmethod
     def callback(self, packet):
+        """callback"""
         raise NotImplementedError
 
     @abstractmethod
-    def update_attributes(self, attributes):
+    def update_attributes(self, attributes: list) -> None:
+        """update class attributes"""
         raise NotImplementedError
 
-    def remove_dict_item(self, item_dict: dict, item_type: str, to_remove: list) -> Tuple[dict, list]:
+    @staticmethod
+    def remove_dict_item(item_dict: dict, item_type: str, to_remove: list) -> Tuple[dict, list]:
         """Remove item from a dictionary
 
         Args:
@@ -76,43 +88,54 @@ class DataContainer(BaseModel):
 
         return item_dict, to_remove
 
-    def add_nans(self):
-        pass
-
-    def change_timescale(self):
+    def change_timescale(self) -> None:
+        """Write in log file time scale change
+        """
         logger.debug("Time scale has been changed to %.0f", self.timescale)
 
-    def plot_points(self, orn=False, downsampling=Settings.DOWNSAMPLING):
-        """_summary_
+    def plot_points(self, orn: bool = False, downsampling: bool = Settings.DOWNSAMPLING) -> int:
+        """Calculate number of points in the plot vectors
 
         Args:
-            orn (bool, optional): _description_. Defaults to False.
-            downsampling (_type_, optional): _description_. Defaults to Settings.DOWNSAMPLING.
+            orn (bool, optional): whether the plot is for ORN data. Defaults to False.
+            downsampling (bool, optional): whether to apply downsampling. Defaults to Settings.DOWNSAMPLING.
 
         Returns:
-            _type_: _description_
+            int: number of points
         """
         time_scale = self.timescale
-        sr = self.explorer.sampling_rate
+        s_rate = self.explorer.sampling_rate
 
         if not orn:
             if downsampling:
-                points = (time_scale * sr) / (sr / Settings.EXG_VIS_SRATE)
+                points = (time_scale * s_rate) / (s_rate / Settings.EXG_VIS_SRATE)
             else:
-                points = (time_scale * sr)
+                points = (time_scale * s_rate)
         else:
             points = time_scale * Settings.ORN_SRATE
 
         return int(points)
 
     @staticmethod
-    def get_n_new_points(data):
-        """get indexes where to insert new data"""
+    def get_n_new_points(data: dict) -> int:
+        """Get number of new points in vector
+
+        Args:
+            data (dict): dictionary with new points
+
+        Returns:
+            int: number of points
+        """
         n_new_points = len(data[list(data.keys())[0]])
         return n_new_points
 
-    def insert_new_data(self, data, fft=False):
-        """insert new data"""
+    def insert_new_data(self, data: dict, fft: bool = False):
+        """Insert new data into plot vectors
+
+        Args:
+            data (dict): data to insert
+            fft (bool, optional): whether data is for FFT plot. Defaults to False.
+        """
         n_new_points = self.get_n_new_points(data)
         idxs = np.arange(self.pointer, self.pointer + n_new_points)
 
@@ -180,6 +203,7 @@ class BasePlots:
         self.set_dropdowns()
 
     def setup_ui_connections(self):
+        """Connect ui elements to corresponding slot"""
         self.ui.value_timeScale.currentTextChanged.connect(self.set_time_scale)
 
     def get_model(self):
@@ -187,19 +211,24 @@ class BasePlots:
         return self.model
 
     @property
-    def time_scale(self):
+    def time_scale(self) -> int:
         """Return timescale set in GUI
         """
         t_str = self.ui.value_timeScale.currentText()
-        t = int(Settings.TIME_RANGE_MENU[t_str])
-        return t
+        t_int = int(Settings.TIME_RANGE_MENU[t_str])
+        return t_int
 
-    def set_time_scale(self, value):
+    def set_time_scale(self, value: Union[str, float]) -> None:
+        """Set time scale value
+
+        Args:
+            value (Union[str, float]): value for timescale. If it is a string in is converted to a float
+        """
         if isinstance(value, str):
             value = Settings.TIME_RANGE_MENU[value]
         self.model.timescale = value
 
-    def set_dropdowns(self):
+    def set_dropdowns(self) -> None:
         """Initialize dropdowns"""
         # Avoid double initialization
         if self.ui.value_signal.count() > 0:
@@ -264,32 +293,38 @@ class BasePlots:
         return active_curves
 
     @Slot(float)
-    def set_t_range(self, data):
-        """set t range"""
+    def set_t_range(self, data: float) -> None:
+        """Set plot x range
+
+        Args:
+            data (float): minimum value for x range
+        """
         t_min = data
         t_max = t_min + self.time_scale
         for plt in self.plots_list:
             plt.setXRange(t_min, t_max, padding=0.01)
 
     @Slot(list)
-    def set_t_axis(self, data):
-        """_summary_
+    def set_t_axis(self, data: list) -> None:
+        """Set ticks in plot x axis
 
         Args:
-            data (_type_): _description_
+            data (list): values and corresponding ticks
         """
         values, ticks = data
         for plt in self.plots_list:
             plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
 
-    def _connection_vector(self, length, n_nans=10, id_th=None):
-        """
-        Create connection vector to connect old and new data with a gap
+    def _connection_vector(self, length, n_nans=10, id_th=None) -> np.array:
+        """Create connection vector to connect old and new data with a gap
 
         Args:
             length (int): length of the connection vector. Must be the same as the array to plot
             id_th (int): threshold obtained when dev is disconnected
             n_nans (int): number of nans to introduce
+
+        Returns:
+            np.array: connection vector with 0s and 1s
         """
         connection = np.full(length, 1)
         connection[self.model.pointer - int(n_nans / 2): self.model.pointer + int(n_nans / 2)] = 0
@@ -300,17 +335,15 @@ class BasePlots:
 
         return connection
 
-    def _add_pos_line(self, t_vector: list):
+    def _add_pos_line(self, t_vector: list) -> list:
         """
         Add position line to plot based on last value in the time vector
 
         Args:
             lines (list): list of position line
-            plot_widget (list): list of pyqtgraph PlotWidget to add the line
-            t_vector (list): time vector used as reference for the position
 
         Return:
-            lines (list): position line with updated time pos
+            list: position lines with updated time pos
         """
         pos = t_vector[self.model.pointer - 1]
 
