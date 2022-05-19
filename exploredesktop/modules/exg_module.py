@@ -55,6 +55,9 @@ class ExGData(DataContainer):
         self.r_peak_replot = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
 
+        DataContainer.vis_time_offset = None
+        self.pointer = 0
+
     def new_t_axis(self, signal=None):
         signal = self.signals.tAxisEXGChanged
         return super().new_t_axis(signal)
@@ -256,6 +259,8 @@ class ExGPlot(BasePlots):
         self.lines = [None]
         self.plots_list = [self.ui.plot_exg]
         self.bt_drop_warning_displayed = False
+
+        self.model.reset_vars()
 
     def init_plot(self):
         plot_wdgt = self.ui.plot_exg

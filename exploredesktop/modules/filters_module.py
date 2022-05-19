@@ -14,6 +14,9 @@ class Filters(BaseModel):
         self.ui = ui
         self.current_filters = None
 
+    def reset_vars(self):
+        self.current_filters = None
+
     def setup_ui_connections(self):
         self.ui.btn_plot_filters.clicked.connect(self.popup_filters)
 
@@ -64,9 +67,6 @@ class Filters(BaseModel):
         """
         same = True if self.current_filters == new_filters else False
         return same
-
-    def reset_vars(self):
-        self.current_filters = None
 
     def check_filters_sr(self, s_rate):
         if self.current_filters is None:
