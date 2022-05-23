@@ -279,9 +279,8 @@ class BasePlots:
         # Verify curves and chan dict have the same length, if not reset chan_dict
         chan_dict = self.model.explorer.get_chan_dict()
 
-        # TODO: check if this is needed
-        # if len(all_curves) != len(list(chan_dict.values())):
-        #     self.set_chan_dict()
+        if len(all_curves) != len(list(chan_dict.values())):
+            self.model.explorer.set_chan_dict()
 
         active_curves = []
         for curve, act in zip(all_curves, list(chan_dict.values())):
@@ -301,6 +300,7 @@ class BasePlots:
         """
         t_min = data
         t_max = t_min + self.time_scale
+
         for plt in self.plots_list:
             plt.setXRange(t_min, t_max, padding=0.01)
 
@@ -329,7 +329,9 @@ class BasePlots:
         connection = np.full(length, 1)
         connection[self.model.pointer - int(n_nans / 2): self.model.pointer + int(n_nans / 2)] = 0
         first_key = list(self.model.plot_data.keys())[0]
-        connection[np.argwhere(np.isnan(self.model.plot_data[first_key]))] = 0
+        idx_nan = np.argwhere(np.isnan(self.model.plot_data[first_key]))
+        idx_nan = np.delete(idx_nan, np.where(idx_nan >= [length]))
+        connection[idx_nan] = 0
         if id_th is not None and id_th > 100:
             connection[:id_th] = 0
 
