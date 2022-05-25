@@ -3,33 +3,6 @@ import logging
 import os
 import sys
 
-import exploredesktop
-from exploredesktop.modules import (
-    BaseModel,
-    Settings,
-    Stylesheets,
-    Ui_MainWindow
-)
-from exploredesktop.modules.app_settings import (
-    ConnectionStatus,
-    DataAttributes,
-    EnvVariables
-)
-from exploredesktop.modules.bt_module import BTFrameView
-from exploredesktop.modules.exg_module import ExGPlot
-from exploredesktop.modules.fft_module import FFTPlot
-from exploredesktop.modules.filters_module import Filters
-from exploredesktop.modules.footer_module import FooterFrameView
-from exploredesktop.modules.imp_module import ImpFrameView
-from exploredesktop.modules.lsl_module import IntegrationFrameView
-from exploredesktop.modules.orn_module import ORNPlot
-from exploredesktop.modules.recording_module import RecordFunctions
-from exploredesktop.modules.settings_module import SettingsFrameView
-from exploredesktop.modules.tools import (
-    display_msg,
-    get_widget_by_obj_name
-)
-from exploredesktop.modules.mkr_module import MarkerPlot
 from explorepy.log_config import (
     read_config,
     write_config
@@ -57,6 +30,34 @@ from PySide6.QtWidgets import (
     QSizeGrip
 )
 
+
+import exploredesktop  # isort:skip
+from exploredesktop.modules import (  # isort:skip
+    BaseModel,
+    Settings,
+    Stylesheets,
+    Ui_MainWindow
+)
+from exploredesktop.modules.app_settings import (  # isort:skip
+    ConnectionStatus,
+    DataAttributes,
+    EnvVariables
+)
+from exploredesktop.modules.bt_module import BTFrameView  # isort:skip
+from exploredesktop.modules.exg_module import ExGPlot  # isort:skip
+from exploredesktop.modules.fft_module import FFTPlot  # isort:skip
+from exploredesktop.modules.filters_module import Filters  # isort:skip
+from exploredesktop.modules.footer_module import FooterFrameView  # isort:skip
+from exploredesktop.modules.imp_module import ImpFrameView  # isort:skip
+from exploredesktop.modules.lsl_module import IntegrationFrameView  # isort:skip
+from exploredesktop.modules.orn_module import ORNPlot  # isort:skip
+from exploredesktop.modules.recording_module import RecordFunctions  # isort:skip
+from exploredesktop.modules.settings_module import SettingsFrameView  # isort:skip
+from exploredesktop.modules.tools import (  # isort:skip
+    display_msg,
+    get_widget_by_obj_name
+)
+from exploredesktop.modules.mkr_module import MarkerPlot  # isort:skip
 
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
@@ -149,6 +150,7 @@ class MainWindow(QMainWindow, BaseModel):
     # UI Functions
     #########################
     def reset_vars(self):
+        """Reset all variables"""
         self.is_streaming = False
         self.exg_plot.reset_vars()
         self.orn_plot.reset_vars()
@@ -159,6 +161,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.filters.reset_vars()
 
     def stop_processes(self):
+        """Stop ongoing actions"""
         if self.explorer.is_recording:
             self.recording.stop_record()
         if self.explorer.is_measuring_imp:
