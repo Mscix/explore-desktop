@@ -1,7 +1,11 @@
 from abc import abstractmethod
 import os
 from typing import Union
-from exploredesktop.modules.app_settings import Messages
+
+import numpy as np
+
+from exploredesktop.modules.app_settings import Messages, Settings
+from exploredesktop.modules.tools import verify_filters
 
 from exploredesktop.modules.ui import (
     Ui_PlotDialog,
@@ -14,7 +18,6 @@ from PySide6.QtGui import (
     QCloseEvent
 )
 from PySide6.QtWidgets import (
-    QApplication,
     QDialog,
     QDialogButtonBox,
     QFileDialog
@@ -145,13 +148,13 @@ class RecordingDialog(CustomDialog):
         data = {
             "file_name": self.ui.input_file_name.text(),
             "file_path": self.ui.input_filepath.text(),
-            "file_type": self.file_extension(),
-            "duration": int(self.ui.spinBox_recording_time.value())
+            "duration": int(self.ui.spinBox_recording_time.value()),
+            "file_type": self.file_extension()
         }
         return data
 
 
-class PlotDialog(QDialog):
+class FiltersDialog(CustomDialog):
     """Dialog Filters Pop-up
 
     Args:
@@ -160,184 +163,145 @@ class PlotDialog(QDialog):
     def __init__(self, sr, current_filters, parent=None):
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
-        self.ui.setupUi(self)
+        self.s_rate = float(sr)
+        self.current_filters = current_filters
 
-        self.setWindowIcon(QIcon(ICON_PATH))
+        self.ui.setupUi(self)
         self.setWindowTitle("Visualization Settings")
 
         self.ui.lbl_warning.hide()
         self.ui.cb_offset.setToolTip(Messages.OFFSET_EXPLANATION)
-        self.close = False
 
-        self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.cancelEvent)
+        self.set_current_values()
+        self.display_current_values()
+        self.add_validators()
 
-        self.s_rate = float(sr)
-        if current_filters is None:  # default values
+        # Verify input without output message when typing
+        self.ui.value_lowcutoff.textChanged.connect(self.verify_input)
+        self.ui.value_highcutoff.textChanged.connect(self.verify_input)
+
+        # Verify input without output message when typing
+        self.ui.value_lowcutoff.textChanged.connect(lambda: self.verify_input())
+        self.ui.value_highcutoff.textChanged.connect(lambda: self.verify_input())
+
+    def set_current_values(self) -> None:
+        """Set values from current filters to attributes
+        """
+        if self.current_filters is None:  # default values
             self.offset = True
             self.notch = "50"
-            if sr == 250:
-                self.lowpass = "1"
-            elif sr == 500:
-                self.lowpass = "1"
-            else:
-                self.lowpass = "2"
-            self.highpass = "30"
+            self.low_cutoff = "1" if self.s_rate < 1000 else "2"
+            self.high_cutoff = "30"
         else:
-            self.offset = current_filters["offset"]
-            self.notch = str(current_filters["notch"])
-            self.lowpass = str(current_filters["lowpass"])
-            self.highpass = str(current_filters["highpass"])
+            self.offset = self.current_filters["offset"]
+            self.notch = str(self.current_filters["notch"])
+            self.low_cutoff = str(self.current_filters["low_cutoff"])
+            self.high_cutoff = str(self.current_filters["high_cutoff"])
 
-        if self.highpass == "None":
-            self.highpass = ""
-        if self.lowpass == "None":
-            self.lowpass = ""
+        if self.high_cutoff == "None":
+            self.high_cutoff = ""
+        if self.low_cutoff == "None":
+            self.low_cutoff = ""
 
+    def display_current_values(self) -> None:
+        """Add filter values to UI
+        """
         # Add options to notch combobox
         self.ui.value_notch.addItems(["", "50", "60"])
 
-        # Set current values
+        # Display current values
         self.ui.value_notch.setCurrentText(self.notch)
-        self.ui.value_highpass.setText(self.highpass)
-        self.ui.value_lowpass.setText(self.lowpass)
+        self.ui.value_highcutoff.setText(self.high_cutoff)
+        self.ui.value_lowcutoff.setText(self.low_cutoff)
         self.ui.cb_offset.setChecked(self.offset)
 
+    def add_validators(self) -> None:
+        """Add validator to text boxes to only accept doubles
+        """
         # Set validators (only accept doubles)
         regex = QRegularExpression(r"([0-9]+\.?[0-9]|\.[0-9])")
+        self.ui.value_highcutoff.setValidator(QRegularExpressionValidator(regex))
+        self.ui.value_lowcutoff.setValidator(QRegularExpressionValidator(regex))
 
-        self.ui.value_highpass.setValidator(QRegularExpressionValidator(regex))
-        self.ui.value_lowpass.setValidator(QRegularExpressionValidator(regex))
-
-        # Verify input without output message when typing
-        self.ui.value_lowpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
-        self.ui.value_highpass.textChanged.connect(lambda: self.verify_input(borderOnly=False))
-
-    def verify_input(self, borderOnly=False):
+    def verify_input(self):
         """Verify frequencies are not above/below the threshold
-
-        Args:
-            borderOnly (bool, optional): display message if False. Defaults to False.
-
-        Returns:
-            bool: whether input for filter values is correct
         """
         nyq_freq = self.s_rate / 2.
-
         max_hc_freq = nyq_freq - 1
-        min_lc_freq = 0.0035 * nyq_freq
+        min_lc_freq = Settings.MIN_LC_WEIGHT * nyq_freq
 
         hc_freq_warning = (
             "High cutoff frequency cannot be larger than or equal to the nyquist frequency."
-            f"The maximum high cutoff frequency is {max_hc_freq:.1f} Hz!"
+            f"The maximum high cutoff frequency is {np.ceil(max_hc_freq*10)/10} Hz!"
         )
 
         lc_freq_warning = (
             "Transient band for low cutoff frequency is too narrow."
-            f"The minimum low cutoff frequency is {min_lc_freq:.1f} Hz!"
+            f"The minimum low cutoff frequency is {np.ceil(min_lc_freq*10)/10} Hz!"
         )
 
         bp_freq_warning = ("High cutoff frequency must be larger than low cutoff frequency.")
 
-        r_value = "" if self.ui.value_highpass.text() in [None, 'None'] else self.ui.value_highpass.text()
-        l_value = "" if self.ui.value_lowpass.text() in [None, 'None'] else self.ui.value_lowpass.text()
+        hc_freq = "" if self.ui.value_highcutoff.text() in [None, 'None', ''] else self.ui.value_highcutoff.text()
+        lc_freq = "" if self.ui.value_lowcutoff.text() in [None, 'None', ''] else self.ui.value_lowcutoff.text()
 
-        r_stylesheet = ""
-        l_stylesheet = ""
+        hc_stylesheet = ""
+        lc_stylesheet = ""
         lbl_txt = ""
 
-        accepted = True
-
-        if r_value == "." or l_value == ".":
-            accepted = False
+        if hc_freq in ["."] or lc_freq in ["."]:
             return
 
-        if r_value != "" and l_value == "":  # lowpass
-            if float(r_value) >= nyq_freq:
-                lbl_txt = hc_freq_warning
-                r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
-                l_stylesheet = ""
-                accepted = False
+        filter_ok = verify_filters((lc_freq, hc_freq), self.s_rate)
 
-        elif r_value == "" and l_value != "":
-            lc_freq = float(l_value) / nyq_freq
-            if lc_freq <= 0.0035:
-                lbl_txt = lc_freq_warning
-                r_stylesheet = ""
-                l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
-                accepted = False
+        if filter_ok['lc_freq'] is False:
+            lbl_txt = lc_freq_warning
+            hc_stylesheet = ""
+            lc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
 
-        elif r_value != "" and l_value != "":
-            lc_freq = float(l_value) / nyq_freq
-            if float(l_value) >= float(r_value):
-                lbl_txt = bp_freq_warning
-                r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
-                l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
-                accepted = False
+        elif filter_ok['hc_freq'] is False:
+            lbl_txt = hc_freq_warning
+            hc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
+            lc_stylesheet = ""
 
-            elif float(r_value) >= nyq_freq:
-                lbl_txt = hc_freq_warning
-                r_stylesheet = "border: 1px solid rgb(217, 0, 0)"
-                l_stylesheet = ""
-                accepted = False
+        elif filter_ok['bp_valid'] is False:
+            lbl_txt = bp_freq_warning
+            hc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
+            lc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
 
-            elif lc_freq <= 0.0035:
-                lbl_txt = lc_freq_warning
-                r_stylesheet = ""
-                l_stylesheet = "border: 1px solid rgb(217, 0, 0)"
-                accepted = False
+        self._apply_le_stylesheets(lc_stylesheet, hc_stylesheet, lbl_txt)
+        enable = False not in filter_ok.values()
+        self._enable_ok_button(enable)
 
+    def _apply_le_stylesheets(self, lc_stylesheet: str, hc_stylesheet: str, lbl_txt: str):
+        self.ui.value_highcutoff.setStyleSheet(hc_stylesheet)
+        self.ui.value_lowcutoff.setStyleSheet(lc_stylesheet)
+        self.ui.lbl_warning.setText(lbl_txt)
+        if lbl_txt != "":
+            self.ui.lbl_warning.setHidden(False)
         else:
-            r_stylesheet = ""
-            l_stylesheet = ""
-            lbl_txt = ""
+            self.ui.lbl_warning.setHidden(True)
 
-        self.ui.value_highpass.setStyleSheet(r_stylesheet)
-        self.ui.value_lowpass.setStyleSheet(l_stylesheet)
-        if not borderOnly:
-            self.ui.lbl_warning.setText(lbl_txt)
-            if lbl_txt != "":
-                self.ui.lbl_warning.setHidden(False)
-            else:
-                self.ui.lbl_warning.setHidden(True)
+    def _enable_ok_button(self, enable: bool):
+        self.ui.value_lowcutoff.textChanged.connect(
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(enable))
+        self.ui.value_highcutoff.textChanged.connect(
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(enable))
 
-        self.ui.value_lowpass.textChanged.connect(
-            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(accepted))
-        self.ui.value_highpass.textChanged.connect(
-            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(accepted))
-        return accepted
+    def get_data(self) -> dict:
+        """Get filter data from dialog
 
-    def closeEvent(self, event):
-        self.close = True
-
-    def cancelEvent(self):
-        self.close = True
-
-    def exec(self):
-        super().exec()
-
-        if self.close:
-            return False
-
-        return {
+        Returns:
+            dict: dictionary containing filter values
+        """
+        data = {
             "offset":
                 self.ui.cb_offset.isChecked(),
             "notch":
                 None if self.ui.value_notch.currentText() == "" else int(self.ui.value_notch.currentText()),
-            "lowpass":
-                None if self.ui.value_lowpass.text() in [None, 'None', ""] else float(self.ui.value_lowpass.text()),
-            "highpass":
-                None if self.ui.value_highpass.text() in [None, 'None', ""] else float(self.ui.value_highpass.text())
+            "low_cutoff":
+                None if self.ui.value_lowcutoff.text() in [None, 'None', ""] else float(self.ui.value_lowcutoff.text()),
+            "high_cutoff":
+                None if self.ui.value_highcutoff.text() in [None, 'None', ""] else float(self.ui.value_highcutoff.text())
         }
-
-
-if __name__ == "__main__":
-    import sys
-    app = QApplication(sys.argv)
-    plotting_filters = {'offset': True, 'notch': 50, 'lowpass': 0.5, 'highpass': 30.0}
-
-    # dialog = FiltersDialog(sr=250, current_filters=plotting_filters)
-    # filt = dialog.exec()
-    # print(filt)
-    dialog = RecordingDialog()
-    filt = dialog.exec()
-    print(filt)
+        return data
