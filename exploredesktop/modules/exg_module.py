@@ -52,6 +52,7 @@ class ExGData(DataContainer):
 
         self.packet_count = 0
         self.t_bt_drop = None
+        self.bt_drop_warning_displayed = False
 
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
@@ -101,11 +102,12 @@ class ExGData(DataContainer):
         self.signals.updateDataAttributes.emit([DataAttributes.DATA])
         self.signals.tRangeEXGChanged.emit(0)
 
-    def handle_bt_drop(self, data: dict):
+    def handle_bt_drop(self, data: dict, sec_th: int = 10):
         """Handle bluetooth drop
 
         Args:
             data (dict): exg data
+            sec_th (int): threshold of seconds to display the warning again. Defaults to 10
         """
         t_point = data['t'][0]
         if t_point < 0:
@@ -117,9 +119,8 @@ class ExGData(DataContainer):
             self.signals.btDrop.emit(True)
 
         elif (self.t_bt_drop is not None) and (t_point > self.last_t) and \
-                (t_point - self.t_bt_drop > 10) and self.bt_drop_warning_displayed is True:
+                (t_point - self.t_bt_drop > sec_th) and self.bt_drop_warning_displayed is True:
             self.bt_drop_warning_displayed = False
-            # (data['t'][0] - self.t_drop > 10) and self.bt_drop_warning_displayed is True:
 
     def callback(self, packet):
         """_summary_"""
