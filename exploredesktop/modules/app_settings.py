@@ -279,7 +279,10 @@ class Messages():
     # vis functions
     #########################
     INVALID_MARKER = 'Marker code value is not valid. Please select a value in the range 8 - 65535'
-
+    BT_DROP = (
+        "The bluetooth connection is unstable. This may affect the ExG visualization."
+        "\nPlease read the troubleshooting section of the user manual for more."
+    )
     #########################
     # main window functions
     #########################

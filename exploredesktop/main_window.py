@@ -253,6 +253,8 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.replotMkrAdd.connect(self.mkr_plot.model.add_mkr_replot)
         self.signals.mkrRemove.connect(self.mkr_plot.remove_old_item)
 
+        self.signals.btDrop.connect(self.exg_plot.display_bt_drop)
+
     def style_ui(self):
         """Initial style for UI
         """
