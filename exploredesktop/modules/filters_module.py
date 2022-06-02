@@ -20,15 +20,15 @@ class Filters(BaseModel):
         self.ui = ui
         self.current_filters = None
 
-    def reset_vars(self):
+    def reset_vars(self) -> None:
+        """Reset variables"""
         self.current_filters = None
 
-    def setup_ui_connections(self):
+    def setup_ui_connections(self) -> None:
+        """Setup connections between widgets and slots"""
         self.ui.btn_plot_filters.clicked.connect(self.popup_filters)
 
-    def popup_filters(self):
-
-        # filters_applied = True
+    def popup_filters(self) -> None:
         remove = True if self.current_filters is not None else False
         wait = True if self.current_filters is None else False
         dialog = FiltersDialog(self.explorer.sampling_rate, self.current_filters)

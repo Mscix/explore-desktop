@@ -25,15 +25,16 @@ class RecordFunctions(BaseModel):
     Functions for recording functionality
     """
 
-    def __init__(self, ui):
+    def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui
 
-    def setup_ui_connections(self):
+    def setup_ui_connections(self) -> None:
+        """Setup connections between widgets and slots"""
         self.ui.btn_record.clicked.connect(self.on_record_clicked)
 
     @Slot()
-    def on_record_clicked(self):
+    def on_record_clicked(self) -> None:
         """
         Start or stop recording when button is pressed
         """
@@ -43,11 +44,10 @@ class RecordFunctions(BaseModel):
         else:
             self.stop_record()
 
-    def start_record(self):
+    def start_record(self) -> None:
         """
         Start signal recording
         """
-
         dialog = RecordingDialog()
         default_file_name = self._set_filename_placeholder(dialog)
         default_dir = self._set_dir_placeholder(dialog)
@@ -56,9 +56,7 @@ class RecordFunctions(BaseModel):
         if data is False:
             return
 
-        file_name = data["file_name"] if data["file_name"] != "" else default_file_name
-        if os.path.isfile(file_name + "_ExG.csv"):
-            file_name += datetime.now().strftime("_%d%b%Y_%H%M")
+        file_name = self._get_file_name(default_file_name, data)
 
         file_path = data["file_path"] if data["file_path"] != "" else default_dir
         record_duration = data["duration"] if data["duration"] != 0 else None
@@ -71,9 +69,32 @@ class RecordFunctions(BaseModel):
 
         self.start_timer_recorder(duration=record_duration)
 
-        self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-stop.png"))
-        self.ui.btn_record.setText("Stop")
+        self._update_button()
+
+    def _update_button(self, start=True) -> None:
+        if start:
+            self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-stop.png"))
+            self.ui.btn_record.setText("Stop")
+        else:
+            self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-record.png"))
+            self.ui.btn_record.setText("Record")
+            self.ui.label_recording_time.setText("00:00:00")
         QApplication.processEvents()
+
+    def _get_file_name(self, default_file_name: str, data: dict) -> str:
+        """Get file name.
+
+        Args:
+            default_file_name (str): default file name
+            data (dict): dictionary containing recording dialog data
+
+        Returns:
+            str: file name
+        """
+        file_name = data["file_name"] if data["file_name"] != "" else default_file_name
+        if os.path.isfile(file_name + "_ExG.csv"):
+            file_name += datetime.now().strftime("_%d%b%Y_%H%M")
+        return file_name
 
     def _set_dir_placeholder(self, dialog: QDialog) -> str:
         """Define default saving directory and set it up as a placeholder.
@@ -105,31 +126,32 @@ class RecordFunctions(BaseModel):
         dialog.ui.input_file_name.setPlaceholderText(default_file_name)
         return default_file_name
 
-    def stop_record(self):
+    def stop_record(self) -> None:
         """
         Stop recording
         """
         self.explorer.stop_recording()
         self.timer.stop()
-        self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-record.png"))
-        self.ui.btn_record.setText("Record")
-        self.ui.label_recording_time.setText("00:00:00")
-        QApplication.processEvents()
+        self._update_button(start=False)
 
-    def start_timer_recorder(self, duration):
-        """
-        Start timer to display recording time
+    def start_timer_recorder(self, duration: int) -> None:
+        """Start timer to display recording time
+
+        Args:
+            duration (int): recording duration
         """
         self.start_time = datetime.now()
-
         self.timer = QTimer()
         self.timer.setInterval(1000)
         self.timer.timeout.connect(lambda: self.display_rec_time(duration))
         self.timer.start()
 
-    def display_rec_time(self, duration):
+    def display_rec_time(self, duration: int) -> None:
         """
         Display recording time in label
+
+        Args:
+            duration (int): recording duration
         """
         time = datetime.now() - self.start_time
         total_sec = int(time.total_seconds())

@@ -24,32 +24,43 @@ logger = logging.getLogger("explorepy." + __name__)
 
 
 class BTFrameView(BaseModel):
-    """_summary_
+    """Bluetooth frame class
     """
     def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui
 
     def setup_ui_connections(self) -> None:
-        """connect ui widgets to corresponding slot
-        """
+        """Setup connections between widgets and slots"""
         self.ui.btn_connect.clicked.connect(self.connect_clicked)
         self.ui.dev_name_input.returnPressed.connect(self.connect_clicked)
         self.ui.dev_name_input.textChanged.connect(self.auto_capital)
         self.ui.btn_scan.clicked.connect(self.scan_clicked)
         self.setup_autocomplete()
 
-    def setup_autocomplete(self):
+    def setup_autocomplete(self) -> None:
+        """Set up device name auto completer"""
+        names = self.get_names_from_settings()
+        completer = QCompleter([*{*names}])
+        completer.setFilterMode(Qt.MatchContains)
+        self.ui.dev_name_input.setCompleter(completer)
+
+    def get_names_from_settings(self) -> list:
+        """Return list of previously used device names from settings
+        """
         settings = QSettings("Mentalab", "ExploreDesktop")
         names = settings.value("known_devices")
         if names is None:
             names = []
             settings.setValue("known_devices", names)
-        completer = QCompleter([*{*names}])
-        completer.setFilterMode(Qt.MatchContains)
-        self.ui.dev_name_input.setCompleter(completer)
+        return names
 
-    def add_name_to_settings(self, dev_name):
+    def add_name_to_settings(self, dev_name: str) -> None:
+        """Add device name to settings
+
+        Args:
+            dev_name (str): device name
+        """
         settings = QSettings("Mentalab", "ExploreDesktop")
         names = settings.value("known_devices")
         if dev_name not in names:
@@ -117,7 +128,7 @@ class BTFrameView(BaseModel):
     #########################
     # Connect/disconnect methods
     #########################
-    def connect(self):
+    def connect(self) -> None:
         """Connect to a explore device"""
         # Get device name
         device_name = self.get_dev_name()
@@ -131,16 +142,14 @@ class BTFrameView(BaseModel):
 
         worker = Worker(self.explorer.connect, device_name=device_name)
         worker.signals.error.connect(self.connection_error)
-
         worker.signals.finished.connect(lambda: self._connect_stylesheet(reset=True))
-        worker.signals.finished.connect(self.on_connection_change)
+        worker.signals.finished.connect(self.emit_connection_signal)
         worker.signals.finished.connect(lambda: self.ui.btn_connect.setEnabled(True))
         # Add name to settings
         worker.signals.finished.connect(lambda: self.add_name_to_settings(device_name))
         self.threadpool.start(worker)
-        # self.threadpool.start(worker)
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """Disconnect from explore device"""
         try:
             self.explorer.disconnect()
@@ -149,20 +158,20 @@ class BTFrameView(BaseModel):
             display_msg(str(error))
             logger.debug("Got an exception while disconnecting from the device: %s of type: %s", error, type(error))
 
-        self.on_connection_change()
+        self.emit_connection_signal()
 
     #########################
     # Slots
     #########################
     @Slot(str)
-    def auto_capital(self):
-        """change input to capital letters"""
+    def auto_capital(self) -> None:
+        """Change input to capital letters"""
         text = self.ui.dev_name_input.text()
         self.ui.dev_name_input.setText(text.upper())
 
     @Slot()
-    def connect_clicked(self):
-        """_summary_
+    def connect_clicked(self) -> None:
+        """Actions to perform when connect button is clicked
         """
         if not self.explorer.is_connected:
             self.connect()
@@ -171,7 +180,7 @@ class BTFrameView(BaseModel):
             self.disconnect()
 
     @Slot()
-    def scan_clicked(self):
+    def scan_clicked(self) -> None:
         """Scan for devices in a separate thread"""
         self.ui.list_devices.clear()
 
@@ -206,14 +215,18 @@ class BTFrameView(BaseModel):
             devs = [dev.replace("True", "Paired").replace("False", "Unpaired") for dev in devs]
             devs.sort(key=lambda x: x.endswith("Paired"))
             devs.sort()
-            self.ui.lbl_wdws_warning.setText(Messages.WARNING_PAIRED_DEV_WINDOWS)
-            self.ui.lbl_wdws_warning.setStyleSheet("font: 11pt; color: red;")
-            self.ui.lbl_wdws_warning.show()
-            self.ui.lbl_wdws_warning.repaint()
+            self._display_windows_warning()
         else:
             devs = [dev.name for dev in explore_devices]
 
         self.ui.list_devices.addItems(devs)
+
+    def _display_windows_warning(self) -> None:
+        """Display windows warning for paired devices"""
+        self.ui.lbl_wdws_warning.setText(Messages.WARNING_PAIRED_DEV_WINDOWS)
+        self.ui.lbl_wdws_warning.setStyleSheet("font: 11pt; color: red;")
+        self.ui.lbl_wdws_warning.show()
+        self.ui.lbl_wdws_warning.repaint()
 
     @Slot()
     def connection_error(self, err_tuple: tuple) -> None:
@@ -314,7 +327,7 @@ class BTFrameView(BaseModel):
         # TODO: decide which stylesheet to apply
         # self.ui.btn_scan.setStyleSheet(btn_stylesheet)
 
-    def on_connection_change(self):
+    def emit_connection_signal(self) -> None:
         """Emit connection status signal"""
         if self.explorer.is_connected:
             self.signals.connectionStatus.emit(ConnectionStatus.CONNECTED)
