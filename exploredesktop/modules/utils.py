@@ -9,10 +9,6 @@ Functions:
 import logging
 from contextlib import contextmanager
 
-from exploredesktop.modules.app_settings import (
-    FilterTypes,
-    Settings
-)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (
@@ -21,9 +17,11 @@ from PySide6.QtWidgets import (
 )
 
 
+from exploredesktop.modules.app_settings import (  # isort:skip
+    FilterTypes,
+    Settings
+)
 logger = logging.getLogger("explorepy." + __name__)
-
-# TODO check if utils better name
 
 
 def get_widget_by_obj_name(name: str):
