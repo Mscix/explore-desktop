@@ -1,7 +1,6 @@
 """Main Application"""
 import logging
 import os
-import sys
 
 from explorepy.log_config import (
     read_config,
@@ -23,7 +22,6 @@ from PySide6.QtGui import (
     QIcon
 )
 from PySide6.QtWidgets import (
-    QApplication,
     QGraphicsDropShadowEffect,
     QMainWindow,
     QPushButton,
@@ -88,22 +86,22 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui_definitions()
 
         # Slidable left panel
-        self.ui.btn_left_menu_toggle.clicked.connect(self.slide_left_menu)
+        self.ui.btn_left_menu_toggle.clicked.connect(self.slide_main_menu)
 
         # Stacked pages - default open connect or home if permissions are not set
         existing_permission = self.check_permissions()
         if existing_permission:
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_bt)
-            self.highlight_left_button("btn_bt")
+            self.highlight_main_menu_item("btn_bt")
         else:
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_home)
-            self.highlight_left_button("btn_home")
+            self.highlight_main_menu_item("btn_home")
             # Set data sharing permissions
             self.set_permissions()
 
         # Stacked pages - navigation
         for btn_wdgt in self.ui.left_side_menu.findChildren(QPushButton):
-            btn_wdgt.clicked.connect(self.left_menu_button_clicked)
+            btn_wdgt.clicked.connect(self.handle_page_nav)
 
         # HOME PAGE
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
@@ -175,6 +173,7 @@ class MainWindow(QMainWindow, BaseModel):
         Args:
             connection (Enum): connection status
         """
+        # TODO: split, connect and disconnect
         self.footer_frame.print_connection_status(connection)
 
         if connection == ConnectionStatus.CONNECTED:
@@ -220,6 +219,7 @@ class MainWindow(QMainWindow, BaseModel):
         """connect custom signals to corresponding slots
         """
         # change button text
+        # TODO move to appropiate module
         self.signals.btnImpMeasureChanged.connect(self.ui.btn_imp_meas.setText)
         self.signals.btnConnectChanged.connect(self.ui.btn_connect.setText)
 
@@ -231,7 +231,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.impedanceChanged.connect(self.imp_frame.get_graph().on_new_data)
         self.signals.displayDefaultImp.connect(self.imp_frame.get_graph().display_default_imp)
 
-        self.signals.pageChange.connect(self.left_menu_button_clicked)
+        self.signals.pageChange.connect(self.handle_page_nav)
 
         self.signals.ornChanged.connect(self.orn_plot.swipe_plot)
         self.signals.exgChanged.connect(self.exg_plot.swipe_plot)
@@ -265,6 +265,9 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.ft_label_device_3.setStyleSheet("font-weight: bold")
 
         # Hide unnecessary labels
+        # TODO: review in QtCreator if labels are needed in the future or can be deleted
+        # TODO check if sethidden can be set from qtCreator
+
         # self.ui.label_3.setHidden(self.file_names is None)
 
         self.ui.line_2.setHidden(True)
@@ -311,12 +314,13 @@ class MainWindow(QMainWindow, BaseModel):
         # Start with foucus on line edit for device name
         self.ui.dev_name_input.setFocus()
 
-    def change_page(self, btn_name):
+    def move_to_page(self, btn_name):
         """
         Change the active page when the object is clicked
         Args:
             btn_name (str): button named
         """
+        # TODO: split this function
         btn_page_map = {
             "btn_home": self.ui.page_home, "btn_bt": self.ui.page_bt,
             "btn_settings": self.ui.page_settings, "btn_plots": self.ui.page_plotsNoWidget,
@@ -342,9 +346,6 @@ class MainWindow(QMainWindow, BaseModel):
             self.settings_frame.enable_settings(enable)
             self.ui.value_sampling_rate.setEnabled(enable)
 
-        # elif btn_name == "btn_impedance":
-        #     self.signals.displayDefaultImp.emit()
-
         elif btn_name == "btn_plots":
             filt = True
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
@@ -355,7 +356,7 @@ class MainWindow(QMainWindow, BaseModel):
             # TODO instead of going to settings go back to previous page
             if filt is False:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
-                self.highlight_left_button("btn_settings")
+                self.highlight_main_menu_item("btn_settings")
                 return False
 
             # if not self.is_streaming and filt:
@@ -374,7 +375,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.stackedWidget.setCurrentWidget(btn_page_map[btn_name])
         return True
 
-    def slide_left_menu(self):
+    def slide_main_menu(self):
         """
         Animation to display the whole left menu
         """
@@ -394,7 +395,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
 
-    def highlight_left_button(self, btn_name):
+    def highlight_main_menu_item(self, btn_name):
         """
         Change style of the button clicked
 
@@ -413,23 +414,23 @@ class MainWindow(QMainWindow, BaseModel):
             new_style = btn.styleSheet() + (Stylesheets.BTN_LEFT_MENU_SELECTED_STYLESHEET)
             btn.setStyleSheet(new_style)
 
-    def left_menu_button_clicked(self, no_click=False):
+    def handle_page_nav(self, no_click=False):
         """
         Change style of the button clicked and move to the selected page
         """
         if isinstance(no_click, str):
             btn_name = no_click
         else:
-            btn = self.sender()
-            btn_name = btn.objectName()
+            # btn = self.sender()
+            btn_name = self.sender().objectName()
 
         # Navigate to active page
         if btn_name != "btn_left_menu_toggle":
-            change = self.change_page(btn_name)
+            change = self.move_to_page(btn_name)
             if change is False:
                 return
         # Apply stylesheet
-        self.highlight_left_button(btn_name)
+        self.highlight_main_menu_item(btn_name)
 
     # pylint: disable=invalid-name
     def mousePressEvent(self, event):
@@ -542,10 +543,3 @@ class MainWindow(QMainWindow, BaseModel):
             self.ui.cb_permission.setChecked(config)
             exist = True
         return exist
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
