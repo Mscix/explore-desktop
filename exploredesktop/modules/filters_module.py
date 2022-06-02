@@ -1,9 +1,15 @@
 
 import logging
 import time
+
 from exploredesktop.modules.base_model import BaseModel
 from exploredesktop.modules.dialogs import FiltersDialog
-from exploredesktop.modules.tools import display_msg, get_filter_limits, verify_filters
+from exploredesktop.modules.tools import (
+    display_msg,
+    get_filter_limits,
+    verify_filters
+)
+
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -12,6 +18,9 @@ class Filters(BaseModel):
     def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui
+        self.current_filters = None
+
+    def reset_vars(self):
         self.current_filters = None
 
     def setup_ui_connections(self):
@@ -64,9 +73,6 @@ class Filters(BaseModel):
         """
         same = True if self.current_filters == new_filters else False
         return same
-
-    def reset_vars(self):
-        self.current_filters = None
 
     def check_filters_sr(self, s_rate):
         if self.current_filters is None:

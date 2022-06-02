@@ -17,6 +17,7 @@ class BaseEnum(Enum):
 
 
 class FilterTypes(BaseEnum):
+    """Enum for filter types"""
     LOWPASS = "lowpass"
     HIGHPASS = "highpass"
     BANDPASS = "bandpass"
@@ -48,14 +49,9 @@ class ImpModes(BaseEnum):
     DRY = "Dry Electrodes"
 
 
-class ORNLegend(BaseEnum):
-    # TODO convert to list in settings
-    ACC = 'Acc [mg/LSB]'
-    GYRO = 'Gyro [mdps/LSB]'
-    MAG = 'Mag [mgauss/LSB]'
-
-
 class DataAttributes(BaseEnum):
+    """Enum for data attributes
+    """
     OFFSETS = auto()
     BASELINE = auto()
     DATA = auto()
@@ -234,6 +230,8 @@ class Settings():
 
     MIN_LC_WEIGHT = 0.0035
 
+    ORN_LEGEND = ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']
+
 
 class Messages():
     """Class containing GUI messages
@@ -281,7 +279,10 @@ class Messages():
     # vis functions
     #########################
     INVALID_MARKER = 'Marker code value is not valid. Please select a value in the range 8 - 65535'
-
+    BT_DROP = (
+        "The bluetooth connection is unstable. This may affect the ExG visualization."
+        "\nPlease read the troubleshooting section of the user manual for more."
+    )
     #########################
     # main window functions
     #########################

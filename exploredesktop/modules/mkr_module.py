@@ -4,6 +4,7 @@ import pyqtgraph as pg
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QIntValidator
 
+
 from exploredesktop.modules.app_settings import (  # isort: skip
     Messages,
     Stylesheets

@@ -1,21 +1,16 @@
-from abc import abstractmethod
 import os
+from abc import abstractmethod
 from typing import Union
 
 import numpy as np
-
-from exploredesktop.modules.app_settings import Messages, Settings
-from exploredesktop.modules.tools import verify_filters
-
-from exploredesktop.modules.ui import (
-    Ui_PlotDialog,
-    Ui_RecordingDialog
+from PySide6.QtCore import (
+    QRegularExpression,
+    QSettings
 )
-from PySide6.QtCore import QRegularExpression, QSettings
 from PySide6.QtGui import (
+    QCloseEvent,
     QIcon,
-    QRegularExpressionValidator,
-    QCloseEvent
+    QRegularExpressionValidator
 )
 from PySide6.QtWidgets import (
     QDialog,
@@ -23,6 +18,16 @@ from PySide6.QtWidgets import (
     QFileDialog
 )
 
+
+from exploredesktop.modules.app_settings import (  # isort: skip
+    Messages,
+    Settings
+)
+from exploredesktop.modules.tools import verify_filters  # isort: skip
+from exploredesktop.modules.ui import (  # isort: skip
+    Ui_PlotDialog,
+    Ui_RecordingDialog
+)
 
 CWD = os.path.dirname(os.path.abspath(__file__))
 ICON_PATH = os.path.join(
@@ -181,8 +186,8 @@ class FiltersDialog(CustomDialog):
         self.ui.value_highcutoff.textChanged.connect(self.verify_input)
 
         # Verify input without output message when typing
-        self.ui.value_lowcutoff.textChanged.connect(lambda: self.verify_input())
-        self.ui.value_highcutoff.textChanged.connect(lambda: self.verify_input())
+        self.ui.value_lowcutoff.textChanged.connect(self.verify_input)
+        self.ui.value_highcutoff.textChanged.connect(self.verify_input)
 
     def set_current_values(self) -> None:
         """Set values from current filters to attributes
@@ -302,6 +307,7 @@ class FiltersDialog(CustomDialog):
             "low_cutoff":
                 None if self.ui.value_lowcutoff.text() in [None, 'None', ""] else float(self.ui.value_lowcutoff.text()),
             "high_cutoff":
-                None if self.ui.value_highcutoff.text() in [None, 'None', ""] else float(self.ui.value_highcutoff.text())
+                None if self.ui.value_highcutoff.text() in [
+                    None, 'None', ""] else float(self.ui.value_highcutoff.text())
         }
         return data

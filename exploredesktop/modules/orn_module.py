@@ -8,7 +8,6 @@ from PySide6.QtCore import Slot
 
 from exploredesktop.modules.app_settings import (  # isort:skip
     DataAttributes,
-    ORNLegend,
     Settings,
     Stylesheets
 )
@@ -31,6 +30,7 @@ class ORNData(DataContainer):
         super().reset_vars()
         self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
         self.t_plot_data = np.array([np.NaN] * 200)
+        self.pointer = 0
 
     def new_t_axis(self, signal=None):
         signal = self.signals.tAxisORNChanged
@@ -101,6 +101,8 @@ class ORNPlot(BasePlots):
 
         self.lines = [None, None, None]
 
+        self.model.reset_vars()
+
     def init_plot(self):
         layout_wdgt = self.ui.plot_orn
 
@@ -130,7 +132,7 @@ class ORNPlot(BasePlots):
 
         # Add legend, axis label and grid to all the plots
         timescale = self.time_scale
-        for plt, lbl in zip(self.plots_list, ORNLegend.all_values()):
+        for plt, lbl in zip(self.plots_list, Settings.ORN_LEGEND):
             # plt.addLegend(horSpacing=20, colCount=3, brush='k', offset=(0, -125))
             plt.addLegend(horSpacing=20, colCount=3, brush='k', offset=(0, 0))
             plt.getAxis('left').setWidth(80)

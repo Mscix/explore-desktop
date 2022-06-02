@@ -2,33 +2,6 @@
 import logging
 import os
 
-import exploredesktop
-from exploredesktop.modules import (
-    BaseModel,
-    Settings,
-    Stylesheets,
-    Ui_MainWindow
-)
-from exploredesktop.modules.app_settings import (
-    ConnectionStatus,
-    DataAttributes,
-    EnvVariables
-)
-from exploredesktop.modules.bt_module import BTFrameView
-from exploredesktop.modules.exg_module import ExGPlot
-from exploredesktop.modules.fft_module import FFTPlot
-from exploredesktop.modules.filters_module import Filters
-from exploredesktop.modules.footer_module import FooterFrameView
-from exploredesktop.modules.imp_module import ImpFrameView
-from exploredesktop.modules.lsl_module import IntegrationFrameView
-from exploredesktop.modules.orn_module import ORNPlot
-from exploredesktop.modules.recording_module import RecordFunctions
-from exploredesktop.modules.settings_module import SettingsFrameView
-from exploredesktop.modules.tools import (
-    display_msg,
-    get_widget_by_obj_name
-)
-from exploredesktop.modules.mkr_module import MarkerPlot
 from explorepy.log_config import (
     read_config,
     write_config
@@ -55,6 +28,34 @@ from PySide6.QtWidgets import (
     QSizeGrip
 )
 
+
+import exploredesktop  # isort:skip
+from exploredesktop.modules import (  # isort:skip
+    BaseModel,
+    Settings,
+    Stylesheets,
+    Ui_MainWindow
+)
+from exploredesktop.modules.app_settings import (  # isort:skip
+    ConnectionStatus,
+    DataAttributes,
+    EnvVariables
+)
+from exploredesktop.modules.bt_module import BTFrameView  # isort:skip
+from exploredesktop.modules.exg_module import ExGPlot  # isort:skip
+from exploredesktop.modules.fft_module import FFTPlot  # isort:skip
+from exploredesktop.modules.filters_module import Filters  # isort:skip
+from exploredesktop.modules.footer_module import FooterFrameView  # isort:skip
+from exploredesktop.modules.imp_module import ImpFrameView  # isort:skip
+from exploredesktop.modules.lsl_module import IntegrationFrameView  # isort:skip
+from exploredesktop.modules.orn_module import ORNPlot  # isort:skip
+from exploredesktop.modules.recording_module import RecordFunctions  # isort:skip
+from exploredesktop.modules.settings_module import SettingsFrameView  # isort:skip
+from exploredesktop.modules.tools import (  # isort:skip
+    display_msg,
+    get_widget_by_obj_name
+)
+from exploredesktop.modules.mkr_module import MarkerPlot  # isort:skip
 
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
@@ -146,6 +147,25 @@ class MainWindow(QMainWindow, BaseModel):
     #########################
     # UI Functions
     #########################
+    def reset_vars(self):
+        """Reset all variables"""
+        self.is_streaming = False
+        self.exg_plot.reset_vars()
+        self.orn_plot.reset_vars()
+        # self.orn_plot.get_model().reset_vars()
+        self.fft_plot.reset_vars()
+        self.footer_frame.get_model().reset_vars()
+        self.imp_frame.get_model().reset_vars()
+        self.filters.reset_vars()
+
+    def stop_processes(self):
+        """Stop ongoing actions"""
+        if self.explorer.is_recording:
+            self.recording.stop_record()
+        if self.explorer.is_measuring_imp:
+            self.imp_frame.disable_imp()
+        if self.explorer.is_pushing_lsl:
+            self.integration_frame.stop_lsl_push()
 
     def on_connection_change(self, connection):
         """Actions to perfom when connection status changes
@@ -186,16 +206,8 @@ class MainWindow(QMainWindow, BaseModel):
             self.signals.pageChange.emit("btn_bt")
 
             # TODO:
-            # stop processes
-            # reset vars:
-            self.exg_plot.reset_vars()
-            self.exg_plot.get_model().reset_vars()
-            self.is_streaming = False
-            self.orn_plot.reset_vars()
-            self.orn_plot.get_model().reset_vars()
-            self.fft_plot.reset_vars()
-            self.footer_frame.get_model().reset_vars()
-            self.imp_frame.get_model().reset_vars()
+            self.stop_processes()
+            self.reset_vars()
 
         else:
             return
@@ -241,6 +253,8 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.replotMkrAdd.connect(self.mkr_plot.model.add_mkr_replot)
         self.signals.mkrRemove.connect(self.mkr_plot.remove_old_item)
 
+        self.signals.btDrop.connect(self.exg_plot.display_bt_drop)
+
     def style_ui(self):
         """Initial style for UI
         """
@@ -253,6 +267,7 @@ class MainWindow(QMainWindow, BaseModel):
         # Hide unnecessary labels
         # TODO: review in QtCreator if labels are needed in the future or can be deleted
         # TODO check if sethidden can be set from qtCreator
+
         # self.ui.label_3.setHidden(self.file_names is None)
 
         self.ui.line_2.setHidden(True)
@@ -338,7 +353,6 @@ class MainWindow(QMainWindow, BaseModel):
             if self.filters.current_filters is None:
                 filt = self.filters.popup_filters()
 
-            # TODO if filters popup is canceled, go to settings
             # TODO instead of going to settings go back to previous page
             if filt is False:
                 self.ui.stackedWidget.setCurrentWidget(self.ui.page_settings)
@@ -505,14 +519,8 @@ class MainWindow(QMainWindow, BaseModel):
     def close(self) -> bool:
         """actions to perform on close
         """
-        # TODO: add other actions to perform on close, e.g. stop timers
-        QThreadPool().globalInstance().waitForDone(msecs=500)
-        if self.explorer.is_recording:
-            self.recording.stop_record()
-        if self.explorer.is_measuring_imp:
-            self.imp_frame.disable_imp()
-        if self.explorer.is_pushing_lsl:
-            self.integration_frame.stop_lsl_push()
+        QThreadPool().globalInstance().waitForDone()
+        self.stop_processes()
         return super().close()
 
     def set_permissions(self):

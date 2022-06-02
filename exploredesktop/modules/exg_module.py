@@ -8,10 +8,12 @@ from PySide6.QtCore import Slot
 
 from exploredesktop.modules.app_settings import (  # isort:skip
     DataAttributes,
+    Messages,
     Settings,
     Stylesheets
 )
-from exploredesktop.modules.base_data_module import BasePlots, DataContainer   # isort:skip
+from exploredesktop.modules.base_data_module import BasePlots, DataContainer
+from exploredesktop.modules.tools import display_msg   # isort:skip
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -32,6 +34,7 @@ class ExGData(DataContainer):
 
         self.packet_count = 0
         self.t_bt_drop = None
+        self.bt_drop_warning_displayed = False
 
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
@@ -49,11 +52,15 @@ class ExGData(DataContainer):
 
         self.packet_count = 0
         self.t_bt_drop = None
+        self.bt_drop_warning_displayed = False
 
         self.rr_estimator = None
         self.r_peak = {'t': [], 'r_peak': [], 'points': []}
         self.r_peak_replot = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
+
+        DataContainer.vis_time_offset = None
+        self.pointer = 0
 
     def new_t_axis(self, signal=None):
         signal = self.signals.tAxisEXGChanged
@@ -83,27 +90,45 @@ class ExGData(DataContainer):
         if DataAttributes.POINTER in attributes:
             self.pointer = 0
 
+    def handle_disconnection(self, timestamp: list):
+        """Handle disconnection errors
+
+        Args:
+            timestamp (list): list of timestamps
+        """
+        if self.vis_time_offset is None or timestamp[0] > self.vis_time_offset:
+            return
+        self.reset_vars()
+        self.signals.updateDataAttributes.emit([DataAttributes.DATA])
+        self.signals.tRangeEXGChanged.emit(0)
+
+    def handle_bt_drop(self, data: dict, sec_th: int = 10):
+        """Handle bluetooth drop
+
+        Args:
+            data (dict): exg data
+            sec_th (int): threshold of seconds to display the warning again. Defaults to 10
+        """
+        t_point = data['t'][0]
+        if t_point < 0:
+            return
+        elif t_point < self.last_t and self.bt_drop_warning_displayed is False:
+            print(f"Bt drop:\n{t_point=}\n{self.last_t=}\n")
+            self.bt_drop_warning_displayed = True
+            self.t_bt_drop = t_point
+            self.signals.btDrop.emit(True)
+
+        elif (self.t_bt_drop is not None) and (t_point > self.last_t) and \
+                (t_point - self.t_bt_drop > sec_th) and self.bt_drop_warning_displayed is True:
+            self.bt_drop_warning_displayed = False
+
     def callback(self, packet):
         """_summary_"""
         chan_list = self.explorer.active_chan_list
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
 
-        # TODO: handle disconnection errors (through conn status signal)
-        # if self._vis_time_offset is not None and timestamp[0] < self._vis_time_offset:
-        #     self.reset_vis_vars()
-        #     new_size = self.plot_points()
-        #     self.exg_plot_data[0] = np.array([np.NaN] * new_size)
-        #     self.exg_plot_data[1] = {
-        #         ch: np.array([np.NaN] * new_size) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-        #     self.exg_plot_data[2] = {
-        #         ch: np.array([np.NaN] * self.plot_points(downsampling=False)
-        #                         ) for ch in self.chan_dict.keys() if self.chan_dict[ch] == 1}
-
-        #     t_min = 0
-        #     t_max = t_min + self.get_timeScale()
-        #     self.ui.plot_exg.setXRange(t_min, t_max, padding=0.01)
-
+        # self.handle_disconnection(timestamp)
         # From timestamp to seconds
         if DataContainer.vis_time_offset is None:
             DataContainer.vis_time_offset = timestamp[0]
@@ -130,6 +155,7 @@ class ExGData(DataContainer):
         self.insert_new_data(data)
         self.update_pointer(data)
         self.new_t_axis()
+        self.handle_bt_drop(data)
 
         self.last_t = data['t'][-1]
         self.packet_count += 1
@@ -245,7 +271,6 @@ class ExGPlot(BasePlots):
         self.lines = [None]
 
         self.plots_list = [self.ui.plot_exg]
-        self.bt_drop_warning_displayed = False
 
     def setup_ui_connections(self):
         super().setup_ui_connections()
@@ -253,9 +278,12 @@ class ExGPlot(BasePlots):
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
 
     def reset_vars(self):
+        """Reset variables"""
         self.lines = [None]
         self.plots_list = [self.ui.plot_exg]
         self.bt_drop_warning_displayed = False
+
+        self.model.reset_vars()
 
     def init_plot(self):
         plot_wdgt = self.ui.plot_exg
@@ -320,9 +348,6 @@ class ExGPlot(BasePlots):
     def swipe_plot(self, data):
         t_vector, plot_data = data
 
-        # TODO implement bt drop handling
-        # self.handle_bt_drop()
-
         # TODO: if wrap handle - check if there is a way to to it without model access
         # if self.model.pointer >= len(self.model.t_plot_data):
         #     self.model.signals.mkrReplot.emit(self.model.t_plot_data[0])
@@ -347,21 +372,13 @@ class ExGPlot(BasePlots):
         # TODO:
         # remove reploted r_peaks
 
-    def handle_bt_drop(self):
-        """_summary_
-        """
-        # TODO implement
-        # if data['t'][0] < self.last_t and self.bt_drop_warning_displayed is False:
-        #     self.bt_drop_warning_displayed = True
-        #     self.t_drop = data['t'][0]
-        #     msg = (
-        #         "The bluetooth connection is unstable. This may affect the ExG visualization."
-        #         "\nPlease read the troubleshooting section of the user manual for more."
-        #     )
-        #     title = "Unstable Bluetooth connection"
-        #     self.display_msg(msg_text=msg, title=title, type="info")
+    @Slot(bool)
+    def display_bt_drop(self, bt_drop: bool):
+        """Display bluetooth drop warning
 
-        # elif (self.t_drop is not None) and (data['t'][0] > self.last_t) and \
-        #         (data['t'][0] - self.t_drop > 10) and self.bt_drop_warning_displayed is True:
-        #     self.bt_drop_warning_displayed = False
-        return
+        Args:
+            bt_drop (bool): whether there is a bluetooth drop
+        """
+        if bt_drop:
+            title = "Unstable Bluetooth connection"
+            display_msg(msg_text=Messages.BT_DROP, title=title, popup_type="info")

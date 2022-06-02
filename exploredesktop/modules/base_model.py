@@ -60,6 +60,8 @@ class SignalsContainer(QObject):
     replotMkrAdd = Signal(float)
     mkrRemove = Signal(float)
 
+    btDrop = Signal(bool)
+
 
 class BaseModel(object):
     """Base class for models
