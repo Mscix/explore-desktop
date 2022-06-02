@@ -14,7 +14,7 @@ from exploredesktop.modules import (  # isort: skip
     BaseModel
 )
 from exploredesktop.modules.app_settings import ConnectionStatus, DataAttributes  # isort: skip
-from exploredesktop.modules.tools import display_msg, wait_cursor  # isort: skip
+from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
 
 
 logger = logging.getLogger("explorepy." + __name__)

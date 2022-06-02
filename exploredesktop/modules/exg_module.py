@@ -17,7 +17,7 @@ from exploredesktop.modules.base_data_module import (  # isort:skip
     BasePlots,
     DataContainer
 )
-from exploredesktop.modules.tools import display_msg   # isort:skip
+from exploredesktop.modules.utils import display_msg   # isort:skip
 
 
 logger = logging.getLogger("explorepy." + __name__)

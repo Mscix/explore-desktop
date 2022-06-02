@@ -48,7 +48,7 @@ from exploredesktop.modules.lsl_module import IntegrationFrameView  # isort:skip
 from exploredesktop.modules.orn_module import ORNPlot  # isort:skip
 from exploredesktop.modules.recording_module import RecordFunctions  # isort:skip
 from exploredesktop.modules.settings_module import SettingsFrameView  # isort:skip
-from exploredesktop.modules.tools import (  # isort:skip
+from exploredesktop.modules.utils import (  # isort:skip
     display_msg,
     get_widget_by_obj_name
 )

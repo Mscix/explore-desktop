@@ -16,7 +16,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     Settings,
     Stylesheets,
 )
-from exploredesktop.modules.tools import display_msg  # isort: skip
+from exploredesktop.modules.utils import display_msg  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
 
 # Enable antialiasing for prettier plots

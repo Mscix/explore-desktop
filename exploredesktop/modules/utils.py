@@ -23,6 +23,8 @@ from PySide6.QtWidgets import (
 
 logger = logging.getLogger("explorepy." + __name__)
 
+# TODO check if utils better name
+
 
 def get_widget_by_obj_name(name: str):
     """Get widget object by its name
@@ -56,7 +58,8 @@ def display_msg(msg_text: str, title: str = None, popup_type: str = "error"):
     msg = QMessageBox()
     msg.setText(msg_text)
     # msg.setStyleSheet(Stylesheets.POPUP_STYLESHEET)
-
+    # TODO change to enum popup type
+    # class abstract, and three subclasses error, info, question
     if popup_type == "error":
         wdw_title = "Error" if title is None else title
         msg.setIcon(QMessageBox.Critical)
@@ -74,7 +77,8 @@ def display_msg(msg_text: str, title: str = None, popup_type: str = "error"):
 
 
 @contextmanager
-def wait_cursor():
+def wait_cursor() -> None:
+    """Display wait cursor"""
     try:
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         yield

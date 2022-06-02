@@ -17,7 +17,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     Messages
 )
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
-from exploredesktop.modules.tools import display_msg  # isort: skip
+from exploredesktop.modules.utils import display_msg  # isort: skip
 from exploredesktop.modules.worker import Worker  # isort: skip
 
 logger = logging.getLogger("explorepy." + __name__)

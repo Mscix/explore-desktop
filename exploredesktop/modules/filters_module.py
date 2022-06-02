@@ -4,7 +4,7 @@ import time
 
 from exploredesktop.modules.base_model import BaseModel
 from exploredesktop.modules.dialogs import FiltersDialog
-from exploredesktop.modules.tools import (
+from exploredesktop.modules.utils import (
     display_msg,
     get_filter_limits,
     verify_filters

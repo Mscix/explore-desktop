@@ -23,7 +23,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     Messages,
     Settings
 )
-from exploredesktop.modules.tools import verify_filters  # isort: skip
+from exploredesktop.modules.utils import verify_filters  # isort: skip
 from exploredesktop.modules.ui import (  # isort: skip
     Ui_PlotDialog,
     Ui_RecordingDialog
