@@ -255,6 +255,8 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.btDrop.connect(self.exg_plot.display_bt_drop)
 
+        self.signals.rrPeakRemove.connect(self.exg_plot.remove_old_r_peak)
+
     def style_ui(self):
         """Initial style for UI
         """

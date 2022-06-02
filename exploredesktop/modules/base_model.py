@@ -62,6 +62,8 @@ class SignalsContainer(QObject):
 
     btDrop = Signal(bool)
 
+    rrPeakRemove = Signal(list)
+
 
 class BaseModel(object):
     """Base class for models

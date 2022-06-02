@@ -3,8 +3,9 @@ import logging
 
 import numpy as np
 import pyqtgraph as pg
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QTimer
 
+from explorepy.tools import HeartRateEstimator
 
 from exploredesktop.modules.app_settings import (  # isort:skip
     DataAttributes,
@@ -12,7 +13,10 @@ from exploredesktop.modules.app_settings import (  # isort:skip
     Settings,
     Stylesheets
 )
-from exploredesktop.modules.base_data_module import BasePlots, DataContainer
+from exploredesktop.modules.base_data_module import (  # isort:skip
+    BasePlots,
+    DataContainer
+)
 from exploredesktop.modules.tools import display_msg   # isort:skip
 
 
@@ -69,6 +73,11 @@ class ExGData(DataContainer):
     def update_pointer(self, data, signal=None):
         signal = self.signals.tRangeEXGChanged
         return super().update_pointer(data, signal)
+
+    def on_wrap(self, signal):
+        super().on_wrap(signal)
+        self.remove_r_peak()
+        self.add_r_peaks_replot()
 
     @Slot(list)
     def update_attributes(self, attributes: list):
@@ -260,6 +269,83 @@ class ExGData(DataContainer):
         # # Plot rescaled rpeaks
         self.signals.updateYAxis.emit()
 
+    def add_r_peaks(self):
+        peaks_time, peaks_val = self._obtain_r_peaks()
+
+        if peaks_time:
+            for i, pk_time in enumerate(peaks_time):
+                if pk_time not in self.r_peak['t']:
+                    self.r_peak['t'].append(pk_time)
+                    self.r_peak['r_peak'].append(peaks_val[i])
+
+    def _obtain_r_peaks(self):
+        first_chan = list(self.plot_data.keys())[0]
+
+        if self.rr_estimator is None:
+            try:
+                self.rr_estimator = HeartRateEstimator(fs=self.explorer.sampling_rate)
+            except TypeError:
+                print(f"TypeError - {self.explorer.sampling_rate=}")
+        sr = Settings.EXG_VIS_SRATE if Settings.DOWNSAMPLING else self.explorer.sampling_rate
+        i = self.pointer - (2 * sr)
+        i = i if i >= 0 else 0
+        f = self.pointer if i + self.pointer >= (2 * sr) else (2 * sr)
+        # f = self.exg_pointer
+        ecg_data = (np.array(self.plot_data[first_chan])[i:f] - self.offsets[0]) * self.y_unit
+        time_vector = np.array(self.t_plot_data)[i:f]
+
+        # Check if the peak2peak value is bigger than threshold
+        if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
+            msg = 'P2P value larger or less than threshold. Cannot compute heart rate!'
+            logger.warning(msg)
+            return None, None
+
+        try:
+            peaks_time, peaks_val = self.rr_estimator.estimate(ecg_data, time_vector)
+        except IndexError:
+            return None, None
+        peaks_val = (np.array(peaks_val) / self.y_unit) + self.offsets[0]
+
+        return peaks_time, peaks_val
+
+    def add_r_peaks_replot(self):
+        for i, pk_time in enumerate(self.r_peak['t']):
+            if pk_time > self.last_t:
+                return
+            new_t = self.r_peak['t'][i] + self.timescale
+            if new_t not in self.r_peak_replot['t']:
+                self.r_peak_replot['t'].append(new_t)
+                self.r_peak_replot['r_peak'].append(self.r_peak['r_peak'][i])
+
+    def remove_r_peak(self, replot=False):
+        if replot:
+            peaks_dict = self.r_peak_replot
+        else:
+            peaks_dict = self.r_peak
+
+        to_remove = []
+        for idx_t in range(len(peaks_dict['t'])):
+            if peaks_dict['t'][idx_t] < self.last_t:
+                try:
+                    to_remove.append([peaks_dict[key][idx_t] for key in peaks_dict.keys()])
+                except IndexError:
+                    print(f"\n{replot=}")
+                    print(f"{idx_t=}")
+                    for key in peaks_dict.keys():
+                        print("len: ", len(peaks_dict[key]))
+                        print(peaks_dict[key])
+                    # input("press enter to continue\n\n")
+
+        points_to_remove = [point[2] for point in to_remove]
+        for point in to_remove:
+            peaks_dict['t'].remove(point[0])
+            peaks_dict['r_peak'].remove(point[1])
+            peaks_dict['points'].remove(point[2])
+            to_remove.remove(point)
+
+        self.signals.rrPeakRemove.emit(points_to_remove)
+        return peaks_dict, to_remove
+
 
 class ExGPlot(BasePlots):
     """_summary_
@@ -272,10 +358,13 @@ class ExGPlot(BasePlots):
 
         self.plots_list = [self.ui.plot_exg]
 
+        self.timer = QTimer()
+
     def setup_ui_connections(self):
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
+        self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
 
     def reset_vars(self):
         """Reset variables"""
@@ -353,6 +442,9 @@ class ExGPlot(BasePlots):
         #     self.model.signals.mkrReplot.emit(self.model.t_plot_data[0])
         # 1. check id_th (check if necessary)
         # 3. Remove rr peaks and replot in new axis
+        if self.ui.value_signal.currentText() == Settings.MODE_LIST[1]:
+            # self.remove_old_item()
+            self.plot_r_peaks(replot=True)
 
         # position line
         self._add_pos_line(t_vector)
@@ -371,6 +463,7 @@ class ExGPlot(BasePlots):
         self.model.signals.mkrRemove.emit(self.model.last_t)
         # TODO:
         # remove reploted r_peaks
+        self.model.remove_r_peak(replot=True)
 
     @Slot(bool)
     def display_bt_drop(self, bt_drop: bool):
@@ -382,3 +475,72 @@ class ExGPlot(BasePlots):
         if bt_drop:
             title = "Unstable Bluetooth connection"
             display_msg(msg_text=Messages.BT_DROP, title=title, popup_type="info")
+
+    def plot_r_peaks(self, replot=False):
+        if replot:
+            # self.model.add_r_peaks_replot()
+            r_peak_dict = self.model.r_peak_replot
+            color = (200, 0, 0, 200)
+        else:
+            r_peak_dict = self.model.r_peak
+            color = (200, 0, 0)
+
+        # if not in ECG mode or no peaks in dict, return
+        if self.ui.value_signal.currentText() == 'EEG' or len(r_peak_dict['t']) == 0:
+            return
+
+        for i in range(len(r_peak_dict['t'])):
+            try:
+                r_peak_dict['points'][i]
+                return
+            except IndexError:
+                point = self.ui.plot_exg.plot(
+                    [r_peak_dict['t'][i]],
+                    [r_peak_dict['r_peak'][i]],
+                    pen=None,
+                    symbolBrush=color,
+                    symbol='o',
+                    symbolSize=8)
+
+                r_peak_dict['points'].append(point)
+
+    @Slot(str)
+    def change_signal_mode(self, new_mode):
+        """
+        Log mode change (EEG or ECG)
+        """
+        logger.debug("ExG mode has been changed to %s", new_mode)
+        if new_mode == Settings.MODE_LIST[1]:
+            print("In ECG mode")
+            if self.timer.isActive():
+                return
+            self.timer.setInterval(2000)
+            self.timer.timeout.connect(self.model.add_r_peaks)
+            self.timer.timeout.connect(self.plot_r_peaks)
+            self.timer.start()
+
+        elif new_mode == Settings.MODE_LIST[0]:
+            print("In EEG mode")
+            if self.timer.isActive:
+                self.timer.stop()
+
+    @Slot(list)
+    def remove_old_r_peak(self, to_remove):
+        plt_widget = self.plots_list[0]
+        for point in to_remove:
+            plt_widget.removeItem(point)
+        # if replot:
+        #     peaks_dict = self.model.r_peak_replot
+        # else:
+        #     peaks_dict = self.model.r_peak
+
+        # to_remove = []
+        # for idx_t in range(len(peaks_dict['t'])):
+        #     if peaks_dict['t'][idx_t] < self.model.last_t:
+        #         for plt_wdgt in self.plots_list:
+        #             plt_wdgt.removeItem(peaks_dict['points'][idx_t])
+        #             to_remove.append([peaks_dict[key][idx_t] for key in peaks_dict.keys()])
+
+        # if to_remove:
+        #     self.model.signals.rrPeakRemove.emit(to_remove)
+        # return to_remove
