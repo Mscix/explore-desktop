@@ -8,7 +8,7 @@ from PySide6.QtCore import Slot
 
 from exploredesktop.modules.app_settings import (  # isort:skip
     DataAttributes,
-    Settings,
+    GUISettings,
     Stylesheets
 )
 from exploredesktop.modules.base_data_module import BasePlots, DataContainer   # isort:skip
@@ -17,18 +17,21 @@ from exploredesktop.modules.base_data_module import BasePlots, DataContainer   #
 logger = logging.getLogger("explorepy." + __name__)
 
 
+ORN_LIST = ['accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ', 'magX', 'magY', 'magZ']
+
+
 class ORNData(DataContainer):
     """_summary_"""
     def __init__(self) -> None:
         super().__init__()
-        self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
+        self.plot_data = {k: np.array([np.NaN] * 200) for k in ORN_LIST}
         self.t_plot_data = np.array([np.NaN] * 200)
 
         self.signals.updateDataAttributes.connect(self.update_attributes)
 
     def reset_vars(self):
         super().reset_vars()
-        self.plot_data = {k: np.array([np.NaN] * 200) for k in Settings.ORN_LIST}
+        self.plot_data = {k: np.array([np.NaN] * 200) for k in ORN_LIST}
         self.t_plot_data = np.array([np.NaN] * 200)
         self.pointer = 0
 
@@ -46,7 +49,7 @@ class ORNData(DataContainer):
         if DataAttributes.ORNDATA in attributes:
             points = self.plot_points(orn=True)
             self.t_plot_data = np.array([np.NaN] * points)
-            self.plot_data = {k: np.array([np.NaN] * points) for k in Settings.ORN_LIST}
+            self.plot_data = {k: np.array([np.NaN] * points) for k in ORN_LIST}
 
     def callback(self, packet):
         """ORN callback"""
@@ -55,7 +58,7 @@ class ORNData(DataContainer):
             DataContainer.vis_time_offset = timestamp[0]
         time_vector = list(np.asarray(timestamp) - DataContainer.vis_time_offset)
 
-        data = dict(zip(Settings.ORN_LIST, np.array(orn_data)[:, np.newaxis]))
+        data = dict(zip(ORN_LIST, np.array(orn_data)[:, np.newaxis]))
         data['t'] = time_vector
 
         self.insert_new_data(data)
@@ -132,7 +135,7 @@ class ORNPlot(BasePlots):
 
         # Add legend, axis label and grid to all the plots
         timescale = self.time_scale
-        for plt, lbl in zip(self.plots_list, Settings.ORN_LEGEND):
+        for plt, lbl in zip(self.plots_list, GUISettings.ORN_LEGEND):
             # plt.addLegend(horSpacing=20, colCount=3, brush='k', offset=(0, -125))
             plt.addLegend(horSpacing=20, colCount=3, brush='k', offset=(0, 0))
             plt.getAxis('left').setWidth(80)
