@@ -306,6 +306,8 @@ class ExGData(DataContainer):
             return None, None
         peaks_val = (np.array(peaks_val) / self.y_unit) + self.offsets[0]
 
+        estimated_heart_rate = self.rr_estimator.heart_rate
+        self.signals.heartRate.emit(str(estimated_heart_rate))
         return peaks_time, peaks_val
 
     def add_r_peaks_replot(self):
@@ -329,12 +331,13 @@ class ExGData(DataContainer):
                 try:
                     to_remove.append([peaks_dict[key][idx_t] for key in peaks_dict.keys()])
                 except IndexError:
-                    print(f"\n{replot=}")
-                    print(f"{idx_t=}")
-                    for key in peaks_dict.keys():
-                        print("len: ", len(peaks_dict[key]))
-                        print(peaks_dict[key])
+                    # print(f"\n{replot=}")
+                    # print(f"{idx_t=}")
+                    # for key in peaks_dict.keys():
+                    #     print("len: ", len(peaks_dict[key]))
+                    #     print(peaks_dict[key])
                     # input("press enter to continue\n\n")
+                    pass
 
         points_to_remove = [point[2] for point in to_remove]
         for point in to_remove:
@@ -444,7 +447,8 @@ class ExGPlot(BasePlots):
         # 3. Remove rr peaks and replot in new axis
         if self.ui.value_signal.currentText() == Settings.MODE_LIST[1]:
             # self.remove_old_item()
-            self.plot_r_peaks(replot=True)
+            # self.plot_r_peaks(replot=True)
+            pass
 
         # position line
         self._add_pos_line(t_vector)
@@ -503,6 +507,9 @@ class ExGPlot(BasePlots):
                     symbolSize=8)
 
                 r_peak_dict['points'].append(point)
+                print(f"\n\n{replot=}")
+                print(r_peak_dict['t'])
+                print(len(r_peak_dict['points']))
 
     @Slot(str)
     def change_signal_mode(self, new_mode):

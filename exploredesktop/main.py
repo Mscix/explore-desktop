@@ -17,6 +17,7 @@ logger.debug("Starting ExploreDesktop (version: %s) with Explorepy (version: %s)
              exploredesktop.__version__, explorepy.__version__)
 
 os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+os.environ["QT_FONT_DPI"] = "96"
 
 
 def main():

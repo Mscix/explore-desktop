@@ -256,6 +256,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.btDrop.connect(self.exg_plot.display_bt_drop)
 
         self.signals.rrPeakRemove.connect(self.exg_plot.remove_old_r_peak)
+        self.signals.heartRate.connect(self.ui.value_heartRate.setText)
 
     def style_ui(self):
         """Initial style for UI
@@ -274,13 +275,8 @@ class MainWindow(QMainWindow, BaseModel):
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
-        self.ui.btn_stream.setHidden(True)
-        # imp page
-        self.ui.label_6.setHidden(True)
         # settings page
         self.ui.label_warning_disabled.setHidden(True)
-        self.ui.label_12.setHidden(True)
-        self.ui.n_chan.setHidden(True)
         self.ui.lbl_sr_warning.hide()
         self.ui.btn_calibrate.setHidden(True)
         # connect page

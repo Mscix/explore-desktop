@@ -63,6 +63,7 @@ class SignalsContainer(QObject):
     btDrop = Signal(bool)
 
     rrPeakRemove = Signal(list)
+    heartRate = Signal(str)
 
 
 class BaseModel(object):
