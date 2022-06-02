@@ -29,7 +29,7 @@ from PySide6.QtWidgets import (
 import exploredesktop  # isort:skip
 from exploredesktop.modules import (  # isort:skip
     BaseModel,
-    Settings,
+    GUISettings,
     Stylesheets,
     Ui_MainWindow
 )
@@ -376,7 +376,7 @@ class MainWindow(QMainWindow, BaseModel):
             return False
 
         # If the page requires connection to a Explore device, verify
-        if btn_name in Settings.LEFT_BTN_REQUIRE_CONNECTION and self.explorer.is_connected is False:
+        if btn_name in GUISettings.LEFT_BTN_REQUIRE_CONNECTION and self.explorer.is_connected is False:
             msg = "Please connect an Explore device."
             display_msg(msg_text=msg, popup_type="info")
             return False
@@ -459,10 +459,10 @@ class MainWindow(QMainWindow, BaseModel):
             Union[int, int]: current width, new width
         """
         current_width = self.ui.left_side_menu.width()
-        if current_width == Settings.LEFT_MENU_MIN:
-            new_width = Settings.LEFT_MENU_MAX
+        if current_width == GUISettings.LEFT_MENU_MIN:
+            new_width = GUISettings.LEFT_MENU_MAX
         else:
-            new_width = Settings.LEFT_MENU_MIN
+            new_width = GUISettings.LEFT_MENU_MIN
         return current_width, new_width
 
     def highlight_main_menu_item(self, btn_name: str) -> None:
