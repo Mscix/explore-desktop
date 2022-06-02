@@ -368,6 +368,16 @@ class ExGPlot(BasePlots):
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
         self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
+        self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
+
+    @Slot(bool)
+    def antialiasing(self, cb_status):
+        if cb_status:
+            msg = "Antialiasing might impact the visualization speed"
+            response = display_msg()
+            pg.setConfigOptions(antialias=True)
+        else:
+            pg.setConfigOptions(antialias=False)
 
     def reset_vars(self):
         """Reset variables"""
