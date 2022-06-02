@@ -1,9 +1,8 @@
-
-
 import logging
+from typing import Optional
 
 from exploredesktop.modules.base_model import BaseModel
-
+from PySide6.QtCore import Slot
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -13,12 +12,14 @@ class IntegrationFrameView(BaseModel):
         super().__init__()
         self.ui = ui
 
-    def setup_ui_connections(self):
+    def setup_ui_connections(self) -> None:
+        """Setup connections between widgets and slots"""
         self.ui.btn_push_lsl.clicked.connect(self.on_push_clicked)
         self.ui.cb_lsl_duration.stateChanged.connect(self.enable_lsl_duration)
 
-    def on_push_clicked(self):
-        """."""
+    @Slot()
+    def on_push_clicked(self) -> None:
+        """Actions to perform when push button is clicked"""
         logger.debug("Pressed push2lsl button -> %s", not self.explorer.is_pushing_lsl)
 
         # spinbox_val = self.ui.lsl_duration_value.value()
@@ -30,17 +31,22 @@ class IntegrationFrameView(BaseModel):
         else:
             self.stop_lsl_push()
 
-    def start_lsl_push(self, duration=None):
-        """Start pushing to lsl"""
+    def start_lsl_push(self, duration: Optional[int] = None) -> None:
+        """Start pushing to lsl
+
+        Args:
+            duration (Optional[int], optional): Duration of the stream. Defaults to None.
+        """
         self.explorer.push2lsl(duration, block=False)
         self.ui.btn_push_lsl.setText("Stop")
 
-    def stop_lsl_push(self):
+    def stop_lsl_push(self) -> None:
         """Stop pushing to lsl"""
         self.explorer.stop_lsl()
         self.ui.btn_push_lsl.setText("Push")
 
-    def enable_lsl_duration(self):
+    @Slot()
+    def enable_lsl_duration(self) -> None:
         enable = self.ui.cb_lsl_duration.isChecked()
         # if self.ui.cb_lsl_duration.isChecked():
         self.ui.label_13.setEnabled(enable)
