@@ -3,7 +3,12 @@ import logging
 import os
 
 import explorepy._exceptions as xpy_ex
-from PySide6.QtCore import Slot
+from PySide6.QtCore import (
+    QSettings,
+    Qt,
+    Slot
+)
+from PySide6.QtWidgets import QCompleter
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
@@ -32,6 +37,24 @@ class BTFrameView(BaseModel):
         self.ui.dev_name_input.returnPressed.connect(self.connect_clicked)
         self.ui.dev_name_input.textChanged.connect(self.auto_capital)
         self.ui.btn_scan.clicked.connect(self.scan_clicked)
+        self.setup_autocomplete()
+
+    def setup_autocomplete(self):
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        names = settings.value("known_devices")
+        if names is None:
+            names = []
+            settings.setValue("known_devices", names)
+        completer = QCompleter([*{*names}])
+        completer.setFilterMode(Qt.MatchContains)
+        self.ui.dev_name_input.setCompleter(completer)
+
+    def add_name_to_settings(self, dev_name):
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        names = settings.value("known_devices")
+        if dev_name not in names:
+            names.append(dev_name[-4:])
+            settings.setValue("known_devices", names)
 
     #########################
     # Get device name functions
@@ -112,7 +135,8 @@ class BTFrameView(BaseModel):
         worker.signals.finished.connect(lambda: self._connect_stylesheet(reset=True))
         worker.signals.finished.connect(self.on_connection_change)
         worker.signals.finished.connect(lambda: self.ui.btn_connect.setEnabled(True))
-
+        # Add name to settings
+        worker.signals.finished.connect(lambda: self.add_name_to_settings(device_name))
         self.threadpool.start(worker)
         # self.threadpool.start(worker)
 
