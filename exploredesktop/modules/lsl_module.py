@@ -1,8 +1,10 @@
 import logging
 from typing import Optional
 
-from exploredesktop.modules.base_model import BaseModel
 from PySide6.QtCore import Slot
+
+
+from exploredesktop.modules.base_model import BaseModel  # isort:skip
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -35,7 +37,7 @@ class IntegrationFrameView(BaseModel):
         """Start pushing to lsl
 
         Args:
-            duration (Optional[int], optional): Duration of the stream. Defaults to None.
+            duration (Optional[int]): Duration of the stream. Defaults to None.
         """
         self.explorer.push2lsl(duration, block=False)
         self.ui.btn_push_lsl.setText("Stop")
@@ -47,6 +49,7 @@ class IntegrationFrameView(BaseModel):
 
     @Slot()
     def enable_lsl_duration(self) -> None:
+        """Disable/Enable LSL stream duration"""
         enable = self.ui.cb_lsl_duration.isChecked()
         # if self.ui.cb_lsl_duration.isChecked():
         self.ui.label_13.setEnabled(enable)

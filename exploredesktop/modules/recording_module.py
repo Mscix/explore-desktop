@@ -1,6 +1,10 @@
 import logging
 import os
 from datetime import datetime
+from typing import (
+    Tuple,
+    Union
+)
 
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
@@ -48,16 +52,12 @@ class RecordFunctions(BaseModel):
         """
         Start signal recording
         """
-        dialog = RecordingDialog()
-        default_file_name = self._set_filename_placeholder(dialog)
-        default_dir = self._set_dir_placeholder(dialog)
-        data = dialog.exec()
+        default_file_name, default_dir, data = self.get_dialog_data()
 
         if data is False:
             return
 
         file_name = self._get_file_name(default_file_name, data)
-
         file_path = data["file_path"] if data["file_path"] != "" else default_dir
         record_duration = data["duration"] if data["duration"] != 0 else None
         file_type = data["file_type"]
@@ -71,7 +71,25 @@ class RecordFunctions(BaseModel):
 
         self._update_button()
 
+    def get_dialog_data(self) -> Tuple[str, str, Union[bool, dict]]:
+        """Get data from recording popup dialog
+
+        Returns:
+            Tuple[str, str, Union[bool, dict]]:
+                default file name, default directory, popup data (False if dialog is closed or canceled)
+        """
+        dialog = RecordingDialog()
+        default_file_name = self._set_filename_placeholder(dialog)
+        default_dir = self._set_dir_placeholder(dialog)
+        data = dialog.exec()
+        return default_file_name, default_dir, data
+
     def _update_button(self, start=True) -> None:
+        """Update record button
+
+        Args:
+            start (bool, optional): Whether recording is starting. Defaults to True.
+        """
         if start:
             self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-stop.png"))
             self.ui.btn_record.setText("Stop")
