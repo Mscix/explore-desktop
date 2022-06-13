@@ -12,6 +12,7 @@ from PySide6.QtCore import Slot
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
+    ExGModes,
     Settings,
     Stylesheets
 )
@@ -235,8 +236,8 @@ class BasePlots:
             return
 
         # value_signal_type
-        self.ui.value_signal.addItems(Settings.MODE_LIST)
-        self.ui.value_signal_rec.addItems(Settings.MODE_LIST)
+        self.ui.value_signal.addItems(ExGModes.all_values())
+        self.ui.value_signal_rec.addItems(ExGModes.all_values())
 
         # value_yaxis
         self.ui.value_yAxis.addItems(Settings.SCALE_MENU.keys())
@@ -298,11 +299,14 @@ class BasePlots:
         Args:
             data (float): minimum value for x range
         """
+
         t_min = data
         t_max = t_min + self.time_scale
-
         for plt in self.plots_list:
-            plt.setXRange(t_min, t_max, padding=0.01)
+            try:
+                plt.setXRange(t_min, t_max, padding=0.01)
+            except Exception:
+                pass
 
     @Slot(list)
     def set_t_axis(self, data: list) -> None:

@@ -286,6 +286,8 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.replotMkrAdd.connect(self.mkr_plot.model.add_mkr_replot)
         self.signals.mkrRemove.connect(self.mkr_plot.remove_old_item)
 
+        self.signals.updateDataAttributes.connect(self.exg_plot.model.update_attributes)
+
         self.signals.btDrop.connect(self.exg_plot.display_bt_drop)
 
         self.signals.rrPeakRemove.connect(self.exg_plot.remove_old_r_peak)
@@ -308,6 +310,8 @@ class MainWindow(QMainWindow, BaseModel):
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
+        # TODO remove when antialiasing is tested
+        self.ui.cb_antialiasing.setHidden(True)
         # settings page
         self.ui.label_warning_disabled.setHidden(True)
         self.ui.lbl_sr_warning.hide()

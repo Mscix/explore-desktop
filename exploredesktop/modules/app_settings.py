@@ -62,6 +62,11 @@ class DataAttributes(BaseEnum):
     ORNPOINTER = auto()
 
 
+class ExGModes(BaseEnum):
+    EEG = "EEG"
+    ECG = "ECG"
+
+
 class Stylesheets():
     """
     Class containig stylesheets for GUI
@@ -196,7 +201,7 @@ class Settings():
     ORN_SRATE = 20  # Hz
     EXG_VIS_SRATE = 125
     WIN_LENGTH = 10  # Seconds
-    MODE_LIST = ['EEG', 'ECG']
+    # MODE_LIST = ['EEG', 'ECG']
 
     CHAN_LIST = [f'ch{i}' for i in range(1, 9)]
     DEFAULT_SCALE = 10 ** 3  # Volt
