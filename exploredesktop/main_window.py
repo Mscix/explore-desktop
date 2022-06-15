@@ -290,8 +290,11 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.btDrop.connect(self.exg_plot.display_bt_drop)
 
-        self.signals.rrPeakRemove.connect(self.exg_plot.remove_old_r_peak)
+        # self.signals.rrPeakRemove.connect(self.exg_plot.remove_old_r_peak)
+        # self.signals.rrPeakPlot.connect(self.exg_plot.plot_rr_point)
+
         self.signals.heartRate.connect(self.ui.value_heartRate.setText)
+        self.signals.plotRR.connect(self.exg_plot.plot_rr_point)
 
     def style_ui(self) -> None:
         """Initial style for UI

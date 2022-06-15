@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QMessageBox
 )
+import numpy as np
 
 
 from exploredesktop.modules.app_settings import (  # isort:skip
@@ -131,3 +132,32 @@ def get_filter_limits(s_rate):
     min_lc_freq = round(0.0035 * nyq_freq, 1)
 
     return min_lc_freq, max_hc_freq
+
+
+def _remove_old_plot_item(item_dict: dict, t_vector: np.array, item_type: str, plot_widget=None) -> list:
+    """
+    Remove line or point element from plot widget
+
+    Args:
+        item_dict (dict): dictionary with items to remove
+        t_vector (np.array): time vector used as a condition to remove
+        item_type (str): specifies item to remove (line or points).
+        plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
+
+    Retrun:
+        list: list with objects to remove
+    """
+    assert item_type in ['line', 'points'], 'item type parameter must be line or points'
+    assert 't' in item_dict.keys(), 'the items dictionary must have the keys \'t\''
+
+    if not len(t_vector):
+        return []
+
+    to_remove = []
+    for idx_t in range(len(item_dict['t'])):
+        if item_dict['t'][idx_t] < t_vector[-1]:
+            if plot_widget:
+                plot_widget.removeItem(item_dict[item_type][idx_t])
+            to_remove.append([item_dict[key][idx_t] for key in item_dict.keys()])
+            # [item_dict['t'][idx_t], item_dict['r_peak'][idx_t], item_dict['points'][idx_t]])
+    return to_remove
