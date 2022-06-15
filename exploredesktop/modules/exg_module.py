@@ -285,13 +285,32 @@ class ExGData(DataContainer):
                 self.plot_data[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
         # TODO
         # # Rescale r_peaks
-        # # Remove old rpeaks
-        # # Plot rescaled rpeaks
+        self.r_peak['r_peak'] = list((np.array(self.r_peak['r_peak']) - self.offsets[0]
+                                      ) * (old_unit / self.y_unit) + self.offsets[0])
 
-        # # Rescale replotted rpeaks
-        # # Remove old replotted rpeaks
-        # # Plot rescaled rpeaks
+        self.rescale_peaks()
+
+        self.r_peak_replot['r_peak'] = list((np.array(self.r_peak_replot['r_peak']) - self.offsets[0]
+                                             ) * (old_unit / self.y_unit) + self.offsets[0])
+        self.rescale_peaks(replot=True)
+
+        # Update acis
         self.signals.updateYAxis.emit()
+
+    def rescale_peaks(self, replot=False):
+
+        if replot is False:
+            r_peak_dict = self.r_peak
+        else:
+            r_peak_dict = self.r_peak_replot
+
+        self.signals.rrPeakRemove.emit(r_peak_dict['points'])
+        to_replot = r_peak_dict.copy()
+        r_peak_dict = {'t': [], 'r_peak': [], 'points': []}
+        # # Plot rescaled rpeaks
+        for i in range(len(to_replot['t'])):
+            self.signals.plotRR.emit(
+                [to_replot['t'][i], to_replot['r_peak'][i], replot])
 
     def add_r_peaks(self):
         peaks_time, peaks_val = self._obtain_r_peaks()
@@ -523,33 +542,6 @@ class ExGPlot(BasePlots):
     def swipe_plot(self, data):
         t_vector, plot_data = data
 
-        # TODO: if wrap handle - check if there is a way to to it without model access
-        # if self.model.pointer >= len(self.model.t_plot_data):
-        #     self.model.signals.mkrReplot.emit(self.model.t_plot_data[0])
-        # 1. check id_th (check if necessary)
-        # 3. Remove rr peaks and replot in new axis
-        # if self.ui.value_signal.currentText() == Settings.MODE_LIST[1]:
-        #     # self.remove_old_item()
-        #     # self.plot_r_peaks(replot=True)
-        #     pass
-        # if self.model.pointer >= len(self.model.t_plot_data):
-        # print(f"{self.model.pointer=}")
-        # if self.model.pointer <= 16:
-        # for idx_t in range(len(self.model.r_peak['t'])):
-        #     # if self.r_peak['t'][idx_t][0] < self.exg_plot_data[0][0]:
-        #     if self.model.r_peak['t'][idx_t] < self.model.last_t:
-        #         new_t = self.model.r_peak['t'][idx_t] + self.time_scale
-        #         # self.model.r_peak_replot = self.plot_rr_point(
-        #         #     [new_t, self.model.r_peak['r_peak'][idx_t], True])
-        #         self.model.signals.plotRR.emit(
-        #             [new_t, self.model.r_peak['r_peak'][idx_t], True])
-
-        # to_remove = _remove_old_plot_item(
-        #     self.model.r_peak,
-        #     t_vector=t_vector[:self.model.pointer],
-        #     item_type='points', plot_widget=self.ui.plot_exg)
-        # self.model.r_peak, to_remove = self._remove_rpeaks(self.model.r_peak, to_remove)
-
         # position line
         self._add_pos_line(t_vector)
 
@@ -565,10 +557,6 @@ class ExGPlot(BasePlots):
 
         # remove reploted markers
         self.model.signals.mkrRemove.emit(self.model.last_t)
-        # TODO:
-        # remove reploted r_peaks
-        # if self.model.mode == ExGModes.ECG:
-        #     self.model.remove_r_peak(replot=True)
 
         # Remove reploted r_peaks
         to_remove_replot = _remove_old_plot_item(
