@@ -185,6 +185,7 @@ class MainWindow(QMainWindow, BaseModel):
         Args:
             connection (Enum): connection status
         """
+        # TODO: split, connect and disconnect
         self.footer_frame.print_connection_status(connection)
 
         if connection == ConnectionStatus.CONNECTED:
@@ -253,6 +254,7 @@ class MainWindow(QMainWindow, BaseModel):
         """
         # TODO move to appropiate module
         # change button text
+        # TODO move to appropiate module
         self.signals.btnImpMeasureChanged.connect(self.ui.btn_imp_meas.setText)
         self.signals.btnConnectChanged.connect(self.ui.btn_connect.setText)
 
@@ -306,6 +308,9 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.ft_label_device_3.setStyleSheet("font-weight: bold")
 
         # Hide unnecessary labels
+        # TODO: review in QtCreator if labels are needed in the future or can be deleted
+        # TODO check if sethidden can be set from qtCreator
+
         # self.ui.label_3.setHidden(self.file_names is None)
 
         self.ui.line_2.setHidden(True)
@@ -357,6 +362,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         Returns:
             bool: whether impedance measurement is active
+
         """
         imp_disabled = True
         if self.explorer.is_measuring_imp and btn_name != "btn_impedance":
@@ -372,6 +378,7 @@ class MainWindow(QMainWindow, BaseModel):
         Returns:
             bool: whether page has changed
         """
+        # TODO: split this function
         btn_page_map = {
             "btn_home": self.ui.page_home, "btn_bt": self.ui.page_bt,
             "btn_settings": self.ui.page_settings, "btn_plots": self.ui.page_plotsNoWidget,
@@ -516,7 +523,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Navigate to active page
         if btn_name != "btn_left_menu_toggle":
-            change = self.change_page(btn_name)
+            change = self.move_to_page(btn_name)
             if change is False:
                 return
         # Apply stylesheet
