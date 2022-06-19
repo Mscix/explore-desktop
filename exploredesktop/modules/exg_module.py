@@ -315,16 +315,6 @@ class ExGData(DataContainer):
             self.signals.plotRR.emit(
                 [to_replot['t'][i], to_replot['r_peak'][i], replot])
 
-    """def add_r_peaks(self):
-        peaks_time, peaks_val = self._obtain_r_peaks()
-
-        if peaks_time:
-            # for i, pk_time in enumerate(peaks_time):
-            #     if pk_time not in self.r_peak['t']:
-            #         self.r_peak['t'].append(pk_time)
-            #         self.r_peak['r_peak'].append(peaks_val[i])
-            self.signals.rrPeakPlot.emit([peaks_time, peaks_val, False])"""
-
     def _obtain_r_peaks(self):
 
         if self.mode == ExGModes.EEG:
@@ -369,53 +359,6 @@ class ExGData(DataContainer):
         """Estimate heart rate"""
         estimated_heart_rate = self.rr_estimator.heart_rate
         self.signals.heartRate.emit(str(estimated_heart_rate))
-
-    """def add_r_peaks_replot(self):
-        for i, pk_time in enumerate(self.r_peak['t']):
-            if pk_time > self.last_t:
-                return
-            new_t = self.r_peak['t'][i] + self.timescale
-            if new_t not in self.r_peak_replot['t']:
-                self.signals.rrPeakPlot.emit(
-                    [[new_t], [self.r_peak['r_peak'][i]], True])
-                # self.r_peak_replot['t'].append(new_t)
-                # self.r_peak_replot['r_peak'].append(self.r_peak['r_peak'][i])
-
-    def remove_r_peak(self, replot=False):
-        if replot:
-            peaks_dict = self.r_peak_replot
-        else:
-            peaks_dict = self.r_peak
-
-        if not len(peaks_dict['t']):
-            return
-
-        to_remove = []
-        for idx_t in range(len(peaks_dict['t'])):
-            if peaks_dict['t'][idx_t] < self.last_t:
-                try:
-                    to_remove.append([peaks_dict[key][idx_t] for key in peaks_dict.keys()])
-                except IndexError:
-                    print(f"\n{replot=}")
-                    print(f"{idx_t=}")
-                    for key in peaks_dict.keys():
-                        print("len: ", len(peaks_dict[key]))
-                        print(peaks_dict[key])
-                    pass
-
-        # points_to_remove = [point[2] for point in to_remove]
-        for point in to_remove:
-            peaks_dict['t'].remove(point[0])
-            peaks_dict['r_peak'].remove(point[1])
-            peaks_dict['points'].remove(point[2])
-            to_remove.remove(point)
-
-        # print(f"\nAfer removing ({self.last_t=}; {replot=}) -> {peaks_dict['t']=}")
-        # Emmiting signal below causes the program to crash
-        # Faulting module name: ucrtbase.dll
-        # Exception code: 0xc0000409
-        # self.signals.rrPeakRemove.emit(points_to_remove)
-        return peaks_dict, to_remove"""
 
     def _remove_rpeaks(self, peaks_dict, to_remove):
         """
@@ -611,55 +554,6 @@ class ExGPlot(BasePlots):
             r_peak_dict['points'].append(point)
 
         return r_peak_dict
-
-    """def plot_heart_rate(self):
-
-        if self.ui.value_signal.currentText() == 'EEG':
-            return
-
-        if 'ch1' not in self.model.plot_data.keys():
-            msg = 'Heart rate estimation works only when channel 1 is enabled.'
-            if self.model.rr_warning_displayed is False:
-                display_msg(msg_text=msg, popup_type='info')
-                self.model.rr_warning_displayed = True
-            return
-
-        # first_chan = list(self.exg_plot_data[1].keys())[0]
-
-        exg_fs = self.model.explorer.sampling_rate
-
-        if self.model.rr_estimator is None:
-            self.model.rr_estimator = HeartRateEstimator(fs=exg_fs)
-
-        s_rate = Settings.EXG_VIS_SRATE if Settings.DOWNSAMPLING else self.model.explorer.sampling_rate
-        # last_n_sec
-        start = self.model.pointer - (2 * s_rate)
-        start = start if start >= 0 else 0
-        end = self.model.pointer if start + self.model.pointer >= (2 * s_rate) else (2 * s_rate)
-        # f = self.exg_pointer
-        ecg_data = (np.array(self.model.plot_data['ch1'])[start:end] - self.model.offsets[0]) * self.model.y_unit
-        time_vector = np.array(self.model.t_plot_data)[start:end]
-        # print(time_vector[-1])
-
-        # Check if the peak2peak value is bigger than threshold
-        if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
-            print('P2P value larger or less than threshold. Cannot compute heart rate!')
-            return
-
-        try:
-            self.peaks_time, self.peaks_val = self.model.rr_estimator.estimate(ecg_data, time_vector)
-        except IndexError:
-            return
-        self.peaks_val = (np.array(self.peaks_val) / self.model.y_unit) + self.model.offsets[0]
-
-        if self.peaks_time:
-            for i, pk_time in enumerate(self.peaks_time):
-                if pk_time not in self.model.r_peak['t']:
-                    self.model.r_peak = self.plot_rr_point(pk_time, self.peaks_val[i],)
-
-        # Update heart rate cell
-        estimated_heart_rate = self.model.rr_estimator.heart_rate
-        self.ui.value_heartRate.setText(str(estimated_heart_rate))"""
 
     @Slot(str)
     def change_signal_mode(self, new_mode):
