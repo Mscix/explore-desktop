@@ -86,9 +86,14 @@ class SettingsFrameView(BaseModel):
 
         response = display_msg(msg_text=Messages.RESET_SETTINGS_QUESTION, popup_type="question")
 
-        if response == QMessageBox.StandardButton.Yes:
-            with wait_cursor():
-                reset = self.explorer.reset_soft()
+        if response == QMessageBox.StandardButton.No:
+            return reset
+
+        with wait_cursor():
+            reset = self.explorer.reset_soft()
+            disconnect = self.explorer.disconnect()
+            self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
+            self.signals.pageChange.emit("btn_bt")
 
         if reset:
             self.explorer.disconnect()
@@ -188,11 +193,7 @@ class SettingsFrameView(BaseModel):
 
         if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
             mask = "".join(active_chan)
-            int_mask = int(mask, 2)
-            try:
-                changed = self.explorer.set_channels(int_mask)
-            except TypeError:
-                changed = self.explorer.set_channels(mask)
+            changed = self.explorer.set_channels(mask)
 
             # n_chan = self.explorer.stream_processor.device_info['adc_mask']
             # n_chan = list(reversed(n_chan))
