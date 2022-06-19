@@ -278,31 +278,34 @@ class ExGData(DataContainer):
         self.y_string = new_val
         self.y_unit = new_unit
 
+        self.rescale_signal(old_unit, new_unit)
+        # TODO
+        # # Rescale r_peaks
+        self.rescale_peaks(old_unit)
+
+        self.r_peak_replot['r_peak'] = list((np.array(self.r_peak_replot['r_peak']) - self.offsets[0]
+                                             ) * (old_unit / self.y_unit) + self.offsets[0])
+        self.rescale_peaks(old_unit, replot=True)
+
+        # Update acis
+        self.signals.updateYAxis.emit()
+
+    def rescale_signal(self, old_unit, new_unit):
         chan_list = self.explorer.active_chan_list
         for chan, value in self.plot_data.items():
             if chan in chan_list:
                 temp_offset = self.offsets[chan_list.index(chan)]
                 self.plot_data[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
-        # TODO
-        # # Rescale r_peaks
-        self.r_peak['r_peak'] = list((np.array(self.r_peak['r_peak']) - self.offsets[0]
-                                      ) * (old_unit / self.y_unit) + self.offsets[0])
 
-        self.rescale_peaks()
-
-        self.r_peak_replot['r_peak'] = list((np.array(self.r_peak_replot['r_peak']) - self.offsets[0]
-                                             ) * (old_unit / self.y_unit) + self.offsets[0])
-        self.rescale_peaks(replot=True)
-
-        # Update acis
-        self.signals.updateYAxis.emit()
-
-    def rescale_peaks(self, replot=False):
+    def rescale_peaks(self, old_unit, replot=False):
 
         if replot is False:
             r_peak_dict = self.r_peak
         else:
             r_peak_dict = self.r_peak_replot
+
+        r_peak_dict['r_peak'] = list(
+            (np.array(r_peak_dict['r_peak']) - self.offsets[0]) * (old_unit / self.y_unit) + self.offsets[0])
 
         self.signals.rrPeakRemove.emit(r_peak_dict['points'])
         to_replot = r_peak_dict.copy()
@@ -312,7 +315,7 @@ class ExGData(DataContainer):
             self.signals.plotRR.emit(
                 [to_replot['t'][i], to_replot['r_peak'][i], replot])
 
-    def add_r_peaks(self):
+    """def add_r_peaks(self):
         peaks_time, peaks_val = self._obtain_r_peaks()
 
         if peaks_time:
@@ -320,7 +323,7 @@ class ExGData(DataContainer):
             #     if pk_time not in self.r_peak['t']:
             #         self.r_peak['t'].append(pk_time)
             #         self.r_peak['r_peak'].append(peaks_val[i])
-            self.signals.rrPeakPlot.emit([peaks_time, peaks_val, False])
+            self.signals.rrPeakPlot.emit([peaks_time, peaks_val, False])"""
 
     def _obtain_r_peaks(self):
 
@@ -363,10 +366,11 @@ class ExGData(DataContainer):
         return self.peaks_time, self.peaks_val
 
     def estimate_heart_rate(self):
+        """Estimate heart rate"""
         estimated_heart_rate = self.rr_estimator.heart_rate
         self.signals.heartRate.emit(str(estimated_heart_rate))
 
-    def add_r_peaks_replot(self):
+    """def add_r_peaks_replot(self):
         for i, pk_time in enumerate(self.r_peak['t']):
             if pk_time > self.last_t:
                 return
@@ -411,7 +415,7 @@ class ExGData(DataContainer):
         # Faulting module name: ucrtbase.dll
         # Exception code: 0xc0000409
         # self.signals.rrPeakRemove.emit(points_to_remove)
-        return peaks_dict, to_remove
+        return peaks_dict, to_remove"""
 
     def _remove_rpeaks(self, peaks_dict, to_remove):
         """
@@ -455,7 +459,7 @@ class ExGPlot(BasePlots):
     @Slot(bool)
     def antialiasing(self, cb_status):
         if cb_status:
-            # TODO add question to confirmo
+            # TODO add question to confirm
             # msg = "Antialiasing might impact the visualization speed"
             # response = display_msg(msg)
             pg.setConfigOptions(antialias=True)
@@ -577,7 +581,6 @@ class ExGPlot(BasePlots):
             title = "Unstable Bluetooth connection"
             display_msg(msg_text=Messages.BT_DROP, title=title, popup_type="info")
 
-    # def plot_rr_point(self, t_point, r_peak=None, replot: bool = False) -> dict:
     def plot_rr_point(self, data) -> dict:
         """Plot r peak points
 
@@ -595,7 +598,7 @@ class ExGPlot(BasePlots):
             brush = (200, 0, 0)
             r_peak_dict = self.model.r_peak
         else:
-            brush = (200, 0, 0, 200)
+            brush = (200, 0, 0, 150)
             r_peak_dict = self.model.r_peak_replot
 
         point = self.ui.plot_exg.plot(
@@ -658,38 +661,6 @@ class ExGPlot(BasePlots):
         estimated_heart_rate = self.model.rr_estimator.heart_rate
         self.ui.value_heartRate.setText(str(estimated_heart_rate))"""
 
-    # @Slot(list)
-    # def plot_rr_point(self, data) -> dict:
-    #     """Plot r peak points
-
-    #     Args:
-    #         t_point ([type]): [description]
-    #         r_peak ([type]): [description]
-    #         replot (bool, optional): [description]. Defaults to False.
-
-    #     Returns:
-    #         dict: [description]
-    #     """
-    #     peaks_time, peaks_val, replot = data
-
-    #     if replot is False:
-    #         brush = (200, 0, 0)
-    #         r_peak_dict = self.model.r_peak
-    #     else:
-    #         brush = (200, 0, 0, 150)
-    #         r_peak_dict = self.model.r_peak_replot
-    #     # print(peaks_time)
-    #     if peaks_time:
-    #         for i, pk_time in enumerate(peaks_time):
-    #             if pk_time not in r_peak_dict['t']:
-    #                 point = self.ui.plot_exg.plot(
-    #                     [pk_time], [peaks_val[i]], pen=None,
-    #                     symbolBrush=brush, symbol='o', symbolSize=8)
-
-    #                 r_peak_dict['t'].append(pk_time)
-    #                 r_peak_dict['r_peak'].append(peaks_val[i])
-    #                 r_peak_dict['points'].append(point)
-
     @Slot(str)
     def change_signal_mode(self, new_mode):
         """
@@ -715,7 +686,7 @@ class ExGPlot(BasePlots):
         plt_widget = self.plots_list[0]
         for point in to_remove:
             plt_widget.removeItem(point)
-        # if replot:
+        """# if replot:
         #     peaks_dict = self.model.r_peak_replot
         # else:
         #     peaks_dict = self.model.r_peak
@@ -730,3 +701,4 @@ class ExGPlot(BasePlots):
         # if to_remove:
         #     self.model.signals.rrPeakRemove.emit(to_remove)
         # return to_remove
+        """
