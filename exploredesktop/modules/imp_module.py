@@ -147,10 +147,8 @@ class ImpModel(BaseModel):
             str: formatted impedance value
         """
         if value < 5:
-            # TODO: display <5
-            str_value = "5 K\u03A9"
-            # str_value = "\u003C 5 K\u03A9"
-            # str_value = "<5 K\u03A9"
+            str_value = " > "
+            str_value += "5 K\u03A9"
         elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
                 (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
             str_value = "Open"
