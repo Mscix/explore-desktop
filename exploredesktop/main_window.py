@@ -3,6 +3,7 @@ import logging
 import os
 from enum import Enum
 from typing import Union
+import PySide6
 
 from explorepy.log_config import (
     read_config,
@@ -560,12 +561,12 @@ class MainWindow(QMainWindow, BaseModel):
         self.shadow.setColor(QColor(0, 0, 0, 0))
         self.ui.centralwidget.setGraphicsEffect(self.shadow)
 
-    def close(self) -> bool:
-        """actions to perform on close
+    def closeEvent(self, event: PySide6.QtGui.QCloseEvent) -> None:
+        """Override close event with  actions to perform on close
         """
         QThreadPool().globalInstance().waitForDone()
         self.stop_processes()
-        return super().close()
+        return super().closeEvent(event)
 
     def set_permissions(self) -> None:
         """
