@@ -523,7 +523,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Navigate to active page
         if btn_name != "btn_left_menu_toggle":
-            change = self.move_to_page(btn_name)
+            change = self.change_page(btn_name)
             if change is False:
                 return
         # Apply stylesheet
