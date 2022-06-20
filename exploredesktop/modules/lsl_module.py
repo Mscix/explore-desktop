@@ -1,7 +1,8 @@
+from datetime import datetime
 import logging
 from typing import Optional
 
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QTimer
 
 
 from exploredesktop.modules.base_model import BaseModel  # isort:skip
@@ -13,6 +14,7 @@ class IntegrationFrameView(BaseModel):
     def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui
+        self.timer = QTimer()
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
@@ -39,8 +41,10 @@ class IntegrationFrameView(BaseModel):
         Args:
             duration (Optional[int]): Duration of the stream. Defaults to None.
         """
+        duration = 3600 if duration is None else duration
         self.explorer.push2lsl(duration, block=False)
         self.ui.btn_push_lsl.setText("Stop")
+        self.start_timer(duration)
 
     def stop_lsl_push(self) -> None:
         """Stop pushing to lsl"""
@@ -56,3 +60,32 @@ class IntegrationFrameView(BaseModel):
         # self.ui.label_lsl_duration.setEnabled(enable)
         self.ui.lsl_duration_value.setEnabled(enable)
         # self.ui.lsl_duration_.setEnabled(enable)
+
+    def start_timer(self, duration: int) -> None:
+        """Start timer
+
+        Args:
+            duration (int): stream duration
+        """
+        self.start_time = datetime.now()
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(lambda: self.display_time(duration))
+        self.timer.start()
+
+    def display_time(self, duration: int) -> None:
+        """
+        Display recording time in label.
+        Set button back to initial state once time has expired
+
+        Args:
+            duration (int): recording duration
+        """
+        time = datetime.now() - self.start_time
+        total_sec = int(time.total_seconds())
+        # strtime = str(time).split(".")[0]
+        if duration is None or total_sec <= duration:
+            # TODO decide if we want to display time
+            # self.ui.label_recording_time.setText(strtime)
+            pass
+        else:
+            self.stop_lsl_push()
