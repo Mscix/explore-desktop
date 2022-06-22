@@ -1,5 +1,7 @@
 import logging
 import subprocess
+# import getpass
+
 
 from PySide6.QtWidgets import QMessageBox
 
@@ -11,7 +13,9 @@ logger = logging.getLogger("explorepy.exploredesktop.main")
 
 
 def check_updates():
+    # TODO: change path depending on OS, installation folder etc
     process = subprocess.Popen(
+        # f"C:\\Users\\{getpass.getuser()}\\ExploreDesktop\\maintenancetool --checkupdates"
         "C:\\Users\\ProSomno\\IfwExamples\\online\\maintenancetool --checkupdates",
         shell=True, stdout=subprocess.PIPE)
     subprocess_return = process.stdout.read().decode("utf-8")
