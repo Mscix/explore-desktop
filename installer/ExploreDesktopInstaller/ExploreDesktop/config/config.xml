@@ -8,6 +8,12 @@
     <InstallerWindowIcon>../packages/com.Mentalab.ExploreDesktop/extras/MentalabLogo.png</InstallerWindowIcon>
     <StartMenuDir>ExploreDesktop</StartMenuDir>
     <TargetDir>@HomeDir@/ExploreDesktop</TargetDir>
+    <RemoteRepositories>
+        <Repository>
+            <!-- <Url>file:///C:/Qt/QtIFW/examples/online/repository</Url> -->
+            <Url>http://localhost:8000/repository</Url>
+        </Repository>
+    </RemoteRepositories>
     <!-- <RunProgram>@TargetDir@/ExploreGUI.exe</RunProgram> -->
     <RemoveTargetDir>true</RemoveTargetDir>
     <WizardStyle>Modern</WizardStyle>
