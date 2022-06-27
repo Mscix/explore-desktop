@@ -1,11 +1,9 @@
 """FFT visualization module"""
 import logging
+from typing import Optional, Tuple
+import explorepy
 
 import numpy as np
-from exploredesktop.modules.app_settings import (
-    DataAttributes,
-    Stylesheets
-)
 from PySide6.QtCore import (
     QTimer,
     Slot
@@ -13,6 +11,10 @@ from PySide6.QtCore import (
 from scipy.ndimage.filters import gaussian_filter1d
 
 
+from exploredesktop.modules.app_settings import (  # isort:skip
+    DataAttributes,
+    Stylesheets
+)
 from exploredesktop.modules.base_data_module import (  # isort:skip
     BasePlots,
     DataContainer
@@ -29,7 +31,7 @@ class FFTData(DataContainer):
         self.signals.updateDataAttributes.connect(self.update_attributes)
 
     @Slot(list)
-    def update_attributes(self, attributes: list):
+    def update_attributes(self, attributes: list) -> None:
         """Update class attributes
 
         Args:
@@ -41,12 +43,15 @@ class FFTData(DataContainer):
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
 
     @staticmethod
-    def get_fft(exg, s_rate):
-        """
-        Compute FFT
+    def get_fft(exg: np.array, s_rate: int) -> Tuple[np.array, np.array]:
+        """Compute FFT
+
         Args:
-            exg: exg data from ExG packet
+            exg (np.array): exg data from ExG packet
             s_rate (int): sampling rate
+
+        Returns:
+            Tuple[np.array, np.array]: ExG data fourier transform, frequencies
         """
         n_point = 1024
         exg -= exg.mean(axis=1)[:, np.newaxis]
@@ -56,18 +61,23 @@ class FFTData(DataContainer):
         fft_content = gaussian_filter1d(fft_content, 1)
         return fft_content[:, 1:], freq[1:]
 
-    def callback(self, packet):
+    def callback(self, packet: explorepy.packet.EEG) -> None:
+        """Callback to obtain raw ExG data
+
+        Args:
+            packet (explorepy.packet.EEG): EEG packet
+        """
         chan_list = self.explorer.active_chan_list
         exg_fs = self.explorer.sampling_rate
 
         _, exg = packet.get_data(exg_fs)
         orig_exg = dict(zip(chan_list, exg))
-        # first_chan = list(self.plot_data.keys())[0]
-        # n_new_points = len(orig_exg[list(orig_exg.keys())[0]])
         self.insert_new_data(data=orig_exg, fft=True)
         self.update_pointer(data=orig_exg, fft=True)
 
-    def fft_plot_data(self):
+    def fft_plot_data(self) -> Optional[dict]:
+        """Return FFT data to plot
+        """
         exg_fs = self.explorer.sampling_rate
         exg_data = np.array(
             [self.plot_data[key][~np.isnan(self.plot_data[key])] for key in self.plot_data.keys()], dtype=object)
@@ -88,7 +98,8 @@ class FFTPlot(BasePlots):
         self.model = FFTData()
         self.timer = QTimer()
 
-    def init_plot(self):
+    def init_plot(self) -> None:
+        """Initialize FFT plot"""
         if self.ui.plot_orn.getItem(0, 0) is not None:
             self.ui.plot_fft.clear()
 
@@ -108,7 +119,9 @@ class FFTPlot(BasePlots):
         ]
         self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
 
-    def plot(self):
+    def plot(self) -> None:
+        """Plot FFT data
+        """
         plot_wdgt = self.ui.plot_fft
         plot_wdgt.setXRange(0, 70, padding=0.01)
         data = self.model.fft_plot_data()
@@ -121,16 +134,19 @@ class FFTPlot(BasePlots):
             except KeyError:
                 pass
 
-    def reset_vars(self):
+    def reset_vars(self) -> None:
+        """Reset timer"""
         if self.timer.isActive():
             self.stop_timer()
 
-    def start_timer(self, fn=None):
+    def start_timer(self) -> None:
+        """Start plotting timer"""
         if self.timer.isActive():
             return
         self.timer.setInterval(2000)
         self.timer.timeout.connect(self.plot)
         self.timer.start()
 
-    def stop_timer(self):
+    def stop_timer(self) -> None:
+        """Stop plotting timer"""
         self.timer.stop()

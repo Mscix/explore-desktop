@@ -39,10 +39,8 @@ class Worker(QRunnable):
         self.kwargs = kwargs
         self.signals = WorkerSignals()
 
-    def run(self):
+    def run(self) -> None:
         """Initialise the runner function with passed args, kwargs"""
-        # TODO: do we want the wait cursor if we are in a thread
-        # with wait_cursor():
         try:
             result = self.funct(*self.args, **self.kwargs)
         # pylint: disable=bare-except

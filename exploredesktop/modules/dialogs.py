@@ -23,7 +23,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     Messages,
     Settings
 )
-from exploredesktop.modules.tools import verify_filters  # isort: skip
+from exploredesktop.modules.utils import verify_filters  # isort: skip
 from exploredesktop.modules.ui import (  # isort: skip
     Ui_PlotDialog,
     Ui_RecordingDialog
@@ -91,7 +91,7 @@ class RecordingDialog(CustomDialog):
     Args:
         QDialog (Pyside6.QtWidgets.QDialog): pyside widget
     """
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.ui = Ui_RecordingDialog()
         self.ui.setupUi(self)
@@ -108,8 +108,6 @@ class RecordingDialog(CustomDialog):
         self.ui.spinBox_recording_time.setValue(3600)
         self.ui.rdbtn_csv.setChecked(True)
 
-        # self.ui.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(self.cancelEvent)
-
     def file_extension(self) -> str:
         """Retrun file extension selected
 
@@ -123,7 +121,7 @@ class RecordingDialog(CustomDialog):
 
         return self.file_type
 
-    def save_filename(self):
+    def save_filename(self) -> None:
         """
         Open a dialog to select file name to be saved
         """
@@ -165,7 +163,7 @@ class FiltersDialog(CustomDialog):
     Args:
         QDialog (Pyside6.QtWidgets.QDialog): pyside widget
     """
-    def __init__(self, sr, current_filters, parent=None):
+    def __init__(self, sr, current_filters, parent=None) -> None:
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
         self.s_rate = float(sr)
@@ -177,7 +175,7 @@ class FiltersDialog(CustomDialog):
         self.ui.lbl_warning.hide()
         self.ui.cb_offset.setToolTip(Messages.OFFSET_EXPLANATION)
 
-        self.set_current_values()
+        self.set_filter_values()
         self.display_current_values()
         self.add_validators()
 
@@ -189,24 +187,32 @@ class FiltersDialog(CustomDialog):
         self.ui.value_lowcutoff.textChanged.connect(self.verify_input)
         self.ui.value_highcutoff.textChanged.connect(self.verify_input)
 
-    def set_current_values(self) -> None:
+    def set_filter_values(self) -> None:
         """Set values from current filters to attributes
         """
         if self.current_filters is None:  # default values
-            self.offset = True
-            self.notch = "50"
-            self.low_cutoff = "1" if self.s_rate < 1000 else "2"
-            self.high_cutoff = "30"
+            self._set_default_values()
         else:
-            self.offset = self.current_filters["offset"]
-            self.notch = str(self.current_filters["notch"])
-            self.low_cutoff = str(self.current_filters["low_cutoff"])
-            self.high_cutoff = str(self.current_filters["high_cutoff"])
+            self._set_current_values()
 
         if self.high_cutoff == "None":
             self.high_cutoff = ""
         if self.low_cutoff == "None":
             self.low_cutoff = ""
+
+    def _set_current_values(self) -> None:
+        """Set filter current values"""
+        self.offset = self.current_filters["offset"]
+        self.notch = str(self.current_filters["notch"])
+        self.low_cutoff = str(self.current_filters["low_cutoff"])
+        self.high_cutoff = str(self.current_filters["high_cutoff"])
+
+    def _set_default_values(self) -> None:
+        """Set filter default values"""
+        self.offset = True
+        self.notch = "50"
+        self.low_cutoff = "1" if self.s_rate < 1000 else "2"
+        self.high_cutoff = "30"
 
     def display_current_values(self) -> None:
         """Add filter values to UI
@@ -228,24 +234,9 @@ class FiltersDialog(CustomDialog):
         self.ui.value_highcutoff.setValidator(QRegularExpressionValidator(regex))
         self.ui.value_lowcutoff.setValidator(QRegularExpressionValidator(regex))
 
-    def verify_input(self):
+    def verify_input(self) -> None:
         """Verify frequencies are not above/below the threshold
         """
-        nyq_freq = self.s_rate / 2.
-        max_hc_freq = nyq_freq - 1
-        min_lc_freq = Settings.MIN_LC_WEIGHT * nyq_freq
-
-        hc_freq_warning = (
-            "High cutoff frequency cannot be larger than or equal to the nyquist frequency."
-            f"The maximum high cutoff frequency is {np.ceil(max_hc_freq*10)/10} Hz!"
-        )
-
-        lc_freq_warning = (
-            "Transient band for low cutoff frequency is too narrow."
-            f"The minimum low cutoff frequency is {np.ceil(min_lc_freq*10)/10} Hz!"
-        )
-
-        bp_freq_warning = ("High cutoff frequency must be larger than low cutoff frequency.")
 
         hc_freq = "" if self.ui.value_highcutoff.text() in [None, 'None', ''] else self.ui.value_highcutoff.text()
         lc_freq = "" if self.ui.value_lowcutoff.text() in [None, 'None', ''] else self.ui.value_lowcutoff.text()
@@ -258,6 +249,23 @@ class FiltersDialog(CustomDialog):
             return
 
         filter_ok = verify_filters((lc_freq, hc_freq), self.s_rate)
+
+        hc_stylesheet, lc_stylesheet, lbl_txt = self.get_le_stylesheets(filter_ok)
+
+        self._apply_le_stylesheets(lc_stylesheet, hc_stylesheet, lbl_txt)
+        enable = False not in filter_ok.values()
+        self._enable_ok_button(enable)
+
+    def get_le_stylesheets(self, filter_ok: dict) -> Union[str, str, str]:
+        """Get stylesheets for UI lineedits
+
+        Args:
+            filter_ok (dict): dictionary containing whether filters are corrects
+
+        Returns:
+            Union[str, str, str]: stylesheet for line edit and warning text to display
+        """
+        hc_freq_warning, lc_freq_warning, bp_freq_warning = self._get_warning_msg()
 
         if filter_ok['lc_freq'] is False:
             lbl_txt = lc_freq_warning
@@ -274,11 +282,39 @@ class FiltersDialog(CustomDialog):
             hc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
             lc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
 
-        self._apply_le_stylesheets(lc_stylesheet, hc_stylesheet, lbl_txt)
-        enable = False not in filter_ok.values()
-        self._enable_ok_button(enable)
+        return hc_stylesheet, lc_stylesheet, lbl_txt
 
-    def _apply_le_stylesheets(self, lc_stylesheet: str, hc_stylesheet: str, lbl_txt: str):
+    def _get_warning_msg(self) -> Union[str, str, str]:
+        """Generate warning message with appropiate frequencies
+
+        Returns:
+            Union[str, str, str]: warning messages for high cutoff, lowcutoff and bandpass
+        """
+        nyq_freq = self.s_rate / 2.
+        max_hc_freq = nyq_freq - 1
+        min_lc_freq = Settings.MIN_LC_WEIGHT * nyq_freq
+
+        hc_freq_warning = (
+            "High cutoff frequency cannot be larger than or equal to the nyquist frequency."
+            f"The maximum high cutoff frequency is {np.ceil(max_hc_freq*10)/10} Hz!"
+        )
+
+        lc_freq_warning = (
+            "Transient band for low cutoff frequency is too narrow."
+            f"The minimum low cutoff frequency is {np.ceil(min_lc_freq*10)/10} Hz!"
+        )
+
+        bp_freq_warning = ("High cutoff frequency must be larger than low cutoff frequency.")
+        return hc_freq_warning, lc_freq_warning, bp_freq_warning
+
+    def _apply_le_stylesheets(self, lc_stylesheet: str, hc_stylesheet: str, lbl_txt: str) -> None:
+        """Apply stylesheets to lineedit widgets and display warning text
+
+        Args:
+            lc_stylesheet (str): stylesheet for low cutoff frequency lineedit
+            hc_stylesheet (str): stylesheet for low cutoff frequency lineedit
+            lbl_txt (str): warning text
+        """
         self.ui.value_highcutoff.setStyleSheet(hc_stylesheet)
         self.ui.value_lowcutoff.setStyleSheet(lc_stylesheet)
         self.ui.lbl_warning.setText(lbl_txt)
@@ -287,7 +323,12 @@ class FiltersDialog(CustomDialog):
         else:
             self.ui.lbl_warning.setHidden(True)
 
-    def _enable_ok_button(self, enable: bool):
+    def _enable_ok_button(self, enable: bool) -> None:
+        """Enable OK button while filter value changes
+
+        Args:
+            enable (bool): whether to enable
+        """
         self.ui.value_lowcutoff.textChanged.connect(
             self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(enable))
         self.ui.value_highcutoff.textChanged.connect(

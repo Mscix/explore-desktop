@@ -62,6 +62,11 @@ class DataAttributes(BaseEnum):
     ORNPOINTER = auto()
 
 
+class ExGModes(BaseEnum):
+    EEG = "EEG"
+    ECG = "ECG"
+
+
 class Stylesheets():
     """
     Class containig stylesheets for GUI
@@ -176,28 +181,32 @@ class Stylesheets():
         """
 
 
-class Settings():
-    """Class containing GUI settings
-    """
+class GUISettings():
+    """Class containing GUI settings"""
     CUSTOM_TITLE_BAR = True
-
-    DOWNSAMPLING = True
 
     LEFT_MENU_MIN = 60
     LEFT_MENU_MAX = 200
 
+    LEFT_BTN_REQUIRE_CONNECTION = ["btn_settings", "btn_plots", "btn_impedance", "btn_integration"]
+
+    ORN_LEGEND = ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']
+
+
+class Settings():
+    """Class containing explore settings
+    """
+    DOWNSAMPLING = True
+
     ORN_SRATE = 20  # Hz
     EXG_VIS_SRATE = 125
     WIN_LENGTH = 10  # Seconds
-    MODE_LIST = ['EEG', 'ECG']
+    # MODE_LIST = ['EEG', 'ECG']
 
     CHAN_LIST = [f'ch{i}' for i in range(1, 9)]
     DEFAULT_SCALE = 10 ** 3  # Volt
     BATTERY_N_MOVING_AVERAGE = 60
     V_TH = [10, 5 * 10 ** 3]  # Noise threshold for ECG (microVolt)
-    ORN_LIST = [
-        'accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ',
-        'magX', 'magY', 'magZ']
 
     SCALE_MENU = {
         "1 uV": 0, "5 uV": -0.66667, "10 uV": -1, "100 uV": -2,
@@ -206,7 +215,6 @@ class Settings():
 
     TIME_RANGE_MENU = {"10 s": 10., "5 s": 5., "20 s": 20.}
     SAMPLING_RATES = [250, 500, 1000]
-    N_CHAN_LIST = ["4", "8"]
 
     # Max value for each color
     COLOR_RULES_DRY = {
@@ -224,13 +232,9 @@ class Settings():
         "open": 100
     }
 
-    LEFT_BTN_REQUIRE_CONNECTION = ["btn_settings", "btn_plots", "btn_impedance", "btn_integration"]
-
     BASELINE_MA_LENGTH = 1.5 * EXG_VIS_SRATE
 
     MIN_LC_WEIGHT = 0.0035
-
-    ORN_LEGEND = ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']
 
 
 class Messages():

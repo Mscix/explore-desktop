@@ -1,4 +1,5 @@
 
+import explorepy
 import numpy as np
 import pyqtgraph as pg
 from PySide6.QtCore import Slot
@@ -13,7 +14,7 @@ from exploredesktop.modules.base_data_module import (  # isort: skip
     BasePlots,
     DataContainer
 )
-from exploredesktop.modules.tools import display_msg  # isort: skip
+from exploredesktop.modules.utils import display_msg  # isort: skip
 
 
 class MarkerData(DataContainer):
@@ -22,9 +23,11 @@ class MarkerData(DataContainer):
         self.mrk_plot = {'t': [], 'code': [], 'lines': []}
         self.mrk_replot = {'t': [], 'code': [], 'lines': []}
 
-    def callback(self, packet):
-        """
-        Get marker data from packet and emit signal
+    def callback(self, packet: explorepy.packet.EventMarker) -> None:
+        """Get marker data from packet and emit signal
+
+        Args:
+            packet (explorepy.packet.EventMarker): Event marker packet
         """
         timestamp, code = packet.get_data()
         if DataContainer.vis_time_offset is None:
@@ -52,6 +55,11 @@ class MarkerData(DataContainer):
 
     @Slot(float)
     def add_mkr_replot(self, t_thr: float) -> None:
+        """Add reploted marker to dictionary
+
+        Args:
+            t_thr (float): last time point
+        """
         for idx_t in range(len(self.mrk_plot['t'])):
             if self.mrk_plot['t'][idx_t] < t_thr:
                 t_point = self.mrk_plot['t'][idx_t] + self.timescale
@@ -73,12 +81,13 @@ class MarkerPlot(BasePlots):
         ]
         self.setup_validators()
 
-    def setup_ui_connections(self):
+    def setup_ui_connections(self) -> None:
+        """Setup connections between widgets and slots"""
         self.ui.btn_marker.clicked.connect(self.set_marker)
         self.ui.value_event_code.returnPressed.connect(self.set_marker)
 
-    def setup_validators(self):
-        # validators
+    def setup_validators(self) -> None:
+        """Setup validators for markers"""
         self.ui.value_event_code.setValidator(QIntValidator(0, 65535))
         self.ui.btn_marker.setEnabled(self.ui.value_event_code.text() != "")
         self.ui.value_event_code.textChanged[str].connect(lambda: self.ui.btn_marker.setEnabled(
@@ -87,20 +96,27 @@ class MarkerPlot(BasePlots):
         )
         )
 
-    def set_marker(self):
+    def set_marker(self) -> None:
         """
         Get the value for the event code from the GUI and set the event.
         """
-        # event_code = int(value)
         # TODO catch input here, emit signal and asign marker in data
         event_code = int(self.ui.value_event_code.text())
-        if event_code > 65535 or event_code < 0:
-            self.display_msg(msg_text=Messages.INVALID_MARKER)
+        code_ok = self._verify_code_value(event_code)
+        if not code_ok:
             return
         try:
             self.model.explorer.set_marker(event_code)
         except ValueError as error:
             display_msg(msg_text=str(error))
+
+    def _verify_code_value(self, event_code: int) -> bool:
+        """Verify that marker code is within limits"""
+        code_ok = True
+        if event_code > 65535 or event_code < 0:
+            display_msg(msg_text=Messages.INVALID_MARKER)
+            code_ok = False
+        return code_ok
 
     @Slot(list)
     def plot_marker(self, data):
@@ -117,6 +133,36 @@ class MarkerPlot(BasePlots):
 
         pen_marker = pg.mkPen(color=color, dash=[4, 4])
 
+        lines = self._plot_lines(t_point, code, pen_marker)
+
+        mrk_dict['lines'].append(lines)
+        if replot:
+            idx_remove = self.model.mrk_plot['t'].index([t_point - self.model.timescale])
+            for line in self.model.mrk_plot['lines'][idx_remove]:
+                self._remove_lines(line)
+
+    def _remove_lines(self, line: pg.InfiniteLine):
+        """Remove line from all plots
+
+        Args:
+            line (pg.InfiniteLine): line to remove
+        """
+        self.ui.plot_orn.getItem(0, 0).removeItem(line)
+        self.ui.plot_orn.getItem(1, 0).removeItem(line)
+        self.ui.plot_orn.getItem(2, 0).removeItem(line)
+        self.ui.plot_exg.removeItem(line)
+
+    def _plot_lines(self, t_point: float, code: str, pen_marker: str) -> list:
+        """Plot marker lines
+
+        Args:
+            t_point (float): time point to add the line
+            code (str): marker code
+            pen_marker (str): line color
+
+        Returns:
+            list: list of plotted lines
+        """
         lines = []
         line = self.ui.plot_orn.getItem(0, 0).addLine(t_point, label=code, pen=pen_marker)
         lines.append(line)
@@ -126,15 +172,7 @@ class MarkerPlot(BasePlots):
         lines.append(line)
         line = self.ui.plot_exg.addLine(t_point, label=code, pen=pen_marker)
         lines.append(line)
-
-        mrk_dict['lines'].append(lines)
-        if replot:
-            idx_remove = self.model.mrk_plot['t'].index([t_point - self.model.timescale])
-            for line in self.model.mrk_plot['lines'][idx_remove]:
-                self.ui.plot_orn.getItem(0, 0).removeItem(line)
-                self.ui.plot_orn.getItem(1, 0).removeItem(line)
-                self.ui.plot_orn.getItem(2, 0).removeItem(line)
-                self.ui.plot_exg.removeItem(line)
+        return lines
 
     @Slot(float)
     def remove_old_item(self, last_t: float) -> None:

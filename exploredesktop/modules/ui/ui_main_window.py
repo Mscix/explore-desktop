@@ -8,64 +8,22 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
+    QCursor, QFont, QFontDatabase, QGradient,
+    QIcon, QImage, QKeySequence, QLinearGradient,
+    QPainter, QPalette, QPixmap, QRadialGradient,
+    QTransform)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
+    QHBoxLayout, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QMainWindow, QPushButton, QSizePolicy,
+    QSpacerItem, QSpinBox, QStackedWidget, QTabWidget,
+    QVBoxLayout, QWidget)
+
+from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
 from exploredesktop import app_resources_rc
-from pyqtgraph import (
-    GraphicsLayoutWidget,
-    PlotWidget
-)
-from PySide6.QtCore import (
-    QCoreApplication,
-    QDate,
-    QDateTime,
-    QLocale,
-    QMetaObject,
-    QObject,
-    QPoint,
-    QRect,
-    QSize,
-    Qt,
-    QTime,
-    QUrl
-)
-from PySide6.QtGui import (
-    QAction,
-    QBrush,
-    QColor,
-    QConicalGradient,
-    QCursor,
-    QFont,
-    QFontDatabase,
-    QGradient,
-    QIcon,
-    QImage,
-    QKeySequence,
-    QLinearGradient,
-    QPainter,
-    QPalette,
-    QPixmap,
-    QRadialGradient,
-    QTransform
-)
-from PySide6.QtWidgets import (
-    QApplication,
-    QCheckBox,
-    QComboBox,
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QListWidget,
-    QListWidgetItem,
-    QMainWindow,
-    QPushButton,
-    QSizePolicy,
-    QSpacerItem,
-    QSpinBox,
-    QStackedWidget,
-    QTabWidget,
-    QVBoxLayout,
-    QWidget
-)
 
 
 class Ui_MainWindow(object):
@@ -90,10 +48,10 @@ class Ui_MainWindow(object):
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
-        self.centralwidget.setStyleSheet(u"#centralwidget{\n"
-"	border: 1px solid rgb(19, 38, 39)\n"
+        self.centralwidget.setStyleSheet(u"/*#centralwidget{\n"
+"	border-top: 1px solid rgb(95, 197, 201);\n"
 "}\n"
-"\n"
+"*/\n"
 "QWidget{\n"
 "	font:13pt;\n"
 "}\n"
@@ -189,38 +147,57 @@ class Ui_MainWindow(object):
         self.main_header.setStyleSheet(u"")
         self.main_header.setFrameShape(QFrame.WinPanel)
         self.main_header.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_2 = QHBoxLayout(self.main_header)
-        self.horizontalLayout_2.setSpacing(0)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setContentsMargins(10, 1, 0, 0)
-        self.title_bar_container = QFrame(self.main_header)
-        self.title_bar_container.setObjectName(u"title_bar_container")
-        self.title_bar_container.setMaximumSize(QSize(16777215, 50))
-        self.title_bar_container.setStyleSheet(u"")
-        self.title_bar_container.setFrameShape(QFrame.StyledPanel)
-        self.title_bar_container.setFrameShadow(QFrame.Raised)
-        self.mentalab_logo = QLabel(self.title_bar_container)
-        self.mentalab_logo.setObjectName(u"mentalab_logo")
-        self.mentalab_logo.setGeometry(QRect(0, 3, 121, 21))
-        self.mentalab_logo.setMaximumSize(QSize(16777215, 50))
-        self.mentalab_logo.setPixmap(QPixmap(u":/image/images/MentalabLogo_full.png"))
-        self.mentalab_logo.setScaledContents(True)
-        self.mentalab_logo.setWordWrap(True)
-        self.mentalab_logo.setOpenExternalLinks(False)
+        self.main_header_2 = QFrame(self.main_header)
+        self.main_header_2.setObjectName(u"main_header_2")
+        self.main_header_2.setEnabled(True)
+        self.main_header_2.setGeometry(QRect(0, 0, 1116, 30))
+        self.main_header_2.setMinimumSize(QSize(0, 30))
+        self.main_header_2.setMaximumSize(QSize(16777215, 50))
+        self.main_header_2.setStyleSheet(u"")
+        self.main_header_2.setFrameShape(QFrame.WinPanel)
+        self.main_header_2.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_8 = QVBoxLayout(self.main_header_2)
+        self.verticalLayout_8.setSpacing(0)
+        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.verticalLayout_8.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.title_bar_container_2 = QFrame(self.main_header_2)
+        self.title_bar_container_2.setObjectName(u"title_bar_container_2")
+        self.title_bar_container_2.setMaximumSize(QSize(16777215, 50))
+        self.title_bar_container_2.setStyleSheet(u"")
+        self.title_bar_container_2.setFrameShape(QFrame.StyledPanel)
+        self.title_bar_container_2.setFrameShadow(QFrame.Raised)
+        self.mentalab_logo_2 = QLabel(self.title_bar_container_2)
+        self.mentalab_logo_2.setObjectName(u"mentalab_logo_2")
+        self.mentalab_logo_2.setGeometry(QRect(0, 3, 121, 21))
+        self.mentalab_logo_2.setMaximumSize(QSize(16777215, 50))
+        self.mentalab_logo_2.setPixmap(QPixmap(u":/image/images/MentalabLogo_full.png"))
+        self.mentalab_logo_2.setScaledContents(True)
+        self.mentalab_logo_2.setWordWrap(True)
+        self.mentalab_logo_2.setOpenExternalLinks(False)
+        self.size_grip_top = QFrame(self.title_bar_container_2)
+        self.size_grip_top.setObjectName(u"size_grip_top")
+        self.size_grip_top.setGeometry(QRect(0, 0, 1116, 14))
+        self.size_grip_top.setMinimumSize(QSize(1116, 0))
+        self.size_grip_top.setMaximumSize(QSize(20, 20))
+        self.size_grip_top.setCursor(QCursor(Qt.SizeVerCursor))
+        self.size_grip_top.setFrameShape(QFrame.NoFrame)
+        self.size_grip_top.setFrameShadow(QFrame.Raised)
 
-        self.horizontalLayout_2.addWidget(self.title_bar_container)
+        self.horizontalLayout_8.addWidget(self.title_bar_container_2)
 
-        self.top_right_btns = QFrame(self.main_header)
-        self.top_right_btns.setObjectName(u"top_right_btns")
-        self.top_right_btns.setMaximumSize(QSize(100, 16777215))
-        self.top_right_btns.setStyleSheet(u"")
-        self.top_right_btns.setFrameShape(QFrame.WinPanel)
-        self.top_right_btns.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_3 = QHBoxLayout(self.top_right_btns)
-        self.horizontalLayout_3.setSpacing(0)
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.btn_minimize = QPushButton(self.top_right_btns)
+        self.top_right_btns_2 = QFrame(self.main_header_2)
+        self.top_right_btns_2.setObjectName(u"top_right_btns_2")
+        self.top_right_btns_2.setMaximumSize(QSize(100, 16777215))
+        self.top_right_btns_2.setStyleSheet(u"")
+        self.top_right_btns_2.setFrameShape(QFrame.WinPanel)
+        self.top_right_btns_2.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_18 = QHBoxLayout(self.top_right_btns_2)
+        self.horizontalLayout_18.setSpacing(0)
+        self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
+        self.horizontalLayout_18.setContentsMargins(0, 0, 0, 0)
+        self.btn_minimize = QPushButton(self.top_right_btns_2)
         self.btn_minimize.setObjectName(u"btn_minimize")
         self.btn_minimize.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_minimize.setStyleSheet(u"")
@@ -229,9 +206,9 @@ class Ui_MainWindow(object):
         self.btn_minimize.setIcon(icon)
         self.btn_minimize.setIconSize(QSize(16, 16))
 
-        self.horizontalLayout_3.addWidget(self.btn_minimize)
+        self.horizontalLayout_18.addWidget(self.btn_minimize)
 
-        self.btn_restore = QPushButton(self.top_right_btns)
+        self.btn_restore = QPushButton(self.top_right_btns_2)
         self.btn_restore.setObjectName(u"btn_restore")
         self.btn_restore.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_restore.setStyleSheet(u"")
@@ -240,9 +217,9 @@ class Ui_MainWindow(object):
         self.btn_restore.setIcon(icon1)
         self.btn_restore.setIconSize(QSize(16, 16))
 
-        self.horizontalLayout_3.addWidget(self.btn_restore)
+        self.horizontalLayout_18.addWidget(self.btn_restore)
 
-        self.btn_close = QPushButton(self.top_right_btns)
+        self.btn_close = QPushButton(self.top_right_btns_2)
         self.btn_close.setObjectName(u"btn_close")
         self.btn_close.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_close.setStyleSheet(u"")
@@ -251,10 +228,13 @@ class Ui_MainWindow(object):
         self.btn_close.setIcon(icon2)
         self.btn_close.setIconSize(QSize(16, 16))
 
-        self.horizontalLayout_3.addWidget(self.btn_close)
+        self.horizontalLayout_18.addWidget(self.btn_close)
 
 
-        self.horizontalLayout_2.addWidget(self.top_right_btns)
+        self.horizontalLayout_8.addWidget(self.top_right_btns_2)
+
+
+        self.verticalLayout_8.addLayout(self.horizontalLayout_8)
 
 
         self.verticalLayout.addWidget(self.main_header)
@@ -780,21 +760,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.label_explore_name)
 
-        self.horizontalLayout_8 = QHBoxLayout()
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.label_12 = QLabel(self.frame_device)
-        self.label_12.setObjectName(u"label_12")
-
-        self.horizontalLayout_8.addWidget(self.label_12)
-
-        self.n_chan = QComboBox(self.frame_device)
-        self.n_chan.setObjectName(u"n_chan")
-
-        self.horizontalLayout_8.addWidget(self.n_chan)
-
-
-        self.verticalLayout_2.addLayout(self.horizontalLayout_8)
-
         self.label_warning_disabled = QLabel(self.frame_device)
         self.label_warning_disabled.setObjectName(u"label_warning_disabled")
         self.label_warning_disabled.setWordWrap(True)
@@ -1051,16 +1016,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_32.addWidget(self.frame_2)
 
-        self.btn_stream = QPushButton(self.page_plotsNoWidget)
-        self.btn_stream.setObjectName(u"btn_stream")
-        self.btn_stream.setMinimumSize(QSize(150, 30))
-        self.btn_stream.setMaximumSize(QSize(16777215, 16777215))
-        self.btn_stream.setFont(font2)
-        self.btn_stream.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_stream.setStyleSheet(u"")
-
-        self.horizontalLayout_32.addWidget(self.btn_stream)
-
 
         self.verticalLayout_21.addLayout(self.horizontalLayout_32)
 
@@ -1151,6 +1106,11 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_21.addLayout(self.horizontalLayout_35)
+
+        self.cb_antialiasing = QCheckBox(self.page_plotsNoWidget)
+        self.cb_antialiasing.setObjectName(u"cb_antialiasing")
+
+        self.verticalLayout_21.addWidget(self.cb_antialiasing)
 
         self.tabWidget = QTabWidget(self.page_plotsNoWidget)
         self.tabWidget.setObjectName(u"tabWidget")
@@ -1419,12 +1379,6 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_16.addLayout(self.horizontalLayout_11)
-
-        self.label_6 = QLabel(self.page_impedance)
-        self.label_6.setObjectName(u"label_6")
-        self.label_6.setMaximumSize(QSize(16777215, 30))
-
-        self.verticalLayout_16.addWidget(self.label_6)
 
         self.verticalSpacer_17 = QSpacerItem(20, 60, QSizePolicy.Minimum, QSizePolicy.Maximum)
 
@@ -1747,7 +1701,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(5)
+        self.stackedWidget.setCurrentIndex(3)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -1762,7 +1716,7 @@ class Ui_MainWindow(object):
         self.actionReport_an_issue.setText(QCoreApplication.translate("MainWindow", u"Report an issue", None))
         self.actionReport_a_bug.setText(QCoreApplication.translate("MainWindow", u"Report a bug", None))
         self.actionContact.setText(QCoreApplication.translate("MainWindow", u"Contact", None))
-        self.mentalab_logo.setText("")
+        self.mentalab_logo_2.setText("")
         self.btn_minimize.setText("")
         self.btn_restore.setText("")
         self.btn_close.setText("")
@@ -1795,7 +1749,6 @@ class Ui_MainWindow(object):
         self.btn_push_lsl.setText(QCoreApplication.translate("MainWindow", u"Push", None))
         self.settings_title.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.label_explore_name.setText(QCoreApplication.translate("MainWindow", u"Explore_XXXXX", None))
-        self.label_12.setText(QCoreApplication.translate("MainWindow", u"Number of channels: ", None))
         self.label_warning_disabled.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:11pt; font-style:italic;\">Changing the settings during recording and LSL streaming is not possible</span></p></body></html>", None))
         self.label_activeChannels.setText(QCoreApplication.translate("MainWindow", u"Active channels", None))
         self.cb_ch1.setText(QCoreApplication.translate("MainWindow", u"1", None))
@@ -1817,13 +1770,13 @@ class Ui_MainWindow(object):
         self.label_timeScale.setText(QCoreApplication.translate("MainWindow", u"Time window", None))
         self.label_heartRate.setText(QCoreApplication.translate("MainWindow", u"Heart Rate (bpm)", None))
         self.value_heartRate.setText(QCoreApplication.translate("MainWindow", u"NA", None))
-        self.btn_stream.setText(QCoreApplication.translate("MainWindow", u"Start Data Stream", None))
         self.btn_record.setText(QCoreApplication.translate("MainWindow", u" Record", None))
         self.label_recording_time.setText(QCoreApplication.translate("MainWindow", u"00:00:00", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Set marker (0 - 65535)", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Set marker (8 - 65535)", None))
         self.value_event_code.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Event Code", None))
         self.btn_marker.setText(QCoreApplication.translate("MainWindow", u" Set", None))
         self.btn_plot_filters.setText(QCoreApplication.translate("MainWindow", u"Filters", None))
+        self.cb_antialiasing.setText(QCoreApplication.translate("MainWindow", u"Antialiasing", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.exg), QCoreApplication.translate("MainWindow", u"  ExG  ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.orn), QCoreApplication.translate("MainWindow", u"  Orientation  ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.fft), QCoreApplication.translate("MainWindow", u"  FFT  ", None))
@@ -1845,7 +1798,6 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.btn_imp_meas.setText(QCoreApplication.translate("MainWindow", u"Measure Impedances", None))
         self.imp_meas_info.setText("")
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Please restart the device after you have finished measuring impedances or <a href=\"www.mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">click here</span></a></p></body></html>", None))
         self.bt_title.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label_explore_name_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Connect your device</p></body></html>", None))
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"

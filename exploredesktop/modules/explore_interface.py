@@ -103,6 +103,7 @@ class ExploreInterface(Explore):
         self.chan_dict = {}
         return super().disconnect()
 
+    # TODO change to property
     def set_chan_dict(self):
         """Set the channel status dictionary i.e. whether channels are active or inactive
         """
@@ -154,6 +155,7 @@ class ExploreInterface(Explore):
         logger.warning("Failed to disable impedance measurement.")
         return False
 
+    # TODO should be prop setter
     def set_sampling_rate(self, sampling_rate: int) -> Optional[bool]:
         """Change the sampling rate of the device"""
         if sampling_rate == self.sampling_rate:

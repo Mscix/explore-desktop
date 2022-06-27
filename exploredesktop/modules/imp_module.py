@@ -4,6 +4,7 @@ Module containing impedance related functionalities
 """
 import logging
 
+import explorepy
 import numpy as np
 import pyqtgraph as pg
 from PySide6.QtCore import Slot
@@ -16,7 +17,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     Settings,
     Stylesheets,
 )
-from exploredesktop.modules.tools import display_msg  # isort: skip
+from exploredesktop.modules.utils import display_msg  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
 
 # Enable antialiasing for prettier plots
@@ -77,9 +78,7 @@ class ImpedanceGraph(pg.GraphItem):
         Args:
             text (list): list of labels to be added to the graph
         """
-        for item in self.text_items:
-            item.scene().removeItem(item)
-
+        self._remove_old_text()
         self.text_items = []  # this keep only remove texts
         for txt in texts:
             t_chan, t_val = txt.split("\n")
@@ -87,6 +86,11 @@ class ImpedanceGraph(pg.GraphItem):
             item = pg.TextItem(html=txt_html, anchor=(0.5, 0.5))
             self.text_items.append(item)
             item.setParentItem(self)
+
+    def _remove_old_text(self) -> None:
+        """Remove old text from graph"""
+        for item in self.text_items:
+            item.scene().removeItem(item)
 
     @Slot(dict)
     def on_new_data(self, data: dict) -> None:
@@ -143,10 +147,8 @@ class ImpModel(BaseModel):
             str: formatted impedance value
         """
         if value < 5:
-            # TODO: display <5
-            str_value = "5 K\u03A9"
-            # str_value = "\u003C 5 K\u03A9"
-            # str_value = "<5 K\u03A9"
+            str_value = " > "
+            str_value += "5 K\u03A9"
         elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
                 (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
             str_value = "Open"
@@ -154,11 +156,11 @@ class ImpModel(BaseModel):
             str_value = str(int(round(value, 0))) + " K\u03A9"
         return str_value
 
-    def imp_callback(self, packet) -> None:
+    def imp_callback(self, packet: explorepy.packet.EEG) -> None:
         """Impedance callback to get data from explorepy's impedance packet
 
         Args:
-            packet (explorepy.packet.imp): Impedance packet
+            packet (explorepy.packet.EEG): EEG packet
         """
         chan_dict = self.explorer.get_chan_dict()
         n_chan = self.explorer.n_active_chan
@@ -167,7 +169,6 @@ class ImpModel(BaseModel):
         texts = []
         brushes = []
         pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
-        # for chan, value in zip([key for key in chan_dict if chan_dict[key] == 1], imp_values):
         for chan, value in zip([item[0] for item in chan_dict.items() if item[1]], imp_values):
             value = value / 2
             brushes.append(self.get_stylesheet(value))
@@ -187,7 +188,7 @@ class ImpModel(BaseModel):
         logger.debug("Impedance measurement mode has been changed to %s", self.mode)
 
     def reset_vars(self) -> None:
-        """reset class variables
+        """Reset class variables
         """
         self.mode = ImpModes.WET
 
@@ -216,7 +217,7 @@ class ImpFrameView():
         """
         return self.imp_graph
 
-    def setup_imp_graph(self):
+    def setup_imp_graph(self) -> None:
         """Add impedance graph to GraphicsLayoutWidget
         """
         view_box = self.ui.imp_graph_layout.addViewBox()
@@ -225,8 +226,7 @@ class ImpFrameView():
         self.ui.imp_graph_layout.setBackground("transparent")
 
     def setup_ui_connections(self) -> None:
-        """connect ui widgets to corresponding slot
-        """
+        """Setup connections between widgets and slots"""
         # change impedance mode
         self.ui.imp_mode.currentTextChanged.connect(self.model.set_mode)
         # start/stop impedance measurement
@@ -277,7 +277,7 @@ class ImpFrameView():
             accept = self.ask_change_s_rate(s_rate)
         return accept
 
-    def ask_change_s_rate(self, s_rate) -> bool:
+    def ask_change_s_rate(self, s_rate: int) -> bool:
         """Ask user whether to change sampling rate and change it.
 
         Args:
@@ -295,11 +295,11 @@ class ImpFrameView():
             changed = True
         return changed
 
-    # TODO: implement later when implementing page navigation (change_page in main window)
-    def check_is_imp(self):
-        """
-        Check if impedance measurement is active.
-        If so ask the user whether to disable it.
+    def check_is_imp(self) -> bool:
+        """Check if impedance measurement is active. If so ask the user whether to disable it.
+
+        Returns:
+            bool: whether impedance is disabled
         """
         disabled = False
         if self.explorer.is_measuring_imp:

@@ -4,6 +4,7 @@ Module containing impedance related functionalities
 """
 import logging
 from enum import Enum
+from typing import Union
 
 import numpy as np
 from explorepy.stream_processor import TOPICS
@@ -34,7 +35,7 @@ class FooterData(BaseModel):
         self.connection_status = ConnectionStatus.DISCONNECTED
 
     def reset_vars(self) -> None:
-        """reset class variables
+        """Reset class variables
         """
         self._battery_percent_list = []
 
@@ -116,7 +117,15 @@ class FooterData(BaseModel):
         self.timer_con.start()
 
     @staticmethod
-    def _battery_stylesheet(value) -> None:
+    def _battery_stylesheet(value: Union[str, int]) -> str:
+        """Obtain battery stylesheet
+
+        Args:
+            value (Union[str, int]): battery value
+
+        Returns:
+            str: stylesheet
+        """
         if isinstance(value, str):
             stylesheet = Stylesheets.BATTERY_STYLESHEETS["na"]
         elif value <= 10:
@@ -137,7 +146,7 @@ class FooterFrameView():
 
         self.model.timer_connection()
 
-    def get_model(self):
+    def get_model(self) -> None:
         """Retrun impedance model
 
         Returns:
@@ -175,19 +184,49 @@ class FooterFrameView():
         Args:
             data (dict): dictionary of data, must contain keys "battery" and "temperature"
         """
+        data_ok = self._verify_env_data(data)
+        if not data_ok:
+            return
+
+        self.update_battery_info(data)
+        self.update_temperature_info(data)
+
+    def _verify_env_data(self, data: dict) -> bool:
+        """Verify that environmental data dictionary contains all required fields
+
+        Args:
+            data (dict): dictionary with explore environmental data
+
+        Returns:
+            bool: whether data dictionary is correct
+        """
+        data_ok = True
         if EnvVariables.BATTERY not in data:
             logger.debug("battery key not found in env data dictionary")
-            return
+            data_ok = False
         if EnvVariables.TEMPERATURE not in data:
             logger.debug("temperature key not found in env data dictionary")
-            return
+            data_ok = False
+        return data_ok
 
-        battery, stylesheet_battery = data[EnvVariables.BATTERY]
+    def update_temperature_info(self, data: dict) -> None:
+        """Get temperature and update UI field
+
+        Args:
+            data (dict): dictionary with explore environmental data
+        """
         temperature = data[EnvVariables.TEMPERATURE]
+        self._update_temperature(new_value=temperature)
 
+    def update_battery_info(self, data: dict) -> None:
+        """Get battery and update UI field
+
+        Args:
+            data (dict): dictionary with explore environmental data
+        """
+        battery, stylesheet_battery = data[EnvVariables.BATTERY]
         battery = battery + "%" if battery != "NA" else battery
         self._update_battery(new_value=battery, new_stylesheet=stylesheet_battery)
-        self._update_temperature(new_value=temperature)
 
     @Slot(dict)
     def update_dev_info(self, data: dict) -> None:
@@ -196,13 +235,7 @@ class FooterFrameView():
         Args:
             data (dict): dictionary of data, must contain keys "device_name" or "firmware"
         """
-        hide = False if self.explorer.is_connected else True
-        self.ui.ft_label_firmware.setHidden(hide)
-        self.ui.ft_label_firmware_value.setHidden(hide)
-        self.ui.ft_label_battery.setHidden(hide)
-        self.ui.ft_label_battery_value.setHidden(hide)
-        self.ui.ft_label_temp.setHidden(hide)
-        self.ui.ft_label_temp_value.setHidden(hide)
+        self.hide_footer_fields()
 
         if len(data) == 0:
             return
@@ -212,17 +245,49 @@ class FooterFrameView():
         if EnvVariables.FIRMWARE in data:
             self._update_firmware(data[EnvVariables.FIRMWARE])
 
-    def _update_battery(self, new_value, new_stylesheet) -> None:
+    def hide_footer_fields(self) -> None:
+        """Hide footer fields if device is not connected
+        """
+        hide = False if self.explorer.is_connected else True
+        self.ui.ft_label_firmware.setHidden(hide)
+        self.ui.ft_label_firmware_value.setHidden(hide)
+        self.ui.ft_label_battery.setHidden(hide)
+        self.ui.ft_label_battery_value.setHidden(hide)
+        self.ui.ft_label_temp.setHidden(hide)
+        self.ui.ft_label_temp_value.setHidden(hide)
+
+    def _update_battery(self, new_value: str, new_stylesheet: str) -> None:
+        """Update battery UI field
+
+        Args:
+            new_value (str): new battery value
+            new_stylesheet (str): stylesheet to apply
+        """
         self.ui.ft_label_battery_value.setText(new_value)
         self.ui.ft_label_battery_value.setStyleSheet(new_stylesheet)
 
-    def _update_temperature(self, new_value) -> None:
+    def _update_temperature(self, new_value: str) -> None:
+        """Update temperature UI field
+
+        Args:
+            new_value (str): new temperature value
+        """
         self.ui.ft_label_temp_value.setText(new_value)
 
-    def _update_device_name(self, new_value) -> None:
+    def _update_device_name(self, new_value: str) -> None:
+        """Update device name UI field
+
+        Args:
+            new_value (str): new device name value
+        """
         self.ui.ft_label_device_3.setText(new_value)
         self.ui.ft_label_device_3.adjustSize()
         self.ui.ft_label_device_3.repaint()
 
-    def _update_firmware(self, new_value) -> None:
+    def _update_firmware(self, new_value: str) -> None:
+        """Update firmware UI field
+
+        Args:
+            new_value (str): new firmware value
+        """
         self.ui.ft_label_firmware_value.setText(new_value)

@@ -1,19 +1,25 @@
 """ExG visualization module"""
 import logging
+import explorepy
 
 import numpy as np
 import pyqtgraph as pg
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QTimer
 
+from explorepy.tools import HeartRateEstimator
 
 from exploredesktop.modules.app_settings import (  # isort:skip
     DataAttributes,
+    ExGModes,
     Messages,
     Settings,
     Stylesheets
 )
-from exploredesktop.modules.base_data_module import BasePlots, DataContainer
-from exploredesktop.modules.tools import display_msg   # isort:skip
+from exploredesktop.modules.base_data_module import (  # isort:skip
+    BasePlots,
+    DataContainer
+)
+from exploredesktop.modules.utils import _remove_old_plot_item, display_msg   # isort:skip
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -41,9 +47,10 @@ class ExGData(DataContainer):
         self.r_peak_replot = {'t': [], 'r_peak': [], 'points': []}
         self.rr_warning_displayed = False
 
-        self.signals.updateDataAttributes.connect(self.update_attributes)
+        self.mode = ExGModes.EEG
 
-    def reset_vars(self):
+    def reset_vars(self) -> None:
+        """Reset class variables"""
         self._baseline = None
         self.offsets = np.array([])
         self.y_unit = Settings.DEFAULT_SCALE
@@ -70,27 +77,49 @@ class ExGData(DataContainer):
         signal = self.signals.tRangeEXGChanged
         return super().update_pointer(data, signal)
 
+    def on_wrap(self, signal):
+        super().on_wrap(signal)
+        # if self.mode == ExGModes.ECG:
+        #     self.remove_r_peak()
+        #     self.add_r_peaks_replot()
+        for idx_t in range(len(self.r_peak['t'])):
+            if self.r_peak['t'][idx_t] < self.last_t:
+                new_t = self.r_peak['t'][idx_t] + self.timescale
+                # self.model.r_peak_replot = self.plot_rr_point(
+                #     [new_t, self.model.r_peak['r_peak'][idx_t], True])
+                self.signals.plotRR.emit(
+                    [new_t, self.r_peak['r_peak'][idx_t], True])
+
+        to_remove = _remove_old_plot_item(
+            self.r_peak,
+            t_vector=self.t_plot_data[:self.pointer],
+            item_type='points')  # , plot_widget=self.ui.plot_exg)
+        self.r_peak, to_remove = self._remove_rpeaks(self.r_peak, to_remove)
+
     @Slot(list)
-    def update_attributes(self, attributes: list):
-        """_summary_
+    def update_attributes(self, attributes: list) -> None:
+        """Update class attributes
 
         Args:
-            attribute (str): _description_
+            attributes (list): list of attributes to update
         """
-        n_chan = self.explorer.n_active_chan
-        active_chan = self.explorer.active_chan_list
         if DataAttributes.OFFSETS in attributes:
+            n_chan = self.explorer.n_active_chan
             self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
+
         if DataAttributes.BASELINE in attributes:
             self._baseline = None
+
         if DataAttributes.DATA in attributes:
+            active_chan = self.explorer.active_chan_list
             points = self.plot_points()
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
             self.t_plot_data = np.array([np.NaN] * points)
+
         if DataAttributes.POINTER in attributes:
             self.pointer = 0
 
-    def handle_disconnection(self, timestamp: list):
+    def handle_disconnection(self, timestamp: list) -> None:
         """Handle disconnection errors
 
         Args:
@@ -102,7 +131,7 @@ class ExGData(DataContainer):
         self.signals.updateDataAttributes.emit([DataAttributes.DATA])
         self.signals.tRangeEXGChanged.emit(0)
 
-    def handle_bt_drop(self, data: dict, sec_th: int = 10):
+    def handle_bt_drop(self, data: dict, sec_th: int = 10) -> None:
         """Handle bluetooth drop
 
         Args:
@@ -113,7 +142,7 @@ class ExGData(DataContainer):
         if t_point < 0:
             return
         elif t_point < self.last_t and self.bt_drop_warning_displayed is False:
-            print(f"Bt drop:\n{t_point=}\n{self.last_t=}\n")
+            logger.warning(f"BlueTooth drop:\n{t_point=}\n{self.last_t=}\n")
             self.bt_drop_warning_displayed = True
             self.t_bt_drop = t_point
             self.signals.btDrop.emit(True)
@@ -122,8 +151,12 @@ class ExGData(DataContainer):
                 (t_point - self.t_bt_drop > sec_th) and self.bt_drop_warning_displayed is True:
             self.bt_drop_warning_displayed = False
 
-    def callback(self, packet):
-        """_summary_"""
+    def callback(self, packet: explorepy.packet.EEG) -> None:
+        """Callback to get EEG data
+
+        Args:
+            packet (explorepy.packet.EEG): EEG packet
+        """
         chan_list = self.explorer.active_chan_list
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
@@ -245,20 +278,104 @@ class ExGData(DataContainer):
         self.y_string = new_val
         self.y_unit = new_unit
 
+        self.rescale_signal(old_unit, new_unit)
+        # TODO
+        # # Rescale r_peaks
+        self.rescale_peaks(old_unit)
+
+        self.r_peak_replot['r_peak'] = list((np.array(self.r_peak_replot['r_peak']) - self.offsets[0]
+                                             ) * (old_unit / self.y_unit) + self.offsets[0])
+        self.rescale_peaks(old_unit, replot=True)
+
+        # Update acis
+        self.signals.updateYAxis.emit()
+
+    def rescale_signal(self, old_unit, new_unit):
         chan_list = self.explorer.active_chan_list
         for chan, value in self.plot_data.items():
             if chan in chan_list:
                 temp_offset = self.offsets[chan_list.index(chan)]
                 self.plot_data[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
-        # TODO
-        # # Rescale r_peaks
-        # # Remove old rpeaks
-        # # Plot rescaled rpeaks
 
-        # # Rescale replotted rpeaks
-        # # Remove old replotted rpeaks
+    def rescale_peaks(self, old_unit, replot=False):
+
+        if replot is False:
+            r_peak_dict = self.r_peak
+        else:
+            r_peak_dict = self.r_peak_replot
+
+        r_peak_dict['r_peak'] = list(
+            (np.array(r_peak_dict['r_peak']) - self.offsets[0]) * (old_unit / self.y_unit) + self.offsets[0])
+
+        self.signals.rrPeakRemove.emit(r_peak_dict['points'])
+        to_replot = r_peak_dict.copy()
+        r_peak_dict = {'t': [], 'r_peak': [], 'points': []}
         # # Plot rescaled rpeaks
-        self.signals.updateYAxis.emit()
+        for i in range(len(to_replot['t'])):
+            self.signals.plotRR.emit(
+                [to_replot['t'][i], to_replot['r_peak'][i], replot])
+
+    def _obtain_r_peaks(self):
+
+        if self.mode == ExGModes.EEG:
+            return
+
+        first_chan = list(self.plot_data.keys())[0]
+
+        if self.rr_estimator is None:
+            self.rr_estimator = HeartRateEstimator(fs=self.explorer.sampling_rate)
+
+        s_rate = Settings.EXG_VIS_SRATE if Settings.DOWNSAMPLING else self.explorer.sampling_rate
+        start = self.pointer - (2 * s_rate)
+        start = start if start >= 0 else 0
+        end = self.pointer if start + self.pointer >= (2 * s_rate) else (2 * s_rate)
+        # f = self.exg_pointer
+        ecg_data = (np.array(self.plot_data[first_chan])[start:end] - self.offsets[0]) * self.y_unit
+        time_vector = np.array(self.t_plot_data)[start:end]
+
+        # Check if the peak2peak value is bigger than threshold
+        if (np.ptp(ecg_data) < Settings.V_TH[0]) or (np.ptp(ecg_data) > Settings.V_TH[1]):
+            msg = 'P2P value larger or less than threshold. Cannot compute heart rate!'
+            logger.warning(msg)
+            return
+
+        try:
+            self.peaks_time, self.peaks_val = self.rr_estimator.estimate(ecg_data, time_vector)
+        except IndexError:
+            return
+
+        self.peaks_val = (np.array(self.peaks_val) / self.y_unit) + self.offsets[0]
+
+        if self.peaks_time:
+            for i, pk_time in enumerate(self.peaks_time):
+                if pk_time not in self.r_peak['t']:
+                    # self.model.r_peak = self.plot_rr_point(pk_time, self.peaks_val[i],)
+                    self.signals.plotRR.emit([pk_time, self.peaks_val[i], False])
+
+        self.estimate_heart_rate()
+        return self.peaks_time, self.peaks_val
+
+    def estimate_heart_rate(self):
+        """Estimate heart rate"""
+        estimated_heart_rate = self.rr_estimator.heart_rate
+        self.signals.heartRate.emit(str(estimated_heart_rate))
+
+    def _remove_rpeaks(self, peaks_dict, to_remove):
+        """
+        Remove rpeak points specified in the list to_remove.
+        Returns original dictionary and list without the removed points
+
+        Args:
+            peaks_dict (dict): dict containing the r_peaks.
+            to_remove (list): list with the points to remvove.
+        """
+        for point in to_remove:
+            peaks_dict['t'].remove(point[0])
+            peaks_dict['r_peak'].remove(point[1])
+            peaks_dict['points'].remove(point[2])
+            to_remove.remove(point)
+
+        return peaks_dict, to_remove
 
 
 class ExGPlot(BasePlots):
@@ -272,12 +389,27 @@ class ExGPlot(BasePlots):
 
         self.plots_list = [self.ui.plot_exg]
 
-    def setup_ui_connections(self):
+        self.timer = QTimer()
+
+    def setup_ui_connections(self) -> None:
+        """Setup connections between widgets and slots"""
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
+        self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
+        self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
 
-    def reset_vars(self):
+    @Slot(bool)
+    def antialiasing(self, cb_status):
+        if cb_status:
+            # TODO add question to confirm
+            # msg = "Antialiasing might impact the visualization speed"
+            # response = display_msg(msg)
+            pg.setConfigOptions(antialias=True)
+        else:
+            pg.setConfigOptions(antialias=False)
+
+    def reset_vars(self) -> None:
         """Reset variables"""
         self.lines = [None]
         self.plots_list = [self.ui.plot_exg]
@@ -285,11 +417,9 @@ class ExGPlot(BasePlots):
 
         self.model.reset_vars()
 
-    def init_plot(self):
+    def init_plot(self) -> None:
+        """Initialize plot"""
         plot_wdgt = self.ui.plot_exg
-
-        n_chan = self.model.explorer.n_active_chan
-        timescale = self.time_scale
 
         if self.ui.plot_orn.getItem(0, 0) is not None:
             plot_wdgt.clear()
@@ -301,29 +431,40 @@ class ExGPlot(BasePlots):
         # Disable zoom
         plot_wdgt.setMouseEnabled(x=False, y=False)
 
-        # Add chan ticks to y axis
-        # Left axis
+        # Add chan ticks to y axis to left and right axis
+        self._setup_left_axis(plot_wdgt)
+        self._setup_righ_axis(plot_wdgt)
+
+        # Add range of time axis
+        self._setup_time_axis(plot_wdgt)
+
+        all_curves_list = [
+            pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
+        self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
+
+    def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
+        """Setup time axis"""
+        n_chan = self.model.explorer.n_active_chan
+        timescale = self.time_scale
+
+        plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
+        plot_wdgt.setLabel('bottom', 'time (s)')
+
+    def _setup_righ_axis(self, plot_wdgt: pg.PlotWidget):
+        """Setup right axis"""
+        plot_wdgt.showAxis('right')
+        plot_wdgt.getAxis('right').linkToView(plot_wdgt.getViewBox())
+        self.add_right_axis_ticks()
+        plot_wdgt.getAxis('right').setGrid(200)
+
+    def _setup_left_axis(self, plot_wdgt: pg.PlotWidget):
         plot_wdgt.setLabel('left', 'Voltage')
         self.add_left_axis_ticks()
         plot_wdgt.getAxis('left').setWidth(60)
         plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
         plot_wdgt.getAxis('left').setGrid(50)
 
-        # Right axis
-        plot_wdgt.showAxis('right')
-        plot_wdgt.getAxis('right').linkToView(plot_wdgt.getViewBox())
-        self.add_right_axis_ticks()
-        plot_wdgt.getAxis('right').setGrid(200)
-
-        # Add range of time axis
-        plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
-        plot_wdgt.setLabel('bottom', 'time (s)')
-
-        all_curves_list = [
-            pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
-        self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
-
-    def add_right_axis_ticks(self):
+    def add_right_axis_ticks(self) -> None:
         """
         Add upper and lower lines delimiting the channels in exg plot
         """
@@ -334,7 +475,7 @@ class ExGPlot(BasePlots):
 
         self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
 
-    def add_left_axis_ticks(self):
+    def add_left_axis_ticks(self) -> None:
         """
         Add central lines and channel name ticks in exg plot
         """
@@ -347,12 +488,6 @@ class ExGPlot(BasePlots):
     @Slot(dict)
     def swipe_plot(self, data):
         t_vector, plot_data = data
-
-        # TODO: if wrap handle - check if there is a way to to it without model access
-        # if self.model.pointer >= len(self.model.t_plot_data):
-        #     self.model.signals.mkrReplot.emit(self.model.t_plot_data[0])
-        # 1. check id_th (check if necessary)
-        # 3. Remove rr peaks and replot in new axis
 
         # position line
         self._add_pos_line(t_vector)
@@ -369,11 +504,17 @@ class ExGPlot(BasePlots):
 
         # remove reploted markers
         self.model.signals.mkrRemove.emit(self.model.last_t)
-        # TODO:
-        # remove reploted r_peaks
+
+        # Remove reploted r_peaks
+        to_remove_replot = _remove_old_plot_item(
+            self.model.r_peak_replot,
+            t_vector=t_vector[:self.model.pointer],
+            item_type='points', plot_widget=self.ui.plot_exg)
+        self.model.r_peak_replot, to_remove_replot = self.model._remove_rpeaks(
+            self.model.r_peak_replot, to_remove_replot)
 
     @Slot(bool)
-    def display_bt_drop(self, bt_drop: bool):
+    def display_bt_drop(self, bt_drop: bool) -> None:
         """Display bluetooth drop warning
 
         Args:
@@ -382,3 +523,76 @@ class ExGPlot(BasePlots):
         if bt_drop:
             title = "Unstable Bluetooth connection"
             display_msg(msg_text=Messages.BT_DROP, title=title, popup_type="info")
+
+    def plot_rr_point(self, data) -> dict:
+        """Plot r peak points
+
+        Args:
+            t_point ([type]): [description]
+            r_peak ([type]): [description]
+            replot (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            dict: [description]
+        """
+        t_point, r_peak, replot = data
+        # NOTE should split into add data to dict and plot
+        if replot is False:
+            brush = (200, 0, 0)
+            r_peak_dict = self.model.r_peak
+        else:
+            brush = (200, 0, 0, 150)
+            r_peak_dict = self.model.r_peak_replot
+
+        point = self.ui.plot_exg.plot(
+            [t_point], [r_peak], pen=None,
+            symbolBrush=brush, symbol='o', symbolSize=8)
+
+        if t_point not in r_peak_dict:
+            r_peak_dict['t'].append(t_point)
+            r_peak_dict['r_peak'].append(r_peak)
+            r_peak_dict['points'].append(point)
+
+        return r_peak_dict
+
+    @Slot(str)
+    def change_signal_mode(self, new_mode):
+        """
+        Log mode change (EEG or ECG)
+        """
+        logger.debug("ExG mode has been changed to %s", new_mode)
+        if new_mode == ExGModes.ECG.value:
+            self.model.mode = ExGModes.ECG
+            if self.timer.isActive():
+                return
+            self.timer.setInterval(2000)
+            # self.timer.timeout.connect(self.model.add_r_peaks)
+            self.timer.timeout.connect(self.model._obtain_r_peaks)
+            self.timer.start()
+
+        elif new_mode == ExGModes.EEG.value:
+            self.model.mode = ExGModes.EEG
+            if self.timer.isActive:
+                self.timer.stop()
+
+    @Slot(list)
+    def remove_old_r_peak(self, to_remove):
+        plt_widget = self.plots_list[0]
+        for point in to_remove:
+            plt_widget.removeItem(point)
+        """# if replot:
+        #     peaks_dict = self.model.r_peak_replot
+        # else:
+        #     peaks_dict = self.model.r_peak
+
+        # to_remove = []
+        # for idx_t in range(len(peaks_dict['t'])):
+        #     if peaks_dict['t'][idx_t] < self.model.last_t:
+        #         for plt_wdgt in self.plots_list:
+        #             plt_wdgt.removeItem(peaks_dict['points'][idx_t])
+        #             to_remove.append([peaks_dict[key][idx_t] for key in peaks_dict.keys()])
+
+        # if to_remove:
+        #     self.model.signals.rrPeakRemove.emit(to_remove)
+        # return to_remove
+        """

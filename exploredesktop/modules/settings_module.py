@@ -14,7 +14,7 @@ from exploredesktop.modules import (  # isort: skip
     BaseModel
 )
 from exploredesktop.modules.app_settings import ConnectionStatus, DataAttributes  # isort: skip
-from exploredesktop.modules.tools import display_msg, wait_cursor  # isort: skip
+from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -29,12 +29,12 @@ class SettingsFrameView(BaseModel):
         self.filters = filters
         self.setup_dropdown()
 
-    def setup_dropdown(self):
+    def setup_dropdown(self) -> None:
         """Initialize dropdown
         """
         self.ui.value_sampling_rate.addItems([str(int(sr)) for sr in Settings.SAMPLING_RATES])
 
-    def setup_ui_connections(self):
+    def setup_ui_connections(self) -> None:
         """Connect ui widgets to corresponding slot
         """
         for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
@@ -48,13 +48,21 @@ class SettingsFrameView(BaseModel):
         # TODO uncomment when implemented
         # self.ui.btn_calibrate.setHidden(True)
 
-    def setup_settings_frame(self):
+    def setup_settings_frame(self) -> None:
         """Setup the settings frame
         """
         # Set device name
         self.ui.label_explore_name.setText(self.explorer.device_name)
 
         # Set active channels
+        self._setup_active_channels()
+
+        # Set sampling rate
+        s_rate = int(self.explorer.sampling_rate)
+        self.ui.value_sampling_rate.setCurrentText(str(s_rate))
+
+    def _setup_active_channels(self) -> None:
+        """Setup checkboxes to reflect channel status (active vs unactive)"""
         chan_dict = self.explorer.get_chan_dict()
         chan_list = Settings.CHAN_LIST[:self.explorer.get_device_chan()]
 
@@ -65,15 +73,11 @@ class SettingsFrameView(BaseModel):
             if wdgt.isHidden() and wdgt.objectName().replace("cb_", "") in chan_list:
                 wdgt.show()
 
-        # Set sampling rate
-        s_rate = int(self.explorer.sampling_rate)
-        self.ui.value_sampling_rate.setCurrentText(str(s_rate))
-
     ###
     # Button slots
     ###
     @Slot()
-    def reset_settings(self):
+    def reset_settings(self) -> None:
         """
         Display a popup asking for confirmation.
         If yes, the settinngs are set to default.
@@ -103,7 +107,7 @@ class SettingsFrameView(BaseModel):
             display_msg(msg)
 
     @Slot()
-    def format_memory(self):
+    def format_memory(self) -> None:
         """
         Display a popup asking for confirmation.
         If yes, memory is formatted.
@@ -127,15 +131,12 @@ class SettingsFrameView(BaseModel):
             display_msg(msg)
 
     @Slot()
-    def change_settings(self):
+    def change_settings(self) -> None:
         """
         Apply changes in device settings
         """
-
         with wait_cursor():
-            if self.filters.current_filters is not None:
-                self.signals.updateDataAttributes.emit([DataAttributes.BASELINE])
-                self.explorer.stream_processor.remove_filters()
+            self._remove_filters()
 
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
@@ -143,25 +144,35 @@ class SettingsFrameView(BaseModel):
             # Reset exg data and reapply filters
             self.signals.updateDataAttributes.emit([DataAttributes.DATA])
             if self.filters.current_filters is not None:
-                print(self.filters.current_filters)
                 self.filters.apply_filters()
 
         if changed_sr or changed_chan:
-            chan_dict = self.explorer.get_chan_dict()
-            act_chan = ", ".join([item[0] for item in chan_dict.items() if item[1]])
-            msg = (
-                "Device settings have been changed:"
-                f"\nSampling Rate: {self.explorer.sampling_rate}"
-                f"\nActive Channels: {act_chan}"
-            )
-            display_msg(msg_text=msg, popup_type="info")
+            self._display_new_settings()
 
         self.signals.restartPlot.emit()
+
+    def _display_new_settings(self) -> None:
+        """Display popup with new sampling rate and active channels
+        """
+        chan_dict = self.explorer.get_chan_dict()
+        act_chan = ", ".join([item[0] for item in chan_dict.items() if item[1]])
+        msg = (
+            "Device settings have been changed:"
+            f"\nSampling Rate: {self.explorer.sampling_rate}"
+            f"\nActive Channels: {act_chan}"
+        )
+        display_msg(msg_text=msg, popup_type="info")
+
+    def _remove_filters(self) -> None:
+        """Remove filters"""
+        if self.filters.current_filters is not None:
+            self.signals.updateDataAttributes.emit([DataAttributes.BASELINE])
+            self.explorer.stream_processor.remove_filters()
 
     ###
     # Change settings functions
     ###
-    def change_active_channels(self):
+    def change_active_channels(self) -> bool:
         """
         Read selected checkboxes and set the channel mask of the device
 
@@ -169,14 +180,9 @@ class SettingsFrameView(BaseModel):
             bool: whether sampling rate has changed
         """
 
-        active_chan = []
         changed = False
 
-        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
-            status = str(1) if wdgt.isChecked() else str(0)
-            active_chan.append(status)
-
-        active_chan = list(reversed(active_chan))
+        active_chan = self.get_active_chan_ui()
         active_chan_int = [int(i) for i in active_chan]
 
         # verify at least one channel is selected
@@ -189,17 +195,35 @@ class SettingsFrameView(BaseModel):
             mask = "".join(active_chan)
             changed = self.explorer.set_channels(mask)
 
-            n_chan = self.explorer.stream_processor.device_info['adc_mask']
-            n_chan = list(reversed(n_chan))
+            # n_chan = self.explorer.stream_processor.device_info['adc_mask']
+            # n_chan = list(reversed(n_chan))
 
             self.explorer.set_chan_dict()
-
-            self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.BASELINE])
-            self.signals.displayDefaultImp.emit()
+            self.update_modules()
 
         return changed
 
-    def change_sampling_rate(self):
+    def update_modules(self) -> None:
+        """Update modules dependent on number of active channels"""
+        self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.BASELINE])
+        self.signals.displayDefaultImp.emit()
+
+    def get_active_chan_ui(self) -> list:
+        """Get active channels from UI checkboxes
+
+        Returns:
+            list[int]: binary list indicating whether channel is active
+        """
+
+        active_chan = []
+        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
+            status = str(1) if wdgt.isChecked() else str(0)
+            active_chan.append(status)
+
+        active_chan = list(reversed(active_chan))
+        return active_chan
+
+    def change_sampling_rate(self) -> bool:
         """Change the sampling rate
 
         Returns:
@@ -211,7 +235,6 @@ class SettingsFrameView(BaseModel):
         changed = False
 
         if int(current_sr) != new_sr:
-            # TODO
             if self.filters.current_filters is not None:
                 self.filters.check_filters_sr(new_sr)
 
@@ -225,7 +248,7 @@ class SettingsFrameView(BaseModel):
     # Vis feedback slots
     ###
     @Slot()
-    def one_chan_selected(self):
+    def one_chan_selected(self) -> None:
         """
         Make sure at least one checkbox is selected.
         If only one checkbox is left it will be disabled so status cannot change. A tooltip will be added.
@@ -242,7 +265,7 @@ class SettingsFrameView(BaseModel):
                 ch_wdgt.setToolTip("")
 
     @Slot()
-    def display_sr_warning(self):
+    def display_sr_warning(self) -> None:
         """Display warning for 1000 Hz sampling rate
         """
         if int(self.ui.value_sampling_rate.currentText()) == 1000:
