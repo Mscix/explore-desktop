@@ -1,5 +1,6 @@
 import os
 from abc import abstractmethod
+import re
 from typing import Union
 
 import numpy as np
@@ -20,6 +21,7 @@ from PySide6.QtWidgets import (
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
+    GUISettings,
     Messages,
     Settings
 )
@@ -95,8 +97,6 @@ class RecordingDialog(CustomDialog):
         super().__init__(parent)
         self.ui = Ui_RecordingDialog()
         self.ui.setupUi(self)
-
-        self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle("Recording Settings")
 
         self.recording_time = int(self.ui.spinBox_recording_time.value())
@@ -104,14 +104,78 @@ class RecordingDialog(CustomDialog):
         self.recording_path = ""
 
         self.ui.btn_browse.clicked.connect(self.save_dir_name)
+        self.ui.input_file_name.textChanged.connect(self.validate_filename)
+
+        self.ui.rdbtn_csv.toggled.connect(self.validate_filepath)
+        self.ui.rdbtn_edf.toggled.connect(self.validate_filepath)
+        self.ui.input_filepath.textChanged.connect(self.validate_filepath)
+        self.ui.input_file_name.textChanged.connect(self.validate_filepath)
+
+        self.set_default_ui_values()
+
+    def set_default_ui_values(self) -> None:
+        self._set_time_limits()
+        self.ui.rdbtn_csv.setChecked(True)
+        self.ui.warning_label.setHidden(True)
+
+    def _set_time_limits(self) -> None:
         self.ui.spinBox_recording_time.setMaximum(10000000)
         self.ui.spinBox_recording_time.setValue(3600)
-        self.ui.rdbtn_csv.setChecked(True)
 
-    # TODO: validation, if there is a user input we need to validate
-    # filename must be sensible, the path must exist, check that I can write to it (not blocked)
-    # when typing filename is real time check
-    # checking if we can write, not extension
+    def validate_filename(self, text: str) -> None:
+        if any(char in text for char in GUISettings.RESERVED_CHARS):
+            self.remove_special_chars(text)
+            self._display_warning_char()
+        else:
+            self._hide_warning()
+
+    def validate_filepath(self) -> None:
+        file_path = self.get_file_path()
+        if os.path.isfile(file_path):
+            self._display_warning_file_exists()
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        else:
+            self._hide_warning()
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+
+    def get_file_path(self):
+        file_dir = self._get_file_dir()
+        file_name = self._get_file_name()
+
+        file_path = os.path.join(file_dir, file_name)
+        return file_path
+
+    def _get_file_name(self):
+        input_name = self.ui.input_file_name.text()
+        placeholder_name = self.ui.input_filepath.placeholderText()
+        file_name = input_name if input_name != "" else placeholder_name
+        file_name += "_ExG." + self.file_extension()
+        return file_name
+
+    def _get_file_dir(self):
+        input_dir = self.ui.input_filepath.text()
+        placeholder_dir = self.ui.input_filepath.placeholderText()
+        file_dir = input_dir if input_dir != "" else placeholder_dir
+        return file_dir
+
+    def remove_special_chars(self, text: str) -> None:
+        new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
+        self.ui.input_file_name.setText(new_text)
+
+    def _hide_warning(self) -> None:
+        self.ui.input_file_name.setStyleSheet("")
+        self.ui.warning_label.setHidden(True)
+
+    def _display_warning_char(self) -> None:
+        self.ui.warning_label.setText(Messages.SPECIAL_CHAR_WARNING)
+        self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        self.ui.warning_label.setHidden(False)
+
+    def _display_warning_file_exists(self) -> None:
+        self.ui.warning_label.setText(Messages.FILE_EXISTS)
+        self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        self.ui.warning_label.setHidden(False)
+
     def file_extension(self) -> str:
         """Retrun file extension selected
 
@@ -168,7 +232,7 @@ class RecordingDialog(CustomDialog):
 
 
 class FiltersDialog(CustomDialog):
-    """Dialog Filters Pop-up
+    """Dialog Filters Pop-upa
 
     Args:
         QDialog (Pyside6.QtWidgets.QDialog): pyside widget
@@ -363,3 +427,12 @@ class FiltersDialog(CustomDialog):
                     None, 'None', ""] else float(self.ui.value_highcutoff.text())
         }
         return data
+
+
+if __name__ == "__main__":
+    from PySide6.QtWidgets import QApplication
+    import sys
+    app = QApplication(sys.argv)
+    dial = RecordingDialog()
+    data = dial.exec()
+    print(data)

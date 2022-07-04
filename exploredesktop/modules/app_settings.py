@@ -192,6 +192,8 @@ class GUISettings():
 
     ORN_LEGEND = ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']
 
+    RESERVED_CHARS = "[|\\?*<\":>[\]+/']"
+
 
 class Settings():
     """Class containing explore settings
@@ -269,6 +271,16 @@ class Messages():
     # dialogs
     #########################
     OFFSET_EXPLANATION = "Remove the DC offset of the signal based on the previous signal values"
+    SPECIAL_CHAR_WARNING = (
+        '<html><head/><body><p><span style=" color:#d90000;">A file name can\'t contain any of the'
+        ' following characters:</span></p><p align="center"><span style=" color:#d90000;">| \ ? * &lt; &quot; : &gt; + '
+        '[ ] / \'</span></p></body></html>'
+    )
+    FILE_EXISTS = (
+        '<html><head/><body><p><span style=" color:#d90000;">There is already a file with the same'
+        ' name in this location.</span></p><p align="center"><span style=" color:#d90000;">Please select another folder'
+        ' or file name</span></p></body></html>'
+    )
 
     #########################
     # imp functions
