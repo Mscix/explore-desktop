@@ -67,6 +67,11 @@ class ExGModes(BaseEnum):
     ECG = "ECG"
 
 
+class FileTypes(BaseEnum):
+    CSV = "csv"
+    EDF = "edf"
+
+
 class Stylesheets():
     """
     Class containig stylesheets for GUI

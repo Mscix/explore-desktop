@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
+    FileTypes,
     GUISettings,
     Messages,
     Settings
@@ -100,7 +101,7 @@ class RecordingDialog(CustomDialog):
         self.setWindowTitle("Recording Settings")
 
         self.recording_time = int(self.ui.spinBox_recording_time.value())
-        self.recording_mode = "csv"
+        self.file_type = FileTypes.CSV.value
         self.recording_path = ""
 
         self.ui.btn_browse.clicked.connect(self.save_dir_name)
@@ -183,10 +184,9 @@ class RecordingDialog(CustomDialog):
             str: file extension (edf or csv)
         """
         if self.ui.rdbtn_edf.isChecked():
-            # TODO change to enum
-            self.file_type = "edf"
+            self.file_type = FileTypes.EDF.value
         else:
-            self.file_type = "csv"
+            self.file_type = FileTypes.CSV.value
 
         return self.file_type
 
