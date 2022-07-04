@@ -1,6 +1,6 @@
 import os
-from abc import abstractmethod
 import re
+from abc import abstractmethod
 from typing import Union
 
 import numpy as np
@@ -115,15 +115,19 @@ class RecordingDialog(CustomDialog):
         self.set_default_ui_values()
 
     def set_default_ui_values(self) -> None:
-        self._set_time_limits()
-        self.ui.rdbtn_csv.setChecked(True)
-        self.ui.warning_label.setHidden(True)
-
-    def _set_time_limits(self) -> None:
+        """Set up default values for GUI elements
+        """
         self.ui.spinBox_recording_time.setMaximum(10000000)
         self.ui.spinBox_recording_time.setValue(3600)
-
+        self.ui.rdbtn_csv.setChecked(True)
+        self.ui.warning_label.setHidden(True)
+        
     def validate_filename(self, text: str) -> None:
+        """Validate input file name by removing special characters and warning the user
+
+        Args:
+            text (str): file name input by the user
+        """
         if any(char in text for char in GUISettings.RESERVED_CHARS):
             self.remove_special_chars(text)
             self._display_warning_char()
@@ -131,6 +135,8 @@ class RecordingDialog(CustomDialog):
             self._hide_warning()
 
     def validate_filepath(self) -> None:
+        """Validate selected path by checking if it already exists and warning the user
+        """
         file_path = self.get_file_path()
         if os.path.isfile(file_path):
             self._display_warning_file_exists()
@@ -139,40 +145,58 @@ class RecordingDialog(CustomDialog):
             self._hide_warning()
             self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
 
-    def get_file_path(self):
+    def get_file_path(self) -> str:
+        """Join directory and file name to obtain file path
+
+        Returns:
+            str: file path
+        """
         file_dir = self._get_file_dir()
         file_name = self._get_file_name()
 
         file_path = os.path.join(file_dir, file_name)
         return file_path
 
-    def _get_file_name(self):
+    def _get_file_name(self) -> str:
+        """Return file name. If empty it returns the placeholder text
+        """
         input_name = self.ui.input_file_name.text()
         placeholder_name = self.ui.input_filepath.placeholderText()
         file_name = input_name if input_name != "" else placeholder_name
         file_name += "_ExG." + self.file_extension()
         return file_name
 
-    def _get_file_dir(self):
+    def _get_file_dir(self) -> str:
+        """Return file directory. If empty it returns the placeholder text
+        """
         input_dir = self.ui.input_filepath.text()
         placeholder_dir = self.ui.input_filepath.placeholderText()
         file_dir = input_dir if input_dir != "" else placeholder_dir
         return file_dir
 
     def remove_special_chars(self, text: str) -> None:
+        """Remove special characters from input file name
+
+        Args:
+            text (str): input file name
+        """
         new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
         self.ui.input_file_name.setText(new_text)
 
     def _hide_warning(self) -> None:
+        """Hide warning from dialog
+        """
         self.ui.input_file_name.setStyleSheet("")
         self.ui.warning_label.setHidden(True)
 
     def _display_warning_char(self) -> None:
+        """Display warning for special characters in file name"""
         self.ui.warning_label.setText(Messages.SPECIAL_CHAR_WARNING)
         self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
         self.ui.warning_label.setHidden(False)
 
     def _display_warning_file_exists(self) -> None:
+        """Display warning for file already exists"""
         self.ui.warning_label.setText(Messages.FILE_EXISTS)
         self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
         self.ui.warning_label.setHidden(False)
@@ -194,8 +218,8 @@ class RecordingDialog(CustomDialog):
         """
         Open a dialog to select file name to be saved
         """
-        # TODO more modular
-        settings, path = self.get_dir_path()
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = self.get_dir_path()
 
         dialog = QFileDialog()
         file_path = dialog.getExistingDirectory(
@@ -209,18 +233,22 @@ class RecordingDialog(CustomDialog):
         if path != self.recording_path:
             settings.setValue("last_record_folder", self.recording_path)
 
-    def get_dir_path(self):
-        settings = QSettings("Mentalab", "ExploreDesktop")
+    def get_dir_path(self, settings: QSettings) -> str:
+        """Return last used directory. If running for the first time, retruns user directory
+
+        Args:
+            settings (QSettings): QSettings
+        """
         path = settings.value("last_record_folder")
         if not path:
             path = os.path.expanduser("~")
-        return settings, path
+        return path
 
     def get_data(self) -> dict:
         """Get dialog data
 
         Returns:
-            dict: _description_
+            dict: dictionary with dialog data
         """
         data = {
             "file_name": self.ui.input_file_name.text(),
@@ -430,8 +458,9 @@ class FiltersDialog(CustomDialog):
 
 
 if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication
     import sys
+
+    from PySide6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     dial = RecordingDialog()
     data = dial.exec()
