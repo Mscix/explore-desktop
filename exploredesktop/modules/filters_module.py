@@ -1,4 +1,3 @@
-
 import logging
 import time
 from typing import (
@@ -46,17 +45,18 @@ class Filters(BaseModel):
             return True
 
         self.current_filters = filters
-        remove = True if self.current_filters is not None else False
-        wait = True if self.current_filters is None else False
 
-        if remove:
+        if self.current_filters is not None:
             self.explorer.remove_filters()
 
         self.apply_filters()
+        # TODO: remove
+        wait = True if self.current_filters is None else False
         if wait:
             time.sleep(1.5)
         return True
 
+    # TODO rename
     def _get_filters_popup(self) -> Union[bool, dict]:
         """Get filter values from popup
 

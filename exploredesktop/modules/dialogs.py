@@ -103,11 +103,15 @@ class RecordingDialog(CustomDialog):
         self.recording_mode = "csv"
         self.recording_path = ""
 
-        self.ui.btn_browse.clicked.connect(self.save_filename)
+        self.ui.btn_browse.clicked.connect(self.save_dir_name)
         self.ui.spinBox_recording_time.setMaximum(10000000)
         self.ui.spinBox_recording_time.setValue(3600)
         self.ui.rdbtn_csv.setChecked(True)
 
+    # TODO: validation, if there is a user input we need to validate
+    # filename must be sensible, the path must exist, check that I can write to it (not blocked)
+    # when typing filename is real time check
+    # checking if we can write, not extension
     def file_extension(self) -> str:
         """Retrun file extension selected
 
@@ -115,20 +119,19 @@ class RecordingDialog(CustomDialog):
             str: file extension (edf or csv)
         """
         if self.ui.rdbtn_edf.isChecked():
+            # TODO change to enum
             self.file_type = "edf"
         else:
             self.file_type = "csv"
 
         return self.file_type
 
-    def save_filename(self) -> None:
+    def save_dir_name(self) -> None:
         """
         Open a dialog to select file name to be saved
         """
-        settings = QSettings("Mentalab", "ExploreDesktop")
-        path = settings.value("last_record_folder")
-        if not path:
-            path = os.path.expanduser("~")
+        # TODO more modular
+        settings, path = self.get_dir_path()
 
         dialog = QFileDialog()
         file_path = dialog.getExistingDirectory(
@@ -141,6 +144,13 @@ class RecordingDialog(CustomDialog):
         self.ui.input_filepath.setText(self.recording_path)
         if path != self.recording_path:
             settings.setValue("last_record_folder", self.recording_path)
+
+    def get_dir_path(self):
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = settings.value("last_record_folder")
+        if not path:
+            path = os.path.expanduser("~")
+        return settings, path
 
     def get_data(self) -> dict:
         """Get dialog data
@@ -265,6 +275,7 @@ class FiltersDialog(CustomDialog):
         Returns:
             Union[str, str, str]: stylesheet for line edit and warning text to display
         """
+        hc_stylesheet, lc_stylesheet, lbl_txt = "", "", ""
         hc_freq_warning, lc_freq_warning, bp_freq_warning = self._get_warning_msg()
 
         if filter_ok['lc_freq'] is False:
