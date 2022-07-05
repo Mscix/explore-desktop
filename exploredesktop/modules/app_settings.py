@@ -236,7 +236,7 @@ class Settings():
         "yellow": 20,
         "orange": 30,
         "red": 50,
-        "open": 100
+        "open": 250
     }
 
     BASELINE_MA_LENGTH = 1.5 * EXG_VIS_SRATE
