@@ -35,14 +35,17 @@ call md %exploredesktop_path%data
 call rd /S /Q dist
 
 @REM Create executable files
-call pyinstaller --onedir --console ExploreDesktop.spec
+call pyinstaller --onedir --console --noconfirm ExploreDesktop.spec
 
 @REM Copy files to data dir
 call xcopy /I /E /H /R /Q dist\ExploreDesktop %exploredesktop_path%data\ExploreDesktop
 call xcopy %exploredesktop_path%extras\MentalabLogo.ico %exploredesktop_path%data
 
+@REM @REM Open repository
+call set config_path= "installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml"
+call set package_path= "installer\ExploreDesktopInstaller\ExploreDesktop\packages"
+call C:\Qt\QtIFW-4.2.0\bin\repogen.exe -p %package_path% repository
+call set /p asd="Hit enter to continue"
 
 @REM Create installer file
-call set config_path= "installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml"
-call set package_path="installer\ExploreDesktopInstaller\ExploreDesktop\packages"
-call C:\Qt\QtIFW-4.2.0\bin\binarycreator -c %config_path% -p %package_path% --verbose ExploreDesktopInstaller.exe
+call C:\Qt\QtIFW-4.2.0\bin\binarycreator.exe --online-only -c %config_path% -p %package_path% --verbose ExploreDesktopInstaller.exe

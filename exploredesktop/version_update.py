@@ -1,7 +1,6 @@
 import logging
 import subprocess
-# import getpass
-
+import os
 
 from PySide6.QtWidgets import QMessageBox
 
@@ -13,20 +12,21 @@ logger = logging.getLogger("explorepy.exploredesktop.main")
 
 
 def check_updates():
-    # TODO: change path depending on OS, installation folder etc
+    maintenance_path = os.path.join(os.getcwd(), "maintenancetool")
     process = subprocess.Popen(
-        # f"C:\\Users\\{getpass.getuser()}\\ExploreDesktop\\maintenancetool --checkupdates"
-        "C:\\Users\\ProSomno\\IfwExamples\\online\\maintenancetool --checkupdates",
+        f"{maintenance_path} --checkupdates",
         shell=True, stdout=subprocess.PIPE)
+    logger.debug(f"{os.getcwd()=}")
     subprocess_return = process.stdout.read().decode("utf-8")
     logger.debug("Check updates output: %s" % subprocess_return)
     if 'Warning' in subprocess_return:
-        # print('No updates available')
-        logger.debug('No updates available')
         return None
-    logger.debug('Updates available')
 
-    new_version = get_version(subprocess_return)
+    try:
+        new_version = get_version(subprocess_return)
+    except IndexError:
+        logger.debug("Error opening the maintenancetool. - The system cannot find the path specified.")
+        return None
     return new_version
 
 

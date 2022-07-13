@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
-    <Name>ExploreDesktop</Name>
+    <Name>Explore Desktop</Name>
     <Version>0.2.2</Version>
-    <Title>ExploreDesktop</Title>
+    <Title>Explore Desktop</Title>
     <Publisher>Mentalab GmbH.</Publisher>
     <InstallerApplicationIcon>../packages/com.Mentalab.ExploreDesktop/extras/MentalabLogo</InstallerApplicationIcon>
     <InstallerWindowIcon>../packages/com.Mentalab.ExploreDesktop/extras/MentalabLogo.png</InstallerWindowIcon>
@@ -11,10 +11,13 @@
     <RemoteRepositories>
         <Repository>
             <!-- <Url>file:///C:/Qt/QtIFW/examples/online/repository</Url> -->
-            <Url>http://localhost:8000/repository</Url>
+            <!-- <Url>https://drive.google.com/drive/folders/1h6UC9sEQBkS74u8SMUzJKgR1NNRD-HRy?usp=sharing</Url> -->
+            <Url>https://wiki.mentalab.com/explore-desktop-release/</Url>
+            <!-- <Url>http://localhost:8000/repository</Url> -->
+            <!-- <DisplayName>Example repository</DisplayName> -->
         </Repository>
     </RemoteRepositories>
-    <!-- <RunProgram>@TargetDir@/ExploreGUI.exe</RunProgram> -->
+    <RunProgram>@TargetDir@/ExploreDesktop/ExploreGUI.exe</RunProgram>
     <RemoveTargetDir>true</RemoveTargetDir>
     <WizardStyle>Modern</WizardStyle>
     <!-- <ControlScript>controlscript.qs</ControlScript> -->
