@@ -195,8 +195,9 @@ class ExGData(DataContainer):
 
         try:
             self.signals.exgChanged.emit([self.t_plot_data, self.plot_data])
+        # RuntimeError might happen when the app closes
         except RuntimeError as error:
-            logger.warning("RuntimeError: %s", str(error))
+            logger.debug("RuntimeError: %s", str(error))
 
     def downsampling(self, time_vector, exg, exg_fs):
         """Downsample"""
