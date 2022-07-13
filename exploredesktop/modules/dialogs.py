@@ -161,7 +161,7 @@ class RecordingDialog(CustomDialog):
         return file_path
 
     def _get_file_name(self) -> str:
-        """Return file name. If empty it returns the placeholder text
+        """Returns file name. If empty it returns the placeholder text
         """
         input_name = self.ui.input_file_name.text()
         placeholder_name = self.ui.input_filepath.placeholderText()
@@ -170,7 +170,7 @@ class RecordingDialog(CustomDialog):
         return file_name
 
     def _get_file_dir(self) -> str:
-        """Return file directory. If empty it returns the placeholder text
+        """Returns file directory. If empty it returns the placeholder text
         """
         input_dir = self.ui.input_filepath.text()
         placeholder_dir = self.ui.input_filepath.placeholderText()
@@ -237,7 +237,7 @@ class RecordingDialog(CustomDialog):
             settings.setValue("last_record_folder", self.recording_path)
 
     def get_dir_path(self, settings: QSettings) -> str:
-        """Return last used directory. If running for the first time, retruns user directory
+        """Returns last used directory. If running for the first time, retruns user directory
 
         Args:
             settings (QSettings): QSettings

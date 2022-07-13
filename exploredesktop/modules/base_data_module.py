@@ -197,6 +197,7 @@ class DataContainer(BaseModel):
 class BasePlots:
     """_summary_
     """
+
     def __init__(self, ui) -> None:
         self.ui = ui
         self.model = DataContainer()
@@ -211,12 +212,12 @@ class BasePlots:
         self.ui.value_timeScale.currentTextChanged.connect(self.set_time_scale)
 
     def get_model(self):
-        """Return data model"""
+        """Returns data model"""
         return self.model
 
     @property
     def time_scale(self) -> int:
-        """Return timescale set in GUI
+        """Returns timescale set in GUI
         """
         t_str = self.ui.value_timeScale.currentText()
         t_int = int(Settings.TIME_RANGE_MENU[t_str])
@@ -352,7 +353,7 @@ class BasePlots:
         Args:
             lines (list): list of position line
 
-        Return:
+        Returns:
             list: position lines with updated time pos
         """
         pos = t_vector[self.model.pointer - 1]
@@ -380,7 +381,7 @@ class BasePlots:
             item_type (str): specifies item to remove (line or points).
             plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
 
-        Retrun:
+        Retruns:
             list: list with objects to remove
         """
         assert item_type in ['lines', 'points'], 'item type parameter must be line or points'

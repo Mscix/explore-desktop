@@ -47,7 +47,7 @@ class BTFrameView(BaseModel):
         self.ui.dev_name_input.setCompleter(completer)
 
     def get_names_from_settings(self) -> list:
-        """Return list of previously used device names from settings
+        """Returns list of previously used device names from settings
         """
         settings = QSettings("Mentalab", "ExploreDesktop")
         names = settings.value("known_devices")

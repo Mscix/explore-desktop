@@ -133,7 +133,7 @@ class ExploreInterface(Explore):
 
     @property
     def active_chan_list(self):
-        """Return list of active channels"""
+        """Returns list of active channels"""
         return [item[0] for item in self.chan_dict.items() if item[1]]
 
     # pylint: disable=arguments-differ

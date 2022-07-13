@@ -47,7 +47,7 @@ class ImpedanceGraph(pg.GraphItem):
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
 
     def get_model(self):
-        """Retrun impedance model
+        """Retruns impedance model
 
         Returns:
             ImpModel: impedance data model
@@ -212,11 +212,11 @@ class ImpFrameView():
         self.setup_imp_graph()
 
     def get_model(self):
-        """Return impedance model"""
+        """Returns impedance model"""
         return self.model
 
     def get_graph(self):
-        """Return impedance graph
+        """Returns impedance graph
         """
         return self.imp_graph
 

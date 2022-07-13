@@ -76,7 +76,7 @@ class FFTData(DataContainer):
         self.update_pointer(data=orig_exg, fft=True)
 
     def fft_plot_data(self) -> Optional[dict]:
-        """Return FFT data to plot
+        """Returns FFT data to plot
         """
         exg_fs = self.explorer.sampling_rate
         exg_data = np.array(
