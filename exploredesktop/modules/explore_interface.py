@@ -24,6 +24,7 @@ logger = logging.getLogger("explorepy." + __name__)
 
 class ExploreInterface(Explore):
     """Interface class for Explore"""
+
     def __init__(self):
         super().__init__()
         self.device_chan = None

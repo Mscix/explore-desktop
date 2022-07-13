@@ -29,6 +29,7 @@ logger = logging.getLogger("explorepy." + __name__)
 class FooterData(BaseModel):
     """Model for footer data
     """
+
     def __init__(self) -> None:
         super().__init__()
         self._battery_percent_list = []
@@ -136,6 +137,7 @@ class FooterData(BaseModel):
 class FooterFrameView():
     """Footer frame functions
     """
+
     def __init__(self, ui) -> None:
         self.ui = ui
         self.model = FooterData()

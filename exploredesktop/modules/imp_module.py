@@ -28,6 +28,7 @@ logger = logging.getLogger("explorepy." + __name__)
 class ImpedanceGraph(pg.GraphItem):
     """Reimplementation of pyqtgraph.GraphItem
     """
+
     def __init__(self, model) -> None:
         self.text_items = []
         super().__init__()
@@ -108,6 +109,7 @@ class ImpedanceGraph(pg.GraphItem):
 class ImpModel(BaseModel):
     """Impedance model
     """
+
     def __init__(self) -> None:
         super().__init__()
         self.mode = ImpModes.WET
@@ -197,6 +199,7 @@ class ImpFrameView():
     """
     Impedance frame functions
     """
+
     def __init__(self, ui) -> None:
         self.ui = ui
 

@@ -26,6 +26,7 @@ logger = logging.getLogger("explorepy." + __name__)
 class BTFrameView(BaseModel):
     """Bluetooth frame class
     """
+
     def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui

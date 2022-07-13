@@ -27,6 +27,7 @@ logger = logging.getLogger("explorepy." + __name__)
 
 class ExGData(DataContainer):
     """_summary_"""
+
     def __init__(self, filters) -> None:
         super().__init__()
 
@@ -382,6 +383,7 @@ class ExGData(DataContainer):
 class ExGPlot(BasePlots):
     """_summary_
     """
+
     def __init__(self, ui, filters) -> None:
         super().__init__(ui)
         self.model = ExGData(filters)

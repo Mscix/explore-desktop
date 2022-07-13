@@ -28,6 +28,7 @@ ORN_LIST = ['accX', 'accY', 'accZ', 'gyroX', 'gyroY', 'gyroZ', 'magX', 'magY', '
 
 class ORNData(DataContainer):
     """Orientation data model"""
+
     def __init__(self) -> None:
         super().__init__()
         self.plot_data = {k: np.array([np.NaN] * 200) for k in ORN_LIST}
@@ -107,6 +108,7 @@ class ORNData(DataContainer):
 class ORNPlot(BasePlots):
     """Orientation data plot
     """
+
     def __init__(self, ui) -> None:
         super().__init__(ui)
         self.model = ORNData()

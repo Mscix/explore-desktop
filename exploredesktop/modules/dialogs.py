@@ -44,6 +44,7 @@ class CustomDialog(QDialog):
     Args:
        QDialog (Pyside6.QtWidgets.QDialog): pyside widget
     """
+
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setWindowIcon(QIcon(ICON_PATH))
@@ -95,6 +96,7 @@ class RecordingDialog(CustomDialog):
     Args:
         QDialog (Pyside6.QtWidgets.QDialog): pyside widget
     """
+
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.ui = Ui_RecordingDialog()
@@ -122,7 +124,7 @@ class RecordingDialog(CustomDialog):
         self.ui.spinBox_recording_time.setValue(3600)
         self.ui.rdbtn_csv.setChecked(True)
         self.ui.warning_label.setHidden(True)
-        
+
     def validate_filename(self, text: str) -> None:
         """Validate input file name by removing special characters and warning the user
 
@@ -266,6 +268,7 @@ class FiltersDialog(CustomDialog):
     Args:
         QDialog (Pyside6.QtWidgets.QDialog): pyside widget
     """
+
     def __init__(self, sr, current_filters, parent=None) -> None:
         super().__init__(parent)
         self.ui = Ui_PlotDialog()
