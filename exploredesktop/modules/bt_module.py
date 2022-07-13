@@ -103,6 +103,7 @@ class BTFrameView(BaseModel):
         try:
             device_name = self.ui.list_devices.selectedItems()[0].text()
             device_name = device_name[:12]
+        # IndexError raised when no device from list is selected
         except IndexError:
             device_name = ""
 
@@ -121,8 +122,9 @@ class BTFrameView(BaseModel):
 
         if device_name_le != "":
             device_name = device_name_le
-        elif device_name_list != "":
+        else:
             device_name = device_name_list
+
         return device_name
 
     #########################

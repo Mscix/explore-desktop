@@ -94,8 +94,9 @@ class ORNData(DataContainer):
         """Emit orientation data"""
         try:
             self.signals.ornChanged.emit([self.t_plot_data, self.plot_data])
+        # RuntimeError might happen when the app closes
         except RuntimeError as error:
-            logger.warning("RuntimeError: %s", str(error))
+            logger.debug("RuntimeError: %s", str(error))
 
     def change_timescale(self) -> None:
         """Change plot time scale"""

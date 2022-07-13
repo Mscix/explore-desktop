@@ -74,8 +74,9 @@ class FooterData(BaseModel):
 
         try:
             self.signals.envInfoChanged.emit(data)
+        # RuntimeError might happen when the app closes
         except RuntimeError as error:
-            logger.warning("footer_module>line75: RuntimeError: %s", str(error))
+            logger.debug("RuntimeError: %s", str(error))
 
     def subscribe_env_callback(self) -> None:
         """subscribe env callback to stream processor
@@ -104,9 +105,6 @@ class FooterData(BaseModel):
                 self.connection_status != ConnectionStatus.DISCONNECTED:
             self.connection_status = ConnectionStatus.DISCONNECTED
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
-
-        else:
-            pass
 
     def timer_connection(self) -> None:
         """Timer for checking connection status

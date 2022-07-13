@@ -146,6 +146,8 @@ class DataContainer(BaseModel):
         for key, val in self.plot_data.items():
             try:
                 val.put(idxs, data[key], mode='wrap')
+            # KeyError might happen when active chanels are changed
+            # if this happens, add nans instead of data coming from packet
             except KeyError:
                 val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
 
@@ -187,8 +189,9 @@ class DataContainer(BaseModel):
         ticks = t_ticks[::l_points]
         try:
             signal.emit([vals, ticks])
+        # RuntimeError might happen when the app closes
         except RuntimeError as error:
-            logger.warning("RuntimeError: %s", str(error))
+            logger.debug("RuntimeError: %s", str(error))
 
 
 class BasePlots:
@@ -305,6 +308,7 @@ class BasePlots:
         for plt in self.plots_list:
             try:
                 plt.setXRange(t_min, t_max, padding=0.01)
+            # Exception coming from pyqtgraph library, can be ignored
             except Exception:
                 pass
 
@@ -360,6 +364,7 @@ class BasePlots:
             for line in self.lines:
                 try:
                     line.setPos(pos)
+                # RuntimeError might happen when the app closes/device desconnects - set the lines to default value
                 except RuntimeError:
                     self.lines = [None for i in range(len(self.lines))]
 

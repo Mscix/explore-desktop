@@ -5,7 +5,7 @@ from .base_model import BaseModel
 from .imp_module import ImpedanceGraph, ImpModel, ImpFrameView
 
 # SETTINGS
-from .app_settings import Messages, Stylesheets, Settings
+from .app_settings import Messages, Stylesheets, Settings, GUISettings
 
 # GUI FILE
 from .ui import (
@@ -13,10 +13,8 @@ from .ui import (
     Ui_PlotDialog,
     Ui_RecordingDialog
 )
-# IMPORT FUNCTIONS
-from .ui_functions import UIFunctions
 
 
 __all__ = ["Ui_MainWindow", "Ui_PlotDialog", "Ui_RecordingDialog", "UIFunctions",
            "BaseModel", "ImpedanceGraph", "ImpModel", "ImpFrameView",
-           "Messages", "Stylesheets", "Settings"]
+           "Messages", "Stylesheets", "Settings", "GUISettings"]
