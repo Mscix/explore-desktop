@@ -52,7 +52,7 @@ class ORNData(DataContainer):
         signal = self.signals.tAxisORNChanged
         return super().new_t_axis(signal)
 
-    def update_pointer(self, data: dict, signal: Optional[PySide6.QtCore.Signal] = None) -> None:
+    def update_pointer(self, data: dict, signal: Optional[PySide6.QtCore.Signal] = None, fft=False) -> None:
         """Update pointer
 
         Args:
@@ -121,9 +121,11 @@ class ORNPlot(BasePlots):
 
         self.lines = [None, None, None]
 
-        self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
-
         self.init_plot()
+
+    def setup_ui_connections(self):
+        super().setup_ui_connections()
+        self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
 
     def reset_vars(self) -> None:
         """Reset attributes"""
@@ -248,12 +250,15 @@ class ORNPlot(BasePlots):
             plot_data (dict): data to plot
             connection (np.array): connection vector
         """
-        self.curve_ax.setData(t_vector, plot_data['accX'], connect=connection)
-        self.curve_ay.setData(t_vector, plot_data['accY'], connect=connection)
-        self.curve_az.setData(t_vector, plot_data['accZ'], connect=connection)
-        self.curve_gx.setData(t_vector, plot_data['gyroX'], connect=connection)
-        self.curve_gy.setData(t_vector, plot_data['gyroY'], connect=connection)
-        self.curve_gz.setData(t_vector, plot_data['gyroZ'], connect=connection)
-        self.curve_mx.setData(t_vector, plot_data['magX'], connect=connection)
-        self.curve_my.setData(t_vector, plot_data['magY'], connect=connection)
-        self.curve_mz.setData(t_vector, plot_data['magZ'], connect=connection)
+        try:
+            self.curve_ax.setData(t_vector, plot_data['accX'], connect=connection)
+            self.curve_ay.setData(t_vector, plot_data['accY'], connect=connection)
+            self.curve_az.setData(t_vector, plot_data['accZ'], connect=connection)
+            self.curve_gx.setData(t_vector, plot_data['gyroX'], connect=connection)
+            self.curve_gy.setData(t_vector, plot_data['gyroY'], connect=connection)
+            self.curve_gz.setData(t_vector, plot_data['gyroZ'], connect=connection)
+            self.curve_mx.setData(t_vector, plot_data['magX'], connect=connection)
+            self.curve_my.setData(t_vector, plot_data['magY'], connect=connection)
+            self.curve_mz.setData(t_vector, plot_data['magZ'], connect=connection)
+        except ValueError:
+            print(f"ValueError\n{t_vector=}\n{plot_data=}\n{connection=}")

@@ -125,6 +125,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         # PLOTS
         self.orn_plot = ORNPlot(self.ui)
+        self.orn_plot.setup_ui_connections()
         self.exg_plot = ExGPlot(self.ui, self.filters)
         self.exg_plot.setup_ui_connections()
         self.fft_plot = FFTPlot(self.ui)

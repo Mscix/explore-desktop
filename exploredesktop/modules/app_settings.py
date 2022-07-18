@@ -63,13 +63,21 @@ class DataAttributes(BaseEnum):
 
 
 class ExGModes(BaseEnum):
+    """Enum for supported ExG modes"""
     EEG = "EEG"
     ECG = "ECG"
 
 
 class FileTypes(BaseEnum):
+    """Enum for supported file types"""
     CSV = "csv"
     EDF = "edf"
+
+
+class PlotItems(BaseEnum):
+    """Enum for plot item types and corresponding dict key"""
+    VLINES = ["lines", "code"]
+    POINTS = ["points", "r_peak"]
 
 
 class Stylesheets():

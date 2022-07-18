@@ -74,7 +74,7 @@ class ExGData(DataContainer):
         signal = self.signals.tAxisEXGChanged
         return super().new_t_axis(signal)
 
-    def update_pointer(self, data, signal=None):
+    def update_pointer(self, data, signal=None, fft=False):
         signal = self.signals.tRangeEXGChanged
         return super().update_pointer(data, signal)
 
@@ -95,7 +95,7 @@ class ExGData(DataContainer):
             self.r_peak,
             t_vector=self.t_plot_data[:self.pointer],
             item_type='points')  # , plot_widget=self.ui.plot_exg)
-        self.r_peak, to_remove = self._remove_rpeaks(self.r_peak, to_remove)
+        self.r_peak, to_remove = self.remove_rpeaks(self.r_peak, to_remove)
 
     @Slot(list)
     def update_attributes(self, attributes: list) -> None:
@@ -249,18 +249,19 @@ class ExGData(DataContainer):
         return exg
 
     def update_unit(self, exg):
-        """_summary_
+        """Update exg signal to match selected scale
 
         Args:
-            exg (_type_): _description_
+            exg (list): exg signal
 
         Returns:
-            _type_: _description_
+            list: scaled exg signal
         """
         exg = self.offsets + exg / self.y_unit
         return exg
 
     def change_timescale(self):
+        """Change time scale"""
         super().change_timescale()
         self.signals.tRangeEXGChanged.emit(self.last_t)
         self.signals.updateDataAttributes.emit([DataAttributes.POINTER, DataAttributes.DATA])
@@ -293,6 +294,12 @@ class ExGData(DataContainer):
         self.signals.updateYAxis.emit()
 
     def rescale_signal(self, old_unit, new_unit):
+        """Rescale signal
+
+        Args:
+            old_unit (float): old axis unit
+            new_unit (float): new axis unit
+        """
         chan_list = self.explorer.active_chan_list
         for chan, value in self.plot_data.items():
             if chan in chan_list:
@@ -300,7 +307,12 @@ class ExGData(DataContainer):
                 self.plot_data[chan] = (value - temp_offset) * (old_unit / new_unit) + temp_offset
 
     def rescale_peaks(self, old_unit, replot=False):
+        """Rescale plotted peaks
 
+        Args:
+            old_unit (float): old y axis unit
+            replot (bool, optional): Whether to rescale replotted peaks. Defaults to False.
+        """
         if replot is False:
             r_peak_dict = self.r_peak
         else:
@@ -317,8 +329,8 @@ class ExGData(DataContainer):
             self.signals.plotRR.emit(
                 [to_replot['t'][i], to_replot['r_peak'][i], replot])
 
-    def _obtain_r_peaks(self):
-
+    def obtain_r_peaks(self):
+        """Obtain RR peaks"""
         if self.mode == ExGModes.EEG:
             return
 
@@ -362,7 +374,7 @@ class ExGData(DataContainer):
         estimated_heart_rate = self.rr_estimator.heart_rate
         self.signals.heartRate.emit(str(estimated_heart_rate))
 
-    def _remove_rpeaks(self, peaks_dict, to_remove):
+    def remove_rpeaks(self, peaks_dict, to_remove):
         """
         Remove rpeak points specified in the list to_remove.
         Returns original dictionary and list without the removed points
@@ -404,6 +416,11 @@ class ExGPlot(BasePlots):
 
     @Slot(bool)
     def antialiasing(self, cb_status):
+        """Activate or deactivate antialiasing option
+
+        Args:
+            cb_status (bool): status of the checkbox
+        """
         if cb_status:
             # TODO add question to confirm
             # msg = "Antialiasing might impact the visualization speed"
@@ -513,7 +530,7 @@ class ExGPlot(BasePlots):
             self.model.r_peak_replot,
             t_vector=t_vector[:self.model.pointer],
             item_type='points', plot_widget=self.ui.plot_exg)
-        self.model.r_peak_replot, to_remove_replot = self.model._remove_rpeaks(
+        self.model.r_peak_replot, to_remove_replot = self.model.remove_rpeaks(
             self.model.r_peak_replot, to_remove_replot)
 
     @Slot(bool)
@@ -570,7 +587,7 @@ class ExGPlot(BasePlots):
                 return
             self.timer.setInterval(2000)
             # self.timer.timeout.connect(self.model.add_r_peaks)
-            self.timer.timeout.connect(self.model._obtain_r_peaks)
+            self.timer.timeout.connect(self.model.obtain_r_peaks)
             self.timer.start()
 
         elif new_mode == ExGModes.EEG.value:
@@ -580,10 +597,11 @@ class ExGPlot(BasePlots):
 
     @Slot(list)
     def remove_old_r_peak(self, to_remove):
+        """Remove old r peaks from plot"""
         plt_widget = self.plots_list[0]
         for point in to_remove:
             plt_widget.removeItem(point)
-        """# if replot:
+        # if replot:
         #     peaks_dict = self.model.r_peak_replot
         # else:
         #     peaks_dict = self.model.r_peak
@@ -598,4 +616,3 @@ class ExGPlot(BasePlots):
         # if to_remove:
         #     self.model.signals.rrPeakRemove.emit(to_remove)
         # return to_remove
-        """

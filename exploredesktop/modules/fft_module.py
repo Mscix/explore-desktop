@@ -25,6 +25,8 @@ logger = logging.getLogger("explorepy." + __name__)
 
 
 class FFTData(DataContainer):
+    """FFT data model"""
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -150,3 +152,6 @@ class FFTPlot(BasePlots):
     def stop_timer(self) -> None:
         """Stop plotting timer"""
         self.timer.stop()
+
+    def swipe_plot(self, data):
+        raise NotImplementedError

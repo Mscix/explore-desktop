@@ -1,4 +1,5 @@
 """Base module for data classes"""
+from enum import Enum
 import logging
 from abc import abstractmethod
 from typing import (
@@ -57,7 +58,7 @@ class DataContainer(BaseModel):
         raise NotImplementedError
 
     @staticmethod
-    def remove_dict_item(item_dict: dict, item_type: str, to_remove: list) -> Tuple[dict, list]:
+    def remove_dict_item(item_dict: dict, item_type: Enum, to_remove: list) -> Tuple[dict, list]:
         """Remove item from a dictionary
 
         Args:
@@ -67,24 +68,18 @@ class DataContainer(BaseModel):
 
         Returns:
             Tuple[dict, list]: `item_dict` and `to_remove` without the removed items
-
-        Raises:
-            AssertionError: if `item_type` is neither `lines` or `points`
         """
-        assert item_type in ['lines', 'points'], "item_type must be either 'lines' or 'points'"
         # if to_remove is emtpy, return
         if len(to_remove) < 1:
             return item_dict, to_remove
 
-        if item_type == 'lines':
-            key = 'code'
-        elif item_type == 'points':
-            key = 'r_peak'
+        key = item_type.value[1]
+        item_key = item_type.value[0]
 
         for item in to_remove:
             item_dict['t'].remove(item[0])
             item_dict[key].remove(item[1])
-            item_dict[item_type].remove(item[2])
+            item_dict[item_key].remove(item[2])
             to_remove.remove(item)
 
         return item_dict, to_remove
@@ -371,7 +366,7 @@ class BasePlots:
 
         return self.lines
 
-    def remove_old_item(self, item_dict: dict, last_t: np.array, item_type: str) -> list:
+    def remove_old_item(self, item_dict: dict, last_t: np.array, item_type: Enum) -> list:
         """
         Remove line or point element from plot widget
 
@@ -384,14 +379,17 @@ class BasePlots:
         Retruns:
             list: list with objects to remove
         """
-        assert item_type in ['lines', 'points'], 'item type parameter must be line or points'
         assert 't' in item_dict.keys(), 'the items dictionary must have the key \'t\''
+
+        # if there are no lines/points in the dict, return
+        if len(item_dict[item_type.value[0]]) == 0:
+            return []
 
         to_remove = []
         for idx_t in range(len(item_dict['t'])):
             if item_dict['t'][idx_t] < last_t:
                 for plt_wdgt in self.plots_list:
-                    for item in item_dict[item_type][idx_t]:
+                    for item in item_dict[item_type.value[0]][idx_t]:
                         plt_wdgt.removeItem(item)
                 to_remove.append([item_dict[key][idx_t] for key in item_dict.keys()])
                 # [item_dict['t'][idx_t], item_dict['r_peak'][idx_t], item_dict['points'][idx_t]])
