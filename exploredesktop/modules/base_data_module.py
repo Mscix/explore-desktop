@@ -26,6 +26,7 @@ class DataContainer(BaseModel):
     """_summary_
     """
     vis_time_offset = None
+    last_t = 0
 
     def __init__(self) -> None:
         super().__init__()
@@ -46,6 +47,7 @@ class DataContainer(BaseModel):
         self.vis_time_offset = None
 
         self.timescale = 10
+        self.last_t = 0
 
     @abstractmethod
     def callback(self, packet):

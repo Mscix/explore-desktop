@@ -95,6 +95,7 @@ class FFTData(DataContainer):
 
 
 class FFTPlot(BasePlots):
+    """FFT Ploting class"""
     def __init__(self, ui) -> None:
         super().__init__(ui)
         self.model = FFTData()
