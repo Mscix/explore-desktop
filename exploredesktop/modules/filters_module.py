@@ -1,4 +1,3 @@
-
 import logging
 import time
 from typing import (
@@ -46,17 +45,17 @@ class Filters(BaseModel):
             return True
 
         self.current_filters = filters
-        remove = True if self.current_filters is not None else False
-        wait = True if self.current_filters is None else False
 
-        if remove:
+        if self.current_filters is not None:
             self.explorer.remove_filters()
 
         self.apply_filters()
-        if wait:
+        # If applying filters for the first time sleep for 1.5 seconds to reduce wavy behavior
+        if self.current_filters is None:
             time.sleep(1.5)
         return True
 
+    # TODO rename
     def _get_filters_popup(self) -> Union[bool, dict]:
         """Get filter values from popup
 
@@ -90,7 +89,7 @@ class Filters(BaseModel):
                 cutoff_freq=(low_freq, high_freq), filter_type='bandpass')
         elif high_freq is not None:
             self.explorer.add_filter(cutoff_freq=high_freq, filter_type='highpass')
-        elif low_freq is not None:
+        else:
             self.explorer.add_filter(cutoff_freq=low_freq, filter_type='lowpass')
 
     def _apply_notch_filter(self, notch_freq: Optional[int]) -> None:

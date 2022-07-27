@@ -35,7 +35,7 @@
 }
 
 QWidget{
-	font:13pt;
+	font:12pt;
 }
 
 QFrame{
@@ -97,23 +97,23 @@ QFrame{
 /*TITLES FONT*/
 
 QLabel#integration_title{
-	font: 22pt;
+	font: 20pt;
 }
 
 QLabel#home_title{
-	font: 22pt;
+	font: 20pt;
 }
 
 QLabel#impedance_title{
-	font: 22pt;
+	font: 20pt;
 }
 
 QLabel#settings_title{
-	font: 22pt;
+	font: 20pt;
 }
 
 QLabel#bt_title{
-	font: 22pt;
+	font: 20pt;
 }
 </string>
    </property>
@@ -819,7 +819,7 @@ QLabel#bt_title{
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>22</pointsize>
+                     <pointsize>20</pointsize>
                      <italic>false</italic>
                      <bold>false</bold>
                     </font>
@@ -1229,7 +1229,7 @@ QLabel#bt_title{
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>22</pointsize>
+                     <pointsize>20</pointsize>
                      <italic>false</italic>
                      <bold>false</bold>
                     </font>
@@ -1285,7 +1285,7 @@ QLabel#bt_title{
                      </property>
                      <property name="font">
                       <font>
-                       <pointsize>13</pointsize>
+                       <pointsize>12</pointsize>
                        <italic>false</italic>
                        <bold>false</bold>
                        <kerning>true</kerning>
@@ -1300,7 +1300,7 @@ QLabel#bt_title{
                     <widget class="QLabel" name="label_11">
                      <property name="font">
                       <font>
-                       <pointsize>13</pointsize>
+                       <pointsize>12</pointsize>
                        <italic>false</italic>
                        <bold>false</bold>
                       </font>
@@ -1375,7 +1375,7 @@ QLabel#bt_title{
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
-                       <height>30</height>
+                       <height>35</height>
                       </size>
                      </property>
                      <property name="maximumSize">
@@ -1477,9 +1477,15 @@ QLabel#bt_title{
                      <height>0</height>
                     </size>
                    </property>
+                   <property name="sizeIncrement">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="font">
                     <font>
-                     <pointsize>22</pointsize>
+                     <pointsize>20</pointsize>
                      <italic>false</italic>
                      <bold>false</bold>
                     </font>
@@ -1529,10 +1535,22 @@ QLabel#bt_title{
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_19">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_31">
                    <item>
                     <widget class="QFrame" name="frame_device">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>0</width>
@@ -1541,7 +1559,7 @@ QLabel#bt_title{
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>420</width>
+                       <width>650</width>
                        <height>16777215</height>
                       </size>
                      </property>
@@ -1555,6 +1573,12 @@ QLabel#bt_title{
                       <enum>QFrame::Raised</enum>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_2">
+                      <property name="leftMargin">
+                       <number>60</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>60</number>
+                      </property>
                       <item>
                        <widget class="QLabel" name="label_explore_name">
                         <property name="sizePolicy">
@@ -1592,7 +1616,7 @@ QLabel#bt_title{
                       <item>
                        <widget class="QLabel" name="label_warning_disabled">
                         <property name="text">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;Changing the settings during recording and LSL streaming is not possible&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;Changing the settings during recording and LSL streaming is not possible&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="wordWrap">
                          <bool>true</bool>
@@ -1798,10 +1822,16 @@ QLabel#bt_title{
                       </item>
                       <item>
                        <widget class="QLabel" name="lbl_sr_warning">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
-                          <height>20</height>
+                          <height>100</height>
                          </size>
                         </property>
                         <property name="styleSheet">
@@ -1809,21 +1839,30 @@ QLabel#bt_title{
 font: 11pt;</string>
                         </property>
                         <property name="text">
-                         <string>Please note that 1000 Hz sampling rate is in beta phase</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Please note that 1000 Hz sampling rate is in beta phase&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                        <property name="wordWrap">
+                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
                       <item alignment="Qt::AlignHCenter">
                        <widget class="QPushButton" name="btn_apply_settings">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="minimumSize">
                          <size>
-                          <width>150</width>
-                          <height>30</height>
+                          <width>160</width>
+                          <height>35</height>
                          </size>
                         </property>
                         <property name="maximumSize">
                          <size>
-                          <width>150</width>
+                          <width>160</width>
                           <height>30</height>
                          </size>
                         </property>
@@ -1834,6 +1873,22 @@ font: 11pt;</string>
                          <string>Apply changes</string>
                         </property>
                        </widget>
+                      </item>
+                      <item>
+                       <spacer name="verticalSpacer_16">
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                         <enum>QSizePolicy::Maximum</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                       </spacer>
                       </item>
                       <item alignment="Qt::AlignHCenter">
                        <widget class="QFrame" name="frame_device_buttons">
@@ -1871,20 +1926,20 @@ font: 11pt;</string>
                          <item>
                           <widget class="QPushButton" name="btn_format_memory">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="minimumSize">
                             <size>
-                             <width>120</width>
-                             <height>30</height>
+                             <width>160</width>
+                             <height>35</height>
                             </size>
                            </property>
                            <property name="maximumSize">
                             <size>
-                             <width>16777215</width>
+                             <width>160</width>
                              <height>30</height>
                             </size>
                            </property>
@@ -1899,20 +1954,20 @@ font: 11pt;</string>
                          <item>
                           <widget class="QPushButton" name="btn_reset_settings">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="minimumSize">
                             <size>
-                             <width>120</width>
-                             <height>30</height>
+                             <width>160</width>
+                             <height>35</height>
                             </size>
                            </property>
                            <property name="maximumSize">
                             <size>
-                             <width>16777215</width>
+                             <width>160</width>
                              <height>30</height>
                             </size>
                            </property>
@@ -1930,20 +1985,20 @@ font: 11pt;</string>
                          <item>
                           <widget class="QPushButton" name="btn_calibrate">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="minimumSize">
                             <size>
-                             <width>120</width>
-                             <height>30</height>
+                             <width>160</width>
+                             <height>35</height>
                             </size>
                            </property>
                            <property name="maximumSize">
                             <size>
-                             <width>16777215</width>
+                             <width>160</width>
                              <height>30</height>
                             </size>
                            </property>
@@ -1979,7 +2034,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_signal">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2012,7 +2067,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_yAxis">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2045,7 +2100,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_timeScale">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2078,7 +2133,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_heartRate">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2381,7 +2436,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_signal_rec">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2414,7 +2469,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_yAxis_rec">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2447,7 +2502,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_timeScale_rec">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2480,7 +2535,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_heartRate_rec">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2528,7 +2583,7 @@ font: 11pt;</string>
                   </property>
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2597,7 +2652,7 @@ font: 11pt;</string>
                <widget class="QLabel" name="label_3">
                 <property name="font">
                  <font>
-                  <pointsize>13</pointsize>
+                  <pointsize>12</pointsize>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
@@ -2683,13 +2738,13 @@ background-color: rgb(169, 169, 169)
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>22</pointsize>
+                     <pointsize>20</pointsize>
                      <italic>false</italic>
                      <bold>false</bold>
                     </font>
                    </property>
                    <property name="text">
-                    <string>Impedance Measurment</string>
+                    <string>Impedance Measurement</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -2771,15 +2826,15 @@ background-color: rgb(169, 169, 169)
                 <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                  <widget class="QPushButton" name="btn_imp_meas">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>140</width>
-                    <height>30</height>
+                    <width>160</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="maximumSize">
@@ -2930,7 +2985,7 @@ color: #FFF;</string>
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>22</pointsize>
+                     <pointsize>20</pointsize>
                      <italic>false</italic>
                      <bold>false</bold>
                     </font>
@@ -2996,7 +3051,7 @@ color: #FFF;</string>
                  <widget class="QLabel" name="label_10">
                   <property name="font">
                    <font>
-                    <pointsize>13</pointsize>
+                    <pointsize>12</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -3006,11 +3061,11 @@ color: #FFF;</string>
                   </property>
                   <property name="text">
                    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DM Sans'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Segoe UI';&quot;&gt;Press the button on your device to turn it on.&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Segoe UI';&quot;&gt;Scan the paired devices or directly input the name of your device.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Press the button on your device to turn it on.&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Scan the paired devices or directly input the name of your device.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="wordWrap">
                    <bool>true</bool>
@@ -3059,7 +3114,7 @@ p, li { white-space: pre-wrap; }
                     <property name="maximumSize">
                      <size>
                       <width>150</width>
-                      <height>80</height>
+                      <height>100</height>
                      </size>
                     </property>
                     <property name="styleSheet">
@@ -3098,7 +3153,7 @@ p, li { white-space: pre-wrap; }
                        <property name="minimumSize">
                         <size>
                          <width>140</width>
-                         <height>30</height>
+                         <height>35</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -3132,7 +3187,7 @@ p, li { white-space: pre-wrap; }
                        <property name="minimumSize">
                         <size>
                          <width>140</width>
-                         <height>30</height>
+                         <height>35</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -3252,7 +3307,7 @@ p, li { white-space: pre-wrap; }
                    <widget class="QLineEdit" name="le_data_path">
                     <property name="font">
                      <font>
-                      <pointsize>13</pointsize>
+                      <pointsize>12</pointsize>
                       <italic>false</italic>
                       <bold>false</bold>
                      </font>
@@ -3270,7 +3325,7 @@ p, li { white-space: pre-wrap; }
                     <property name="minimumSize">
                      <size>
                       <width>140</width>
-                      <height>30</height>
+                      <height>35</height>
                      </size>
                     </property>
                     <property name="maximumSize">
@@ -3305,7 +3360,7 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="font">
                <font>
-                <pointsize>13</pointsize>
+                <pointsize>12</pointsize>
                 <italic>false</italic>
                 <bold>false</bold>
                </font>
@@ -3369,7 +3424,7 @@ p, li { white-space: pre-wrap; }
               <widget class="QLabel" name="ft_label_device_3">
                <property name="font">
                 <font>
-                 <pointsize>13</pointsize>
+                 <pointsize>12</pointsize>
                  <italic>false</italic>
                  <bold>false</bold>
                 </font>

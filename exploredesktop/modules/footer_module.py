@@ -29,6 +29,7 @@ logger = logging.getLogger("explorepy." + __name__)
 class FooterData(BaseModel):
     """Model for footer data
     """
+
     def __init__(self) -> None:
         super().__init__()
         self._battery_percent_list = []
@@ -74,8 +75,9 @@ class FooterData(BaseModel):
 
         try:
             self.signals.envInfoChanged.emit(data)
+        # RuntimeError might happen when the app closes
         except RuntimeError as error:
-            logger.warning("footer_module>line75: RuntimeError: %s", str(error))
+            logger.debug("RuntimeError: %s", str(error))
 
     def subscribe_env_callback(self) -> None:
         """subscribe env callback to stream processor
@@ -104,9 +106,6 @@ class FooterData(BaseModel):
                 self.connection_status != ConnectionStatus.DISCONNECTED:
             self.connection_status = ConnectionStatus.DISCONNECTED
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
-
-        else:
-            pass
 
     def timer_connection(self) -> None:
         """Timer for checking connection status
@@ -138,6 +137,7 @@ class FooterData(BaseModel):
 class FooterFrameView():
     """Footer frame functions
     """
+
     def __init__(self, ui) -> None:
         self.ui = ui
         self.model = FooterData()

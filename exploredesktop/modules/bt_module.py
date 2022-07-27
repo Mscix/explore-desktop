@@ -26,6 +26,7 @@ logger = logging.getLogger("explorepy." + __name__)
 class BTFrameView(BaseModel):
     """Bluetooth frame class
     """
+
     def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui
@@ -46,7 +47,7 @@ class BTFrameView(BaseModel):
         self.ui.dev_name_input.setCompleter(completer)
 
     def get_names_from_settings(self) -> list:
-        """Return list of previously used device names from settings
+        """Returns list of previously used device names from settings
         """
         settings = QSettings("Mentalab", "ExploreDesktop")
         names = settings.value("known_devices")
@@ -103,6 +104,7 @@ class BTFrameView(BaseModel):
         try:
             device_name = self.ui.list_devices.selectedItems()[0].text()
             device_name = device_name[:12]
+        # IndexError raised when no device from list is selected
         except IndexError:
             device_name = ""
 
@@ -121,8 +123,9 @@ class BTFrameView(BaseModel):
 
         if device_name_le != "":
             device_name = device_name_le
-        elif device_name_list != "":
+        else:
             device_name = device_name_list
+
         return device_name
 
     #########################

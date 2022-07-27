@@ -63,8 +63,21 @@ class DataAttributes(BaseEnum):
 
 
 class ExGModes(BaseEnum):
+    """Enum for supported ExG modes"""
     EEG = "EEG"
     ECG = "ECG"
+
+
+class FileTypes(BaseEnum):
+    """Enum for supported file types"""
+    CSV = "csv"
+    EDF = "edf"
+
+
+class PlotItems(BaseEnum):
+    """Enum for plot item types and corresponding dict key"""
+    VLINES = ["lines", "code"]
+    POINTS = ["points", "r_peak"]
 
 
 class Stylesheets():
@@ -192,6 +205,8 @@ class GUISettings():
 
     ORN_LEGEND = ['Acc [mg/LSB]', 'Gyro [mdps/LSB]', 'Mag [mgauss/LSB]']
 
+    RESERVED_CHARS = "[|\\?*<\":>[\]+/']"
+
 
 class Settings():
     """Class containing explore settings
@@ -229,7 +244,7 @@ class Settings():
         "yellow": 20,
         "orange": 30,
         "red": 50,
-        "open": 100
+        "open": 250
     }
 
     BASELINE_MA_LENGTH = 1.5 * EXG_VIS_SRATE
@@ -269,6 +284,16 @@ class Messages():
     # dialogs
     #########################
     OFFSET_EXPLANATION = "Remove the DC offset of the signal based on the previous signal values"
+    SPECIAL_CHAR_WARNING = (
+        '<html><head/><body><p><span style=" color:#d90000;">A file name can\'t contain any of the'
+        ' following characters:</span></p><p align="center"><span style=" color:#d90000;">| \ ? * &lt; &quot; : &gt; + '
+        '[ ] / \'</span></p></body></html>'
+    )
+    FILE_EXISTS = (
+        '<html><head/><body><p><span style=" color:#d90000;">There is already a file with the same'
+        ' name in this location.</span></p><p align="center"><span style=" color:#d90000;">Please select another folder'
+        ' or file name</span></p></body></html>'
+    )
 
     #########################
     # imp functions

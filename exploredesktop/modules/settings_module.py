@@ -23,6 +23,7 @@ logger = logging.getLogger("explorepy." + __name__)
 class SettingsFrameView(BaseModel):
     """_summary_
     """
+
     def __init__(self, ui, filters) -> None:
         super().__init__()
         self.ui = ui
@@ -91,7 +92,7 @@ class SettingsFrameView(BaseModel):
 
         with wait_cursor():
             reset = self.explorer.reset_soft()
-            disconnect = self.explorer.disconnect()
+            self.explorer.disconnect()
             self.signals.connectionStatus.emit(ConnectionStatus.DISCONNECTED)
             self.signals.pageChange.emit("btn_bt")
 

@@ -1,4 +1,5 @@
 """Base module for data classes"""
+from enum import Enum
 import logging
 from abc import abstractmethod
 from typing import (
@@ -57,7 +58,7 @@ class DataContainer(BaseModel):
         raise NotImplementedError
 
     @staticmethod
-    def remove_dict_item(item_dict: dict, item_type: str, to_remove: list) -> Tuple[dict, list]:
+    def remove_dict_item(item_dict: dict, item_type: Enum, to_remove: list) -> Tuple[dict, list]:
         """Remove item from a dictionary
 
         Args:
@@ -67,24 +68,18 @@ class DataContainer(BaseModel):
 
         Returns:
             Tuple[dict, list]: `item_dict` and `to_remove` without the removed items
-
-        Raises:
-            AssertionError: if `item_type` is neither `lines` or `points`
         """
-        assert item_type in ['lines', 'points'], "item_type must be either 'lines' or 'points'"
         # if to_remove is emtpy, return
         if len(to_remove) < 1:
             return item_dict, to_remove
 
-        if item_type == 'lines':
-            key = 'code'
-        elif item_type == 'points':
-            key = 'r_peak'
+        key = item_type.value[1]
+        item_key = item_type.value[0]
 
         for item in to_remove:
             item_dict['t'].remove(item[0])
             item_dict[key].remove(item[1])
-            item_dict[item_type].remove(item[2])
+            item_dict[item_key].remove(item[2])
             to_remove.remove(item)
 
         return item_dict, to_remove
@@ -146,6 +141,8 @@ class DataContainer(BaseModel):
         for key, val in self.plot_data.items():
             try:
                 val.put(idxs, data[key], mode='wrap')
+            # KeyError might happen when active chanels are changed
+            # if this happens, add nans instead of data coming from packet
             except KeyError:
                 val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
 
@@ -187,13 +184,15 @@ class DataContainer(BaseModel):
         ticks = t_ticks[::l_points]
         try:
             signal.emit([vals, ticks])
+        # RuntimeError might happen when the app closes
         except RuntimeError as error:
-            logger.warning("RuntimeError: %s", str(error))
+            logger.debug("RuntimeError: %s", str(error))
 
 
 class BasePlots:
     """_summary_
     """
+
     def __init__(self, ui) -> None:
         self.ui = ui
         self.model = DataContainer()
@@ -208,12 +207,12 @@ class BasePlots:
         self.ui.value_timeScale.currentTextChanged.connect(self.set_time_scale)
 
     def get_model(self):
-        """Return data model"""
+        """Returns data model"""
         return self.model
 
     @property
     def time_scale(self) -> int:
-        """Return timescale set in GUI
+        """Returns timescale set in GUI
         """
         t_str = self.ui.value_timeScale.currentText()
         t_int = int(Settings.TIME_RANGE_MENU[t_str])
@@ -305,6 +304,7 @@ class BasePlots:
         for plt in self.plots_list:
             try:
                 plt.setXRange(t_min, t_max, padding=0.01)
+            # Exception coming from pyqtgraph library, can be ignored
             except Exception:
                 pass
 
@@ -348,7 +348,7 @@ class BasePlots:
         Args:
             lines (list): list of position line
 
-        Return:
+        Returns:
             list: position lines with updated time pos
         """
         pos = t_vector[self.model.pointer - 1]
@@ -360,12 +360,13 @@ class BasePlots:
             for line in self.lines:
                 try:
                     line.setPos(pos)
+                # RuntimeError might happen when the app closes/device desconnects - set the lines to default value
                 except RuntimeError:
                     self.lines = [None for i in range(len(self.lines))]
 
         return self.lines
 
-    def remove_old_item(self, item_dict: dict, last_t: np.array, item_type: str) -> list:
+    def remove_old_item(self, item_dict: dict, last_t: np.array, item_type: Enum) -> list:
         """
         Remove line or point element from plot widget
 
@@ -375,17 +376,20 @@ class BasePlots:
             item_type (str): specifies item to remove (line or points).
             plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
 
-        Retrun:
+        Retruns:
             list: list with objects to remove
         """
-        assert item_type in ['lines', 'points'], 'item type parameter must be line or points'
         assert 't' in item_dict.keys(), 'the items dictionary must have the key \'t\''
+
+        # if there are no lines/points in the dict, return
+        if len(item_dict[item_type.value[0]]) == 0:
+            return []
 
         to_remove = []
         for idx_t in range(len(item_dict['t'])):
             if item_dict['t'][idx_t] < last_t:
                 for plt_wdgt in self.plots_list:
-                    for item in item_dict[item_type][idx_t]:
+                    for item in item_dict[item_type.value[0]][idx_t]:
                         plt_wdgt.removeItem(item)
                 to_remove.append([item_dict[key][idx_t] for key in item_dict.keys()])
                 # [item_dict['t'][idx_t], item_dict['r_peak'][idx_t], item_dict['points'][idx_t]])

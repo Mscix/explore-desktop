@@ -8,6 +8,7 @@ from PySide6.QtGui import QIntValidator
 
 from exploredesktop.modules.app_settings import (  # isort: skip
     Messages,
+    PlotItems,
     Stylesheets
 )
 from exploredesktop.modules.base_data_module import (  # isort: skip
@@ -18,6 +19,8 @@ from exploredesktop.modules.utils import display_msg  # isort: skip
 
 
 class MarkerData(DataContainer):
+    """Marker data model"""
+
     def __init__(self) -> None:
         super().__init__()
         self.mrk_plot = {'t': [], 'code': [], 'lines': []}
@@ -70,6 +73,8 @@ class MarkerData(DataContainer):
 
 
 class MarkerPlot(BasePlots):
+    """Marker plot"""
+
     def __init__(self, ui) -> None:
         super().__init__(ui)
         self.model = MarkerData()
@@ -182,6 +187,12 @@ class MarkerPlot(BasePlots):
             last_t (float): last time point
         """
         item_dict = self.model.mrk_replot
-        item_type = 'lines'
+        item_type = PlotItems.VLINES
         to_remove = super().remove_old_item(item_dict, last_t, item_type)
         self.model.mrk_replot, to_remove = self.model.remove_dict_item(item_dict, item_type, to_remove)
+
+    def init_plot(self):
+        raise NotImplementedError
+
+    def swipe_plot(self):
+        raise NotImplementedError
