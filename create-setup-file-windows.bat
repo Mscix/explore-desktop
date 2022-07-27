@@ -1,5 +1,9 @@
 @REM @echo off
 @REM Check we are in master branch
+@REM git branch | find "* master" > NUL & IF ERRORLEVEL 1 (
+@REM     echo "Please checkout to master branch and try again!"
+@REM     exit /B 2
+@REM )
 
 call set mode=%1
 if %mode%==update goto input_ok
@@ -21,13 +25,7 @@ if EXIST %repo_wiki_path% (
     exit /B 2
 )
 
-git branch | find "* master" > NUL & IF ERRORLEVEL 1 (
-    echo "Please checkout to master branch and try again!"
-    exit /B 2
-)
-
 @REM Conda virtual env
-call echo "In conda env"
 call conda config --append channels conda-forge
 call conda create -n gui_installer python=3.8.10 -y
 call conda activate gui_installer
