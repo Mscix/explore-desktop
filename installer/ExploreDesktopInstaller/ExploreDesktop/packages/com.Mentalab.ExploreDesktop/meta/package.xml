@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>ExploreDesktop</DisplayName>
     <Description>Install ExploreDesktop</Description>
-    <Version>0.3.2</Version>
-    <ReleaseDate>2022-03-15</ReleaseDate>
+    <Version>0.2.2</Version>
+    <ReleaseDate>2022-07-25</ReleaseDate>
     <Licenses>
         <License name="ExploreDesktop License" file="license.txt" />
         <License name="Third Party Code Licenses" file="license3party.txt" />

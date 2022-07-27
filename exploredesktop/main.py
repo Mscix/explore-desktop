@@ -22,18 +22,14 @@ os.environ["QT_FONT_DPI"] = "96"
 
 
 def main():
+    """Launch app"""
     QApplication.setHighDpiScaleFactorRoundingPolicy(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.Floor)
     app = QApplication(sys.argv)
 
     update = update_version()
-    app.closeAllWindows()
     if update is False:
         window = MainWindow()
         window.show()
-
-    update = update_version()
-    if update is True:
-        app.closeAllWindows()
 
     app.exec()
     del window, app

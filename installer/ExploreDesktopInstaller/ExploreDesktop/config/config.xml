@@ -6,18 +6,14 @@
     <Publisher>Mentalab GmbH.</Publisher>
     <InstallerApplicationIcon>../packages/com.Mentalab.ExploreDesktop/extras/MentalabLogo</InstallerApplicationIcon>
     <InstallerWindowIcon>../packages/com.Mentalab.ExploreDesktop/extras/MentalabLogo.png</InstallerWindowIcon>
-    <StartMenuDir>ExploreDesktop</StartMenuDir>
+    <StartMenuDir>Explore Desktop</StartMenuDir>
     <TargetDir>@HomeDir@/ExploreDesktop</TargetDir>
     <RemoteRepositories>
         <Repository>
-            <!-- <Url>file:///C:/Qt/QtIFW/examples/online/repository</Url> -->
-            <!-- <Url>https://drive.google.com/drive/folders/1h6UC9sEQBkS74u8SMUzJKgR1NNRD-HRy?usp=sharing</Url> -->
             <Url>https://wiki.mentalab.com/explore-desktop-release/</Url>
-            <!-- <Url>http://localhost:8000/repository</Url> -->
-            <!-- <DisplayName>Example repository</DisplayName> -->
         </Repository>
     </RemoteRepositories>
-    <RunProgram>@TargetDir@/ExploreDesktop/ExploreGUI.exe</RunProgram>
+    <!-- <RunProgram>@TargetDir@/ExploreDesktop/ExploreGUI.exe</RunProgram> -->
     <RemoveTargetDir>true</RemoveTargetDir>
     <WizardStyle>Modern</WizardStyle>
     <!-- <ControlScript>controlscript.qs</ControlScript> -->
