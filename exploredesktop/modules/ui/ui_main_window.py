@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_main_window_model.ui'
+## Form generated from reading UI file 'ui_main_window.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.2.1
 ##
@@ -32,9 +32,7 @@ class Ui_MainWindow(object):
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1116, 691)
         MainWindow.setMinimumSize(QSize(800, 600))
-        MainWindow.setStyleSheet(u"QMainWindow{\n"
-"	border: 1px solid rgb(19, 38, 39)\n"
-"}")
+        MainWindow.setStyleSheet(u"")
         self.actionExport_Metadata = QAction(MainWindow)
         self.actionExport_Metadata.setObjectName(u"actionExport_Metadata")
         self.actionDocumentation = QAction(MainWindow)
@@ -48,10 +46,10 @@ class Ui_MainWindow(object):
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
-        self.centralwidget.setStyleSheet(u"/*#centralwidget{\n"
-"	border-top: 1px solid rgb(95, 197, 201);\n"
+        self.centralwidget.setStyleSheet(u"#centralwidget{\n"
+"	border-top: 1px solid rgb(173, 173, 173)\n"
 "}\n"
-"*/\n"
+"\n"
 "QWidget{\n"
 "	font:13pt;\n"
 "}\n"
@@ -114,8 +112,8 @@ class Ui_MainWindow(object):
 "\n"
 "/*TITLES FONT*/\n"
 "\n"
-"QLabe"
-                        "l#integration_title{\n"
+""
+                        "QLabel#integration_title{\n"
 "	font: 22pt;\n"
 "}\n"
 "\n"
@@ -1677,16 +1675,6 @@ class Ui_MainWindow(object):
         self.ft_label_version.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.horizontalLayout_14.addWidget(self.ft_label_version)
-
-        self.frame_size_grip = QFrame(self.main_footer)
-        self.frame_size_grip.setObjectName(u"frame_size_grip")
-        self.frame_size_grip.setMinimumSize(QSize(20, 20))
-        self.frame_size_grip.setMaximumSize(QSize(20, 20))
-        self.frame_size_grip.setCursor(QCursor(Qt.SizeFDiagCursor))
-        self.frame_size_grip.setFrameShape(QFrame.NoFrame)
-        self.frame_size_grip.setFrameShadow(QFrame.Raised)
-
-        self.horizontalLayout_14.addWidget(self.frame_size_grip)
 
 
         self.verticalLayout_4.addWidget(self.main_footer)

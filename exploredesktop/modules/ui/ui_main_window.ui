@@ -20,9 +20,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QMainWindow{
-	border: 1px solid rgb(19, 38, 39)
-}</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="minimumSize">
@@ -32,10 +30,10 @@
     </size>
    </property>
    <property name="styleSheet">
-    <string notr="true">/* #centralwidget{
-	border: 1px solid rgb(19, 38, 39)
+    <string notr="true">#centralwidget{
+	border-top: 1px solid rgb(173, 173, 173)
 }
-*/
+
 QWidget{
 	font:13pt;
 }
