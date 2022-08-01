@@ -46,6 +46,7 @@ from exploredesktop.modules.filters_module import Filters  # isort:skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort:skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort:skip
 from exploredesktop.modules.lsl_module import IntegrationFrameView  # isort:skip
+from exploredesktop.modules.mkr_module import MarkerPlot  # isort:skip
 from exploredesktop.modules.orn_module import ORNPlot  # isort:skip
 from exploredesktop.modules.recording_module import RecordFunctions  # isort:skip
 from exploredesktop.modules.settings_module import SettingsFrameView  # isort:skip
@@ -53,8 +54,7 @@ from exploredesktop.modules.utils import (  # isort:skip
     display_msg,
     get_widget_by_obj_name
 )
-from exploredesktop.modules.mkr_module import MarkerPlot  # isort:skip
-
+from pathlib import Path
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
 
@@ -71,7 +71,9 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
+        par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+        icon_path = os.path.join(par_dir, "MentalabLogo.ico")
+        logger.debug("Icon path: %s" % icon_path)
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle('Explore Desktop')
 
@@ -315,8 +317,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # self.ui.label_3.setHidden(self.file_names is None)
 
-        self.ui.line_2.setHidden(True)
-
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
@@ -328,11 +328,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.btn_calibrate.setHidden(True)
         # connect page
         self.ui.lbl_wdws_warning.hide()
-        self.ui.btn_import_data.hide()
-        self.ui.le_data_path.hide()
-        self.ui.label_16.setHidden(True)
-        self.ui.line_2.hide()
-        self.ui.lbl_bt_instructions.hide()
+        # self.ui.lbl_bt_instructions.hide()
         # integration page
         # TODO: decide if we want to enable duration
         self.ui.lsl_duration_value.hide()
