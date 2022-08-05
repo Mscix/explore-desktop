@@ -43,7 +43,7 @@ setup(
     test_suite='tests',
     extras_require=extras,
     url='https://github.com/Mentalab-hub/explore-desktop',
-    version='0.3.0',
+    version='0.3.1',
     zip_safe=False,
     entry_points={'console_scripts': ['exploredesktop = exploredesktop.main:main']},
 )
