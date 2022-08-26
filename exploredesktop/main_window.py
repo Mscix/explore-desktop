@@ -1,4 +1,5 @@
 """Main Application"""
+from genericpath import isfile
 import logging
 import os
 from enum import Enum
@@ -9,11 +10,13 @@ from explorepy.log_config import (
     read_config,
     write_config
 )
+from explorepy.tools import generate_eeglab_dataset
 from explorepy.stream_processor import TOPICS
 from PySide6.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
-    QThreadPool
+    QThreadPool,
+    QSettings
 )
 from PySide6.QtGui import (
     QColor,
@@ -23,9 +26,14 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import (
     QGraphicsDropShadowEffect,
     QMainWindow,
-    QPushButton
+    QPushButton,
+    QFileDialog
 )
 
+from PySide6.QtWidgets import (
+    QDialog,
+    QDialogButtonBox
+)
 
 import exploredesktop  # isort:skip
 from exploredesktop.modules import (  # isort:skip
@@ -105,6 +113,12 @@ class MainWindow(QMainWindow, BaseModel):
 
         # HOME PAGE
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
+        self.ui.btn_import_edf.clicked.connect(self.select_edf_file)
+        self.ui.btn_generate_bdf.setEnabled(False)
+        self.ui.btn_generate_bdf.clicked.connect(self.export_eeglab_dataset)
+        self.ui.le_import_edf.textChanged.connect(
+            lambda: self.ui.btn_generate_bdf.setEnabled(self.ui.le_import_edf.text() != "")
+        )
 
         # IMPEDANCE PAGE
         self.imp_frame = ImpFrameView(self.ui)
@@ -585,3 +599,31 @@ class MainWindow(QMainWindow, BaseModel):
             self.ui.cb_permission.setChecked(config)
             exist = True
         return exist
+
+    # NOTE: will move this to appropiate section later
+    def export_eeglab_dataset(self):
+        """Export eeglab dataset
+        """
+        filename = self.ui.le_import_edf.text()
+        if not os.path.isfile(filename):
+            display_msg("File does not exist. Please select a correct path")
+            return
+        generate_eeglab_dataset(filename)
+        msg = "Dataset exported"
+        display_msg(msg, popup_type="info")
+
+    def select_edf_file(self):
+        """
+        Open a dialog to select file name to be saved
+        """
+        #TODO get path from last used directory
+
+        dialog = QFileDialog()
+        file_path = dialog.getOpenFileName(
+            self,
+            "Select file to convert",
+            "",
+            "BDF files (*.bdf)")
+
+        print(f"{file_path=}")
+        self.ui.le_import_edf.setText(file_path[0])

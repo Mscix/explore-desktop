@@ -72,9 +72,31 @@ class Ui_MainWindow(object):
 "	border-top: 1px solid rgb(95, 197, 201);\n"
 "}\n"
 "\n"
-"#page_home .QPushButton{\n"
+"/*#page_home .QPushButton{\n"
 "	border:none\n"
 "}\n"
+"*/\n"
+"#btn_bt_2{\n"
+"	border:none\n"
+"}\n"
+"\n"
+"#btn_settings_2{\n"
+"	border:none\n"
+"}\n"
+"\n"
+"#btn_plots_2{\n"
+"	border:none\n"
+"}\n"
+"\n"
+"\n"
+"#btn_impedance_2{\n"
+"	border:none\n"
+"}\n"
+"\n"
+"#btn_integration_2{\n"
+"	border:none\n"
+"}\n"
+"\n"
 "\n"
 "#value_heartRate{\n"
 "	border: 1px solid\n"
@@ -94,7 +116,8 @@ class Ui_MainWindow(object):
 "	border:none;\n"
 "	border-right: 1px solid rgb(95, 197, 201);\n"
 "}\n"
-"#toggle_left_menu{\n"
+"#toggle_left_"
+                        "menu{\n"
 "	border:none;\n"
 "}\n"
 "\n"
@@ -112,8 +135,7 @@ class Ui_MainWindow(object):
 "\n"
 "/*TITLES FONT*/\n"
 "\n"
-""
-                        "QLabel#integration_title{\n"
+"QLabel#integration_title{\n"
 "	font: 20pt;\n"
 "}\n"
 "\n"
@@ -431,6 +453,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_7.addWidget(self.label)
 
         self.verticalLayout_18 = QVBoxLayout()
+        self.verticalLayout_18.setSpacing(0)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.horizontalLayout_12 = QHBoxLayout()
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
@@ -561,6 +584,50 @@ class Ui_MainWindow(object):
         self.cb_permission.setChecked(True)
 
         self.verticalLayout_7.addWidget(self.cb_permission)
+
+        self.label_6 = QLabel(self.page_home)
+        self.label_6.setObjectName(u"label_6")
+        self.label_6.setMaximumSize(QSize(16777215, 16777215))
+        self.label_6.setStyleSheet(u"")
+        self.label_6.setMargin(15)
+
+        self.verticalLayout_7.addWidget(self.label_6)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.le_import_edf = QLineEdit(self.page_home)
+        self.le_import_edf.setObjectName(u"le_import_edf")
+
+        self.horizontalLayout_2.addWidget(self.le_import_edf)
+
+        self.horizontalSpacer_10 = QSpacerItem(20, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_10)
+
+        self.btn_import_edf = QPushButton(self.page_home)
+        self.btn_import_edf.setObjectName(u"btn_import_edf")
+        self.btn_import_edf.setMinimumSize(QSize(100, 35))
+        self.btn_import_edf.setMaximumSize(QSize(100, 30))
+        self.btn_import_edf.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.horizontalLayout_2.addWidget(self.btn_import_edf)
+
+        self.horizontalSpacer_11 = QSpacerItem(59, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_11)
+
+        self.btn_generate_bdf = QPushButton(self.page_home)
+        self.btn_generate_bdf.setObjectName(u"btn_generate_bdf")
+        self.btn_generate_bdf.setMinimumSize(QSize(100, 35))
+
+        self.horizontalLayout_2.addWidget(self.btn_generate_bdf)
+
+        self.horizontalSpacer_12 = QSpacerItem(40, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_12)
+
+
+        self.verticalLayout_7.addLayout(self.horizontalLayout_2)
 
         self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -1662,7 +1729,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(6)
+        self.stackedWidget.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -1702,6 +1769,10 @@ class Ui_MainWindow(object):
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Integrate with other platforms", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">DATA SHARING PERMISSION</span></p></body></html>", None))
         self.cb_permission.setText(QCoreApplication.translate("MainWindow", u"Automatically send error logs to Mentalab", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">EXPORT TO EEGLAB DATASET</span></p></body></html>", None))
+        self.le_import_edf.setPlaceholderText(QCoreApplication.translate("MainWindow", u"path/to/file", None))
+        self.btn_import_edf.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.btn_generate_bdf.setText(QCoreApplication.translate("MainWindow", u"Export", None))
         self.integration_title.setText(QCoreApplication.translate("MainWindow", u"Integration", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Push to LSL</span></p></body></html>", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Stream data from other software such as OpenVibe or other programming languages. </p><p>It will create three LSL streams for ExG, Orientation and markers. </p></body></html>", None))

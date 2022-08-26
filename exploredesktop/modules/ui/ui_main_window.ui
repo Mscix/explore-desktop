@@ -56,9 +56,31 @@ QFrame{
 	border-top: 1px solid rgb(95, 197, 201);
 }
 
-#page_home .QPushButton{
+/*#page_home .QPushButton{
 	border:none
 }
+*/
+#btn_bt_2{
+	border:none
+}
+
+#btn_settings_2{
+	border:none
+}
+
+#btn_plots_2{
+	border:none
+}
+
+
+#btn_impedance_2{
+	border:none
+}
+
+#btn_integration_2{
+	border:none
+}
+
 
 #value_heartRate{
 	border: 1px solid
@@ -756,7 +778,7 @@ QLabel#bt_title{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>6</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -875,6 +897,9 @@ QLabel#bt_title{
               </item>
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_18">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_12">
                   <item>
@@ -1136,6 +1161,119 @@ QLabel#bt_title{
                  <bool>true</bool>
                 </property>
                </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_6">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;EXPORT EEGLAB DATASET&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="margin">
+                 <number>15</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <widget class="QLineEdit" name="le_import_edf">
+                  <property name="placeholderText">
+                   <string>path/to/file</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_10">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btn_import_edf">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="text">
+                   <string>Browse</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_11">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Minimum</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>59</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btn_generate_bdf">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Export</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_12">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Minimum</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
               </item>
               <item>
                <spacer name="verticalSpacer_3">
