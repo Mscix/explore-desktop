@@ -619,5 +619,4 @@ class MainWindow(QMainWindow, BaseModel):
             "",
             "BDF files (*.bdf)")
 
-        print(f"{file_path=}")
         self.ui.le_import_edf.setText(file_path[0])
