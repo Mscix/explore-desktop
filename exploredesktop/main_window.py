@@ -1,22 +1,21 @@
 """Main Application"""
-from genericpath import isfile
 import logging
 import os
 from enum import Enum
+from pathlib import Path
 from typing import Union
-import PySide6
 
+import PySide6
 from explorepy.log_config import (
     read_config,
     write_config
 )
-from explorepy.tools import generate_eeglab_dataset
 from explorepy.stream_processor import TOPICS
+from explorepy.tools import generate_eeglab_dataset
 from PySide6.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
-    QThreadPool,
-    QSettings
+    QThreadPool
 )
 from PySide6.QtGui import (
     QColor,
@@ -24,16 +23,12 @@ from PySide6.QtGui import (
     QIcon
 )
 from PySide6.QtWidgets import (
+    QFileDialog,
     QGraphicsDropShadowEffect,
     QMainWindow,
-    QPushButton,
-    QFileDialog
+    QPushButton
 )
 
-from PySide6.QtWidgets import (
-    QDialog,
-    QDialogButtonBox
-)
 
 import exploredesktop  # isort:skip
 from exploredesktop.modules import (  # isort:skip
@@ -62,7 +57,6 @@ from exploredesktop.modules.utils import (  # isort:skip
     display_msg,
     get_widget_by_obj_name
 )
-from pathlib import Path
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
 
