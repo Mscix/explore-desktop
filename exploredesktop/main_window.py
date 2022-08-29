@@ -3,6 +3,7 @@ import logging
 import os
 from enum import Enum
 from pathlib import Path
+import shutil
 from typing import Union
 
 import PySide6
@@ -598,12 +599,36 @@ class MainWindow(QMainWindow, BaseModel):
     def export_eeglab_dataset(self):
         """Export eeglab dataset
         """
-        filename = self.ui.le_import_edf.text()
-        if not os.path.isfile(filename):
-            display_msg("File does not exist. Please select a correct path")
+        folder_name = self.ui.le_import_edf.text()
+        if not os.path.isdir(folder_name):
+            display_msg("Directory does not exist. Please select an existing folder")
             return
-        generate_eeglab_dataset(filename)
-        msg = "Dataset exported"
+
+        folder_bdfs = os.path.join(folder_name, "bdf")
+        if not os.path.isdir(folder_bdfs):
+            os.mkdir(folder_bdfs)
+            logger.info("Creating folder %s to store bdf files" % folder_bdfs)
+
+        folder_datasets = os.path.join(folder_name, "datasets")
+        if not os.path.isdir(folder_datasets):
+            os.mkdir(folder_datasets)
+            logger.info("Creating folder %s to store dataset files" % folder_datasets)
+
+        n_files = 0
+        for file in os.listdir(folder_name):
+            edf_path = os.path.join(folder_name, file)
+            if edf_path.endswith(".edf") and os.path.isfile(edf_path):
+                bdf_file = os.path.splitext(file)[0] + ".bdf"
+                dataset_file = os.path.splitext(file)[0] + ".set"
+                bdf_path = os.path.join(folder_bdfs, bdf_file)
+                dataset_path = os.path.join(folder_datasets, dataset_file)
+                shutil.copy2(edf_path, bdf_path)
+                generate_eeglab_dataset(bdf_path, dataset_path)
+                n_files += 1
+
+        # folder_bdfs = os.path.dirname(folder_name)
+        folder_datasets = folder_datasets.replace("/", "\\")
+        msg = f"{n_files} datasets exported in folder {folder_datasets}"
         display_msg(msg, popup_type="info")
 
     def select_edf_file(self):
@@ -613,10 +638,10 @@ class MainWindow(QMainWindow, BaseModel):
         #TODO get path from last used directory
 
         dialog = QFileDialog()
-        file_path = dialog.getOpenFileName(
+        file_path = dialog.getExistingDirectory(
             self,
-            "Select file to convert",
+            "Choose Directory containing EDF files",
             "",
-            "BDF files (*.bdf)")
+            QFileDialog.ShowDirsOnly)
 
-        self.ui.le_import_edf.setText(file_path[0])
+        self.ui.le_import_edf.setText(file_path)

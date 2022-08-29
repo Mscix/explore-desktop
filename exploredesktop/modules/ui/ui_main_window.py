@@ -1770,7 +1770,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">DATA SHARING PERMISSION</span></p></body></html>", None))
         self.cb_permission.setText(QCoreApplication.translate("MainWindow", u"Automatically send error logs to Mentalab", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">EXPORT TO EEGLAB DATASET</span></p></body></html>", None))
-        self.le_import_edf.setPlaceholderText(QCoreApplication.translate("MainWindow", u"path/to/file", None))
+        self.le_import_edf.setPlaceholderText(QCoreApplication.translate("MainWindow", u"path/to/folder", None))
         self.btn_import_edf.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.btn_generate_bdf.setText(QCoreApplication.translate("MainWindow", u"Export", None))
         self.integration_title.setText(QCoreApplication.translate("MainWindow", u"Integration", None))
