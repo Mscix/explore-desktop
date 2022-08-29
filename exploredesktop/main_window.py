@@ -616,19 +616,27 @@ class MainWindow(QMainWindow, BaseModel):
 
         n_files = 0
         for file in os.listdir(folder_name):
-            edf_path = os.path.join(folder_name, file)
-            if edf_path.endswith(".edf") and os.path.isfile(edf_path):
+            file_path = os.path.join(folder_name, file)
+            if file_path.endswith(".edf") and os.path.isfile(file_path):
                 bdf_file = os.path.splitext(file)[0] + ".bdf"
                 dataset_file = os.path.splitext(file)[0] + ".set"
                 bdf_path = os.path.join(folder_bdfs, bdf_file)
                 dataset_path = os.path.join(folder_datasets, dataset_file)
-                shutil.copy2(edf_path, bdf_path)
+                shutil.copy2(file_path, bdf_path)
                 generate_eeglab_dataset(bdf_path, dataset_path)
                 n_files += 1
+            elif file_path.endswith(".bdf") and os.path.isfile(file_path):
+                dataset_file = os.path.splitext(file)[0] + ".set"
+                dataset_path = os.path.join(folder_datasets, dataset_file)
+                generate_eeglab_dataset(file_path, dataset_path)
+                n_files += 1
 
+        if len(os.listdir(folder_bdfs)) == 0:
+            os.rmdir(folder_bdfs)
         # folder_bdfs = os.path.dirname(folder_name)
         folder_datasets = folder_datasets.replace("/", "\\")
         msg = f"{n_files} datasets exported in folder {folder_datasets}"
+        logger.info(msg)
         display_msg(msg, popup_type="info")
 
     def select_edf_file(self):
