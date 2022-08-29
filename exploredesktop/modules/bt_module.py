@@ -84,8 +84,8 @@ class BTFrameView(BaseModel):
 
         if not input_name.startswith("Explore_") and len(input_name) == 4:
             device_name = "Explore_" + input_name
-        elif input_name.startswith("Explore_"):
-            device_name = input_name
+        elif input_name.upper().startswith("EXPLORE_"):
+            device_name = input_name.replace("EXPLORE_", "Explore_")
         else:
             device_name = ""
 
