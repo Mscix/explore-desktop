@@ -26,6 +26,8 @@ a = Analysis([main_path],
              cipher=block_cipher,
              noarchive=False)
 a.datas += Tree(path.dirname(pylsl.__file__), prefix='pylsl', excludes='__pycache__')
+a.datas += Tree(r"C:\Users\ProSomno\miniconda3\Lib\site-packages\mne", prefix="mne")
+a.datas += Tree(r"C:\Users\ProSomno\miniconda3\envs\gui3810\Lib\site-packages\eeglabio", prefix="eeglabio")
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 
@@ -57,7 +59,7 @@ if sys.platform == 'darwin':
                  name='ExploreDesktop.app',
                  icon=icon_path,
                  bundle_identifier='com.mentalab.exploredesktop',
-                 version='0.4.0',
+                 version='0.4.1',
                  info_plist={
                   'NSPrincipalClass': 'NSApplication',
                   'NSAppleScriptEnabled': False,
