@@ -1,12 +1,15 @@
 """ExG visualization module"""
 import logging
-import explorepy
 
+import explorepy
 import numpy as np
 import pyqtgraph as pg
-from PySide6.QtCore import Slot, QTimer
-
 from explorepy.tools import HeartRateEstimator
+from PySide6.QtCore import (
+    QTimer,
+    Slot
+)
+
 
 from exploredesktop.modules.app_settings import (  # isort:skip
     DataAttributes,
@@ -411,7 +414,8 @@ class ExGPlot(BasePlots):
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
-        self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
+        # TODO: this will depend on new chan dict
+        # self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
         self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
 
     @Slot(bool)

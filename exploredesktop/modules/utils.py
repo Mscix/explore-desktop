@@ -9,13 +9,13 @@ Functions:
 import logging
 from contextlib import contextmanager
 
+import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (
     QApplication,
     QMessageBox
 )
-import numpy as np
 
 
 from exploredesktop.modules.app_settings import (  # isort:skip

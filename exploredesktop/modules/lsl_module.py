@@ -1,8 +1,11 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import Optional
 
-from PySide6.QtCore import Slot, QTimer
+from PySide6.QtCore import (
+    QTimer,
+    Slot
+)
 
 
 from exploredesktop.modules.base_model import BaseModel  # isort:skip
