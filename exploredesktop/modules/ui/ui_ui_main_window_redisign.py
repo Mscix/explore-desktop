@@ -23,9 +23,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
     QTabWidget, QTableView, QVBoxLayout, QWidget)
 
 from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
-import app_resources_rc
-import app_resources_rc
-import app_resources_rc
+from exploredesktop import app_resources_rc
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -1525,6 +1524,20 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_14.addItem(self.horizontalSpacer_2)
 
+        self.ft_label_firmware = QLabel(self.main_footer)
+        self.ft_label_firmware.setObjectName(u"ft_label_firmware")
+
+        self.horizontalLayout_14.addWidget(self.ft_label_firmware)
+
+        self.ft_label_firmware_value = QLabel(self.main_footer)
+        self.ft_label_firmware_value.setObjectName(u"ft_label_firmware_value")
+
+        self.horizontalLayout_14.addWidget(self.ft_label_firmware_value, 0, Qt.AlignLeft)
+
+        self.horizontalSpacer_11 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_11)
+
         self.horizontalLayout_25 = QHBoxLayout()
         self.horizontalLayout_25.setObjectName(u"horizontalLayout_25")
 
@@ -1705,6 +1718,8 @@ class Ui_MainWindow(object):
         self.btn_apply_settings_2.setText(QCoreApplication.translate("MainWindow", u"Apply", None))
         self.cb_multitype_signal_3.setText(QCoreApplication.translate("MainWindow", u"Multi Type signal", None))
         self.ft_label_device_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Not connected</span></p></body></html>", None))
+        self.ft_label_firmware.setText(QCoreApplication.translate("MainWindow", u"Firmware Version  ", None))
+        self.ft_label_firmware_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.ft_label_battery.setText(QCoreApplication.translate("MainWindow", u"Battery ", None))
         self.ft_label_battery_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.ft_label_temp.setText(QCoreApplication.translate("MainWindow", u"Device Temperature", None))
