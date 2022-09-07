@@ -28,7 +28,7 @@ class ExploreInterface(Explore):
     def __init__(self):
         super().__init__()
         self.device_chan = None
-        self.chan_dict = {}
+        self.chan_dict = []
 
     @property
     def sampling_rate(self) -> Optional[int]:
@@ -105,15 +105,28 @@ class ExploreInterface(Explore):
         return super().disconnect()
 
     # TODO change to property
-    def set_chan_dict(self):
+    def set_chan_dict(self, new_dict=None):
         """Set the channel status dictionary i.e. whether channels are active or inactive
         """
         if self.is_connected:
             chan_mask = list(reversed(self.stream_processor.device_info['adc_mask']))
+            # print("In set chan dict before setting")
+
+            if new_dict is None:
+                custom_names = [f"ch{i}" for i in range(1, self.device_chan + 1)]
+                signal_types = ["EEG"] * self.device_chan
+            else:
+                custom_names = [d["name"] for d in new_dict]
+                signal_types = [d["type"] for d in new_dict]
+
             self.chan_dict = [
-                {"input": ch, "enable": active, "name": ch, "type": "EEG"} for ch, active in zip([c.lower() for c in Settings.CHAN_LIST], chan_mask)
+                    {
+                        "input": ch, "enable": active, "name": name, "type": sig_type
+                    } for ch, active, name, sig_type in zip(
+                        [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
             self.chan_dict = self.chan_dict[:self.device_chan]
+            print(f"{self.chan_dict}")
 
     def get_chan_dict(self) -> dict:
         """Retrun channel status dictionary

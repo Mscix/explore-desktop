@@ -1,23 +1,42 @@
 """Settings module"""
 import logging
+from copy import deepcopy
 
-from PySide6.QtCore import Slot
+
+from PySide6.QtCore import (
+    QAbstractTableModel,
+    QEvent,
+    Qt,
+    Slot,
+    QModelIndex
+)
+from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import (
-    QCheckBox,
-    QMessageBox
+    QComboBox,
+    QHeaderView,
+    QItemDelegate,
+    QMessageBox,
+    QStyledItemDelegate
 )
 
-
+from exploredesktop.modules.app_settings import (  # isort: skip
+    ConnectionStatus,
+    DataAttributes,
+    ExGModes,
+    GUISettings
+)
 from exploredesktop.modules import (  # isort: skip
     Messages,
     Settings,
     BaseModel
 )
-from exploredesktop.modules.app_settings import ConnectionStatus, DataAttributes  # isort: skip
 from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
 
 
 logger = logging.getLogger("explorepy." + __name__)
+
+
+
 
 
 class SettingsFrameView(BaseModel):
@@ -28,19 +47,70 @@ class SettingsFrameView(BaseModel):
         super().__init__()
         self.ui = ui
         self.filters = filters
-        self.setup_dropdown()
+        self.setup_frame()
 
-    def setup_dropdown(self) -> None:
-        """Initialize dropdown
+        self.ui.table_settings.setModel(ConfigTableModel([]))
+        self.setup_tableview()
+
+        # Setup signal connections
+        self.signals.dataSettingsChanged.connect(self.disable_apply)
+
+    def disable_apply(self, index: QModelIndex) -> None:
+        """Disable apply button based on the names of the channels
+
+        Args:
+            index (QModelIndex): index of the item changed
+        """
+        # Only relevant for Name column, return if item changed is another one
+        if index.column() != 2:
+            return
+
+        # Default values
+        enable = True
+        tooltip = ""
+
+        custom_names = self.ui.table_settings.model().get_list_names()
+        custom_names_alnum = ["".join(e for e in name if e.isalnum()).strip() for name in custom_names]
+
+        # Check for names containing only special characters
+        if "" in custom_names_alnum:
+            enable = False
+            tooltip = "Channel names cannot contain only special characters"
+
+        # Check for repeated names
+        if len(custom_names) != len(set(custom_names)):
+            enable = False
+            tooltip = "Channel names must be unique"
+
+        # Disable button and set tooltip
+        self.ui.btn_apply_settings.setEnabled(enable)
+        # TODO? add tooltip to cells
+        self.ui.btn_apply_settings.setToolTip(tooltip)
+
+    def setup_tableview(self) -> None:
+        """Configure settings table
+        """
+        # Add delegates
+        self.ui.table_settings.setItemDelegateForColumn(1, CheckBoxDelegate(None))
+        self.ui.table_settings.setItemDelegate(_ConfigItemDelegate())
+
+        # Resize to fill all horizontal space
+        self.ui.table_settings.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.ui.table_settings.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # Remove button to select all
+        self.ui.table_settings.setCornerButtonEnabled(False)
+
+    def setup_frame(self) -> None:
+        """Initialize dropdowns and checkboxes
         """
         self.ui.value_sampling_rate.addItems([str(int(sr)) for sr in Settings.SAMPLING_RATES])
+        self.ui.dropdown_signal_type.addItems(ExGModes.all_values())
+        self.ui.cb_multitype_signal.setChecked(False)
+        self.ui.dropdown_signal_type.setHidden(False)
 
     def setup_ui_connections(self) -> None:
         """Connect ui widgets to corresponding slot
         """
-        for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
-            ch_wdgt.stateChanged.connect(self.one_chan_selected)
-
         self.ui.value_sampling_rate.currentTextChanged.connect(self.display_sr_warning)
 
         self.ui.btn_reset_settings.clicked.connect(self.reset_settings)
@@ -49,6 +119,10 @@ class SettingsFrameView(BaseModel):
         # TODO uncomment when implemented
         # self.ui.btn_calibrate.setHidden(True)
 
+        self.ui.cb_multitype_signal.stateChanged.connect(self.multisignal_clicked)
+        self.ui.dropdown_signal_type.currentTextChanged.connect(self.signal_type_changed)
+        self.ui.cb_1020.stateChanged.connect(self.enable_10_20)
+
     def setup_settings_frame(self) -> None:
         """Setup the settings frame
         """
@@ -56,23 +130,13 @@ class SettingsFrameView(BaseModel):
         self.ui.label_explore_name.setText(self.explorer.device_name)
 
         # Set active channels
-        self._setup_active_channels()
+        data = deepcopy(self.explorer.chan_dict)
+        self.ui.table_settings.setModel(ConfigTableModel(data))
+        self.ui.table_settings.viewport().update()
 
         # Set sampling rate
         s_rate = int(self.explorer.sampling_rate)
         self.ui.value_sampling_rate.setCurrentText(str(s_rate))
-
-    def _setup_active_channels(self) -> None:
-        """Setup checkboxes to reflect channel status (active vs unactive)"""
-        chan_dict = self.explorer.get_chan_dict()
-        chan_list = Settings.CHAN_LIST[:self.explorer.get_device_chan()]
-
-        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
-            wdgt.setChecked(chan_dict[wdgt.objectName().replace("cb_", "")])
-            if wdgt.objectName().replace("cb_", "") not in chan_list:
-                wdgt.hide()
-            if wdgt.isHidden() and wdgt.objectName().replace("cb_", "") in chan_list:
-                wdgt.show()
 
     ###
     # Button slots
@@ -156,7 +220,7 @@ class SettingsFrameView(BaseModel):
         """Display popup with new sampling rate and active channels
         """
         chan_dict = self.explorer.get_chan_dict()
-        act_chan = ", ".join([item[0] for item in chan_dict.items() if item[1]])
+        act_chan = ", ".join([one_chan_dict["input"] for one_chan_dict in chan_dict if one_chan_dict["enable"]])
         msg = (
             "Device settings have been changed:"
             f"\nSampling Rate: {self.explorer.sampling_rate}"
@@ -196,11 +260,9 @@ class SettingsFrameView(BaseModel):
             mask = "".join(active_chan)
             changed = self.explorer.set_channels(mask)
 
-            # n_chan = self.explorer.stream_processor.device_info['adc_mask']
-            # n_chan = list(reversed(n_chan))
-
-            self.explorer.set_chan_dict()
+            self.explorer.set_chan_dict(self.ui.table_settings.model().chan_data)
             self.update_modules()
+            # print(f"{self.explorer.chan_dict=}")
 
         return changed
 
@@ -210,17 +272,12 @@ class SettingsFrameView(BaseModel):
         self.signals.displayDefaultImp.emit()
 
     def get_active_chan_ui(self) -> list:
-        """Get active channels from UI checkboxes
+        """Get active channels from UI settings table checkboxes
 
         Returns:
             list[int]: binary list indicating whether channel is active
         """
-
-        active_chan = []
-        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
-            status = str(1) if wdgt.isChecked() else str(0)
-            active_chan.append(status)
-
+        active_chan = [str(one_chan_dict["enable"]) for one_chan_dict in self.ui.table_settings.model().chan_data]
         active_chan = list(reversed(active_chan))
         return active_chan
 
@@ -248,23 +305,6 @@ class SettingsFrameView(BaseModel):
     ###
     # Vis feedback slots
     ###
-    @Slot()
-    def one_chan_selected(self) -> None:
-        """
-        Make sure at least one checkbox is selected.
-        If only one checkbox is left it will be disabled so status cannot change. A tooltip will be added.
-        """
-        cbs = {ch_wdgt: ch_wdgt.isChecked() for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox)}
-        if sum(cbs.values()) == 1:
-            unchecked_cb = list(cbs.keys())[list(cbs.values()).index(True)]
-            unchecked_cb.setEnabled(False)
-            unchecked_cb.setToolTip(Messages.SELECT_1_CHAN)
-
-        else:
-            for ch_wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
-                ch_wdgt.setEnabled(True)
-                ch_wdgt.setToolTip("")
-
     @Slot()
     def display_sr_warning(self) -> None:
         """Display warning for 1000 Hz sampling rate
@@ -297,9 +337,6 @@ class SettingsFrameView(BaseModel):
             tooltip_reset_settings = Messages.DISABLED_RESET
             tooltip_format_mem = Messages.DISABLED_FORMAT_MEM
 
-        for wdgt in self.ui.frame_cb_channels.findChildren(QCheckBox):
-            wdgt.setEnabled(enabled)
-
         self.ui.value_sampling_rate.setEnabled(enabled)
         self.ui.value_sampling_rate.setStyleSheet(s_rate_stylesheet)
 
@@ -316,3 +353,326 @@ class SettingsFrameView(BaseModel):
         self.ui.btn_format_memory.setToolTip(tooltip_format_mem)
 
         self.ui.label_warning_disabled.setHidden(enabled)
+
+    def multisignal_clicked(self) -> None:
+        """Allow/Block selection of multiple signal types
+        """
+        multitype = self.ui.cb_multitype_signal.isChecked()
+
+        self.ui.dropdown_signal_type.setHidden(multitype)
+        self.ui.table_settings.model().change_column_edit("type", multitype)
+        self.ui.table_settings.viewport().update()
+
+    def signal_type_changed(self) -> None:
+        """Change all signal type values based on dropdown value
+        """
+        if self.ui.dropdown_signal_type.currentText() == ExGModes.EEG.value:
+            new_value = ExGModes.EEG.value
+        else:
+            new_value = ExGModes.ECG.value
+
+        for ch_dict in self.ui.table_settings.model().chan_data:
+            ch_dict["type"] = new_value
+        self.ui.table_settings.viewport().update()
+
+    def enable_10_20(self) -> None:
+        """Enable combobox for 10/20 notation
+        """
+        if self.ui.cb_1020.isChecked():
+            self.ui.table_settings.model().change_column_editor("name", "combobox")
+        else:
+            self.ui.table_settings.model().change_column_editor("name", "default")
+
+        self.ui.table_settings.viewport().update()
+
+
+class CheckBoxDelegate(QItemDelegate):
+    """
+    A delegate that places a fully functioning QCheckBox cell of the column to which it's applied.
+    """
+    def __init__(self, parent):
+        QItemDelegate.__init__(self, parent)
+
+    # pylint: disable=invalid-name
+    def createEditor(self, parent, option, index):
+        """
+        Important, otherwise an editor is created if the user clicks in this cell.
+        """
+        return None
+
+    def paint(self, painter, option, index):
+        """
+        Paint a checkbox without the label.
+        """
+        self.drawCheck(painter, option, option.rect, Qt.Unchecked if int(index.data()) == 0 else Qt.Checked)
+
+    # pylint: disable=invalid-name
+    def editorEvent(self, event, model, option, index):
+        """
+        Change the data in the model and the state of the checkbox
+        if the user presses the left mousebutton and this cell is editable. Otherwise do nothing.
+        """
+        if not int(index.flags() & Qt.ItemIsEditable) > 0:
+            return False
+
+        if event.type() == QEvent.MouseButtonRelease and event.button() == Qt.LeftButton:
+            # Change the checkbox-state
+            self.setModelData(None, model, index)
+            return True
+
+        return False
+
+    # pylint: disable=invalid-name
+    def setModelData (self, editor, model, index):
+        """
+        Set new data in the model
+        """
+        model.setData(index, 1 if int(index.data()) == 0 else 0, Qt.EditRole)
+
+
+class _ConfigItemDelegate(QStyledItemDelegate):  
+    ''' Combobox item editor
+    '''
+
+    # pylint: disable=invalid-name       
+    def createEditor(self, parent, option, index):
+        """
+        Create dropdown editor
+        """
+        if index.model().editorType(index.column()) == 'combobox':
+            combobox = QComboBox(parent)
+            combobox.addItems(index.model().comboBoxList(index.column()))
+            combobox.setEditable(False)
+            return combobox
+
+        if index.model().editorType(index.column()) == 'checkbox':
+            return None
+
+        return QStyledItemDelegate.createEditor(self, parent, option, index)
+
+    # pylint: disable=invalid-name
+    def setEditorData(self, editor, index):
+        """Set editor data
+        """
+        if index.model().columns[index.column()]['editor'] == 'combobox':
+            text = index.model().data(index, Qt.DisplayRole)
+            i = editor.findText(text)
+            if i == -1:
+                i = 0
+            editor.setCurrentIndex(i)
+        QStyledItemDelegate.setEditorData(self, editor, index)
+
+    # pylint: disable=invalid-name
+    def setModelData(self, editor, model, index):
+        """Set data in the model
+        """
+        if model.columns[index.column()]['editor'] == 'combobox':
+            model.setData(index, editor.currentText(), Qt.EditRole)
+            # model.reset()
+        QStyledItemDelegate.setModelData(self, editor, model, index)
+
+
+class ConfigTableModel(QAbstractTableModel, BaseModel):
+    """_summary_
+    """
+    def __init__(self, data):
+        """_summary_
+
+        Args:
+            data (_type_): _description_
+        """
+        super(ConfigTableModel, self).__init__()
+        self.chan_data = data
+
+        # column description
+        self.columns = [{'property':'input', 'header':'Channel', 'edit':False, 'editor':'default'},
+                        {'property':'enable', 'header':'Enable', 'edit':True, 'editor':'checkbox'},
+                        {'property':'name', 'header':'Name', 'edit':True, 'editor':'default'},
+                        {'property':'type', 'header':'Type', 'edit':False, 'editor':'combobox'},
+                       ]
+
+    def change_column_edit(self, col_name: str, new_val: bool) -> None:
+        """Change edit field of a column to make it (un)editable
+
+        Args:
+            col_name (str): name of the property to change
+            new_val (bool): whether column is editable
+        """
+        next(item for item in self.columns if item["property"] == col_name)["edit"] = new_val
+
+    def change_column_editor(self, col_name: str, new_val: str) -> None:
+        """Change editor flag of a column
+        Args:
+            col_name (str): name of the property to change
+            new_val (bool): editor type
+        """
+        next(item for item in self.columns if item["property"] == col_name)["editor"] = new_val
+
+    def data(self, index, role):
+        """Abstract method from QAbstactTableModel to get data
+        """
+        value = self._getitem(index.row(), index.column())
+
+        if (role == Qt.DisplayRole) or (role == Qt.EditRole):
+            return value
+
+        if role == Qt.BackgroundRole:
+            if index.column() == 2 and (
+                "".join(e for e in value if e.isalnum()).strip() == "" or
+                    self.get_list_names().count(value) > 1):
+                    # len(self.get_list_names()) != len(set(self.get_list_names()))):
+                return QBrush("#fa5c62")
+            
+    def get_list_names(self) -> list:
+        """Return list of custom names
+        """
+        return [d["name"] for d in self.chan_data if d["enable"]]
+
+    # pylint: disable=invalid-name
+    def rowCount(self, index) -> int:
+        """Return number of rows
+        """
+        return len(self.chan_data)
+
+    # pylint: disable=invalid-name
+    def columnCount(self, index) -> int:
+        """Return number of columns
+        """
+        if self.chan_data:
+            return len(self.chan_data[0])
+        return len(self.columns)
+
+    # pylint: disable=invalid-name
+    def headerData(self, col, orientation, role):
+        """Abstract method from QAbstactTableModel to get the column header
+        """
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+                return self.columns[col]['header']
+
+    def comboBoxList(self, column: int) -> list:
+        """Get list of items for comboboxes
+
+        Args:
+            column (int): column number
+
+        Returns:
+            list: list of combobox items
+        """
+        if column >= len(self.columns):
+            return None
+        if self.columns[column]['property'] == 'type':
+            return ExGModes.all_values()
+        if self.columns[column]['property'] == 'name':
+            return GUISettings.ELECTRODES_10_20
+
+    def editorType(self, column: int) -> str:
+        """Get the columns editor type from column description
+
+        Args:
+            column (int): column number
+
+        Returns:
+            str: editor type
+        """
+        if column >= len(self.columns):
+            return None
+        return str(self.columns[column]['editor'])
+    
+    def flags(self, index):
+        """Abstract method from QAbstactTableModel
+        """
+        if not index.isValid():
+            return Qt.ItemIsEnabled
+        if not self.columns[index.column()]['edit']:
+            return Qt.NoItemFlags
+        if self.columns[index.column()]['header'] == "Enable":
+            n_active = sum(item["enable"] for item in self.chan_data)
+            if n_active == 1:
+                ch_active = next(item for item in self.chan_data if item["enable"] == 1)["input"]
+                row_active = int(ch_active.replace("ch", "")) - 1
+                if index.column() == 1 and index.row() == row_active:
+                    return Qt.NoItemFlags
+
+        return QAbstractTableModel.flags(self, index) | Qt.ItemIsEditable
+
+    def _setitem(self, row: int, column: int, value: str) -> bool:
+        """Set property item based on table row and column
+
+        Args:
+            row (int): row number
+            column (int): column number
+            value (str): value to set
+
+        Returns:
+            bool: True if property value was set, False if not
+        """
+        if (row >= len(self.chan_data)) or (column >= len(self.columns)):
+            return False
+        # get channel properties
+        property = self.chan_data[row]
+        # get property name from column description
+        property_name = self.columns[column]['property']
+        # set channel property
+        if property_name == 'enable':
+            property["enable"] = value
+            return True
+
+        if property_name == 'name':
+            n = value
+            if "".join(n.split()) == "":
+                return False
+            property["name"] = value
+            return True
+
+        if property_name == 'type':
+            n = value
+            property["type"] = value
+            return True
+
+        return False
+
+    def _getitem(self, row: int, column: int) -> str:
+        """Get property item based on table row and column
+
+        Args:
+            row (int): row number
+            column (int): column number
+
+        Returns:
+            str: property value
+        """
+        if (row >= len(self.chan_data)) or (column >= len(self.columns)):
+            return None
+        
+        # get channel properties
+        property = self.chan_data[row]
+        # get property name from column description
+        property_name = self.columns[column]['property']
+        # get property value
+        if property_name == 'input':
+            d = str(property["input"])
+        elif property_name == 'enable':
+            d = str(property["enable"])
+        elif property_name == 'name':
+            d = str(property["name"])
+        elif property_name == 'type':
+            d = str(property["type"])
+        else:
+            d = None
+        return d
+
+    # pylint: disable=invalid-name
+    def setData(self, index, value, role):
+        """Abstract method from QAbstactTableModel to set cell data based on role
+        """
+        if index.isValid(): 
+            if role == Qt.EditRole:
+                if not self._setitem(index.row(), index.column(), value):
+                    return False
+                self.signals.dataSettingsChanged.emit(index)
+                return True
+            elif role == Qt.CheckStateRole:
+                if not self._setitem(index.row(), index.column(), Qt.QVariant(value == Qt.Checked)):
+                    return False
+                return True
+        return False

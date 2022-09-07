@@ -1,11 +1,12 @@
 """Main Application"""
 import logging
 import os
-from enum import Enum
 import shutil
+from enum import Enum
 from typing import Union
 
 import PySide6
+from exploredesktop.modules.ui.ui_ui_main_window_redisign import Ui_MainWindow
 from explorepy.log_config import (
     read_config,
     write_config
@@ -35,7 +36,7 @@ from exploredesktop.modules import (  # isort:skip
     BaseModel,
     GUISettings,
     Stylesheets,
-    Ui_MainWindow
+    # Ui_MainWindow
 )
 from exploredesktop.modules.app_settings import (  # isort:skip
     ConnectionStatus,
@@ -107,6 +108,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         # HOME PAGE
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
+        # TODO: recompile to GUI
         self.ui.btn_import_edf.clicked.connect(self.select_edf_file)
         self.ui.btn_generate_bdf.setEnabled(False)
         self.ui.btn_generate_bdf.clicked.connect(self.export_eeglab_dataset)
@@ -265,8 +267,6 @@ class MainWindow(QMainWindow, BaseModel):
         """Connect custom signals to corresponding slots
         """
         # TODO move to appropiate module
-        # change button text
-        # TODO move to appropiate module
         self.signals.btnImpMeasureChanged.connect(self.ui.btn_imp_meas.setText)
         self.signals.btnConnectChanged.connect(self.ui.btn_connect.setText)
 
@@ -345,7 +345,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # # Hide os bar
         # self.setWindowFlags(Qt.FramelessWindowHint)
-        self.ui.main_header.setHidden(True)
         # Add app version to footer
         self.ui.ft_label_version.setText(VERSION_APP)
 
@@ -442,7 +441,6 @@ class MainWindow(QMainWindow, BaseModel):
         """Actions to perform before moving to settings
         """
         self.settings_frame.setup_settings_frame()
-        self.settings_frame.one_chan_selected()
         enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
         self.settings_frame.enable_settings(enable)
         self.ui.value_sampling_rate.setEnabled(enable)
