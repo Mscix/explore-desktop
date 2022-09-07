@@ -233,12 +233,8 @@ class BasePlots:
     def set_dropdowns(self) -> None:
         """Initialize dropdowns"""
         # Avoid double initialization
-        if self.ui.value_signal.count() > 0:
+        if self.ui.value_yAxis.count() > 0:
             return
-
-        # value_signal_type
-        self.ui.value_signal.addItems(ExGModes.all_values())
-        self.ui.value_signal_rec.addItems(ExGModes.all_values())
 
         # value_yaxis
         self.ui.value_yAxis.addItems(Settings.SCALE_MENU.keys())
@@ -281,11 +277,12 @@ class BasePlots:
         # Verify curves and chan dict have the same length, if not reset chan_dict
         chan_dict = self.model.explorer.get_chan_dict()
 
-        if len(all_curves) != len(list(chan_dict.values())):
+        if len(all_curves) != len(list(chan_dict)):
             self.model.explorer.set_chan_dict()
 
         active_curves = []
-        for curve, act in zip(all_curves, list(chan_dict.values())):
+        # for curve, act in zip(all_curves, list(chan_dict.values())):
+        for curve, act in zip(all_curves, [one_chan_dict['enable'] for one_chan_dict in chan_dict]):
             if act == 1:
                 plot_widget.addItem(curve)
                 active_curves.append(curve)
