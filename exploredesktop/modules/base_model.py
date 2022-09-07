@@ -7,6 +7,7 @@ Classes:
 from enum import Enum
 
 from PySide6.QtCore import (
+    QModelIndex,
     QObject,
     QThreadPool,
     Signal
@@ -67,6 +68,8 @@ class SignalsContainer(QObject):
     heartRate = Signal(str)
 
     plotRR = Signal(list)
+
+    dataSettingsChanged = Signal(QModelIndex)
 
 
 class BaseModel(object):
