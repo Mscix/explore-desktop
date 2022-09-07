@@ -41,9 +41,9 @@ class ImpedanceGraph(pg.GraphItem):
         chan_dict = self.model.explorer.get_chan_dict()
         n_chan = self.model.explorer.n_active_chan
         pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
-        texts = [f"{key}\nNA" for key in chan_dict if chan_dict[key] == 1]
+        # TODO: show all channels, gray if disabled?
+        texts = [f"{one_chan_dict['input']}\nNA" for one_chan_dict in chan_dict if one_chan_dict['enable'] == 1]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
-
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
 
     def get_model(self):
@@ -153,7 +153,7 @@ class ImpModel(BaseModel):
             str: formatted impedance value
         """
         if value < 5:
-            str_value = " > "
+            str_value = " < "
             str_value += "5 K\u03A9"
         elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
                 (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):

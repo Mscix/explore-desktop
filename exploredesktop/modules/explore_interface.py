@@ -110,7 +110,10 @@ class ExploreInterface(Explore):
         """
         if self.is_connected:
             chan_mask = list(reversed(self.stream_processor.device_info['adc_mask']))
-            self.chan_dict = dict(zip([c.lower() for c in Settings.CHAN_LIST], chan_mask))
+            self.chan_dict = [
+                {"input": ch, "enable": active, "name": ch, "type": "EEG"} for ch, active in zip([c.lower() for c in Settings.CHAN_LIST], chan_mask)
+            ]
+            self.chan_dict = self.chan_dict[:self.device_chan]
 
     def get_chan_dict(self) -> dict:
         """Retrun channel status dictionary
@@ -134,7 +137,7 @@ class ExploreInterface(Explore):
     @property
     def active_chan_list(self):
         """Returns list of active channels"""
-        return [item[0] for item in self.chan_dict.items() if item[1]]
+        return [one_chan_dict['input'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
 
     # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:
