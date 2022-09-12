@@ -100,6 +100,9 @@ class SettingsFrameView(BaseModel):
         # Remove button to select all
         self.ui.table_settings.setCornerButtonEnabled(False)
 
+        # Hide signal type column
+        self.ui.table_settings.setColumnHidden(3, True)
+
     def setup_frame(self) -> None:
         """Initialize dropdowns and checkboxes
         """
@@ -107,6 +110,11 @@ class SettingsFrameView(BaseModel):
         self.ui.dropdown_signal_type.addItems(ExGModes.all_values())
         self.ui.cb_multitype_signal.setChecked(False)
         self.ui.dropdown_signal_type.setHidden(False)
+
+        # Hide multitype signal dropdown and checkbox
+        self.ui.cb_multitype_signal.setHidden(True)
+        self.ui.dropdown_signal_type.setHidden(True)
+        self.ui.cb_1020.setHidden(True)
 
     def setup_ui_connections(self) -> None:
         """Connect ui widgets to corresponding slot

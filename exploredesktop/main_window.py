@@ -359,6 +359,10 @@ class MainWindow(QMainWindow, BaseModel):
         # Start with foucus on line edit for device name
         self.ui.dev_name_input.setFocus()
 
+        # Hide heartrate monitoring
+        self.ui.label_heartRate.setHidden(True)
+        self.ui.value_heartRate.setHidden(True)
+
     def _verify_imp(self, btn_name: str) -> bool:
         """Verify if impedance measurement is active before moving to another page
 
