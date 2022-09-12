@@ -71,7 +71,7 @@ class ExGModes(BaseEnum):
 class FileTypes(BaseEnum):
     """Enum for supported file types"""
     CSV = "csv"
-    BDF = "bdf"
+    BDF = "edf"
 
 
 class PlotItems(BaseEnum):
