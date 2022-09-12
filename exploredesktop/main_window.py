@@ -108,7 +108,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # HOME PAGE
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
-        # TODO: recompile to GUI
         self.ui.btn_import_edf.clicked.connect(self.select_edf_file)
         self.ui.btn_generate_bdf.setEnabled(False)
         self.ui.btn_generate_bdf.clicked.connect(self.export_eeglab_dataset)
