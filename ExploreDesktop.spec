@@ -2,6 +2,8 @@
 from os import path
 import sys
 import pylsl
+import mne
+import eeglabio
 from distutils.sysconfig import get_python_lib
 
 if sys.platform == "darwin":
@@ -12,9 +14,19 @@ else:
 block_cipher = None
 main_path = path.join('exploredesktop', 'main.py')
 liblsl_path = next(pylsl.pylsl.find_liblsl_libraries())
+
+
+if sys.platform == "linux" or sys.platform == "linux2":
+    # TODO paths should not be hardcoded
+    binaries = [(liblsl_path, 'pylsl/lib'), (liblsl_path[:-2], 'pylsl/lib'), (liblsl_path[:-2]+'.1.16.0', 'pylsl/lib')]
+elif sys.platform == "darwin":
+    pass
+elif sys.platform == "win32":
+    binaries = [(liblsl_path, 'pylsl/lib'), (liblsl_path[:-7], 'pylsl/lib')]
+
 a = Analysis([main_path],
              pathex=[get_python_lib()],
-             binaries=[(liblsl_path, 'pylsl/lib'), (liblsl_path[:-7], 'pylsl/lib')],
+             binaries=binaries,
              datas=[],
              hiddenimports=[],
              hookspath=[],
@@ -26,8 +38,9 @@ a = Analysis([main_path],
              cipher=block_cipher,
              noarchive=False)
 a.datas += Tree(path.dirname(pylsl.__file__), prefix='pylsl', excludes='__pycache__')
-a.datas += Tree(r"C:\Users\ProSomno\miniconda3\Lib\site-packages\mne", prefix="mne")
-a.datas += Tree(r"C:\Users\ProSomno\miniconda3\envs\gui3810\Lib\site-packages\eeglabio", prefix="eeglabio")
+a.datas += Tree(path.dirname(mne.__file__), prefix='mne', excludes='__pycache__')
+a.datas += Tree(path.dirname(eeglabio.__file__), prefix='eeglabio', excludes='__pycache__')
+
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 
