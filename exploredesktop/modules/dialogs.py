@@ -209,7 +209,7 @@ class RecordingDialog(CustomDialog):
             str: file extension (edf or csv)
         """
         if self.ui.rdbtn_edf.isChecked():
-            self.file_type = FileTypes.EDF.value
+            self.file_type = FileTypes.BDF.value
         else:
             self.file_type = FileTypes.CSV.value
 
