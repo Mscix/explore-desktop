@@ -8,24 +8,61 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QRadioButton, QSizePolicy, QSpinBox, QVBoxLayout)
+from PySide6.QtCore import (
+    QCoreApplication,
+    QDate,
+    QDateTime,
+    QLocale,
+    QMetaObject,
+    QObject,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+    QTime,
+    QUrl
+)
+from PySide6.QtGui import (
+    QBrush,
+    QColor,
+    QConicalGradient,
+    QCursor,
+    QFont,
+    QFontDatabase,
+    QGradient,
+    QIcon,
+    QImage,
+    QKeySequence,
+    QLinearGradient,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QRadialGradient,
+    QTransform
+)
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QRadioButton,
+    QSizePolicy,
+    QSpinBox,
+    QVBoxLayout
+)
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(400, 200)
-        self.verticalLayout = QVBoxLayout(Dialog)
-        self.verticalLayout.setObjectName(u"verticalLayout")
+        Dialog.resize(400, 237)
+        self.verticalLayout_2 = QVBoxLayout(Dialog)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.layout_file_format = QHBoxLayout()
         self.layout_file_format.setObjectName(u"layout_file_format")
         self.lbl_step1_2 = QLabel(Dialog)
@@ -44,8 +81,10 @@ class Ui_Dialog(object):
         self.layout_file_format.addWidget(self.rdbtn_edf)
 
 
-        self.verticalLayout.addLayout(self.layout_file_format)
+        self.verticalLayout_2.addLayout(self.layout_file_format)
 
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setObjectName(u"verticalLayout")
         self.lbl_step2 = QLabel(Dialog)
         self.lbl_step2.setObjectName(u"lbl_step2")
 
@@ -88,6 +127,15 @@ class Ui_Dialog(object):
 
         self.verticalLayout.addLayout(self.layout_file_name)
 
+        self.warning_label = QLabel(Dialog)
+        self.warning_label.setObjectName(u"warning_label")
+        self.warning_label.setMinimumSize(QSize(0, 40))
+
+        self.verticalLayout.addWidget(self.warning_label)
+
+
+        self.verticalLayout_2.addLayout(self.verticalLayout)
+
         self.layout_recording_time = QHBoxLayout()
         self.layout_recording_time.setObjectName(u"layout_recording_time")
         self.lbl_step3 = QLabel(Dialog)
@@ -103,14 +151,14 @@ class Ui_Dialog(object):
         self.layout_recording_time.addWidget(self.spinBox_recording_time)
 
 
-        self.verticalLayout.addLayout(self.layout_recording_time)
+        self.verticalLayout_2.addLayout(self.layout_recording_time)
 
         self.buttonBox = QDialogButtonBox(Dialog)
         self.buttonBox.setObjectName(u"buttonBox")
         self.buttonBox.setOrientation(Qt.Horizontal)
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
 
-        self.verticalLayout.addWidget(self.buttonBox)
+        self.verticalLayout_2.addWidget(self.buttonBox)
 
 
         self.retranslateUi(Dialog)
@@ -124,11 +172,12 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.lbl_step1_2.setText(QCoreApplication.translate("Dialog", u"1. Select the file format :     ", None))
         self.rdbtn_csv.setText(QCoreApplication.translate("Dialog", u"csv", None))
-        self.rdbtn_edf.setText(QCoreApplication.translate("Dialog", u"edf", None))
+        self.rdbtn_edf.setText(QCoreApplication.translate("Dialog", u"bdf", None))
         self.lbl_step2.setText(QCoreApplication.translate("Dialog", u"2. Select the folder and name to store the file:", None))
         self.lbl_folder.setText(QCoreApplication.translate("Dialog", u"Folder:", None))
         self.btn_browse.setText(QCoreApplication.translate("Dialog", u"Browse", None))
         self.lbl_file_name.setText(QCoreApplication.translate("Dialog", u"File name:", None))
+        self.warning_label.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p><span style=\" color:#d90000;\">A file name can't contain any of the following characters: </span></p><p align=\"center\"><span style=\" color:#d90000;\">| \\ ? * &lt; &quot; : &gt; + [ ] / '</span></p></body></html>", None))
         self.lbl_step3.setText(QCoreApplication.translate("Dialog", u"3. Select recording time (s):", None))
     # retranslateUi
 
