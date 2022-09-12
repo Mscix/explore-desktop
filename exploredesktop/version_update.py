@@ -1,6 +1,6 @@
 import logging
-import subprocess
 import os
+import subprocess
 from typing import Optional
 
 from PySide6.QtWidgets import QMessageBox
