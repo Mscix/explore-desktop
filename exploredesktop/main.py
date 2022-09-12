@@ -8,9 +8,10 @@ import explorepy
 from PySide6 import QtCore
 from PySide6.QtWidgets import QApplication
 
+
 import exploredesktop  # isort:skip
-from exploredesktop import MainWindow
-from exploredesktop.version_update import update_version
+from exploredesktop import MainWindow  # isort:skip
+from exploredesktop.version_update import update_version  # isort:skip
 
 
 logger = logging.getLogger("explorepy.exploredesktop.main")
