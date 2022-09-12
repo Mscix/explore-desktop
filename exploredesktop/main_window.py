@@ -642,7 +642,7 @@ class MainWindow(QMainWindow, BaseModel):
         """
         Open a dialog to select file name to be saved
         """
-        #TODO get path from last used directory
+        # TODO get path from last used directory
 
         dialog = QFileDialog()
         file_path = dialog.getExistingDirectory(
