@@ -8,16 +8,53 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QRadioButton, QSizePolicy, QSpinBox, QVBoxLayout)
+from PySide6.QtCore import (
+    QCoreApplication,
+    QDate,
+    QDateTime,
+    QLocale,
+    QMetaObject,
+    QObject,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+    QTime,
+    QUrl
+)
+from PySide6.QtGui import (
+    QBrush,
+    QColor,
+    QConicalGradient,
+    QCursor,
+    QFont,
+    QFontDatabase,
+    QGradient,
+    QIcon,
+    QImage,
+    QKeySequence,
+    QLinearGradient,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QRadialGradient,
+    QTransform
+)
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QRadioButton,
+    QSizePolicy,
+    QSpinBox,
+    QVBoxLayout
+)
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -135,7 +172,7 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.lbl_step1_2.setText(QCoreApplication.translate("Dialog", u"1. Select the file format :     ", None))
         self.rdbtn_csv.setText(QCoreApplication.translate("Dialog", u"csv", None))
-        self.rdbtn_edf.setText(QCoreApplication.translate("Dialog", u"edf", None))
+        self.rdbtn_edf.setText(QCoreApplication.translate("Dialog", u"bdf", None))
         self.lbl_step2.setText(QCoreApplication.translate("Dialog", u"2. Select the folder and name to store the file:", None))
         self.lbl_folder.setText(QCoreApplication.translate("Dialog", u"Folder:", None))
         self.btn_browse.setText(QCoreApplication.translate("Dialog", u"Browse", None))

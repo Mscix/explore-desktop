@@ -1,12 +1,18 @@
 # BASE CLASSES
-from .base_model import BaseModel
-
-# MODULE FUNCTIONS
-from .imp_module import ImpedanceGraph, ImpModel, ImpFrameView
-
 # SETTINGS
-from .app_settings import Messages, Stylesheets, Settings, GUISettings
-
+from .app_settings import (
+    GUISettings,
+    Messages,
+    Settings,
+    Stylesheets
+)
+from .base_model import BaseModel
+# MODULE FUNCTIONS
+from .imp_module import (
+    ImpedanceGraph,
+    ImpFrameView,
+    ImpModel
+)
 # GUI FILE
 from .ui import (
     Ui_MainWindow,
