@@ -1,7 +1,7 @@
 """Base module for data classes"""
-from enum import Enum
 import logging
 from abc import abstractmethod
+from enum import Enum
 from typing import (
     Tuple,
     Union

@@ -1,8 +1,11 @@
 """FFT visualization module"""
 import logging
-from typing import Optional, Tuple
-import explorepy
+from typing import (
+    Optional,
+    Tuple
+)
 
+import explorepy
 import numpy as np
 from PySide6.QtCore import (
     QTimer,

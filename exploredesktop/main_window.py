@@ -1,8 +1,8 @@
 """Main Application"""
 import logging
 import os
-from enum import Enum
 import shutil
+from enum import Enum
 from typing import Union
 
 import PySide6
@@ -647,7 +647,7 @@ class MainWindow(QMainWindow, BaseModel):
         dialog = QFileDialog()
         file_path = dialog.getExistingDirectory(
             self,
-            "Choose Directory containing EDF files",
+            "Choose Directory containing EDF/BDF files",
             "",
             QFileDialog.ShowDirsOnly)
 

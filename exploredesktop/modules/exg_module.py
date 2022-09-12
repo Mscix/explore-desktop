@@ -1,12 +1,15 @@
 """ExG visualization module"""
 import logging
-import explorepy
 
+import explorepy
 import numpy as np
 import pyqtgraph as pg
-from PySide6.QtCore import Slot, QTimer
-
 from explorepy.tools import HeartRateEstimator
+from PySide6.QtCore import (
+    QTimer,
+    Slot
+)
+
 
 from exploredesktop.modules.app_settings import (  # isort:skip
     DataAttributes,
