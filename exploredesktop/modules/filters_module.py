@@ -19,6 +19,9 @@ logger = logging.getLogger("explorepy." + __name__)
 
 
 class Filters(BaseModel):
+    """Visualization filters class
+    """
+
     def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui
@@ -89,7 +92,7 @@ class Filters(BaseModel):
                 cutoff_freq=(low_freq, high_freq), filter_type='bandpass')
         elif high_freq is not None:
             self.explorer.add_filter(cutoff_freq=high_freq, filter_type='highpass')
-        else:
+        elif low_freq is not None:
             self.explorer.add_filter(cutoff_freq=low_freq, filter_type='lowpass')
 
     def _apply_notch_filter(self, notch_freq: Optional[int]) -> None:

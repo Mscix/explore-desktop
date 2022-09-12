@@ -1,5 +1,6 @@
 
 import logging
+import time
 from typing import (
     Optional,
     Tuple
@@ -101,7 +102,7 @@ class ORNData(DataContainer):
 
     def change_timescale(self) -> None:
         """Change plot time scale"""
-        self.signals.tRangeORNChanged.emit(self.t_plot_data[self.pointer])
+        self.signals.tRangeORNChanged.emit(DataContainer.last_t)
         self.signals.updateDataAttributes.emit([DataAttributes.ORNPOINTER, DataAttributes.ORNDATA])
 
 
@@ -250,6 +251,7 @@ class ORNPlot(BasePlots):
             plot_data (dict): data to plot
             connection (np.array): connection vector
         """
+
         try:
             self.curve_ax.setData(t_vector, plot_data['accX'], connect=connection)
             self.curve_ay.setData(t_vector, plot_data['accY'], connect=connection)
@@ -260,5 +262,6 @@ class ORNPlot(BasePlots):
             self.curve_mx.setData(t_vector, plot_data['magX'], connect=connection)
             self.curve_my.setData(t_vector, plot_data['magY'], connect=connection)
             self.curve_mz.setData(t_vector, plot_data['magZ'], connect=connection)
-        except ValueError:
-            print(f"ValueError\n{t_vector=}\n{plot_data=}\n{connection=}")
+        except ValueError as error:
+            # Error coming from pyqtgraph can be ignored
+            logger.debug("ValueError: %s" % error)

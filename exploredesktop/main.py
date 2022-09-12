@@ -5,12 +5,14 @@ import os
 import sys
 
 import explorepy
+
 from PySide6 import QtCore
 from PySide6.QtWidgets import QApplication
 
 
 import exploredesktop  # isort:skip
 from exploredesktop import MainWindow  # isort:skip
+from exploredesktop.version_update import update_version  # isort:skip
 
 logger = logging.getLogger("explorepy.exploredesktop.main")
 logger.debug("Starting ExploreDesktop (version: %s) with Explorepy (version: %s)",
@@ -21,11 +23,15 @@ os.environ["QT_FONT_DPI"] = "96"
 
 
 def main():
+    """Launch app"""
     QApplication.setHighDpiScaleFactorRoundingPolicy(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.Floor)
     app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    # sys.exit(app.exec())
+
+    update = update_version()
+    if update is False:
+        window = MainWindow()
+        window.show()
+
     app.exec()
     del window, app
 

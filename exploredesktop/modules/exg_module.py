@@ -1,12 +1,15 @@
 """ExG visualization module"""
 import logging
-import explorepy
 
+import explorepy
 import numpy as np
 import pyqtgraph as pg
-from PySide6.QtCore import Slot, QTimer
-
 from explorepy.tools import HeartRateEstimator
+from PySide6.QtCore import (
+    QTimer,
+    Slot
+)
+
 
 from exploredesktop.modules.app_settings import (  # isort:skip
     DataAttributes,
@@ -37,7 +40,7 @@ class ExGData(DataContainer):
         self.offsets = np.array([])
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = '1 mV'
-        self.last_t = 0
+        # DataContainer.last_t = 0
 
         self.packet_count = 0
         self.t_bt_drop = None
@@ -56,7 +59,7 @@ class ExGData(DataContainer):
         self.offsets = np.array([])
         self.y_unit = Settings.DEFAULT_SCALE
         self.y_string = '1 mV'
-        self.last_t = 0
+        # DataContainer.last_t = 0
 
         self.packet_count = 0
         self.t_bt_drop = None
@@ -84,7 +87,7 @@ class ExGData(DataContainer):
         #     self.remove_r_peak()
         #     self.add_r_peaks_replot()
         for idx_t in range(len(self.r_peak['t'])):
-            if self.r_peak['t'][idx_t] < self.last_t:
+            if self.r_peak['t'][idx_t] < DataContainer.last_t:
                 new_t = self.r_peak['t'][idx_t] + self.timescale
                 # self.model.r_peak_replot = self.plot_rr_point(
                 #     [new_t, self.model.r_peak['r_peak'][idx_t], True])
@@ -142,13 +145,13 @@ class ExGData(DataContainer):
         t_point = data['t'][0]
         if t_point < 0:
             return
-        elif t_point < self.last_t and self.bt_drop_warning_displayed is False:
-            logger.warning(f"BlueTooth drop:\n{t_point=}\n{self.last_t=}\n")
+        elif t_point < DataContainer.last_t and self.bt_drop_warning_displayed is False:
+            logger.warning("BlueTooth drop:\nt_point={}\nDataContainer.last_t={}\n".format(t_point, DataContainer.last_t))
             self.bt_drop_warning_displayed = True
             self.t_bt_drop = t_point
             self.signals.btDrop.emit(True)
 
-        elif (self.t_bt_drop is not None) and (t_point > self.last_t) and \
+        elif (self.t_bt_drop is not None) and (t_point > DataContainer.last_t) and \
                 (t_point - self.t_bt_drop > sec_th) and self.bt_drop_warning_displayed is True:
             self.bt_drop_warning_displayed = False
 
@@ -191,7 +194,7 @@ class ExGData(DataContainer):
         self.new_t_axis()
         self.handle_bt_drop(data)
 
-        self.last_t = data['t'][-1]
+        DataContainer.last_t = data['t'][-1]
         self.packet_count += 1
 
         try:
@@ -263,7 +266,7 @@ class ExGData(DataContainer):
     def change_timescale(self):
         """Change time scale"""
         super().change_timescale()
-        self.signals.tRangeEXGChanged.emit(self.last_t)
+        self.signals.tRangeEXGChanged.emit(DataContainer.last_t)
         self.signals.updateDataAttributes.emit([DataAttributes.POINTER, DataAttributes.DATA])
 
     @Slot(str)
@@ -519,6 +522,7 @@ class ExGPlot(BasePlots):
         for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list):
             try:
                 curve.setData(t_vector, plot_data[chan], connect=connection)
+            # KeyError might happen when (de)activating channels during visualization
             except KeyError:
                 pass
 

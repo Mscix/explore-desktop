@@ -7,7 +7,6 @@ import numpy as np
 from PySide6.QtCore import (
     QRegularExpression,
     QSettings
-
 )
 from PySide6.QtGui import (
     QCloseEvent,
@@ -33,9 +32,8 @@ from exploredesktop.modules.ui import (  # isort: skip
     Ui_RecordingDialog
 )
 
-CWD = os.path.dirname(os.path.abspath(__file__))
-ICON_PATH = os.path.join(
-    os.path.join(CWD, os.pardir), "images", "MentalabLogo.png")
+par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+ICON_PATH = os.path.join(par_dir, "MentalabLogo.ico")
 
 
 class CustomDialog(QDialog):
@@ -222,7 +220,7 @@ class RecordingDialog(CustomDialog):
         Open a dialog to select file name to be saved
         """
         settings = QSettings("Mentalab", "ExploreDesktop")
-        path = self.get_dir_path()
+        path = self.get_dir_path(settings)
 
         dialog = QFileDialog()
         file_path = dialog.getExistingDirectory(

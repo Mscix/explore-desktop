@@ -1,8 +1,11 @@
 """FFT visualization module"""
 import logging
-from typing import Optional, Tuple
-import explorepy
+from typing import (
+    Optional,
+    Tuple
+)
 
+import explorepy
 import numpy as np
 from PySide6.QtCore import (
     QTimer,
@@ -95,6 +98,7 @@ class FFTData(DataContainer):
 
 
 class FFTPlot(BasePlots):
+    """FFT Ploting class"""
     def __init__(self, ui) -> None:
         super().__init__(ui)
         self.model = FFTData()

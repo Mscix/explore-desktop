@@ -1,15 +1,17 @@
 """Main Application"""
 import logging
 import os
+import shutil
 from enum import Enum
 from typing import Union
-import PySide6
 
+import PySide6
 from explorepy.log_config import (
     read_config,
     write_config
 )
 from explorepy.stream_processor import TOPICS
+from explorepy.tools import generate_eeglab_dataset
 from PySide6.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
@@ -21,6 +23,7 @@ from PySide6.QtGui import (
     QIcon
 )
 from PySide6.QtWidgets import (
+    QFileDialog,
     QGraphicsDropShadowEffect,
     QMainWindow,
     QPushButton
@@ -46,6 +49,7 @@ from exploredesktop.modules.filters_module import Filters  # isort:skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort:skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort:skip
 from exploredesktop.modules.lsl_module import IntegrationFrameView  # isort:skip
+from exploredesktop.modules.mkr_module import MarkerPlot  # isort:skip
 from exploredesktop.modules.orn_module import ORNPlot  # isort:skip
 from exploredesktop.modules.recording_module import RecordFunctions  # isort:skip
 from exploredesktop.modules.settings_module import SettingsFrameView  # isort:skip
@@ -53,8 +57,6 @@ from exploredesktop.modules.utils import (  # isort:skip
     display_msg,
     get_widget_by_obj_name
 )
-from exploredesktop.modules.mkr_module import MarkerPlot  # isort:skip
-
 VERSION_APP = exploredesktop.__version__
 WINDOW_SIZE = False
 
@@ -71,7 +73,9 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "MentalabLogo.png")
+        par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+        icon_path = os.path.join(par_dir, "MentalabLogo.ico")
+        logger.debug("Icon path: %s" % icon_path)
         self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle('Explore Desktop')
 
@@ -103,6 +107,12 @@ class MainWindow(QMainWindow, BaseModel):
 
         # HOME PAGE
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
+        self.ui.btn_import_edf.clicked.connect(self.select_edf_file)
+        self.ui.btn_generate_bdf.setEnabled(False)
+        self.ui.btn_generate_bdf.clicked.connect(self.export_eeglab_dataset)
+        self.ui.le_import_edf.textChanged.connect(
+            lambda: self.ui.btn_generate_bdf.setEnabled(self.ui.le_import_edf.text() != "")
+        )
 
         # IMPEDANCE PAGE
         self.imp_frame = ImpFrameView(self.ui)
@@ -315,8 +325,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # self.ui.label_3.setHidden(self.file_names is None)
 
-        self.ui.line_2.setHidden(True)
-
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
@@ -328,11 +336,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.btn_calibrate.setHidden(True)
         # connect page
         self.ui.lbl_wdws_warning.hide()
-        self.ui.btn_import_data.hide()
-        self.ui.le_data_path.hide()
-        self.ui.label_16.setHidden(True)
-        self.ui.line_2.hide()
-        self.ui.lbl_bt_instructions.hide()
+        # self.ui.lbl_bt_instructions.hide()
         # integration page
         # TODO: decide if we want to enable duration
         self.ui.lsl_duration_value.hide()
@@ -589,3 +593,62 @@ class MainWindow(QMainWindow, BaseModel):
             self.ui.cb_permission.setChecked(config)
             exist = True
         return exist
+
+    # NOTE: will move this to appropiate section later
+    def export_eeglab_dataset(self):
+        """Export eeglab dataset
+        """
+        folder_name = self.ui.le_import_edf.text()
+        if not os.path.isdir(folder_name):
+            display_msg("Directory does not exist. Please select an existing folder")
+            return
+
+        folder_bdfs = os.path.join(folder_name, "bdf")
+        if not os.path.isdir(folder_bdfs):
+            os.mkdir(folder_bdfs)
+            logger.info("Creating folder %s to store bdf files" % folder_bdfs)
+
+        folder_datasets = os.path.join(folder_name, "datasets")
+        if not os.path.isdir(folder_datasets):
+            os.mkdir(folder_datasets)
+            logger.info("Creating folder %s to store dataset files" % folder_datasets)
+
+        n_files = 0
+        for file in os.listdir(folder_name):
+            file_path = os.path.join(folder_name, file)
+            if file_path.endswith(".edf") and os.path.isfile(file_path):
+                bdf_file = os.path.splitext(file)[0] + ".bdf"
+                dataset_file = os.path.splitext(file)[0] + ".set"
+                bdf_path = os.path.join(folder_bdfs, bdf_file)
+                dataset_path = os.path.join(folder_datasets, dataset_file)
+                shutil.copy2(file_path, bdf_path)
+                generate_eeglab_dataset(bdf_path, dataset_path)
+                n_files += 1
+            elif file_path.endswith(".bdf") and os.path.isfile(file_path):
+                dataset_file = os.path.splitext(file)[0] + ".set"
+                dataset_path = os.path.join(folder_datasets, dataset_file)
+                generate_eeglab_dataset(file_path, dataset_path)
+                n_files += 1
+
+        if len(os.listdir(folder_bdfs)) == 0:
+            os.rmdir(folder_bdfs)
+        # folder_bdfs = os.path.dirname(folder_name)
+        folder_datasets = folder_datasets.replace("/", "\\")
+        msg = f"{n_files} datasets exported in folder {folder_datasets}"
+        logger.info(msg)
+        display_msg(msg, popup_type="info")
+
+    def select_edf_file(self):
+        """
+        Open a dialog to select file name to be saved
+        """
+        #TODO get path from last used directory
+
+        dialog = QFileDialog()
+        file_path = dialog.getExistingDirectory(
+            self,
+            "Choose Directory containing EDF/BDF files",
+            "",
+            QFileDialog.ShowDirsOnly)
+
+        self.ui.le_import_edf.setText(file_path)
