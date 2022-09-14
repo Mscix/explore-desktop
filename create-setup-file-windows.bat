@@ -44,6 +44,8 @@ call python -m pip install --upgrade pip
 call pip install pyinstaller==4.7
 
 @REM Install ExploreDesktop
+call pip install eeglabio
+call pip install mne
 call pip install -e .
 
 @REM  Clean required directories
