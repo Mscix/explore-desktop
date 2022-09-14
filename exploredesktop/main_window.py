@@ -643,12 +643,12 @@ class MainWindow(QMainWindow, BaseModel):
         """
         Open a dialog to select file name to be saved
         """
-        #TODO get path from last used directory
+        # TODO get path from last used directory
 
         dialog = QFileDialog()
         file_path = dialog.getExistingDirectory(
             self,
-            "Choose Directory containing EDF files",
+            "Choose Directory containing EDF/BDF files",
             "",
             QFileDialog.ShowDirsOnly)
 

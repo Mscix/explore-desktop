@@ -146,7 +146,8 @@ class ExGData(DataContainer):
         if t_point < 0:
             return
         elif t_point < DataContainer.last_t and self.bt_drop_warning_displayed is False:
-            logger.warning("BlueTooth drop:\nt_point={}\nDataContainer.last_t={}\n".format(t_point, DataContainer.last_t))
+            logger.warning(
+                "BlueTooth drop:\nt_point={}\nDataContainer.last_t={}\n".format(t_point, DataContainer.last_t))
             self.bt_drop_warning_displayed = True
             self.t_bt_drop = t_point
             self.signals.btDrop.emit(True)

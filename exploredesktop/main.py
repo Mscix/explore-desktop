@@ -13,7 +13,6 @@ import exploredesktop  # isort:skip
 from exploredesktop import MainWindow  # isort:skip
 from exploredesktop.version_update import update_version  # isort:skip
 
-
 logger = logging.getLogger("explorepy.exploredesktop.main")
 logger.debug("Starting ExploreDesktop (version: %s) with Explorepy (version: %s)",
              exploredesktop.__version__, explorepy.__version__)

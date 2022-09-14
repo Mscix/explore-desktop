@@ -44,6 +44,8 @@ call python -m pip install --upgrade pip
 call pip install pyinstaller==4.7
 
 @REM Install ExploreDesktop
+call pip install eeglabio
+call pip install mne
 call pip install -e .
 
 @REM  Clean required directories
@@ -75,6 +77,11 @@ if %mode%==update call C:\Qt\QtIFW-4.2.0\bin\repogen.exe --update -p %package_pa
 cd %repo_wiki_path%
 cd ..\..
 call hugo -t ace-documentation
+@REM need to commit two times
+call git add .
+call git commit -m "Commit from %DATE%"
+call set /p asd="Hit enter to continue"
+call git push origin main
 cd public
 call git add .
 call git commit -m "Commit from %DATE%"

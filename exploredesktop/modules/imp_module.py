@@ -84,7 +84,8 @@ class ImpedanceGraph(pg.GraphItem):
         font_size = 18 if len(texts) <= 4 else 14
         for txt in texts:
             t_chan, t_val = txt.split("\n")
-            txt_html = f'<div style="text-align:center; color:#FFFFFF; font-size:{font_size}px"><b>{t_chan}<br>{t_val}</b></div>'
+            txt_html = '<div style="text-align:center; color:#FFFFFF; '
+            txt_html += f'font-size:{font_size}px"><b>{t_chan}<br>{t_val}</b></div>'
             item = pg.TextItem(html=txt_html, anchor=(0.5, 0.5))
             self.text_items.append(item)
             item.setParentItem(self)

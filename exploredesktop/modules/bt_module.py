@@ -54,6 +54,10 @@ class BTFrameView(BaseModel):
         if names is None:
             names = []
             settings.setValue("known_devices", names)
+        elif not isinstance(names, list):
+            names = [names]
+            settings.setValue("known_devices", names)
+
         return names
 
     def add_name_to_settings(self, dev_name: str) -> None:
@@ -64,7 +68,9 @@ class BTFrameView(BaseModel):
         """
         settings = QSettings("Mentalab", "ExploreDesktop")
         names = settings.value("known_devices")
-        if dev_name not in names:
+        if not isinstance(names, list):
+            names = [names]
+        if dev_name[-4:] not in names:
             names.append(dev_name[-4:])
             settings.setValue("known_devices", names)
 
