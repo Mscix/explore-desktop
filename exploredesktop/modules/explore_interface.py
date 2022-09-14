@@ -120,10 +120,10 @@ class ExploreInterface(Explore):
                 signal_types = [d["type"] for d in new_dict]
 
             self.chan_dict = [
-                    {
-                        "input": ch, "enable": active, "name": name, "type": sig_type
-                    } for ch, active, name, sig_type in zip(
-                        [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
+                {
+                    "input": ch, "enable": active, "name": name, "type": sig_type
+                } for ch, active, name, sig_type in zip(
+                    [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
             self.chan_dict = self.chan_dict[:self.device_chan]
             print(f"{self.chan_dict}")

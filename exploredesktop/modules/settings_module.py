@@ -36,9 +36,6 @@ from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
 logger = logging.getLogger("explorepy." + __name__)
 
 
-
-
-
 class SettingsFrameView(BaseModel):
     """_summary_
     """
@@ -431,18 +428,18 @@ class CheckBoxDelegate(QItemDelegate):
         return False
 
     # pylint: disable=invalid-name
-    def setModelData (self, editor, model, index):
+    def setModelData(self, editor, model, index):
         """
         Set new data in the model
         """
         model.setData(index, 1 if int(index.data()) == 0 else 0, Qt.EditRole)
 
 
-class _ConfigItemDelegate(QStyledItemDelegate):  
+class _ConfigItemDelegate(QStyledItemDelegate):
     ''' Combobox item editor
     '''
 
-    # pylint: disable=invalid-name       
+    # pylint: disable=invalid-name
     def createEditor(self, parent, option, index):
         """
         Create dropdown editor
@@ -493,11 +490,12 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         self.chan_data = data
 
         # column description
-        self.columns = [{'property':'input', 'header':'Channel', 'edit':False, 'editor':'default'},
-                        {'property':'enable', 'header':'Enable', 'edit':True, 'editor':'checkbox'},
-                        {'property':'name', 'header':'Name', 'edit':True, 'editor':'default'},
-                        {'property':'type', 'header':'Type', 'edit':False, 'editor':'combobox'},
-                       ]
+        self.columns = [
+            {'property': 'input', 'header': 'Channel', 'edit': False, 'editor': 'default'},
+            {'property': 'enable', 'header': 'Enable', 'edit': True, 'editor': 'checkbox'},
+            {'property': 'name', 'header': 'Name', 'edit': True, 'editor': 'default'},
+            {'property': 'type', 'header': 'Type', 'edit': False, 'editor': 'combobox'},
+        ]
 
     def change_column_edit(self, col_name: str, new_val: bool) -> None:
         """Change edit field of a column to make it (un)editable
@@ -526,11 +524,10 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
 
         if role == Qt.BackgroundRole:
             if index.column() == 2 and (
-                "".join(e for e in value if e.isalnum()).strip() == "" or
-                    self.get_list_names().count(value) > 1):
-                    # len(self.get_list_names()) != len(set(self.get_list_names()))):
+                "".join(e for e in value if e.isalnum()).strip() == ""
+                    or self.get_list_names().count(value) > 1):
                 return QBrush("#fa5c62")
-            
+
     def get_list_names(self) -> list:
         """Return list of custom names
         """
@@ -555,7 +552,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         """Abstract method from QAbstactTableModel to get the column header
         """
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-                return self.columns[col]['header']
+            return self.columns[col]['header']
 
     def comboBoxList(self, column: int) -> list:
         """Get list of items for comboboxes
@@ -585,7 +582,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         if column >= len(self.columns):
             return None
         return str(self.columns[column]['editor'])
-    
+
     def flags(self, index):
         """Abstract method from QAbstactTableModel
         """
@@ -651,7 +648,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         """
         if (row >= len(self.chan_data)) or (column >= len(self.columns)):
             return None
-        
+
         # get channel properties
         property = self.chan_data[row]
         # get property name from column description
@@ -673,7 +670,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
     def setData(self, index, value, role):
         """Abstract method from QAbstactTableModel to set cell data based on role
         """
-        if index.isValid(): 
+        if index.isValid():
             if role == Qt.EditRole:
                 if not self._setitem(index.row(), index.column(), value):
                     return False
