@@ -19,5 +19,6 @@ Component.prototype.createOperations = function()
         component.addElevatedOperation("Copy", "@TargetDir@/ExploreDesktop.app", "/Applications/ExploreDesktop.app");
     } else if (systemInfo.kernelType === "winnt") {
         component.addElevatedOperation("CreateShortcut", "@TargetDir@/ExploreDesktop/ExploreDesktop.exe", "@StartMenuDir@/ExploreDesktop.lnk", "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/MentalabLogo.ico");
+        component.addElevatedOperation("CreateShortcut", "@TargetDir@/ExploreDesktop/ExploreDesktop.exe", "@DesktopDir@/ExploreDesktop.lnk", "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/MentalabLogo.ico");
     }
 }
