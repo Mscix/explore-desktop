@@ -2,13 +2,12 @@
 import logging
 from copy import deepcopy
 
-
 from PySide6.QtCore import (
     QAbstractTableModel,
     QEvent,
+    QModelIndex,
     Qt,
-    Slot,
-    QModelIndex
+    Slot
 )
 from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import (
@@ -18,6 +17,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QStyledItemDelegate
 )
+
 
 from exploredesktop.modules.app_settings import (  # isort: skip
     ConnectionStatus,
