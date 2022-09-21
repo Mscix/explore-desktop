@@ -115,7 +115,7 @@ class ExGData(DataContainer):
             self._baseline = None
 
         if DataAttributes.DATA in attributes:
-            active_chan = self.explorer.active_chan_list
+            active_chan = self.explorer.active_chan_list()
             points = self.plot_points()
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
             self.t_plot_data = np.array([np.NaN] * points)
@@ -162,7 +162,7 @@ class ExGData(DataContainer):
         Args:
             packet (explorepy.packet.EEG): EEG packet
         """
-        chan_list = self.explorer.active_chan_list
+        chan_list = self.explorer.active_chan_list()
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
 
@@ -304,7 +304,7 @@ class ExGData(DataContainer):
             old_unit (float): old axis unit
             new_unit (float): new axis unit
         """
-        chan_list = self.explorer.active_chan_list
+        chan_list = self.explorer.active_chan_list()
         for chan, value in self.plot_data.items():
             if chan in chan_list:
                 temp_offset = self.offsets[chan_list.index(chan)]
@@ -493,7 +493,7 @@ class ExGPlot(BasePlots):
         """
         Add upper and lower lines delimiting the channels in exg plot
         """
-        active_chan = self.model.explorer.active_chan_list
+        active_chan = self.model.explorer.active_chan_list()
 
         ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
         ticks_right += [(0.5, '')]
@@ -504,8 +504,7 @@ class ExGPlot(BasePlots):
         """
         Add central lines and channel name ticks in exg plot
         """
-        active_chan = self.model.explorer.active_chan_list
-
+        active_chan = self.model.explorer.active_chan_list(custom_name=True)
         ticks = [
             (idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})') for idx, ch in enumerate(active_chan)]
         self.ui.plot_exg.getAxis('left').setTicks([ticks])
@@ -521,7 +520,7 @@ class ExGPlot(BasePlots):
         connection = self._connection_vector(len(t_vector))
 
         # Paint curves
-        for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list):
+        for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list()):
             try:
                 curve.setData(t_vector, plot_data[chan], connect=connection)
             # KeyError might happen when (de)activating channels during visualization
