@@ -2,8 +2,8 @@
 import logging
 import os
 import shutil
-from enum import Enum
 import sys
+from enum import Enum
 from typing import Union
 
 import PySide6
