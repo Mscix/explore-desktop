@@ -13,7 +13,6 @@ from PySide6.QtCore import Slot
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
-    ExGModes,
     Settings,
     Stylesheets
 )

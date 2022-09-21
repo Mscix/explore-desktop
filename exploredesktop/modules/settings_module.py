@@ -525,8 +525,8 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
 
         if role == Qt.BackgroundRole:
             if index.column() == 2 and (
-                "".join(e for e in value if e.isalnum()).strip() == ""
-                    or self.get_list_names().count(value) > 1):
+                "".join(
+                    e for e in value if e.isalnum()).strip() == "" or self.get_list_names().count(value) > 1):
                 return QBrush("#fa5c62")
 
     def get_list_names(self) -> list:
