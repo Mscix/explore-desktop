@@ -2,6 +2,7 @@
 import logging
 import os
 import shutil
+import sys
 from enum import Enum
 from typing import Union
 
@@ -62,6 +63,13 @@ WINDOW_SIZE = False
 
 logger = logging.getLogger("explorepy." + __name__)
 
+if sys.platform == "linux" or sys.platform == "linux2":
+    dir_main = os.path.dirname(os.path.abspath(__file__))
+    ICON_PATH = os.path.join(dir_main, "images", "MentalabLogo.ico")
+elif sys.platform == "win32":
+    par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+    ICON_PATH = os.path.join(par_dir, "MentalabLogo.ico")
+
 
 class MainWindow(QMainWindow, BaseModel):
     """
@@ -73,10 +81,9 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-        icon_path = os.path.join(par_dir, "MentalabLogo.ico")
-        logger.debug("Icon path: %s" % icon_path)
-        self.setWindowIcon(QIcon(icon_path))
+
+        logger.debug("Icon path: %s" % ICON_PATH)
+        self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle('Explore Desktop')
 
         self.is_streaming = False
