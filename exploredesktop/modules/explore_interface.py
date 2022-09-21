@@ -110,7 +110,6 @@ class ExploreInterface(Explore):
         """
         if self.is_connected:
             chan_mask = list(reversed(self.stream_processor.device_info['adc_mask']))
-            # print("In set chan dict before setting")
 
             if new_dict is None:
                 custom_names = [f"ch{i}" for i in range(1, self.device_chan + 1)]
@@ -126,7 +125,6 @@ class ExploreInterface(Explore):
                     [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
             self.chan_dict = self.chan_dict[:self.device_chan]
-            print(f"{self.chan_dict}")
 
     def get_chan_dict(self) -> dict:
         """Retrun channel status dictionary
@@ -147,9 +145,10 @@ class ExploreInterface(Explore):
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
         return self.device_chan
 
-    @property
-    def active_chan_list(self):
+    def active_chan_list(self, custom_name=False):
         """Returns list of active channels"""
+        if custom_name:
+            return [one_chan_dict['name'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
         return [one_chan_dict['input'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
 
     # pylint: disable=arguments-differ

@@ -42,7 +42,7 @@ class FFTData(DataContainer):
         Args:
             attributes (list): list of attributes to update
         """
-        active_chan = self.explorer.active_chan_list
+        active_chan = self.explorer.active_chan_list()
         if DataAttributes.DATA in attributes:
             points = self.plot_points(downsampling=False)
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
@@ -72,7 +72,7 @@ class FFTData(DataContainer):
         Args:
             packet (explorepy.packet.EEG): EEG packet
         """
-        chan_list = self.explorer.active_chan_list
+        chan_list = self.explorer.active_chan_list()
         exg_fs = self.explorer.sampling_rate
 
         _, exg = packet.get_data(exg_fs)
@@ -118,10 +118,11 @@ class FFTPlot(BasePlots):
         plot_wdgt.setLogMode(x=False, y=True)
         plot_wdgt.setMouseEnabled(x=False, y=False)
 
+        active_chan = self.model.explorer.active_chan_list(custom_name=True)
         all_curves_list = [
             plot_wdgt.getPlotItem().plot(
-                pen=Stylesheets.FFT_LINE_COLORS[i], name=f'ch{i+1}', skipFiniteCheck=True
-            ) for i in range(self.model.explorer.device_chan)
+                pen=Stylesheets.FFT_LINE_COLORS[idx], name=f'{ch}', skipFiniteCheck=True
+            ) for idx, ch in enumerate(active_chan)
         ]
         self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
 
@@ -134,7 +135,7 @@ class FFTPlot(BasePlots):
         if data is None:
             return
 
-        for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list):
+        for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list()):
             try:
                 curve.setData(data['f'], data[chan])
             except KeyError:
