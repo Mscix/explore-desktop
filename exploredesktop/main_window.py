@@ -81,7 +81,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        
+
         logger.debug("Icon path: %s" % ICON_PATH)
         self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle('Explore Desktop')
