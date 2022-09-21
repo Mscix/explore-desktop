@@ -225,7 +225,9 @@ class SettingsFrameView(BaseModel):
         """Display popup with new sampling rate and active channels
         """
         chan_dict = self.explorer.get_chan_dict()
-        act_chan = ", ".join([one_chan_dict["input"] for one_chan_dict in chan_dict if one_chan_dict["enable"]])
+        act_chan = ", ".join([
+            f'{one_chan_dict["input"]} ({one_chan_dict["name"]})'
+            for one_chan_dict in chan_dict if one_chan_dict["enable"]])
         msg = (
             "Device settings have been changed:"
             f"\nSampling Rate: {self.explorer.sampling_rate}"
@@ -267,7 +269,6 @@ class SettingsFrameView(BaseModel):
 
             self.explorer.set_chan_dict(self.ui.table_settings.model().chan_data)
             self.update_modules()
-            # print(f"{self.explorer.chan_dict=}")
 
         return changed
 
