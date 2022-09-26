@@ -39,10 +39,13 @@ class ImpedanceGraph(pg.GraphItem):
         """Initialize impedance graph
         """
         chan_dict = self.model.explorer.get_chan_dict()
-        n_chan = self.model.explorer.n_active_chan
-        pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
+        # n_chan = self.model.explorer.n_active_chan
+        # TODO REMOVE AFTER TEST
+        n_chan = 32
+        x_pos, y_pos = self.model.get_pos_lists(n_chan)
+        pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
         # TODO: show all channels, gray if disabled?
-        texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict if one_chan_dict['enable'] == 1]
+        texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
 
@@ -169,13 +172,20 @@ class ImpModel(BaseModel):
         Args:
             packet (explorepy.packet.EEG): EEG packet
         """
-        chan_list = self.explorer.active_chan_list(custom_name=True)
-        n_chan = self.explorer.n_active_chan
+        # chan_list = self.explorer.active_chan_list(custom_name=True)
+        # n_chan = self.explorer.n_active_chan
+
+        # TODO REMOVE AFTER TEST
+        chan_list = [f"ch{i+1}" for i in range(32)]
+        n_chan = 32
 
         imp_values = packet.get_impedances()
         texts = []
         brushes = []
-        pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
+
+        x_pos, y_pos = self.get_pos_lists(n_chan)
+        pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
+
         for chan, value in zip(chan_list, imp_values):
             value = value / 2
             brushes.append(self.get_stylesheet(value))
@@ -184,6 +194,27 @@ class ImpModel(BaseModel):
 
         data = {"texts": texts, "brushes": brushes, "pos": pos}
         self.signals.impedanceChanged.emit(data)
+
+    @staticmethod
+    def get_pos_lists(n_chan):
+        """_summary_
+
+        Args:
+            n_chan (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        y_pos = [i // 8 * -3 for i in range(n_chan)]
+        x_pos = [0 + i * 3 for i in range(8)] 
+        # multiplier to get desired list length
+        mult = 32 / n_chan
+        if mult < 1:
+            x_pos = x_pos[:n_chan]
+        else:
+            x_pos = x_pos * int(mult)
+
+        return x_pos, y_pos
 
     def set_mode(self, text: str) -> None:
         """Set impedance mode

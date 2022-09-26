@@ -127,7 +127,15 @@ class Stylesheets():
 
     FFT_LINE_COLORS = [
         '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
-        '#2ca02c', '#98df8a', '#d62728', '#ff9896']
+        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+        
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+        '#2ca02c', '#98df8a', '#d62728', '#ff9896'
+        ]
 
     MARKER_LINE_COLOR = '#7AB904'  # ALPHA = 1
 

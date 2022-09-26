@@ -187,6 +187,10 @@ class ExGData(DataContainer):
         except ValueError as error:
             logger.warning("ValueError: %s", str(error))
 
+        # TODO: REMOVE AFTER TESTING
+        chan_list = [f"ch{i+1}" for i in range(32)]
+        exg = exg * 8
+
         data = dict(zip(chan_list, exg))
         data['t'] = time_vector
 
@@ -469,7 +473,10 @@ class ExGPlot(BasePlots):
 
     def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
-        n_chan = self.model.explorer.n_active_chan
+        # n_chan = self.model.explorer.n_active_chan
+        # TODO: REMOVE AFTER TESTING
+        n_chan = 32
+
         timescale = self.time_scale
 
         plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
@@ -508,6 +515,7 @@ class ExGPlot(BasePlots):
         ticks = [
             (idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})') for idx, ch in enumerate(active_chan)]
         self.ui.plot_exg.getAxis('left').setTicks([ticks])
+        print(f"{ticks=}")
 
     @Slot(dict)
     def swipe_plot(self, data):

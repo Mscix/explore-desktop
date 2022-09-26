@@ -78,11 +78,13 @@ cd %repo_wiki_path%
 cd ..\..
 call hugo -t ace-documentation
 @REM need to commit two times
+call git pull
 call git add .
 call git commit -m "Commit from %DATE%"
 call set /p asd="Hit enter to continue"
 call git push origin main
 cd public
+call git pull
 call git add .
 call git commit -m "Commit from %DATE%"
 call set /p asd="Hit enter to continue"

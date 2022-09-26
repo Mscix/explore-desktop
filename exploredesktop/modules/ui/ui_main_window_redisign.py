@@ -8,22 +8,67 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
-    QCursor, QFont, QFontDatabase, QGradient,
-    QIcon, QImage, QKeySequence, QLinearGradient,
-    QPainter, QPalette, QPixmap, QRadialGradient,
-    QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
-    QHBoxLayout, QHeaderView, QLabel, QLineEdit,
-    QListWidget, QListWidgetItem, QMainWindow, QPushButton,
-    QSizePolicy, QSpacerItem, QSpinBox, QStackedWidget,
-    QTabWidget, QTableView, QVBoxLayout, QWidget)
-
-from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
 from exploredesktop import app_resources_rc
+from pyqtgraph import (
+    GraphicsLayoutWidget,
+    PlotWidget
+)
+from PySide6.QtCore import (
+    QCoreApplication,
+    QDate,
+    QDateTime,
+    QLocale,
+    QMetaObject,
+    QObject,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+    QTime,
+    QUrl
+)
+from PySide6.QtGui import (
+    QAction,
+    QBrush,
+    QColor,
+    QConicalGradient,
+    QCursor,
+    QFont,
+    QFontDatabase,
+    QGradient,
+    QIcon,
+    QImage,
+    QKeySequence,
+    QLinearGradient,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QRadialGradient,
+    QTransform
+)
+from PySide6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QFrame,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
+    QStackedWidget,
+    QTableView,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget
+)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -772,11 +817,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.table_settings = QTableView(self.frame_channels)
         self.table_settings.setObjectName(u"table_settings")
-        sizePolicy1.setHeightForWidth(self.table_settings.sizePolicy().hasHeightForWidth())
-        self.table_settings.setSizePolicy(sizePolicy1)
         self.table_settings.setStyleSheet(u"border: 1px solid rgb(0,0,0)")
-        self.table_settings.setCornerButtonEnabled(False)
-        self.table_settings.horizontalHeader().setCascadingSectionResizes(True)
 
         self.verticalLayout_5.addWidget(self.table_settings)
 
@@ -880,10 +921,6 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_2.addWidget(self.frame_device_buttons)
-
-        self.verticalSpacer_19 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.verticalLayout_2.addItem(self.verticalSpacer_19)
 
 
         self.horizontalLayout_31.addWidget(self.frame_device)
@@ -1523,20 +1560,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_14.addItem(self.horizontalSpacer_2)
 
-        self.ft_label_firmware = QLabel(self.main_footer)
-        self.ft_label_firmware.setObjectName(u"ft_label_firmware")
-
-        self.horizontalLayout_14.addWidget(self.ft_label_firmware)
-
-        self.ft_label_firmware_value = QLabel(self.main_footer)
-        self.ft_label_firmware_value.setObjectName(u"ft_label_firmware_value")
-
-        self.horizontalLayout_14.addWidget(self.ft_label_firmware_value, 0, Qt.AlignLeft)
-
-        self.horizontalSpacer_11 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_14.addItem(self.horizontalSpacer_11)
-
         self.horizontalLayout_25 = QHBoxLayout()
         self.horizontalLayout_25.setObjectName(u"horizontalLayout_25")
 
@@ -1717,8 +1740,6 @@ class Ui_MainWindow(object):
         self.btn_apply_settings_2.setText(QCoreApplication.translate("MainWindow", u"Apply", None))
         self.cb_multitype_signal_3.setText(QCoreApplication.translate("MainWindow", u"Multi Type signal", None))
         self.ft_label_device_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Not connected</span></p></body></html>", None))
-        self.ft_label_firmware.setText(QCoreApplication.translate("MainWindow", u"Firmware Version  ", None))
-        self.ft_label_firmware_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.ft_label_battery.setText(QCoreApplication.translate("MainWindow", u"Battery ", None))
         self.ft_label_battery_value.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.ft_label_temp.setText(QCoreApplication.translate("MainWindow", u"Device Temperature", None))

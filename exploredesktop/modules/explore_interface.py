@@ -124,7 +124,12 @@ class ExploreInterface(Explore):
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
-            self.chan_dict = self.chan_dict[:self.device_chan]
+            # self.chan_dict = self.chan_dict[:self.device_chan]
+            # TODO REMOVE AFTER TEST
+            self.chan_dict = [
+                {
+                    "input": f"ch{i+1}", "enable": 1, "name": f"ch{i+1}"
+                } for i in range(32)]
 
     def get_chan_dict(self) -> dict:
         """Retrun channel status dictionary
