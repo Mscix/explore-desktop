@@ -67,6 +67,7 @@ if sys.platform == "linux" or sys.platform == "linux2":
     dir_main = os.path.dirname(os.path.abspath(__file__))
     ICON_PATH = os.path.join(dir_main, "images", "MentalabLogo.ico")
 elif sys.platform == "win32":
+    logger.debug("CWD: %s" % os.getcwd())
     par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     ICON_PATH = os.path.join(par_dir, "MentalabLogo.ico")
 
