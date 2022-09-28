@@ -224,7 +224,7 @@ class SettingsFrameView(BaseModel):
     def _display_new_settings(self) -> None:
         """Display popup with new sampling rate and active channels
         """
-        chan_dict = self.explorer.get_chan_dict()
+        chan_dict = self.explorer.get_chan_dict_list()
         act_chan = ", ".join([
             f'{one_chan_dict["input"]} ({one_chan_dict["name"]})'
             for one_chan_dict in chan_dict if one_chan_dict["enable"]])
@@ -267,7 +267,7 @@ class SettingsFrameView(BaseModel):
             mask = "".join(active_chan)
             changed = self.explorer.set_channels(mask)
 
-            self.explorer.set_chan_dict(self.ui.table_settings.model().chan_data)
+            self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
             self.update_modules()
 
         return changed
@@ -281,7 +281,7 @@ class SettingsFrameView(BaseModel):
         """Get active channels from UI settings table checkboxes
 
         Returns:
-            list[int]: binary list indicating whether channel is active
+            list[str]: binary list indicating whether channel is active
         """
         active_chan = [str(one_chan_dict["enable"]) for one_chan_dict in self.ui.table_settings.model().chan_data]
         active_chan = list(reversed(active_chan))
@@ -479,7 +479,7 @@ class _ConfigItemDelegate(QStyledItemDelegate):
 
 
 class ConfigTableModel(QAbstractTableModel, BaseModel):
-    """_summary_
+    """Table Model for configuration Table View
     """
     def __init__(self, data):
         """_summary_
@@ -655,14 +655,8 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         # get property name from column description
         property_name = self.columns[column]['property']
         # get property value
-        if property_name == 'input':
-            d = str(property["input"])
-        elif property_name == 'enable':
-            d = str(property["enable"])
-        elif property_name == 'name':
-            d = str(property["name"])
-        elif property_name == 'type':
-            d = str(property["type"])
+        if property_name in ['input', 'enable', 'name', 'type']:
+            d = str(property[property_name])
         else:
             d = None
         return d

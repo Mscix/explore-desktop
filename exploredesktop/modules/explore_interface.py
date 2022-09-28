@@ -28,7 +28,7 @@ class ExploreInterface(Explore):
     def __init__(self):
         super().__init__()
         self.device_chan = None
-        self.chan_dict = []
+        self.chan_dict_list = []
 
     @property
     def sampling_rate(self) -> Optional[int]:
@@ -94,18 +94,18 @@ class ExploreInterface(Explore):
         self.unsubscribe(topic=TOPICS.raw_ExG, callback=self._set_n_chan)
 
         # Set channel status
-        self.set_chan_dict()
+        self.set_chan_dict_list()
         return True
 
     def disconnect(self):
         """Disconnect from explore device and reset variables
         """
         self.device_chan = None
-        self.chan_dict = {}
+        self.chan_dict_list = []
         return super().disconnect()
 
     # TODO change to property
-    def set_chan_dict(self, new_dict=None):
+    def set_chan_dict_list(self, new_dict=None):
         """Set the channel status dictionary i.e. whether channels are active or inactive
         """
         if self.is_connected:
@@ -118,18 +118,18 @@ class ExploreInterface(Explore):
                 custom_names = [d["name"] for d in new_dict]
                 signal_types = [d["type"] for d in new_dict]
 
-            self.chan_dict = [
+            self.chan_dict_list = [
                 {
                     "input": ch, "enable": active, "name": name, "type": sig_type
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
-            self.chan_dict = self.chan_dict[:self.device_chan]
+            self.chan_dict_list = self.chan_dict_list[:self.device_chan]
 
-    def get_chan_dict(self) -> dict:
+    def get_chan_dict_list(self) -> dict:
         """Retrun channel status dictionary
         """
-        return self.chan_dict
+        return self.chan_dict_list
 
     def _set_n_chan(self, packet: explorepy.packet.EEG) -> None:
         """Set the number of channels i.e. device type (4-ch or 8-ch)
@@ -146,10 +146,14 @@ class ExploreInterface(Explore):
         return self.device_chan
 
     def active_chan_list(self, custom_name=False):
-        """Returns list of active channels"""
+        """Returns list of active channels
+
+        Args:
+            custom_name (bool, optional): whether to return custom names set by user. Defaults to False.
+        """
         if custom_name:
-            return [one_chan_dict['name'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
-        return [one_chan_dict['input'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
+            return [one_chan_dict['name'] for one_chan_dict in self.chan_dict_list if one_chan_dict['enable']]
+        return [one_chan_dict['input'] for one_chan_dict in self.chan_dict_list if one_chan_dict['enable']]
 
     # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:
