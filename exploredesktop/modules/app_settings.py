@@ -225,8 +225,8 @@ class Settings():
     EXG_VIS_SRATE = 125
     WIN_LENGTH = 10  # Seconds
     # MODE_LIST = ['EEG', 'ECG']
-
-    CHAN_LIST = [f'ch{i}' for i in range(1, 33)]
+    MAX_CHAN = 32
+    CHAN_LIST = [f'ch{i}' for i in range(1, MAX_CHAN + 1)]
     DEFAULT_SCALE = 10 ** 3  # Volt
     BATTERY_N_MOVING_AVERAGE = 60
     V_TH = [10, 5 * 10 ** 3]  # Noise threshold for ECG (microVolt)

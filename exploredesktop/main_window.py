@@ -36,6 +36,7 @@ from exploredesktop.modules import (  # isort:skip
     BaseModel,
     GUISettings,
     Stylesheets,
+    # this import will replace the Ui_MainWindow from window_redisign in the future
     # Ui_MainWindow
 )
 from exploredesktop.modules.app_settings import (  # isort:skip
