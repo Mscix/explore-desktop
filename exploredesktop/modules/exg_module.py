@@ -484,7 +484,7 @@ class ExGPlot(BasePlots):
 
     def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
-        n_chan = self.model.explorer.n_active_chan if self.model.explorer.n_active_chan > 8 else 8
+        n_chan = self.model.explorer.n_active_chan if self.model.explorer.n_active_chan <= 8 else 8
         timescale = self.time_scale
 
         plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
