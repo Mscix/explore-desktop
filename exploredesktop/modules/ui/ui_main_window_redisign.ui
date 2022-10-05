@@ -137,6 +137,8 @@ QLabel#settings_title{
 QLabel#bt_title{
 	font: 20pt;
 }
+QTabBar::tab{
+	height: 25px}
 </string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -509,7 +511,7 @@ QLabel#bt_title{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1831,6 +1833,74 @@ font: 11pt;</string>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_32">
                 <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_33">
+                  <item>
+                   <widget class="QPushButton" name="btn_record">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="cursor">
+                     <cursorShape>PointingHandCursor</cursorShape>
+                    </property>
+                    <property name="text">
+                     <string> Record</string>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="../../app_resources.qrc">
+                      <normaloff>:/icons/icons/cil-media-record.png</normaloff>:/icons/icons/cil-media-record.png</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>18</width>
+                      <height>18</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_recording_time">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>150</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true"/>
+                    </property>
+                    <property name="text">
+                     <string>00:00:00</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_12">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
                  <widget class="QLabel" name="label_yAxis">
                   <property name="font">
                    <font>
@@ -1897,125 +1967,7 @@ font: 11pt;</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_heartRate">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Heart Rate (bpm)</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="value_heartRate">
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>25</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>NA</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QFrame" name="frame_2">
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Raised</enum>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_35">
-                <property name="leftMargin">
-                 <number>5</number>
-                </property>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_33">
-                  <item>
-                   <widget class="QPushButton" name="btn_record">
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>30</height>
-                     </size>
-                    </property>
-                    <property name="cursor">
-                     <cursorShape>PointingHandCursor</cursorShape>
-                    </property>
-                    <property name="text">
-                     <string> Record</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../../app_resources.qrc">
-                      <normaloff>:/icons/icons/cil-media-record.png</normaloff>:/icons/icons/cil-media-record.png</iconset>
-                    </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>18</width>
-                      <height>18</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_recording_time">
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>150</width>
-                      <height>30</height>
-                     </size>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true"/>
-                    </property>
-                    <property name="text">
-                     <string>00:00:00</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="QFrame" name="frame_4">
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Raised</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_6">
+                 <spacer name="horizontalSpacer_5">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -2029,13 +1981,6 @@ font: 11pt;</string>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_34">
-                  <item>
-                   <widget class="QLabel" name="label_13">
-                    <property name="text">
-                     <string>Set marker (8 - 65535)</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item>
                    <widget class="QLineEdit" name="value_event_code">
                     <property name="maximumSize">
@@ -2080,14 +2025,14 @@ font: 11pt;</string>
                      <string notr="true"/>
                     </property>
                     <property name="text">
-                     <string> Set</string>
+                     <string> Set Marker</string>
                     </property>
                    </widget>
                   </item>
                  </layout>
                 </item>
                 <item>
-                 <spacer name="horizontalSpacer_5">
+                 <spacer name="horizontalSpacer_6">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -2128,13 +2073,6 @@ font: 11pt;</string>
                </layout>
               </item>
               <item>
-               <widget class="QCheckBox" name="cb_antialiasing">
-                <property name="text">
-                 <string>Antialiasing</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <widget class="QTabWidget" name="tabWidget">
                 <property name="styleSheet">
                  <string notr="true"/>
@@ -2149,6 +2087,13 @@ font: 11pt;</string>
                  <layout class="QHBoxLayout" name="horizontalLayout_21">
                   <item>
                    <widget class="PlotWidget" name="plot_exg"/>
+                  </item>
+                  <item>
+                   <widget class="QScrollBar" name="verticalScrollBar">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -3141,7 +3086,7 @@ p, li { white-space: pre-wrap; }
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>40</height>
+              <height>30</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -3173,7 +3118,7 @@ p, li { white-space: pre-wrap; }
               <number>0</number>
              </property>
              <property name="bottomMargin">
-              <number>8</number>
+              <number>6</number>
              </property>
              <item>
               <widget class="QLabel" name="ft_label_device_3">
