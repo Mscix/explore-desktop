@@ -108,7 +108,8 @@ class ExGData(DataContainer):
             attributes (list): list of attributes to update
         """
         if DataAttributes.OFFSETS in attributes:
-            n_chan = self.explorer.n_active_chan
+            n_chan = 32
+            # n_chan = self.explorer.n_active_chan
             self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
 
         if DataAttributes.BASELINE in attributes:
@@ -412,12 +413,26 @@ class ExGPlot(BasePlots):
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
+        self.ui.verticalScrollBar.setMinimum(1)
+        # TODO maximum must depend of number of active channels
+        # TODO if chan 8 or less hide scroll bar
+        # both above move to on_connect function (??)
+        self.ui.verticalScrollBar.setMaximum(26)
+
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
         # TODO: this will depend on new chan dict
         # self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
-        self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
+        # TODO: uncomment when implemented
+        # self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
+        self.ui.verticalScrollBar.valueChanged.connect(self.scroll)
+
+    def scroll(self):
+        value = self.ui.verticalScrollBar.value()
+        low_lim = value - 1
+        up_lim = value + 7
+        self.ui.plot_exg.setYRange(low_lim, up_lim)
 
     @Slot(bool)
     def antialiasing(self, cb_status):
@@ -469,7 +484,7 @@ class ExGPlot(BasePlots):
 
     def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
-        n_chan = self.model.explorer.n_active_chan
+        n_chan = self.model.explorer.n_active_chan if self.model.explorer.n_active_chan > 8 else 8
         timescale = self.time_scale
 
         plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)

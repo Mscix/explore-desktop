@@ -307,7 +307,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.rrPeakRemove.connect(self.exg_plot.remove_old_r_peak)
         # self.signals.rrPeakPlot.connect(self.exg_plot.plot_rr_point)
 
-        self.signals.heartRate.connect(self.ui.value_heartRate.setText)
+        # self.signals.heartRate.connect(self.ui.value_heartRate.setText)
         self.signals.plotRR.connect(self.exg_plot.plot_rr_point)
 
     def style_ui(self) -> None:
@@ -328,8 +328,7 @@ class MainWindow(QMainWindow, BaseModel):
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
-        # TODO remove when antialiasing is tested
-        self.ui.cb_antialiasing.setHidden(True)
+
         # settings page
         self.ui.label_warning_disabled.setHidden(True)
         self.ui.lbl_sr_warning.hide()
@@ -358,10 +357,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Start with foucus on line edit for device name
         self.ui.dev_name_input.setFocus()
-
-        # Hide heartrate monitoring
-        self.ui.label_heartRate.setHidden(True)
-        self.ui.value_heartRate.setHidden(True)
 
     def _verify_imp(self, btn_name: str) -> bool:
         """Verify if impedance measurement is active before moving to another page
