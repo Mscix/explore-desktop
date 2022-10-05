@@ -135,7 +135,7 @@ class SettingsFrameView(BaseModel):
         self.ui.label_explore_name.setText(self.explorer.device_name)
 
         # Set active channels
-        data = deepcopy(self.explorer.chan_dict)
+        data = deepcopy(self.explorer.chan_dict_list)
         self.ui.table_settings.setModel(ConfigTableModel(data))
         self.ui.table_settings.viewport().update()
 
