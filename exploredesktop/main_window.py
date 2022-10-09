@@ -144,6 +144,8 @@ class MainWindow(QMainWindow, BaseModel):
         self.mkr_plot = MarkerPlot(self.ui)
         self.mkr_plot.setup_ui_connections()
 
+        self.ui.tabWidget.currentChanged.connect(self.plot_tab_changed)
+
         # RECORDING
         self.recording = RecordFunctions(self.ui)
         self.recording.setup_ui_connections()
@@ -427,13 +429,23 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.stackedWidget.setCurrentWidget(btn_page_map[btn_name])
         return True
 
+    def plot_tab_changed(self, idx: int) -> None:
+        """Activate/deactivate fft measurment when plot tab changes
+
+        Args:
+            idx (int): index of the active tab
+        """
+        if idx == 2:  # FFT tab active
+            self.fft_plot.start_timer()
+        else:
+            self.fft_plot.stop_timer()
+
     def _subscribe_callbacks(self) -> None:
         """Subscribe signal callbacks
         """
         self.explorer.subscribe(callback=self.orn_plot.model.callback, topic=TOPICS.raw_orn)
         self.explorer.subscribe(callback=self.exg_plot.model.callback, topic=TOPICS.filtered_ExG)
         self.explorer.subscribe(callback=self.fft_plot.model.callback, topic=TOPICS.filtered_ExG)
-        self.fft_plot.start_timer()
         self.explorer.subscribe(callback=self.mkr_plot.model.callback, topic=TOPICS.marker)
 
     def _move_to_settings(self) -> None:
