@@ -135,11 +135,9 @@ class ExploreInterface(Explore):
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
-            print(f"{len(self.chan_dict_list)=}")
             # TODO uncomment when adc mask is implemented
             # self.chan_dict_list = self.chan_dict_list[:self.device_chan]
             self.chan_dict_list = [self.chan_dict_list[i] for i in IDX_CHAN_TO_DISPLAY]
-            print(f"{len(self.chan_dict_list)=}")
 
     def get_chan_dict_list(self) -> dict:
         """Retrun channel status dictionary
