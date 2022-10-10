@@ -38,19 +38,12 @@ class ImpedanceGraph(pg.GraphItem):
     def display_default_imp(self) -> None:
         """Initialize impedance graph
         """
-        chan_dict = self.model.explorer.get_chan_dict()
-        # n_chan = self.model.explorer.n_active_chan
-        # TODO REMOVE AFTER TEST
-        n_chan = 32
+        chan_dict = self.model.explorer.get_chan_dict_list()
+        n_chan = self.model.explorer.device_chan
         x_pos, y_pos = self.model.get_pos_lists(n_chan)
         pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
         # TODO: show all channels, gray if disabled?
         texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict]
-        # chan_dict = self.model.explorer.get_chan_dict_list()
-        # n_chan = self.model.explorer.n_active_chan
-        # pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
-        # # TODO: show all channels, gray if disabled?
-        # texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict if one_chan_dict['enable']]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
 
@@ -211,9 +204,10 @@ class ImpModel(BaseModel):
             _type_: _description_
         """
         y_pos = [i // 8 * -3 for i in range(n_chan)]
-        x_pos = [0 + i * 3 for i in range(8)] 
+        x_pos = [0 + i * 3 for i in range(8)]
         # multiplier to get desired list length
-        mult = 32 / n_chan
+        mult = n_chan / 8
+
         if mult < 1:
             x_pos = x_pos[:n_chan]
         else:
