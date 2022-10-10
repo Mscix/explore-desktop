@@ -533,7 +533,6 @@ class ExGPlot(BasePlots):
                 idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
             ) for idx, ch in enumerate(reversed(active_chan))]
         self.ui.plot_exg.getAxis('left').setTicks([ticks])
-        print(f"{ticks=}")
 
     @Slot(dict)
     def swipe_plot(self, data):
