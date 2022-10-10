@@ -108,8 +108,10 @@ class ExGData(DataContainer):
             attributes (list): list of attributes to update
         """
         if DataAttributes.OFFSETS in attributes:
+
             n_chan = self.explorer.n_active_chan
-            self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
+            # pyqtgraph starts plotting at the bottom, we want to add ch at the top of the plot -> reversed
+            self.offsets = [i for i in reversed(np.arange(1, n_chan + 1)[:, np.newaxis].astype(float))]
 
         if DataAttributes.BASELINE in attributes:
             self._baseline = None
@@ -187,11 +189,8 @@ class ExGData(DataContainer):
         except ValueError as error:
             logger.warning("ValueError: %s", str(error))
 
-        # TODO: REMOVE AFTER TESTING
-        chan_list = [f"ch{i+1}" for i in range(32)]
-        exg = exg * 8
-
-        data = dict(zip(chan_list, exg))
+        # pyqtgraph starts plotting at the bottom, we want to add ch at the top of the plot -> reversed
+        data = dict(zip(reversed(chan_list), reversed(exg)))
         data['t'] = time_vector
 
         self.insert_new_data(data)
@@ -416,12 +415,29 @@ class ExGPlot(BasePlots):
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
+        self.ui.verticalScrollBar.setMinimum(1)
+        # TODO maximum must depend of number of active channels
+        # TODO if chan 8 or less hide scroll bar
+        # both above move to on_connect function (??)
+        self.ui.verticalScrollBar.setMaximum(26)
+
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
         # TODO: this will depend on new chan dict
         # self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
-        self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
+        # TODO: uncomment when implemented
+        # self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
+        self.ui.verticalScrollBar.valueChanged.connect(self.scroll)
+
+    def scroll(self):
+        """Change the plot range when useing scrollbar
+        """
+        value = self.ui.verticalScrollBar.value()
+        n_chan = self.model.explorer.n_active_chan
+        up_lim = (2 - value) + n_chan
+        low_lim = up_lim - 9
+        self.ui.plot_exg.setYRange(low_lim, up_lim)
 
     @Slot(bool)
     def antialiasing(self, cb_status):
@@ -473,13 +489,13 @@ class ExGPlot(BasePlots):
 
     def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
-        # n_chan = self.model.explorer.n_active_chan
-        # TODO: REMOVE AFTER TESTING
-        n_chan = 32
-
+        n_chan = self.model.explorer.n_active_chan if self.model.explorer.n_active_chan > 8 else 8
         timescale = self.time_scale
-
-        plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
+        value = self.ui.verticalScrollBar.value()
+        up_lim = (2 - value) + n_chan
+        plot_wdgt.setRange(
+            yRange=(up_lim - 9, up_lim),
+            xRange=(0, int(timescale)), padding=0.01)
         plot_wdgt.setLabel('bottom', 'time (s)')
 
     def _setup_righ_axis(self, plot_wdgt: pg.PlotWidget):
@@ -513,7 +529,9 @@ class ExGPlot(BasePlots):
         """
         active_chan = self.model.explorer.active_chan_list(custom_name=True)
         ticks = [
-            (idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})') for idx, ch in enumerate(active_chan)]
+            (
+                idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+            ) for idx, ch in enumerate(reversed(active_chan))]
         self.ui.plot_exg.getAxis('left').setTicks([ticks])
         print(f"{ticks=}")
 

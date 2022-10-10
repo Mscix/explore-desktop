@@ -46,6 +46,11 @@ class ImpedanceGraph(pg.GraphItem):
         pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
         # TODO: show all channels, gray if disabled?
         texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict]
+        # chan_dict = self.model.explorer.get_chan_dict_list()
+        # n_chan = self.model.explorer.n_active_chan
+        # pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
+        # # TODO: show all channels, gray if disabled?
+        # texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict if one_chan_dict['enable']]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
 

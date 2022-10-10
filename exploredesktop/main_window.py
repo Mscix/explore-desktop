@@ -36,6 +36,7 @@ from exploredesktop.modules import (  # isort:skip
     BaseModel,
     GUISettings,
     Stylesheets,
+    # this import will replace the Ui_MainWindow from window_redisign in the future
     # Ui_MainWindow
 )
 from exploredesktop.modules.app_settings import (  # isort:skip
@@ -142,6 +143,8 @@ class MainWindow(QMainWindow, BaseModel):
         self.fft_plot = FFTPlot(self.ui)
         self.mkr_plot = MarkerPlot(self.ui)
         self.mkr_plot.setup_ui_connections()
+
+        self.ui.tabWidget.currentChanged.connect(self.plot_tab_changed)
 
         # RECORDING
         self.recording = RecordFunctions(self.ui)
@@ -306,7 +309,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.rrPeakRemove.connect(self.exg_plot.remove_old_r_peak)
         # self.signals.rrPeakPlot.connect(self.exg_plot.plot_rr_point)
 
-        self.signals.heartRate.connect(self.ui.value_heartRate.setText)
+        # self.signals.heartRate.connect(self.ui.value_heartRate.setText)
         self.signals.plotRR.connect(self.exg_plot.plot_rr_point)
 
     def style_ui(self) -> None:
@@ -327,8 +330,7 @@ class MainWindow(QMainWindow, BaseModel):
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
-        # TODO remove when antialiasing is tested
-        self.ui.cb_antialiasing.setHidden(True)
+
         # settings page
         self.ui.label_warning_disabled.setHidden(True)
         self.ui.lbl_sr_warning.hide()
@@ -357,10 +359,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Start with foucus on line edit for device name
         self.ui.dev_name_input.setFocus()
-
-        # Hide heartrate monitoring
-        self.ui.label_heartRate.setHidden(True)
-        self.ui.value_heartRate.setHidden(True)
 
     def _verify_imp(self, btn_name: str) -> bool:
         """Verify if impedance measurement is active before moving to another page
@@ -431,13 +429,23 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.stackedWidget.setCurrentWidget(btn_page_map[btn_name])
         return True
 
+    def plot_tab_changed(self, idx: int) -> None:
+        """Activate/deactivate fft measurment when plot tab changes
+
+        Args:
+            idx (int): index of the active tab
+        """
+        if idx == 2:  # FFT tab active
+            self.fft_plot.start_timer()
+        else:
+            self.fft_plot.stop_timer()
+
     def _subscribe_callbacks(self) -> None:
         """Subscribe signal callbacks
         """
         self.explorer.subscribe(callback=self.orn_plot.model.callback, topic=TOPICS.raw_orn)
         self.explorer.subscribe(callback=self.exg_plot.model.callback, topic=TOPICS.filtered_ExG)
         self.explorer.subscribe(callback=self.fft_plot.model.callback, topic=TOPICS.filtered_ExG)
-        self.fft_plot.start_timer()
         self.explorer.subscribe(callback=self.mkr_plot.model.callback, topic=TOPICS.marker)
 
     def _move_to_settings(self) -> None:

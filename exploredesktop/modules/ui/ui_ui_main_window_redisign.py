@@ -19,8 +19,9 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
     QHBoxLayout, QHeaderView, QLabel, QLineEdit,
     QListWidget, QListWidgetItem, QMainWindow, QPushButton,
-    QSizePolicy, QSpacerItem, QSpinBox, QStackedWidget,
-    QTabWidget, QTableView, QVBoxLayout, QWidget)
+    QScrollBar, QSizePolicy, QSpacerItem, QSpinBox,
+    QStackedWidget, QTabWidget, QTableView, QVBoxLayout,
+    QWidget)
 
 from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
 from exploredesktop import app_resources_rc
@@ -153,6 +154,8 @@ class Ui_MainWindow(object):
 "QLabel#bt_title{\n"
 "	font: 20pt;\n"
 "}\n"
+"QTabBar::tab{\n"
+"	height: 25px}\n"
 "")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setSpacing(0)
@@ -902,6 +905,35 @@ class Ui_MainWindow(object):
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.horizontalLayout_32 = QHBoxLayout()
         self.horizontalLayout_32.setObjectName(u"horizontalLayout_32")
+        self.horizontalLayout_33 = QHBoxLayout()
+        self.horizontalLayout_33.setObjectName(u"horizontalLayout_33")
+        self.btn_record = QPushButton(self.page_plotsNoWidget)
+        self.btn_record.setObjectName(u"btn_record")
+        self.btn_record.setMinimumSize(QSize(100, 30))
+        self.btn_record.setCursor(QCursor(Qt.PointingHandCursor))
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/icons/cil-media-record.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_record.setIcon(icon8)
+        self.btn_record.setIconSize(QSize(18, 18))
+
+        self.horizontalLayout_33.addWidget(self.btn_record)
+
+        self.label_recording_time = QLabel(self.page_plotsNoWidget)
+        self.label_recording_time.setObjectName(u"label_recording_time")
+        self.label_recording_time.setMinimumSize(QSize(100, 0))
+        self.label_recording_time.setMaximumSize(QSize(150, 30))
+        self.label_recording_time.setStyleSheet(u"")
+        self.label_recording_time.setAlignment(Qt.AlignCenter)
+
+        self.horizontalLayout_33.addWidget(self.label_recording_time)
+
+
+        self.horizontalLayout_32.addLayout(self.horizontalLayout_33)
+
+        self.horizontalSpacer_12 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_32.addItem(self.horizontalSpacer_12)
+
         self.label_yAxis = QLabel(self.page_plotsNoWidget)
         self.label_yAxis.setObjectName(u"label_yAxis")
         self.label_yAxis.setFont(font2)
@@ -930,77 +962,12 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_32.addWidget(self.value_timeScale)
 
-        self.label_heartRate = QLabel(self.page_plotsNoWidget)
-        self.label_heartRate.setObjectName(u"label_heartRate")
-        self.label_heartRate.setFont(font2)
-        self.label_heartRate.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_32.addWidget(self.label_heartRate)
-
-        self.value_heartRate = QLabel(self.page_plotsNoWidget)
-        self.value_heartRate.setObjectName(u"value_heartRate")
-        self.value_heartRate.setMaximumSize(QSize(16777215, 25))
-        self.value_heartRate.setStyleSheet(u"")
-        self.value_heartRate.setAlignment(Qt.AlignCenter)
-
-        self.horizontalLayout_32.addWidget(self.value_heartRate)
-
-        self.frame_2 = QFrame(self.page_plotsNoWidget)
-        self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QFrame.Raised)
-
-        self.horizontalLayout_32.addWidget(self.frame_2)
-
-
-        self.verticalLayout_21.addLayout(self.horizontalLayout_32)
-
-        self.horizontalLayout_35 = QHBoxLayout()
-        self.horizontalLayout_35.setObjectName(u"horizontalLayout_35")
-        self.horizontalLayout_35.setContentsMargins(5, -1, -1, -1)
-        self.horizontalLayout_33 = QHBoxLayout()
-        self.horizontalLayout_33.setObjectName(u"horizontalLayout_33")
-        self.btn_record = QPushButton(self.page_plotsNoWidget)
-        self.btn_record.setObjectName(u"btn_record")
-        self.btn_record.setMinimumSize(QSize(100, 30))
-        self.btn_record.setCursor(QCursor(Qt.PointingHandCursor))
-        icon8 = QIcon()
-        icon8.addFile(u":/icons/icons/cil-media-record.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_record.setIcon(icon8)
-        self.btn_record.setIconSize(QSize(18, 18))
-
-        self.horizontalLayout_33.addWidget(self.btn_record)
-
-        self.label_recording_time = QLabel(self.page_plotsNoWidget)
-        self.label_recording_time.setObjectName(u"label_recording_time")
-        self.label_recording_time.setMinimumSize(QSize(100, 0))
-        self.label_recording_time.setMaximumSize(QSize(150, 30))
-        self.label_recording_time.setStyleSheet(u"")
-        self.label_recording_time.setAlignment(Qt.AlignCenter)
-
-        self.horizontalLayout_33.addWidget(self.label_recording_time)
-
-
-        self.horizontalLayout_35.addLayout(self.horizontalLayout_33)
-
-        self.frame_4 = QFrame(self.page_plotsNoWidget)
-        self.frame_4.setObjectName(u"frame_4")
-        self.frame_4.setFrameShape(QFrame.StyledPanel)
-        self.frame_4.setFrameShadow(QFrame.Raised)
-
-        self.horizontalLayout_35.addWidget(self.frame_4)
-
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_35.addItem(self.horizontalSpacer_6)
+        self.horizontalLayout_32.addItem(self.horizontalSpacer_5)
 
         self.horizontalLayout_34 = QHBoxLayout()
         self.horizontalLayout_34.setObjectName(u"horizontalLayout_34")
-        self.label_13 = QLabel(self.page_plotsNoWidget)
-        self.label_13.setObjectName(u"label_13")
-
-        self.horizontalLayout_34.addWidget(self.label_13)
-
         self.value_event_code = QLineEdit(self.page_plotsNoWidget)
         self.value_event_code.setObjectName(u"value_event_code")
         self.value_event_code.setMaximumSize(QSize(85, 30))
@@ -1023,11 +990,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_34.addWidget(self.btn_marker)
 
 
-        self.horizontalLayout_35.addLayout(self.horizontalLayout_34)
+        self.horizontalLayout_32.addLayout(self.horizontalLayout_34)
 
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_35.addItem(self.horizontalSpacer_5)
+        self.horizontalLayout_32.addItem(self.horizontalSpacer_6)
 
         self.btn_plot_filters = QPushButton(self.page_plotsNoWidget)
         self.btn_plot_filters.setObjectName(u"btn_plot_filters")
@@ -1038,15 +1005,10 @@ class Ui_MainWindow(object):
         self.btn_plot_filters.setIcon(icon9)
         self.btn_plot_filters.setIconSize(QSize(16, 12))
 
-        self.horizontalLayout_35.addWidget(self.btn_plot_filters)
+        self.horizontalLayout_32.addWidget(self.btn_plot_filters)
 
 
-        self.verticalLayout_21.addLayout(self.horizontalLayout_35)
-
-        self.cb_antialiasing = QCheckBox(self.page_plotsNoWidget)
-        self.cb_antialiasing.setObjectName(u"cb_antialiasing")
-
-        self.verticalLayout_21.addWidget(self.cb_antialiasing)
+        self.verticalLayout_21.addLayout(self.horizontalLayout_32)
 
         self.tabWidget = QTabWidget(self.page_plotsNoWidget)
         self.tabWidget.setObjectName(u"tabWidget")
@@ -1059,6 +1021,12 @@ class Ui_MainWindow(object):
         self.plot_exg.setObjectName(u"plot_exg")
 
         self.horizontalLayout_21.addWidget(self.plot_exg)
+
+        self.verticalScrollBar = QScrollBar(self.exg)
+        self.verticalScrollBar.setObjectName(u"verticalScrollBar")
+        self.verticalScrollBar.setOrientation(Qt.Vertical)
+
+        self.horizontalLayout_21.addWidget(self.verticalScrollBar)
 
         self.tabWidget.addTab(self.exg, "")
         self.orn = QWidget()
@@ -1503,7 +1471,7 @@ class Ui_MainWindow(object):
 
         self.main_footer = QFrame(self.center_main_items)
         self.main_footer.setObjectName(u"main_footer")
-        self.main_footer.setMinimumSize(QSize(0, 40))
+        self.main_footer.setMinimumSize(QSize(0, 30))
         self.main_footer.setMaximumSize(QSize(16777215, 40))
         self.main_footer.setStyleSheet(u"")
         self.main_footer.setFrameShape(QFrame.StyledPanel)
@@ -1511,7 +1479,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_14 = QHBoxLayout(self.main_footer)
         self.horizontalLayout_14.setSpacing(0)
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
-        self.horizontalLayout_14.setContentsMargins(10, 6, 0, 8)
+        self.horizontalLayout_14.setContentsMargins(10, 6, 0, 6)
         self.ft_label_device_3 = QLabel(self.main_footer)
         self.ft_label_device_3.setObjectName(u"ft_label_device_3")
         self.ft_label_device_3.setFont(font2)
@@ -1611,7 +1579,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(3)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -1668,17 +1636,13 @@ class Ui_MainWindow(object):
         self.btn_format_memory.setText(QCoreApplication.translate("MainWindow", u"Format MEM", None))
         self.btn_reset_settings.setText(QCoreApplication.translate("MainWindow", u"Reset Settings", None))
         self.btn_calibrate.setText(QCoreApplication.translate("MainWindow", u"Calibrate ORN", None))
-        self.label_yAxis.setText(QCoreApplication.translate("MainWindow", u"Y-axis Scale", None))
-        self.label_timeScale.setText(QCoreApplication.translate("MainWindow", u"Time window", None))
-        self.label_heartRate.setText(QCoreApplication.translate("MainWindow", u"Heart Rate (bpm)", None))
-        self.value_heartRate.setText(QCoreApplication.translate("MainWindow", u"NA", None))
         self.btn_record.setText(QCoreApplication.translate("MainWindow", u" Record", None))
         self.label_recording_time.setText(QCoreApplication.translate("MainWindow", u"00:00:00", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Set marker (8 - 65535)", None))
+        self.label_yAxis.setText(QCoreApplication.translate("MainWindow", u"Y-axis Scale", None))
+        self.label_timeScale.setText(QCoreApplication.translate("MainWindow", u"Time window", None))
         self.value_event_code.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Event Code", None))
-        self.btn_marker.setText(QCoreApplication.translate("MainWindow", u" Set", None))
+        self.btn_marker.setText(QCoreApplication.translate("MainWindow", u" Set Marker", None))
         self.btn_plot_filters.setText(QCoreApplication.translate("MainWindow", u"Filters", None))
-        self.cb_antialiasing.setText(QCoreApplication.translate("MainWindow", u"Antialiasing", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.exg), QCoreApplication.translate("MainWindow", u"  ExG  ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.orn), QCoreApplication.translate("MainWindow", u"  Orientation  ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.fft), QCoreApplication.translate("MainWindow", u"  FFT  ", None))

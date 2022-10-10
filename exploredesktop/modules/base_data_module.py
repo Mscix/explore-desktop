@@ -274,15 +274,15 @@ class BasePlots:
             list: list of curves added to plot
         """
         # Verify curves and chan dict have the same length, if not reset chan_dict
-        chan_dict = self.model.explorer.get_chan_dict()
+        chan_dict = self.model.explorer.get_chan_dict_list()
 
-        if len(all_curves) != len(list(chan_dict)):
-            self.model.explorer.set_chan_dict()
+        if len(all_curves) != len(chan_dict):
+            self.model.explorer.set_chan_dict_list()
 
         active_curves = []
-        # for curve, act in zip(all_curves, list(chan_dict.values())):
-        for curve, act in zip(all_curves, [one_chan_dict['enable'] for one_chan_dict in chan_dict]):
-            if act == 1:
+
+        for curve, active_state in zip(all_curves, reversed([one_chan_dict['enable'] for one_chan_dict in chan_dict])):
+            if active_state == 1:
                 plot_widget.addItem(curve)
                 active_curves.append(curve)
             else:
