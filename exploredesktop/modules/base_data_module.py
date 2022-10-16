@@ -281,7 +281,7 @@ class BasePlots:
 
         active_curves = []
 
-        for curve, active_state in zip(all_curves, [one_chan_dict['enable'] for one_chan_dict in chan_dict]):
+        for curve, active_state in zip(all_curves, reversed([one_chan_dict['enable'] for one_chan_dict in chan_dict])):
             if active_state == 1:
                 plot_widget.addItem(curve)
                 active_curves.append(curve)

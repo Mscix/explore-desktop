@@ -125,9 +125,27 @@ class Stylesheets():
     #########################
     EXG_LINE_COLOR = "#42C4F7"
 
+    # TODO category8 palette bookeh
     FFT_LINE_COLORS = [
         '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
         '#2ca02c', '#98df8a', '#d62728', '#ff9896']
+
+    FFT_LINE_COLORS = [
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+        '#9467bd', '#c5b0d5', '#8c564b', '#c49c94',
+        '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7',
+        '#bcbd22', '#dbdb8d', '#17becf', '#9edae5',
+        #
+        '#84ee15', '#6e9f23', '#096013', '#d6790b',
+        '#f34207', '#6108e8', "#68affc", "#b3dfc1",
+        "#154e56", "#49edc9", "#659c7e", "#c0e15c"]
 
     MARKER_LINE_COLOR = '#7AB904'  # ALPHA = 1
 

@@ -111,7 +111,8 @@ class FFTPlot(BasePlots):
 
         plot_wdgt = self.ui.plot_fft
         plot_wdgt.setBackground(Stylesheets.PLOT_BACKGROUND)
-        plot_wdgt.addLegend(horSpacing=20, colCount=2, brush='k', offset=(0, -300))
+        col = 2 if self.model.explorer.device_chan <= 8 else 4
+        plot_wdgt.addLegend(horSpacing=20, colCount=col, brush='k', offset=(0, -300))
         plot_wdgt.showGrid(x=True, y=True, alpha=0.5)
         plot_wdgt.setLabel('left', 'Amplitude (uV)')
         plot_wdgt.setLabel('bottom', 'Frequency (Hz)')
@@ -156,6 +157,8 @@ class FFTPlot(BasePlots):
 
     def stop_timer(self) -> None:
         """Stop plotting timer"""
+        if not self.timer.isActive():
+            return
         self.timer.stop()
 
     def swipe_plot(self, data):

@@ -21,6 +21,13 @@ from exploredesktop.modules.app_settings import Settings  # isort: skip
 
 logger = logging.getLogger("explorepy." + __name__)
 
+# write below idx of channels to display, e.g. [0,1,2,3,4,5,6,7] for first 8 chan
+IDX_CHAN_TO_DISPLAY = [i for i in range(32)]
+# IDX_CHAN_TO_DISPLAY = [0, 1, 2, 3, 4, 5, 6, 7]
+# IDX_CHAN_TO_DISPLAY = [0]
+# write max number of channels
+N_CHAN = 32
+
 
 class ExploreInterface(Explore):
     """Interface class for Explore"""
@@ -43,7 +50,9 @@ class ExploreInterface(Explore):
     def n_active_chan(self) -> Optional[int]:
         """Returns number of active channels"""
         if self.is_connected:
-            return sum(self.stream_processor.device_info['adc_mask'])
+            # TODO uncomment when adc mask is implemented
+            # return sum(self.stream_processor.device_info['adc_mask'])
+            return len(IDX_CHAN_TO_DISPLAY)
 
         logger.debug("Device is not connected but the number of active channels method is called.")
         return None
@@ -109,7 +118,9 @@ class ExploreInterface(Explore):
         """Set the channel status dictionary i.e. whether channels are active or inactive
         """
         if self.is_connected:
-            chan_mask = list(reversed(self.stream_processor.device_info['adc_mask']))
+            # TODO uncomment when adc mask is implemented
+            # chan_mask = list(reversed(self.stream_processor.device_info['adc_mask']))
+            chan_mask = [1] * N_CHAN
 
             if new_dict is None:
                 custom_names = [f"ch{i}" for i in range(1, self.device_chan + 1)]
@@ -124,8 +135,9 @@ class ExploreInterface(Explore):
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
-
-            self.chan_dict_list = self.chan_dict_list[:self.device_chan]
+            # TODO uncomment when adc mask is implemented
+            # self.chan_dict_list = self.chan_dict_list[:self.device_chan]
+            self.chan_dict_list = [self.chan_dict_list[i] for i in IDX_CHAN_TO_DISPLAY]
 
     def get_chan_dict_list(self) -> dict:
         """Retrun channel status dictionary
@@ -140,7 +152,9 @@ class ExploreInterface(Explore):
         """
         exg_fs = self.stream_processor.device_info['sampling_rate']
         timestamp, _ = packet.get_data(exg_fs)
-        self.device_chan = 4 if timestamp.shape[0] == 33 else 8
+        # TODO uncomment when adc mask is implemented
+        # self.device_chan = 4 if timestamp.shape[0] == 33 else 8
+        self.device_chan = N_CHAN
 
     def get_device_chan(self) -> int:
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
