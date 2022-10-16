@@ -160,7 +160,8 @@ class ExGData(DataContainer):
         elif (self.t_bt_drop is not None) and (t_point > DataContainer.last_t) and \
                 (t_point - self.t_bt_drop > sec_th) and self.bt_drop_warning_displayed is True:
             self.bt_drop_warning_displayed = False
-            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: ConnectionStatus.CONNECTED.value})
+            connection_label = ConnectionStatus.CONNECTED.value.replace("dev_name", self.explorer.device_name)
+            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: connection_label})
 
     def callback(self, packet: explorepy.packet.EEG) -> None:
         """Callback to get EEG data
@@ -419,12 +420,12 @@ class ExGPlot(BasePlots):
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
-        self.ui.verticalScrollBar.setMinimum(16)
+        self.ui.verticalScrollBar.setMinimum(18)
         # self.ui.verticalScrollBar.setMinimum(18)
         # TODO maximum must depend of number of active channels
         # TODO if chan 8 or less hide scroll bar
         # both above move to on_connect function (??)
-        self.ui.verticalScrollBar.setMaximum(26)
+        self.ui.verticalScrollBar.setMaximum(24)
 
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
@@ -464,6 +465,8 @@ class ExGPlot(BasePlots):
         self.lines = [None]
         self.plots_list = [self.ui.plot_exg]
         self.bt_drop_warning_displayed = False
+        self.ui.value_yAxis.setCurrentText("1 mV")
+        self.ui.value_timeScale.setCurrentText("10 s")
 
         self.model.reset_vars()
 
