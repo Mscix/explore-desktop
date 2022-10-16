@@ -51,6 +51,7 @@ class SettingsFrameView(BaseModel):
         # Setup signal connections
         self.signals.dataSettingsChanged.connect(self.disable_apply)
 
+    @Slot()
     def disable_apply(self, index: QModelIndex) -> None:
         """Disable apply button based on the names of the channels
 
@@ -510,7 +511,8 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         # column description
         self.columns = [
             {'property': 'input', 'header': 'Channel', 'edit': False, 'editor': 'default'},
-            {'property': 'enable', 'header': 'Enable', 'edit': True, 'editor': 'checkbox'},
+            # TODO change edit to true when adc mask/ channel enabling is implemented
+            {'property': 'enable', 'header': 'Enable', 'edit': False, 'editor': 'checkbox'},
             {'property': 'name', 'header': 'Name', 'edit': True, 'editor': 'default'},
             {'property': 'type', 'header': 'Type', 'edit': False, 'editor': 'combobox'},
         ]
