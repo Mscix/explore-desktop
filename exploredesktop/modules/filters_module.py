@@ -53,7 +53,7 @@ class Filters(BaseModel):
             self.explorer.remove_filters()
 
         # TODO uncomment when adc mask is implemented
-        # self.apply_filters()
+        self.apply_filters()
         # If applying filters for the first time sleep for 1.5 seconds to reduce wavy behavior
         if self.current_filters is None:
             time.sleep(1.5)
