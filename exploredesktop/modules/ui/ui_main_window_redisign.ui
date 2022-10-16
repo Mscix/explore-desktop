@@ -1728,7 +1728,7 @@ font: 11pt;</string>
                             <cursorShape>PointingHandCursor</cursorShape>
                            </property>
                            <property name="text">
-                            <string>Format MEM</string>
+                            <string>Format Memory</string>
                            </property>
                           </widget>
                          </item>

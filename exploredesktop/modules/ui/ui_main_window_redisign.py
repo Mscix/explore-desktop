@@ -1660,7 +1660,7 @@ class Ui_MainWindow(object):
         self.label_samping_rate.setText(QCoreApplication.translate("MainWindow", u"Sampling Rate", None))
         self.lbl_sr_warning.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\">Please note that 1000 Hz sampling rate is in beta phase</p></body></html>", None))
         self.btn_apply_settings.setText(QCoreApplication.translate("MainWindow", u"Apply changes", None))
-        self.btn_format_memory.setText(QCoreApplication.translate("MainWindow", u"Format MEM", None))
+        self.btn_format_memory.setText(QCoreApplication.translate("MainWindow", u"Format Memory", None))
         self.btn_reset_settings.setText(QCoreApplication.translate("MainWindow", u"Reset Settings", None))
         self.btn_calibrate.setText(QCoreApplication.translate("MainWindow", u"Calibrate ORN", None))
         self.btn_record.setText(QCoreApplication.translate("MainWindow", u" Record", None))
