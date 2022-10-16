@@ -13,7 +13,6 @@ from PySide6.QtCore import Slot
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
-    ExGModes,
     Settings,
     Stylesheets
 )
@@ -233,12 +232,8 @@ class BasePlots:
     def set_dropdowns(self) -> None:
         """Initialize dropdowns"""
         # Avoid double initialization
-        if self.ui.value_signal.count() > 0:
+        if self.ui.value_yAxis.count() > 0:
             return
-
-        # value_signal_type
-        self.ui.value_signal.addItems(ExGModes.all_values())
-        self.ui.value_signal_rec.addItems(ExGModes.all_values())
 
         # value_yaxis
         self.ui.value_yAxis.addItems(Settings.SCALE_MENU.keys())
@@ -279,14 +274,15 @@ class BasePlots:
             list: list of curves added to plot
         """
         # Verify curves and chan dict have the same length, if not reset chan_dict
-        chan_dict = self.model.explorer.get_chan_dict()
+        chan_dict = self.model.explorer.get_chan_dict_list()
 
-        if len(all_curves) != len(list(chan_dict.values())):
+        if len(all_curves) != len(chan_dict):
             self.model.explorer.set_chan_dict()
 
         active_curves = []
-        for curve, act in zip(all_curves, list(chan_dict.values())):
-            if act == 1:
+
+        for curve, active_state in zip(all_curves, [one_chan_dict['enable'] for one_chan_dict in chan_dict]):
+            if active_state == 1:
                 plot_widget.addItem(curve)
                 active_curves.append(curve)
             else:
@@ -378,7 +374,7 @@ class BasePlots:
             item_type (str): specifies item to remove (line or points).
             plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
 
-        Retruns:
+        Returns:
             list: list with objects to remove
         """
         assert 't' in item_dict.keys(), 'the items dictionary must have the key \'t\''

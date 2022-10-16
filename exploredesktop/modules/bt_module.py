@@ -57,7 +57,6 @@ class BTFrameView(BaseModel):
         elif not isinstance(names, list):
             names = [names]
             settings.setValue("known_devices", names)
-
         return names
 
     def add_name_to_settings(self, dev_name: str) -> None:

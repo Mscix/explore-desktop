@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Union
 
 import PySide6
+from exploredesktop.modules.ui.ui_ui_main_window_redisign import Ui_MainWindow
 from explorepy.log_config import (
     read_config,
     write_config
@@ -36,7 +37,8 @@ from exploredesktop.modules import (  # isort:skip
     BaseModel,
     GUISettings,
     Stylesheets,
-    Ui_MainWindow
+    # this import will replace the Ui_MainWindow from window_redisign in the future
+    # Ui_MainWindow
 )
 from exploredesktop.modules.app_settings import (  # isort:skip
     ConnectionStatus,
@@ -273,8 +275,6 @@ class MainWindow(QMainWindow, BaseModel):
         """Connect custom signals to corresponding slots
         """
         # TODO move to appropiate module
-        # change button text
-        # TODO move to appropiate module
         self.signals.btnImpMeasureChanged.connect(self.ui.btn_imp_meas.setText)
         self.signals.btnConnectChanged.connect(self.ui.btn_connect.setText)
 
@@ -353,7 +353,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # # Hide os bar
         # self.setWindowFlags(Qt.FramelessWindowHint)
-        self.ui.main_header.setHidden(True)
         # Add app version to footer
         self.ui.ft_label_version.setText(VERSION_APP)
 
@@ -367,6 +366,10 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Start with foucus on line edit for device name
         self.ui.dev_name_input.setFocus()
+
+        # Hide heartrate monitoring
+        self.ui.label_heartRate.setHidden(True)
+        self.ui.value_heartRate.setHidden(True)
 
     def _verify_imp(self, btn_name: str) -> bool:
         """Verify if impedance measurement is active before moving to another page
@@ -450,7 +453,6 @@ class MainWindow(QMainWindow, BaseModel):
         """Actions to perform before moving to settings
         """
         self.settings_frame.setup_settings_frame()
-        self.settings_frame.one_chan_selected()
         enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
         self.settings_frame.enable_settings(enable)
         self.ui.value_sampling_rate.setEnabled(enable)
