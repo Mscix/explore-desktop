@@ -277,7 +277,7 @@ class BasePlots:
         chan_dict = self.model.explorer.get_chan_dict_list()
 
         if len(all_curves) != len(chan_dict):
-            self.model.explorer.set_chan_dict()
+            self.model.explorer.set_chan_dict_list()
 
         active_curves = []
 

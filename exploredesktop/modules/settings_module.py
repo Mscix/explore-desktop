@@ -223,7 +223,7 @@ class SettingsFrameView(BaseModel):
     def _display_new_settings(self) -> None:
         """Display popup with new sampling rate and active channels
         """
-        chan_dict = self.explorer.get_chan_dict()
+        chan_dict = self.explorer.get_chan_dict_list()
         act_chan = ", ".join([
             f'{one_chan_dict["input"]} ({one_chan_dict["name"]})'
             for one_chan_dict in chan_dict if one_chan_dict["enable"]])
@@ -266,7 +266,7 @@ class SettingsFrameView(BaseModel):
             mask = "".join(active_chan)
             changed = self.explorer.set_channels(mask)
 
-            self.explorer.set_chan_dict(self.ui.table_settings.model().chan_data)
+            self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
             self.update_modules()
 
         return changed

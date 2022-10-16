@@ -94,7 +94,7 @@ class ExploreInterface(Explore):
         self.unsubscribe(topic=TOPICS.raw_ExG, callback=self._set_n_chan)
 
         # Set channel status
-        self.set_chan_dict()
+        self.set_chan_dict_list()
         return True
 
     def disconnect(self):
@@ -105,7 +105,7 @@ class ExploreInterface(Explore):
         return super().disconnect()
 
     # TODO change to property
-    def set_chan_dict(self, new_dict=None):
+    def set_chan_dict_list(self, new_dict=None):
         """Set the channel status dictionary i.e. whether channels are active or inactive
         """
         if self.is_connected:
@@ -127,8 +127,8 @@ class ExploreInterface(Explore):
 
             self.chan_dict_list = self.chan_dict_list[:self.device_chan]
 
-    def get_chan_dict(self) -> dict:
-        """Return channel status dictionary
+    def get_chan_dict_list(self) -> dict:
+        """Retrun channel status dictionary
         """
         return self.chan_dict_list
 
@@ -147,11 +147,14 @@ class ExploreInterface(Explore):
         return self.device_chan
 
     def active_chan_list(self, custom_name=False):
-        """Returns list of active channels"""
+        """Returns list of active channels
 
+        Args:
+            custom_name (bool, optional): whether to return custom names set by user. Defaults to False.
+        """
         if custom_name:
-            return [one_chan_dict['name'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
-        return [one_chan_dict['input'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
+            return [one_chan_dict['name'] for one_chan_dict in self.chan_dict_list if one_chan_dict['enable']]
+        return [one_chan_dict['input'] for one_chan_dict in self.chan_dict_list if one_chan_dict['enable']]
 
     # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:
