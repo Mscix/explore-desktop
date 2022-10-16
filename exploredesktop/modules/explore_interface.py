@@ -48,7 +48,7 @@ class ExploreInterface(Explore):
 
     @property
     def n_active_chan(self) -> Optional[int]:
-        """Retruns number of active channels"""
+        """Returns number of active channels"""
         if self.is_connected:
             # TODO uncomment when adc mask is implemented
             # return sum(self.stream_processor.device_info['adc_mask'])

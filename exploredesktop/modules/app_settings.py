@@ -216,14 +216,6 @@ class GUISettings():
 
     RESERVED_CHARS = r"[|\\?*<\":>[\]+/']"
 
-    ELECTRODES_10_20 = [
-        'A1', 'A2',
-        'C3', 'C4', 'Cz',
-        'F3', 'F4', 'F7', 'F8', 'Fp1', 'Fp2', 'Fz',
-        'O1', 'O2',
-        'P3', 'P4', 'Pz',
-        'T3', 'T4', 'T5', 'T6']
-
 
 class Settings():
     """Class containing explore settings
@@ -236,6 +228,7 @@ class Settings():
     # MODE_LIST = ['EEG', 'ECG']
     MAX_CHANNELS = 32
     CHAN_LIST = [f'ch{i}' for i in range(1, MAX_CHANNELS + 1)]
+
     DEFAULT_SCALE = 10 ** 3  # Volt
     BATTERY_N_MOVING_AVERAGE = 60
     V_TH = [10, 5 * 10 ** 3]  # Noise threshold for ECG (microVolt)
