@@ -40,6 +40,7 @@ class ConnectionStatus(BaseEnum):
     CONNECTED = "Connected to dev_name"
     RECONNECTING = "Reconnecting ..."
     DISCONNECTED = "Not connected"
+    UNSTABLE = "Unstable BT connection"
 
 
 class ImpModes(BaseEnum):
