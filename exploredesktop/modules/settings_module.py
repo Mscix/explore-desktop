@@ -94,6 +94,20 @@ class SettingsFrameView(BaseModel):
         # Resize to fill all horizontal space
         self.ui.table_settings.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.table_settings.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.ui.table_settings.verticalHeader().setVisible(False)
+
+        # Stylesheet
+        self.ui.table_settings.setAlternatingRowColors(True)
+        self.ui.table_settings.horizontalHeader().setStyleSheet("""
+        QHeaderView::section {
+            border-bottom: 1px solid black;
+            border-right: 0px;
+            border-top: 0px;
+        }""")
+
+        self.ui.table_settings.setStyleSheet("""
+        border: none;""")
+
         # Remove button to select all
         self.ui.table_settings.setCornerButtonEnabled(False)
 
@@ -104,14 +118,15 @@ class SettingsFrameView(BaseModel):
         """Initialize dropdowns and checkboxes
         """
         self.ui.value_sampling_rate.addItems([str(int(sr)) for sr in Settings.SAMPLING_RATES])
-        self.ui.dropdown_signal_type.addItems(ExGModes.all_values())
-        self.ui.cb_multitype_signal.setChecked(False)
-        self.ui.dropdown_signal_type.setHidden(False)
+        # TODO uncomment later if implemented
+        # self.ui.dropdown_signal_type.addItems(ExGModes.all_values())
+        # self.ui.cb_multitype_signal.setChecked(False)
+        # self.ui.dropdown_signal_type.setHidden(False)
 
         # Hide multitype signal dropdown and checkbox
-        self.ui.cb_multitype_signal.setHidden(True)
-        self.ui.dropdown_signal_type.setHidden(True)
-        self.ui.cb_1020.setHidden(True)
+        # self.ui.cb_multitype_signal.setHidden(True)
+        # self.ui.dropdown_signal_type.setHidden(True)
+        # self.ui.cb_1020.setHidden(True)
 
     def setup_ui_connections(self) -> None:
         """Connect ui widgets to corresponding slot
@@ -124,9 +139,10 @@ class SettingsFrameView(BaseModel):
         # TODO uncomment when implemented
         # self.ui.btn_calibrate.setHidden(True)
 
-        self.ui.cb_multitype_signal.stateChanged.connect(self.multisignal_clicked)
-        self.ui.dropdown_signal_type.currentTextChanged.connect(self.signal_type_changed)
-        self.ui.cb_1020.stateChanged.connect(self.enable_10_20)
+        # TODO uncomment later when implemented
+        # self.ui.cb_multitype_signal.stateChanged.connect(self.multisignal_clicked)
+        # self.ui.dropdown_signal_type.currentTextChanged.connect(self.signal_type_changed)
+        # self.ui.cb_1020.stateChanged.connect(self.enable_10_20)
 
     def setup_settings_frame(self) -> None:
         """Setup the settings frame
@@ -208,7 +224,8 @@ class SettingsFrameView(BaseModel):
         with wait_cursor():
             self._remove_filters()
 
-            changed_chan = self.change_active_channels()
+            # TODO uncomment when adc mask is implemented
+            # changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
 
             # Reset exg data and reapply filters
@@ -216,7 +233,8 @@ class SettingsFrameView(BaseModel):
             if self.filters.current_filters is not None:
                 self.filters.apply_filters()
 
-        if changed_sr or changed_chan:
+        # if changed_sr or changed_chan:
+        if changed_sr:
             self._display_new_settings()
 
         self.signals.restartPlot.emit()
@@ -528,6 +546,9 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
                 "".join(
                     e for e in value if e.isalnum()).strip() == "" or self.get_list_names().count(value) > 1):
                 return QBrush("#fa5c62")
+
+        if role == Qt.TextAlignmentRole:
+            return Qt.AlignHCenter
 
     def get_list_names(self) -> list:
         """Return list of custom names
