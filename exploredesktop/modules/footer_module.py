@@ -147,7 +147,7 @@ class FooterFrameView():
         self.model.timer_connection()
 
     def get_model(self) -> None:
-        """Retrun impedance model
+        """Return impedance model
 
         Returns:
             ImpModel: impedance data model

@@ -144,7 +144,7 @@ def _remove_old_plot_item(item_dict: dict, t_vector: np.array, item_type: str, p
         item_type (str): specifies item to remove (line or points).
         plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
 
-    Retrun:
+    Return:
         list: list with objects to remove
     """
     assert item_type in ['line', 'points'], 'item type parameter must be line or points'
