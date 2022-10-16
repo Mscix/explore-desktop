@@ -374,7 +374,7 @@ class BasePlots:
             item_type (str): specifies item to remove (line or points).
             plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
 
-        Retruns:
+        Returns:
             list: list with objects to remove
         """
         assert 't' in item_dict.keys(), 'the items dictionary must have the key \'t\''

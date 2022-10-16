@@ -203,7 +203,7 @@ class RecordingDialog(CustomDialog):
         self.ui.warning_label.setHidden(False)
 
     def file_extension(self) -> str:
-        """Retrun file extension selected
+        """Return file extension selected
 
         Returns:
             str: file extension (edf or csv)
@@ -235,7 +235,7 @@ class RecordingDialog(CustomDialog):
             settings.setValue("last_record_folder", self.recording_path)
 
     def get_dir_path(self, settings: QSettings) -> str:
-        """Returns last used directory. If running for the first time, retruns user directory
+        """Returns last used directory. If running for the first time, Returns user directory
 
         Args:
             settings (QSettings): QSettings
