@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Union
 
 import PySide6
-from exploredesktop.modules.ui.ui_ui_main_window_redisign import Ui_MainWindow
+from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
 from explorepy.log_config import (
     read_config,
     write_config
@@ -15,7 +15,9 @@ from explorepy.stream_processor import TOPICS
 from explorepy.tools import generate_eeglab_dataset
 from PySide6.QtCore import (
     QEasingCurve,
+    QEvent,
     QPropertyAnimation,
+    Qt,
     QThreadPool
 )
 from PySide6.QtGui import (
@@ -661,3 +663,29 @@ class MainWindow(QMainWindow, BaseModel):
             QFileDialog.ShowDirsOnly)
 
         self.ui.le_import_edf.setText(file_path)
+
+    def changeEvent(self, event: PySide6.QtCore.QEvent) -> None:
+        if event.type() == QEvent.WindowStateChange:
+            if event.oldState() and Qt.WindowMinimized:
+                print("WindowMinimized")
+                print(f"{self.ui.centralwidget.frameGeometry().height()=}")
+                print(f"{self.ui.centralwidget.height()=}\n")
+                print(f"{self.ui.plot_exg.frameGeometry().height()=}")
+                print(f"{self.ui.plot_exg.height()=}\n")
+                print(f"{self.ui.tabWidget.frameGeometry().height()=}")
+                print(f"{self.ui.tabWidget.height()=}\n\n")
+
+                print(f"{self.height()=}")
+                print(f"{self.width()=}\n\n")
+            elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
+                print("WindowMaximized")
+                print(f"{self.ui.centralwidget.frameGeometry().height()=}")
+                print(f"{self.ui.centralwidget.height()=}\n")
+                print(f"{self.ui.plot_exg.frameGeometry().height()=}")
+                print(f"{self.ui.plot_exg.height()=}\n")
+                print(f"{self.ui.tabWidget.frameGeometry().height()=}")
+                print(f"{self.ui.tabWidget.height()=}\n")
+
+                print(f"{self.height()=}")
+                print(f"{self.width()=}\n\n")
+        return super().changeEvent(event)
