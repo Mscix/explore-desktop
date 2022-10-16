@@ -133,6 +133,11 @@ class DataContainer(BaseModel):
             data (dict): data to insert
             fft (bool, optional): whether data is for FFT plot. Defaults to False.
         """
+        # if fft is False and data['t'][0] < DataContainer.last_t:
+        #     bt_drop = True
+        # else:
+        #     bt_drop = False
+        bt_drop = False
         n_new_points = self.get_n_new_points(data)
         idxs = np.arange(self.pointer, self.pointer + n_new_points)
 
@@ -140,12 +145,17 @@ class DataContainer(BaseModel):
             self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
 
         for key, val in self.plot_data.items():
-            try:
-                val.put(idxs, data[key], mode='wrap')
-            # KeyError might happen when active chanels are changed
-            # if this happens, add nans instead of data coming from packet
-            except KeyError:
+            if bt_drop is True:
+                print(f"{data['t'][0]=}")
+                print(f"{DataContainer.last_t=}")
                 val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
+            else:
+                try:
+                    val.put(idxs, data[key], mode='wrap')
+                # KeyError might happen when active chanels are changed
+                # if this happens, add nans instead of data coming from packet
+                except KeyError:
+                    val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
 
     def update_pointer(self, data, signal=None, fft=False):
         """update pointer"""
