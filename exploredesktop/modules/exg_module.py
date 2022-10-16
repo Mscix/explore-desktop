@@ -12,7 +12,9 @@ from PySide6.QtCore import (
 
 
 from exploredesktop.modules.app_settings import (  # isort:skip
+    ConnectionStatus,
     DataAttributes,
+    EnvVariables,
     ExGModes,
     Messages,
     Settings,
@@ -111,7 +113,7 @@ class ExGData(DataContainer):
 
             n_chan = self.explorer.n_active_chan
             # pyqtgraph starts plotting at the bottom, we want to add ch at the top of the plot -> reversed
-            self.offsets = [i for i in reversed(np.arange(1, n_chan + 1)[:, np.newaxis].astype(float))]
+            self.offsets = [i for i in reversed(np.arange(0.5, (n_chan + 1) / 2, 0.5)[:, np.newaxis].astype(float))]
 
         if DataAttributes.BASELINE in attributes:
             self._baseline = None
@@ -152,11 +154,13 @@ class ExGData(DataContainer):
                 "BlueTooth drop:\nt_point={}\nDataContainer.last_t={}\n".format(t_point, DataContainer.last_t))
             self.bt_drop_warning_displayed = True
             self.t_bt_drop = t_point
-            self.signals.btDrop.emit(True)
+            # self.signals.btDrop.emit(True)
+            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: ConnectionStatus.UNSTABLE.value})
 
         elif (self.t_bt_drop is not None) and (t_point > DataContainer.last_t) and \
                 (t_point - self.t_bt_drop > sec_th) and self.bt_drop_warning_displayed is True:
             self.bt_drop_warning_displayed = False
+            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: ConnectionStatus.CONNECTED.value})
 
     def callback(self, packet: explorepy.packet.EEG) -> None:
         """Callback to get EEG data
@@ -415,7 +419,8 @@ class ExGPlot(BasePlots):
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
-        self.ui.verticalScrollBar.setMinimum(1)
+        self.ui.verticalScrollBar.setMinimum(16)
+        # self.ui.verticalScrollBar.setMinimum(18)
         # TODO maximum must depend of number of active channels
         # TODO if chan 8 or less hide scroll bar
         # both above move to on_connect function (??)
@@ -492,9 +497,12 @@ class ExGPlot(BasePlots):
         n_chan = self.model.explorer.n_active_chan if self.model.explorer.n_active_chan > 8 else 8
         timescale = self.time_scale
         value = self.ui.verticalScrollBar.value()
-        up_lim = (2 - value) + n_chan
+
+        up_lim = (2 - value) + n_chan + 0.5
+        y_range = (up_lim - 9, up_lim)
+
         plot_wdgt.setRange(
-            yRange=(up_lim - 9, up_lim),
+            yRange=y_range,
             xRange=(0, int(timescale)), padding=0.01)
         plot_wdgt.setLabel('bottom', 'time (s)')
 
@@ -510,17 +518,16 @@ class ExGPlot(BasePlots):
         self.add_left_axis_ticks()
         plot_wdgt.getAxis('left').setWidth(60)
         plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
-        plot_wdgt.getAxis('left').setGrid(50)
+        # plot_wdgt.getAxis('left').setGrid(50)
 
     def add_right_axis_ticks(self) -> None:
         """
         Add upper and lower lines delimiting the channels in exg plot
         """
-        active_chan = self.model.explorer.active_chan_list()
-
-        ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
-        ticks_right += [(0.5, '')]
-
+        # active_chan = self.model.explorer.active_chan_list()
+        # ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
+        # ticks_right += [(0.5, '')]
+        ticks_right = []
         self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
 
     def add_left_axis_ticks(self) -> None:
@@ -528,10 +535,17 @@ class ExGPlot(BasePlots):
         Add central lines and channel name ticks in exg plot
         """
         active_chan = self.model.explorer.active_chan_list(custom_name=True)
+
+        # ticks = [
+        #     (
+        #         idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+        #     ) for idx, ch in enumerate(reversed(active_chan))]
+
         ticks = [
             (
-                idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+                idx / 2 + 0.5, f'{ch}'
             ) for idx, ch in enumerate(reversed(active_chan))]
+
         self.ui.plot_exg.getAxis('left').setTicks([ticks])
 
     @Slot(dict)
