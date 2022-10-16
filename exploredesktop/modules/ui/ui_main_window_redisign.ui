@@ -35,7 +35,7 @@
 }
 
 QWidget{
-	font:12pt;
+	font:11pt;
 }
 
 QFrame{
@@ -511,7 +511,7 @@ QTabBar::tab{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>3</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1153,7 +1153,7 @@ QTabBar::tab{
                      </property>
                      <property name="font">
                       <font>
-                       <pointsize>12</pointsize>
+                       <pointsize>11</pointsize>
                        <italic>false</italic>
                        <bold>false</bold>
                        <kerning>true</kerning>
@@ -1168,7 +1168,7 @@ QTabBar::tab{
                     <widget class="QLabel" name="label_11">
                      <property name="font">
                       <font>
-                       <pointsize>12</pointsize>
+                       <pointsize>11</pointsize>
                        <italic>false</italic>
                        <bold>false</bold>
                       </font>
@@ -1492,41 +1492,17 @@ QTabBar::tab{
                        </widget>
                       </item>
                       <item>
-                       <widget class="QCheckBox" name="cb_1020">
-                        <property name="text">
-                         <string>Use 10 - 20</string>
+                       <spacer name="verticalSpacer_20">
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
                         </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <layout class="QHBoxLayout" name="horizontalLayout_3">
-                        <item>
-                         <widget class="QCheckBox" name="cb_multitype_signal">
-                          <property name="text">
-                           <string>Multi Type signal</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QComboBox" name="dropdown_signal_type"/>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_10">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Minimum</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>30</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>20</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                       </spacer>
                       </item>
                       <item>
                        <widget class="QFrame" name="frame_channels">
@@ -1564,7 +1540,10 @@ QTabBar::tab{
                             </sizepolicy>
                            </property>
                            <property name="styleSheet">
-                            <string notr="true">border: 1px solid rgb(0,0,0)</string>
+                            <string notr="true"/>
+                           </property>
+                           <property name="alternatingRowColors">
+                            <bool>true</bool>
                            </property>
                            <property name="cornerButtonEnabled">
                             <bool>false</bool>
@@ -1573,6 +1552,19 @@ QTabBar::tab{
                             <bool>true</bool>
                            </attribute>
                           </widget>
+                         </item>
+                         <item>
+                          <spacer name="verticalSpacer_21">
+                           <property name="orientation">
+                            <enum>Qt::Vertical</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>20</width>
+                             <height>10</height>
+                            </size>
+                           </property>
+                          </spacer>
                          </item>
                         </layout>
                        </widget>
@@ -1684,7 +1676,7 @@ font: 11pt;</string>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                           <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
+                          <verstretch>35</verstretch>
                          </sizepolicy>
                         </property>
                         <property name="styleSheet">
@@ -1904,7 +1896,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_yAxis">
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <pointsize>11</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -1937,7 +1929,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_timeScale">
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <pointsize>11</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2148,7 +2140,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_signal_rec">
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <pointsize>11</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2181,7 +2173,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_yAxis_rec">
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <pointsize>11</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2214,7 +2206,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_timeScale_rec">
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <pointsize>11</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2247,7 +2239,7 @@ font: 11pt;</string>
                  <widget class="QLabel" name="label_heartRate_rec">
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <pointsize>11</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2295,7 +2287,7 @@ font: 11pt;</string>
                   </property>
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <pointsize>11</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2364,7 +2356,7 @@ font: 11pt;</string>
                <widget class="QLabel" name="label_3">
                 <property name="font">
                  <font>
-                  <pointsize>12</pointsize>
+                  <pointsize>11</pointsize>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
@@ -2744,7 +2736,7 @@ color: #FFF;</string>
                  <widget class="QLabel" name="label_10">
                   <property name="font">
                    <font>
-                    <pointsize>12</pointsize>
+                    <pointsize>11</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2999,7 +2991,7 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>11</pointsize>
                 <italic>false</italic>
                 <bold>false</bold>
                </font>
@@ -3124,7 +3116,7 @@ p, li { white-space: pre-wrap; }
               <widget class="QLabel" name="ft_label_device_3">
                <property name="font">
                 <font>
-                 <pointsize>12</pointsize>
+                 <pointsize>11</pointsize>
                  <italic>false</italic>
                  <bold>false</bold>
                 </font>

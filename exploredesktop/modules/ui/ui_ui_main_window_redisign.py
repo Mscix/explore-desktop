@@ -8,23 +8,68 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
-    QCursor, QFont, QFontDatabase, QGradient,
-    QIcon, QImage, QKeySequence, QLinearGradient,
-    QPainter, QPalette, QPixmap, QRadialGradient,
-    QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
-    QHBoxLayout, QHeaderView, QLabel, QLineEdit,
-    QListWidget, QListWidgetItem, QMainWindow, QPushButton,
-    QScrollBar, QSizePolicy, QSpacerItem, QSpinBox,
-    QStackedWidget, QTabWidget, QTableView, QVBoxLayout,
-    QWidget)
+import app_resources_rc
+from pyqtgraph import (
+    GraphicsLayoutWidget,
+    PlotWidget
+)
+from PySide6.QtCore import (
+    QCoreApplication,
+    QDate,
+    QDateTime,
+    QLocale,
+    QMetaObject,
+    QObject,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+    QTime,
+    QUrl
+)
+from PySide6.QtGui import (
+    QAction,
+    QBrush,
+    QColor,
+    QConicalGradient,
+    QCursor,
+    QFont,
+    QFontDatabase,
+    QGradient,
+    QIcon,
+    QImage,
+    QKeySequence,
+    QLinearGradient,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QRadialGradient,
+    QTransform
+)
+from PySide6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QFrame,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QPushButton,
+    QScrollBar,
+    QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
+    QStackedWidget,
+    QTableView,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget
+)
 
-from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
-from exploredesktop import app_resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -51,7 +96,7 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QWidget{\n"
-"	font:12pt;\n"
+"	font:11pt;\n"
 "}\n"
 "\n"
 "QFrame{\n"
@@ -585,7 +630,7 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName(u"label_2")
         self.label_2.setMaximumSize(QSize(16777215, 30))
         font1 = QFont()
-        font1.setPointSize(12)
+        font1.setPointSize(11)
         font1.setBold(False)
         font1.setItalic(False)
         font1.setKerning(True)
@@ -596,7 +641,7 @@ class Ui_MainWindow(object):
         self.label_11 = QLabel(self.frame_integration)
         self.label_11.setObjectName(u"label_11")
         font2 = QFont()
-        font2.setPointSize(12)
+        font2.setPointSize(11)
         font2.setBold(False)
         font2.setItalic(False)
         self.label_11.setFont(font2)
@@ -740,29 +785,9 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.label_warning_disabled)
 
-        self.cb_1020 = QCheckBox(self.frame_device)
-        self.cb_1020.setObjectName(u"cb_1020")
+        self.verticalSpacer_20 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.verticalLayout_2.addWidget(self.cb_1020)
-
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.cb_multitype_signal = QCheckBox(self.frame_device)
-        self.cb_multitype_signal.setObjectName(u"cb_multitype_signal")
-
-        self.horizontalLayout_3.addWidget(self.cb_multitype_signal)
-
-        self.dropdown_signal_type = QComboBox(self.frame_device)
-        self.dropdown_signal_type.setObjectName(u"dropdown_signal_type")
-
-        self.horizontalLayout_3.addWidget(self.dropdown_signal_type)
-
-        self.horizontalSpacer_10 = QSpacerItem(30, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)
-
-        self.horizontalLayout_3.addItem(self.horizontalSpacer_10)
-
-
-        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+        self.verticalLayout_2.addItem(self.verticalSpacer_20)
 
         self.frame_channels = QFrame(self.frame_device)
         self.frame_channels.setObjectName(u"frame_channels")
@@ -777,11 +802,16 @@ class Ui_MainWindow(object):
         self.table_settings.setObjectName(u"table_settings")
         sizePolicy1.setHeightForWidth(self.table_settings.sizePolicy().hasHeightForWidth())
         self.table_settings.setSizePolicy(sizePolicy1)
-        self.table_settings.setStyleSheet(u"border: 1px solid rgb(0,0,0)")
+        self.table_settings.setStyleSheet(u"")
+        self.table_settings.setAlternatingRowColors(True)
         self.table_settings.setCornerButtonEnabled(False)
         self.table_settings.horizontalHeader().setCascadingSectionResizes(True)
 
         self.verticalLayout_5.addWidget(self.table_settings)
+
+        self.verticalSpacer_21 = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_5.addItem(self.verticalSpacer_21)
 
 
         self.verticalLayout_2.addWidget(self.frame_channels)
@@ -838,8 +868,11 @@ class Ui_MainWindow(object):
 
         self.frame_device_buttons = QFrame(self.frame_device)
         self.frame_device_buttons.setObjectName(u"frame_device_buttons")
-        sizePolicy.setHeightForWidth(self.frame_device_buttons.sizePolicy().hasHeightForWidth())
-        self.frame_device_buttons.setSizePolicy(sizePolicy)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(35)
+        sizePolicy4.setHeightForWidth(self.frame_device_buttons.sizePolicy().hasHeightForWidth())
+        self.frame_device_buttons.setSizePolicy(sizePolicy4)
         self.frame_device_buttons.setStyleSheet(u"")
         self.frame_device_buttons.setFrameShape(QFrame.StyledPanel)
         self.frame_device_buttons.setFrameShadow(QFrame.Raised)
@@ -849,11 +882,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.btn_format_memory = QPushButton(self.frame_device_buttons)
         self.btn_format_memory.setObjectName(u"btn_format_memory")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.btn_format_memory.sizePolicy().hasHeightForWidth())
-        self.btn_format_memory.setSizePolicy(sizePolicy4)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.btn_format_memory.sizePolicy().hasHeightForWidth())
+        self.btn_format_memory.setSizePolicy(sizePolicy5)
         self.btn_format_memory.setMinimumSize(QSize(160, 35))
         self.btn_format_memory.setMaximumSize(QSize(160, 30))
         self.btn_format_memory.setCursor(QCursor(Qt.PointingHandCursor))
@@ -862,8 +895,8 @@ class Ui_MainWindow(object):
 
         self.btn_reset_settings = QPushButton(self.frame_device_buttons)
         self.btn_reset_settings.setObjectName(u"btn_reset_settings")
-        sizePolicy4.setHeightForWidth(self.btn_reset_settings.sizePolicy().hasHeightForWidth())
-        self.btn_reset_settings.setSizePolicy(sizePolicy4)
+        sizePolicy5.setHeightForWidth(self.btn_reset_settings.sizePolicy().hasHeightForWidth())
+        self.btn_reset_settings.setSizePolicy(sizePolicy5)
         self.btn_reset_settings.setMinimumSize(QSize(160, 35))
         self.btn_reset_settings.setMaximumSize(QSize(160, 30))
         self.btn_reset_settings.setCursor(QCursor(Qt.PointingHandCursor))
@@ -873,8 +906,8 @@ class Ui_MainWindow(object):
 
         self.btn_calibrate = QPushButton(self.frame_device_buttons)
         self.btn_calibrate.setObjectName(u"btn_calibrate")
-        sizePolicy4.setHeightForWidth(self.btn_calibrate.sizePolicy().hasHeightForWidth())
-        self.btn_calibrate.setSizePolicy(sizePolicy4)
+        sizePolicy5.setHeightForWidth(self.btn_calibrate.sizePolicy().hasHeightForWidth())
+        self.btn_calibrate.setSizePolicy(sizePolicy5)
         self.btn_calibrate.setMinimumSize(QSize(160, 35))
         self.btn_calibrate.setMaximumSize(QSize(160, 30))
         self.btn_calibrate.setCursor(QCursor(Qt.PointingHandCursor))
@@ -971,11 +1004,7 @@ class Ui_MainWindow(object):
         self.value_event_code = QLineEdit(self.page_plotsNoWidget)
         self.value_event_code.setObjectName(u"value_event_code")
         self.value_event_code.setMaximumSize(QSize(85, 30))
-        font3 = QFont()
-        font3.setPointSize(11)
-        font3.setBold(False)
-        font3.setItalic(False)
-        self.value_event_code.setFont(font3)
+        self.value_event_code.setFont(font2)
         self.value_event_code.setStyleSheet(u"font: 11pt ")
 
         self.horizontalLayout_34.addWidget(self.value_event_code)
@@ -1251,11 +1280,11 @@ class Ui_MainWindow(object):
 
         self.btn_imp_meas = QPushButton(self.page_impedance)
         self.btn_imp_meas.setObjectName(u"btn_imp_meas")
-        sizePolicy5 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        sizePolicy5.setHorizontalStretch(0)
-        sizePolicy5.setVerticalStretch(0)
-        sizePolicy5.setHeightForWidth(self.btn_imp_meas.sizePolicy().hasHeightForWidth())
-        self.btn_imp_meas.setSizePolicy(sizePolicy5)
+        sizePolicy6 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.btn_imp_meas.sizePolicy().hasHeightForWidth())
+        self.btn_imp_meas.setSizePolicy(sizePolicy6)
         self.btn_imp_meas.setMinimumSize(QSize(160, 35))
         self.btn_imp_meas.setMaximumSize(QSize(200, 16777215))
         self.btn_imp_meas.setCursor(QCursor(Qt.PointingHandCursor))
@@ -1366,11 +1395,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_38.setContentsMargins(0, 0, 0, 0)
         self.btn_scan = QPushButton(self.frame_btns_scan_connect)
         self.btn_scan.setObjectName(u"btn_scan")
-        sizePolicy6 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sizePolicy6.setHorizontalStretch(0)
-        sizePolicy6.setVerticalStretch(0)
-        sizePolicy6.setHeightForWidth(self.btn_scan.sizePolicy().hasHeightForWidth())
-        self.btn_scan.setSizePolicy(sizePolicy6)
+        sizePolicy7 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy7.setHorizontalStretch(0)
+        sizePolicy7.setVerticalStretch(0)
+        sizePolicy7.setHeightForWidth(self.btn_scan.sizePolicy().hasHeightForWidth())
+        self.btn_scan.setSizePolicy(sizePolicy7)
         self.btn_scan.setMinimumSize(QSize(140, 35))
         self.btn_scan.setMaximumSize(QSize(140, 30))
         self.btn_scan.setCursor(QCursor(Qt.PointingHandCursor))
@@ -1579,7 +1608,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(2)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -1628,8 +1657,6 @@ class Ui_MainWindow(object):
         self.settings_title.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.label_explore_name.setText(QCoreApplication.translate("MainWindow", u"Explore_XXXXX", None))
         self.label_warning_disabled.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-size:11pt; font-style:italic;\">Changing the settings during recording and LSL streaming is not possible</span></p></body></html>", None))
-        self.cb_1020.setText(QCoreApplication.translate("MainWindow", u"Use 10 - 20", None))
-        self.cb_multitype_signal.setText(QCoreApplication.translate("MainWindow", u"Multi Type signal", None))
         self.label_samping_rate.setText(QCoreApplication.translate("MainWindow", u"Sampling Rate", None))
         self.lbl_sr_warning.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\">Please note that 1000 Hz sampling rate is in beta phase</p></body></html>", None))
         self.btn_apply_settings.setText(QCoreApplication.translate("MainWindow", u"Apply changes", None))
