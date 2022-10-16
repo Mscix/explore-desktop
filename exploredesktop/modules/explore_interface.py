@@ -124,6 +124,7 @@ class ExploreInterface(Explore):
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
+
             self.chan_dict_list = self.chan_dict_list[:self.device_chan]
 
     def get_chan_dict(self) -> dict:
@@ -145,10 +146,12 @@ class ExploreInterface(Explore):
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
         return self.device_chan
 
-    @property
-    def active_chan_list(self):
+    def active_chan_list(self, custom_name=False):
         """Returns list of active channels"""
-        return [one_chan_dict['input'] for one_chan_dict in self.chan_dict_list if one_chan_dict['enable']]
+
+        if custom_name:
+            return [one_chan_dict['name'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
+        return [one_chan_dict['input'] for one_chan_dict in self.chan_dict if one_chan_dict['enable'] == 1]
 
     # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:

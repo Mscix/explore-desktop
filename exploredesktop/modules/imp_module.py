@@ -169,14 +169,14 @@ class ImpModel(BaseModel):
         Args:
             packet (explorepy.packet.EEG): EEG packet
         """
-        chan_dict = self.explorer.get_chan_dict()
+        chan_list = self.explorer.active_chan_list(custom_name=True)
         n_chan = self.explorer.n_active_chan
 
         imp_values = packet.get_impedances()
         texts = []
         brushes = []
         pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
-        for chan, value in zip([item[0] for item in chan_dict.items() if item[1]], imp_values):
+        for chan, value in zip(chan_list, imp_values):
             value = value / 2
             brushes.append(self.get_stylesheet(value))
             value = self.format_imp_value(value)

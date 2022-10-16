@@ -207,14 +207,6 @@ class GUISettings():
 
     RESERVED_CHARS = r"[|\\?*<\":>[\]+/']"
 
-    ELECTRODES_10_20 = [
-        'A1', 'A2',
-        'C3', 'C4', 'Cz',
-        'F3', 'F4', 'F7', 'F8', 'Fp1', 'Fp2', 'Fz',
-        'O1', 'O2',
-        'P3', 'P4', 'Pz',
-        'T3', 'T4', 'T5', 'T6']
-
 
 class Settings():
     """Class containing explore settings

@@ -161,3 +161,12 @@ def _remove_old_plot_item(item_dict: dict, t_vector: np.array, item_type: str, p
             to_remove.append([item_dict[key][idx_t] for key in item_dict.keys()])
             # [item_dict['t'][idx_t], item_dict['r_peak'][idx_t], item_dict['points'][idx_t]])
     return to_remove
+
+
+ELECTRODES_10_20 = [
+    'A1', 'A2',
+    'C3', 'C4', 'Cz',
+    'F3', 'F4', 'F7', 'F8', 'Fp1', 'Fp2', 'Fz',
+    'O1', 'O2',
+    'P3', 'P4', 'Pz',
+    'T3', 'T4', 'T5', 'T6']

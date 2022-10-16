@@ -2,13 +2,12 @@
 import logging
 from copy import deepcopy
 
-
 from PySide6.QtCore import (
     QAbstractTableModel,
     QEvent,
+    QModelIndex,
     Qt,
-    Slot,
-    QModelIndex
+    Slot
 )
 from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import (
@@ -19,18 +18,18 @@ from PySide6.QtWidgets import (
     QStyledItemDelegate
 )
 
+
 from exploredesktop.modules.app_settings import (  # isort: skip
     ConnectionStatus,
     DataAttributes,
-    ExGModes,
-    GUISettings
+    ExGModes
 )
 from exploredesktop.modules import (  # isort: skip
     Messages,
     Settings,
     BaseModel
 )
-from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
+from exploredesktop.modules.utils import display_msg, wait_cursor, ELECTRODES_10_20  # isort: skip
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -225,7 +224,9 @@ class SettingsFrameView(BaseModel):
         """Display popup with new sampling rate and active channels
         """
         chan_dict = self.explorer.get_chan_dict()
-        act_chan = ", ".join([one_chan_dict["input"] for one_chan_dict in chan_dict if one_chan_dict["enable"]])
+        act_chan = ", ".join([
+            f'{one_chan_dict["input"]} ({one_chan_dict["name"]})'
+            for one_chan_dict in chan_dict if one_chan_dict["enable"]])
         msg = (
             "Device settings have been changed:"
             f"\nSampling Rate: {self.explorer.sampling_rate}"
@@ -267,7 +268,6 @@ class SettingsFrameView(BaseModel):
 
             self.explorer.set_chan_dict(self.ui.table_settings.model().chan_data)
             self.update_modules()
-            # print(f"{self.explorer.chan_dict_list=}")
 
         return changed
 
@@ -524,8 +524,8 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
 
         if role == Qt.BackgroundRole:
             if index.column() == 2 and (
-                "".join(e for e in value if e.isalnum()).strip() == ""
-                    or self.get_list_names().count(value) > 1):
+                "".join(
+                    e for e in value if e.isalnum()).strip() == "" or self.get_list_names().count(value) > 1):
                 return QBrush("#fa5c62")
 
     def get_list_names(self) -> list:
@@ -568,7 +568,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         if self.columns[column]['property'] == 'type':
             return ExGModes.all_values()
         if self.columns[column]['property'] == 'name':
-            return GUISettings.ELECTRODES_10_20
+            return ELECTRODES_10_20
 
     def editorType(self, column: int) -> str:
         """Get the columns editor type from column description
