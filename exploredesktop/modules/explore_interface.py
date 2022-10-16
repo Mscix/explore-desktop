@@ -41,7 +41,7 @@ class ExploreInterface(Explore):
 
     @property
     def n_active_chan(self) -> Optional[int]:
-        """Retruns number of active channels"""
+        """Returns number of active channels"""
         if self.is_connected:
             return sum(self.stream_processor.device_info['adc_mask'])
 
@@ -124,6 +124,7 @@ class ExploreInterface(Explore):
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
             ]
+
             self.chan_dict_list = self.chan_dict_list[:self.device_chan]
 
     def get_chan_dict_list(self) -> dict:

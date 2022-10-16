@@ -1174,7 +1174,7 @@ QLabel#bt_title{
                  <string notr="true"/>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;EXPORT EEGLAB DATASET&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;CONVERT EDF/BDF RECORDINGS FOR EEGLAB IMPORT&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="margin">
                  <number>15</number>
@@ -1186,7 +1186,7 @@ QLabel#bt_title{
                 <item>
                  <widget class="QLineEdit" name="le_import_edf">
                   <property name="placeholderText">
-                   <string>path/to/file</string>
+                   <string>Folder path to convert all files at path location</string>
                   </property>
                  </widget>
                 </item>

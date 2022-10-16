@@ -22,15 +22,14 @@ from PySide6.QtWidgets import (
 from exploredesktop.modules.app_settings import (  # isort: skip
     ConnectionStatus,
     DataAttributes,
-    ExGModes,
-    GUISettings
+    ExGModes
 )
 from exploredesktop.modules import (  # isort: skip
     Messages,
     Settings,
     BaseModel
 )
-from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
+from exploredesktop.modules.utils import display_msg, wait_cursor, ELECTRODES_10_20  # isort: skip
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -569,7 +568,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         if self.columns[column]['property'] == 'type':
             return ExGModes.all_values()
         if self.columns[column]['property'] == 'name':
-            return GUISettings.ELECTRODES_10_20
+            return ELECTRODES_10_20
 
     def editorType(self, column: int) -> str:
         """Get the columns editor type from column description
