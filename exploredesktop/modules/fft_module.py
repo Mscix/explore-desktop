@@ -134,7 +134,9 @@ class FFTPlot(BasePlots):
         """Plot FFT data
         """
         plot_wdgt = self.ui.plot_fft
-        max_x_range = round(self.model.explorer.sampling_rate / 2)
+        # NOTE uncomment below to have FFT range = Sampling Rate / 2
+        # max_x_range = round(self.model.explorer.sampling_rate / 2)
+        max_x_range = 70
         plot_wdgt.setXRange(0, max_x_range, padding=0.01)
         data = self.model.fft_plot_data()
         if data is None:

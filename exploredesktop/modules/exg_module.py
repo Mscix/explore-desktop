@@ -425,7 +425,7 @@ class ExGPlot(BasePlots):
         # TODO maximum must depend of number of active channels
         # TODO if chan 8 or less hide scroll bar
         # both above move to on_connect function (??)
-        self.ui.verticalScrollBar.setMaximum(24)
+        self.ui.verticalScrollBar.setMaximum(26)
 
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
