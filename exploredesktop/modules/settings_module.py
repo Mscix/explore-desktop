@@ -338,6 +338,8 @@ class SettingsFrameView(BaseModel):
             bool: whether settings have been saved
         """
         saved = True
+        if not self.explorer.is_connected:
+            return saved
         current_sr = int(self.explorer.sampling_rate)
         ui_sr = int(self.ui.value_sampling_rate.currentText())
 
