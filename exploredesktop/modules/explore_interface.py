@@ -121,11 +121,11 @@ class ExploreInterface(Explore):
         if self.is_connected:
             # TODO uncomment when adc mask is implemented
             # chan_mask = list(reversed(self.stream_processor.device_info['adc_mask']))
-            chan_mask = [1] * N_CHAN
+            chan_mask = [1] * self.device_chan
 
             if new_dict is None:
                 # custom_names = [f"ch{i}" for i in range(1, self.device_chan + 1)]
-                # Change line below to hardcode different channel names
+                # NOTE Change line below to hardcode different channel names
                 custom_names = ELECTRODES_10_20 + [
                     f"ch{i}" for i in range(len(ELECTRODES_10_20) + 1, self.device_chan + 1)]
                 signal_types = ["EEG"] * self.device_chan
@@ -156,9 +156,13 @@ class ExploreInterface(Explore):
         """
         exg_fs = self.stream_processor.device_info['sampling_rate']
         timestamp, _ = packet.get_data(exg_fs)
-        # TODO uncomment when adc mask is implemented
-        # self.device_chan = 4 if timestamp.shape[0] == 33 else 8
-        self.device_chan = N_CHAN
+        if timestamp.shape[0] == 33:
+            self.device_chan = 4
+        # TODO change to 5 when packet number changes
+        elif timestamp.shape[0] == 4:
+            self.device_chan = 32
+        elif timestamp.shape[0] == 4:
+            self.device_chan = 8
 
     def get_device_chan(self) -> int:
         """Returns number of channels i.e. device type (4-ch or 8-ch)"""
