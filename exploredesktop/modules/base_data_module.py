@@ -146,9 +146,12 @@ class DataContainer(BaseModel):
 
         for key, val in self.plot_data.items():
             if bt_drop is True:
-                print(f"{data['t'][0]=}")
-                print(f"{DataContainer.last_t=}")
-                val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
+                # print(f"{data['t'][0]=}")
+                # print(f"{DataContainer.last_t=}")
+                if key == 't':
+                    val.put(idxs, data[key], mode='wrap')
+                else:
+                    val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
             else:
                 try:
                     val.put(idxs, data[key], mode='wrap')
