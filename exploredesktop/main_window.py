@@ -703,10 +703,10 @@ class MainWindow(QMainWindow, BaseModel):
         if event.type() == QEvent.WindowStateChange:
             if event.oldState() and Qt.WindowMinimized:
                 print("WindowMinimized")
-                print(f"{self.height()=}")
-                print(f"{self.width()=}\n\n")
+                # print(f"{self.height()=}")
+                # print(f"{self.width()=}\n\n")
             elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
                 print("WindowMaximized")
-                print(f"{self.height()=}")
-                print(f"{self.width()=}\n\n")
+                # print(f"{self.height()=}")
+                # print(f"{self.width()=}\n\n")
         return super().changeEvent(event)
