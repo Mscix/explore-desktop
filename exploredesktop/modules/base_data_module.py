@@ -147,7 +147,7 @@ class DataContainer(BaseModel):
         for key, val in self.plot_data.items():
             if bt_drop is True:
                 # print(f"{data['t'][0]=}")
-                # print(f"{DataContainer.last_t=}")
+                # print(f"{DataContainer.last_t=}\n")
                 if key == 't':
                     val.put(idxs, data[key], mode='wrap')
                 else:

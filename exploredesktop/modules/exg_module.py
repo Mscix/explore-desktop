@@ -29,6 +29,14 @@ from exploredesktop.modules.utils import _remove_old_plot_item, display_msg   # 
 
 logger = logging.getLogger("explorepy." + __name__)
 
+visualization_option = 1
+# 1: 8 channels with scroll and lines for min/max. Offsetts are 1
+# 2: 19 channels with scroll and line for central channel. Offsets are 0.5
+# 3: 19 channels with scroll and line for min/max. Offsets are 0.5
+# 4: 32 channels with scroll and line for central channel. Offsets are 0.5
+# 5: 32 channels with scroll and line for min/max. Offsets are 0.5
+# 6: 19 channels scroll and no lines
+
 
 class ExGData(DataContainer):
     """_summary_"""
@@ -113,7 +121,10 @@ class ExGData(DataContainer):
 
             n_chan = self.explorer.n_active_chan
             # pyqtgraph starts plotting at the bottom, we want to add ch at the top of the plot -> reversed
-            self.offsets = [i for i in reversed(np.arange(0.5, (n_chan + 1) / 2, 0.5)[:, np.newaxis].astype(float))]
+            if visualization_option > 1:
+                self.offsets = [i for i in reversed(np.arange(0.5, (n_chan + 1) / 2, 0.5)[:, np.newaxis].astype(float))]
+            elif visualization_option == 1:
+                self.offsets = [i for i in reversed(np.arange(1, n_chan + 1)[:, np.newaxis].astype(float))]
 
         if DataAttributes.BASELINE in attributes:
             self._baseline = None
@@ -201,7 +212,7 @@ class ExGData(DataContainer):
         self.insert_new_data(data)
         self.update_pointer(data)
         self.new_t_axis()
-        self.handle_bt_drop(data)
+        self.handle_bt_drop(data, sec_th=10)
 
         DataContainer.last_t = data['t'][-1]
         self.packet_count += 1
@@ -420,12 +431,15 @@ class ExGPlot(BasePlots):
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
-        self.ui.verticalScrollBar.setMinimum(18)
-        # self.ui.verticalScrollBar.setMinimum(18)
         # TODO maximum must depend of number of active channels
         # TODO if chan 8 or less hide scroll bar
         # both above move to on_connect function (??)
-        self.ui.verticalScrollBar.setMaximum(26)
+        if visualization_option == 1:
+            self.ui.verticalScrollBar.setMinimum(0)
+            self.ui.verticalScrollBar.setMaximum(33)
+        else:
+            self.ui.verticalScrollBar.setMinimum(18)
+            self.ui.verticalScrollBar.setMaximum(26)
 
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
@@ -435,12 +449,15 @@ class ExGPlot(BasePlots):
         # TODO: uncomment when implemented
         # self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
         self.ui.verticalScrollBar.valueChanged.connect(self.scroll)
+        if visualization_option in [4, 5]:
+            self.ui.verticalScrollBar.setHidden(True)
 
     def scroll(self):
         """Change the plot range when useing scrollbar
         """
         value = self.ui.verticalScrollBar.value()
         n_chan = self.model.explorer.n_active_chan
+        # if visualization_option in [1]
         up_lim = (2 - value) + n_chan
         low_lim = up_lim - 9
         self.ui.plot_exg.setYRange(low_lim, up_lim)
@@ -501,8 +518,13 @@ class ExGPlot(BasePlots):
         timescale = self.time_scale
         value = self.ui.verticalScrollBar.value()
 
-        up_lim = (2 - value) + n_chan + 0.5
-        y_range = (up_lim - 9, up_lim)
+        if visualization_option in [2, 3, 6]:
+            up_lim = (2 - value) + n_chan + 0.5
+            y_range = (up_lim - 9, up_lim)
+        elif visualization_option in [1]:
+            y_range = (23, 33)
+        else:
+            y_range = (0, 16)
 
         plot_wdgt.setRange(
             yRange=y_range,
@@ -520,17 +542,29 @@ class ExGPlot(BasePlots):
         plot_wdgt.setLabel('left', 'Voltage')
         self.add_left_axis_ticks()
         plot_wdgt.getAxis('left').setWidth(60)
-        plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
-        # plot_wdgt.getAxis('left').setGrid(50)
+        if visualization_option in [1, 2, 4]:
+            plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
+            plot_wdgt.getAxis('left').setGrid(50)
+        else:
+            plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
+            # plot_wdgt.getAxis('left').setGrid(0)
 
     def add_right_axis_ticks(self) -> None:
         """
         Add upper and lower lines delimiting the channels in exg plot
         """
-        # active_chan = self.model.explorer.active_chan_list()
+        active_chan = self.model.explorer.active_chan_list()
         # ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
         # ticks_right += [(0.5, '')]
-        ticks_right = []
+        # ticks_right = []
+        if visualization_option == 1:
+            ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
+            ticks_right += [(0.5, '')]
+        elif visualization_option in [2, 4, 6]:
+            ticks_right = []
+        elif visualization_option in [3, 5]:
+            ticks_right = [(i, '') for i in np.arange(0.25, 17, 0.5)]
+
         self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
 
     def add_left_axis_ticks(self) -> None:
@@ -539,15 +573,23 @@ class ExGPlot(BasePlots):
         """
         active_chan = self.model.explorer.active_chan_list(custom_name=True)
 
+        if visualization_option == 1:
+            ticks = [
+                (
+                    idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+                ) for idx, ch in enumerate(reversed(active_chan))]
+
+        else:
+            ticks = [
+                (
+                    idx / 2 + 0.5, f'{ch}'
+                    # idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+                ) for idx, ch in enumerate(reversed(active_chan))]
+
         # ticks = [
         #     (
-        #         idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+        #         idx / 2 + 0.5, f'{ch}'
         #     ) for idx, ch in enumerate(reversed(active_chan))]
-
-        ticks = [
-            (
-                idx / 2 + 0.5, f'{ch}'
-            ) for idx, ch in enumerate(reversed(active_chan))]
 
         self.ui.plot_exg.getAxis('left').setTicks([ticks])
 
