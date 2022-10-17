@@ -3,6 +3,7 @@
 Module containing impedance related functionalities
 """
 import logging
+from typing import Tuple
 
 import explorepy
 import numpy as np
@@ -19,7 +20,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
 )
 from exploredesktop.modules.utils import display_msg  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
-
+import time
 # Enable antialiasing for prettier plots
 pg.setConfigOptions(antialias=True)
 logger = logging.getLogger("explorepy." + __name__)
@@ -34,6 +35,8 @@ class ImpedanceGraph(pg.GraphItem):
         super().__init__()
         self.model = model
         self.signals = self.model.get_signals()
+        self.packet = 0
+        self.start = time.time()
 
     def display_default_imp(self) -> None:
         """Initialize impedance graph
@@ -103,10 +106,13 @@ class ImpedanceGraph(pg.GraphItem):
         Args:
             data (dict): dict containing text, position, symbols and brush style
         """
-        texts = data["texts"]
-        pos = data["pos"]
-        brushes = data["brushes"]
-        self.setData(pos=pos, symbolBrush=brushes, text=texts)
+        # print("\n")
+        if self.packet % 75 == 0:
+            texts = data["texts"]
+            pos = data["pos"]
+            brushes = data["brushes"]
+            self.setData(pos=pos, symbolBrush=brushes, text=texts)
+        self.packet += 1
 
 
 class ImpModel(BaseModel):
@@ -154,14 +160,15 @@ class ImpModel(BaseModel):
         Returns:
             str: formatted impedance value
         """
-        if value < 5:
-            str_value = " < "
-            str_value += "5 K\u03A9"
-        elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
-                (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
-            str_value = "Open"
-        else:
-            str_value = str(int(round(value, 0))) + " K\u03A9"
+        # if value < 5:
+        #     str_value = " < "
+        #     str_value += "5 K\u03A9"
+        # elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
+        #         (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
+        #     str_value = "Open"
+        # else:
+        #     str_value = str(int(round(value, 0))) + " K\u03A9"
+        str_value = str(round(value, 2))
         return str_value
 
     def imp_callback(self, packet: explorepy.packet.EEG) -> None:
@@ -170,12 +177,12 @@ class ImpModel(BaseModel):
         Args:
             packet (explorepy.packet.EEG): EEG packet
         """
-        # chan_list = self.explorer.active_chan_list(custom_name=True)
-        # n_chan = self.explorer.n_active_chan
+        chan_list = self.explorer.active_chan_list(custom_name=True)
+        n_chan = self.explorer.n_active_chan
 
-        # TODO REMOVE AFTER TEST
-        chan_list = [f"ch{i+1}" for i in range(32)]
-        n_chan = 32
+        # # TODO REMOVE AFTER TEST
+        # chan_list = [f"ch{i+1}" for i in range(32)]
+        # n_chan = 32
 
         imp_values = packet.get_impedances()
         texts = []
@@ -185,7 +192,7 @@ class ImpModel(BaseModel):
         pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
 
         for chan, value in zip(chan_list, imp_values):
-            value = value / 2
+            # value = value / 2
             brushes.append(self.get_stylesheet(value))
             value = self.format_imp_value(value)
             texts.append(f"{chan}\n{value}")
@@ -194,14 +201,14 @@ class ImpModel(BaseModel):
         self.signals.impedanceChanged.emit(data)
 
     @staticmethod
-    def get_pos_lists(n_chan):
-        """_summary_
+    def get_pos_lists(n_chan: int) -> Tuple[list, list]:
+        """Get list of x, y coordinates
 
         Args:
-            n_chan (_type_): _description_
+            n_chan (int): number of channels to display
 
         Returns:
-            _type_: _description_
+            Tuple[list, list]: list of x and y coordinates
         """
         y_pos = [i // 8 * -3 for i in range(n_chan)]
         x_pos = [0 + i * 3 for i in range(8)]
