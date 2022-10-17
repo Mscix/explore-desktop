@@ -225,7 +225,7 @@ class SettingsFrameView(BaseModel):
             self._remove_filters()
 
             # TODO uncomment when adc mask is implemented
-            # changed_chan = self.change_active_channels()
+            changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
 
             # Reset exg data and reapply filters
@@ -233,8 +233,7 @@ class SettingsFrameView(BaseModel):
             if self.filters.current_filters is not None:
                 self.filters.apply_filters()
 
-        # if changed_sr or changed_chan:
-        if changed_sr:
+        if changed_sr or changed_chan:
             self._display_new_settings()
 
         self.signals.restartPlot.emit()
@@ -274,16 +273,22 @@ class SettingsFrameView(BaseModel):
 
         active_chan = self.get_active_chan_ui()
         active_chan_int = [int(i) for i in active_chan]
-
+        chan_names_table = [one_chan_dict["name"] for one_chan_dict in self.ui.table_settings.model().chan_data]
         # verify at least one channel is selected
         n_active = sum(active_chan_int)
         if n_active == 0:
             display_msg(Messages.SELECT_1_CHAN)
             return
 
-        if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
-            mask = "".join(active_chan)
-            changed = self.explorer.set_channels(mask)
+        if (
+            active_chan_int != self.explorer.stream_processor.device_info['adc_mask']
+        ) or (
+            chan_names_table != self.explorer.active_chan_list(custom_name=True)
+        ):
+            # TODO uncomment when adc mask is implemented
+            changed = True
+            # mask = "".join(active_chan)
+            # changed = self.explorer.set_channels(mask)
 
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
             self.update_modules()
@@ -325,6 +330,31 @@ class SettingsFrameView(BaseModel):
             logger.info("New Sampling rate: %s", self.explorer.sampling_rate)
 
         return changed
+
+    def check_settings_saved(self) -> bool:
+        """Check if the settings in UI are the same as in explore, i.e. all settings have been saved
+
+        Returns:
+            bool: whether settings have been saved
+        """
+        saved = True
+        current_sr = int(self.explorer.sampling_rate)
+        ui_sr = int(self.ui.value_sampling_rate.currentText())
+
+        current_chan_names = self.explorer.active_chan_list(custom_name=True)
+        ui_chan_names = [one_chan_dict["name"] for one_chan_dict in self.ui.table_settings.model().chan_data]
+
+        # TODO uncomment when adc mask is implemented
+        # current_active_chan = self.explorer.stream_processor.device_info['adc_mask']
+        # ui_active_chan = [int(i) for i in self.get_active_chan_ui()]
+
+        if (
+            current_sr != ui_sr
+        ) or (
+            current_chan_names != ui_chan_names
+        ):  # ) or (current_active_chan != ui_active_chan):
+            saved = False
+        return saved
 
     ###
     # Vis feedback slots

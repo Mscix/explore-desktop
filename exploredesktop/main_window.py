@@ -30,7 +30,8 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QGraphicsDropShadowEffect,
     QMainWindow,
-    QPushButton
+    QPushButton,
+    QMessageBox
 )
 
 
@@ -45,7 +46,8 @@ from exploredesktop.modules import (  # isort:skip
 from exploredesktop.modules.app_settings import (  # isort:skip
     ConnectionStatus,
     DataAttributes,
-    EnvVariables
+    EnvVariables,
+    Messages
 )
 from exploredesktop.modules.bt_module import BTFrameView  # isort:skip
 from exploredesktop.modules.exg_module import ExGPlot  # isort:skip
@@ -385,6 +387,26 @@ class MainWindow(QMainWindow, BaseModel):
             imp_disabled = self.imp_frame.check_is_imp()
         return imp_disabled
 
+    def _verify_settings_changed(self, btn_name: str) -> bool:
+        """
+        Check if settings have been saved. If not, ask the user if they want to still exit the page
+        Args:
+            btn_name (str): button name to the page to move
+
+        Returns:
+            bool: whether settings are saved or user wants to exit anyway
+        """
+        changes_saved = True
+        if btn_name != "btn_settings":
+            changes_saved = self.settings_frame.check_settings_saved()
+
+        if not changes_saved:
+            response = display_msg(msg_text=Messages.SETTINGS_NOT_SAVED, popup_type="question")
+
+            if response == QMessageBox.StandardButton.Yes:
+                changes_saved = True
+        return changes_saved
+
     def change_page(self, btn_name: str) -> bool:
         """Change the active page when the object is clicked
 
@@ -403,6 +425,11 @@ class MainWindow(QMainWindow, BaseModel):
         # If not navigating to impedance, verify if imp mode is active
         imp_disabled = self._verify_imp(btn_name)
         if not imp_disabled:
+            return False
+
+        # If not navigating to settings, verify if settings have been changed
+        settings_saved = self._verify_settings_changed(btn_name)
+        if not settings_saved:
             return False
 
         # If the page requires connection to a Explore device, verify
@@ -676,24 +703,10 @@ class MainWindow(QMainWindow, BaseModel):
         if event.type() == QEvent.WindowStateChange:
             if event.oldState() and Qt.WindowMinimized:
                 print("WindowMinimized")
-                print(f"{self.ui.centralwidget.frameGeometry().height()=}")
-                print(f"{self.ui.centralwidget.height()=}\n")
-                print(f"{self.ui.plot_exg.frameGeometry().height()=}")
-                print(f"{self.ui.plot_exg.height()=}\n")
-                print(f"{self.ui.tabWidget.frameGeometry().height()=}")
-                print(f"{self.ui.tabWidget.height()=}\n\n")
-
                 print(f"{self.height()=}")
                 print(f"{self.width()=}\n\n")
             elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
                 print("WindowMaximized")
-                print(f"{self.ui.centralwidget.frameGeometry().height()=}")
-                print(f"{self.ui.centralwidget.height()=}\n")
-                print(f"{self.ui.plot_exg.frameGeometry().height()=}")
-                print(f"{self.ui.plot_exg.height()=}\n")
-                print(f"{self.ui.tabWidget.frameGeometry().height()=}")
-                print(f"{self.ui.tabWidget.height()=}\n")
-
                 print(f"{self.height()=}")
                 print(f"{self.width()=}\n\n")
         return super().changeEvent(event)

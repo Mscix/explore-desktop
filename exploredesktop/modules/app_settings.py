@@ -289,6 +289,7 @@ class Messages():
     DISABLED_SETTINGS = "Changing the settings during recording and LSL streaming is not possible"
     DISABLED_RESET = "Resetting the settings during recording and LSL streaming is not possible"
     DISABLED_FORMAT_MEM = "Formatting the memory during recording and LSL streaming is not possible"
+    SETTINGS_NOT_SAVED = "Settings were not applied and will not be saved. Do you still want to exit?"
 
     #########################
     # dialogs
