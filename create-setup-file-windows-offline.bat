@@ -1,10 +1,10 @@
 @REM @echo off
 @REM Check we are in master branch
 
-git branch | find "* master" > NUL & IF ERRORLEVEL 1 (
-    echo "Please checkout to master branch and try again!"
-    exit
-)
+@REM git branch | find "* master" > NUL & IF ERRORLEVEL 1 (
+@REM     echo "Please checkout to master branch and try again!"
+@REM     exit
+@REM )
 
 
 @REM # Conda virtual env
@@ -26,7 +26,14 @@ call python -m pip install --upgrade pip
 call pip install pyinstaller==4.7
 
 @REM Install ExploreDesktop
+call pip install eeglabio
+call pip install mne
 call pip install -e .
+@REM Uncomment below if ExploreDesktop required the develop branch of explorepy
+@REM call pip uninstall -y explorepy
+@REM call pip install git+https://github.com/Mentalab-hub/explorepy.git@develop
+call pip uninstall scipy
+call pip install scipy==1.7.3
 
 @REM  Clean required directories
 call set exploredesktop_path="installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\"
@@ -35,7 +42,7 @@ call md %exploredesktop_path%data
 call rd /S /Q dist
 
 @REM Create executable files
-call pyinstaller --onedir --console ExploreDesktop.spec
+call pyinstaller --onedir --console --noconfirm ExploreDesktop.spec
 
 @REM Copy files to data dir
 call xcopy /I /E /H /R /Q dist\ExploreDesktop %exploredesktop_path%data\ExploreDesktop
