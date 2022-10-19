@@ -18,7 +18,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     Settings,
     Stylesheets,
 )
-from exploredesktop.modules.utils import display_msg  # isort: skip
+from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
 import time
 # Enable antialiasing for prettier plots
@@ -106,7 +106,6 @@ class ImpedanceGraph(pg.GraphItem):
         Args:
             data (dict): dict containing text, position, symbols and brush style
         """
-        # print("\n")
         if self.packet % 75 == 0:
             texts = data["texts"]
             pos = data["pos"]
@@ -134,7 +133,6 @@ class ImpModel(BaseModel):
         """
         if self.mode == ImpModes.DRY:
             return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
-        # rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
             imp_stylesheet = Stylesheets.GRAY_IMPEDANCE_STYLESHEET
@@ -160,15 +158,13 @@ class ImpModel(BaseModel):
         Returns:
             str: formatted impedance value
         """
-        # if value < 5:
-        #     str_value = " < "
-        #     str_value += "5 K\u03A9"
-        # elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
-        #         (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
-        #     str_value = "Open"
-        # else:
-        #     str_value = str(int(round(value, 0))) + " K\u03A9"
-        str_value = str(round(value, 2))
+        if value < 5:
+            str_value = "<span>&#60; 5 K&#8486;</span>"
+        elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
+                (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
+            str_value = "Open"
+        else:
+            str_value = str(int(round(value, 0))) + " K\u03A9"
         return str_value
 
     def imp_callback(self, packet: explorepy.packet.EEG) -> None:
@@ -180,10 +176,6 @@ class ImpModel(BaseModel):
         chan_list = self.explorer.active_chan_list(custom_name=True)
         n_chan = self.explorer.n_active_chan
 
-        # # TODO REMOVE AFTER TEST
-        # chan_list = [f"ch{i+1}" for i in range(32)]
-        # n_chan = 32
-
         imp_values = packet.get_impedances()
         texts = []
         brushes = []
@@ -192,7 +184,7 @@ class ImpModel(BaseModel):
         pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
 
         for chan, value in zip(chan_list, imp_values):
-            # value = value / 2
+            value = value / 2
             brushes.append(self.get_stylesheet(value))
             value = self.format_imp_value(value)
             texts.append(f"{chan}\n{value}")
@@ -290,7 +282,10 @@ class ImpFrameView():
         """
         if not self.explorer.is_connected:
             return
-        self.explorer.disable_imp(self.model.imp_callback)
+        with wait_cursor():
+            disabled = self.explorer.disable_imp(self.model.imp_callback)
+        if not disabled:
+            self.explorer.is_measuring_imp = False
         self.signals.btnImpMeasureChanged.emit("Measure Impedances")
         self.signals.displayDefaultImp.emit()
 
