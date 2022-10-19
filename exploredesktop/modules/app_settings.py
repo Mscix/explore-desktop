@@ -317,6 +317,7 @@ class Messages():
         "Impedance mode only works in 250 Hz sampling rate!"
         "\nThe current sampling rate is s_rate. "
         "Click on Yes to change the sampling rate.")
+    DISABLE_FAIL = "Couldn't disable impedance measurement mode.\nPlease restart your device manually."
 
     #########################
     # vis functions
