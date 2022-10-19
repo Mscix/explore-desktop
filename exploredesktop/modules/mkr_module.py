@@ -105,7 +105,6 @@ class MarkerPlot(BasePlots):
         """
         Get the value for the event code from the GUI and set the event.
         """
-        # TODO catch input here, emit signal and asign marker in data
         event_code = int(self.ui.value_event_code.text())
         code_ok = self._verify_code_value(event_code)
         if not code_ok:

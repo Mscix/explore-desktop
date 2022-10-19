@@ -1505,68 +1505,25 @@ QTabBar::tab{
                        </spacer>
                       </item>
                       <item>
-                       <widget class="QFrame" name="frame_channels">
+                       <widget class="QTableView" name="table_settings">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="styleSheet">
                          <string notr="true"/>
                         </property>
-                        <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
+                        <property name="alternatingRowColors">
+                         <bool>true</bool>
                         </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
+                        <property name="cornerButtonEnabled">
+                         <bool>false</bool>
                         </property>
-                        <layout class="QVBoxLayout" name="verticalLayout_5">
-                         <property name="spacing">
-                          <number>0</number>
-                         </property>
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="QTableView" name="table_settings">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true"/>
-                           </property>
-                           <property name="alternatingRowColors">
-                            <bool>true</bool>
-                           </property>
-                           <property name="cornerButtonEnabled">
-                            <bool>false</bool>
-                           </property>
-                           <attribute name="horizontalHeaderCascadingSectionResizes">
-                            <bool>true</bool>
-                           </attribute>
-                          </widget>
-                         </item>
-                         <item>
-                          <spacer name="verticalSpacer_21">
-                           <property name="orientation">
-                            <enum>Qt::Vertical</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>20</width>
-                             <height>10</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                        </layout>
+                        <attribute name="horizontalHeaderCascadingSectionResizes">
+                         <bool>true</bool>
+                        </attribute>
                        </widget>
                       </item>
                       <item>
