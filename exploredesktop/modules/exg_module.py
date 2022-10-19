@@ -29,13 +29,14 @@ from exploredesktop.modules.utils import _remove_old_plot_item, display_msg   # 
 
 logger = logging.getLogger("explorepy." + __name__)
 
-visualization_option = 1
-# 1: 8 channels with scroll and lines for min/max. Offsetts are 1
+visualization_option = 7
+# 1: 9 channels with scroll and lines for min/max. Offsetts are 1
 # 2: 19 channels with scroll and line for central channel. Offsets are 0.5
 # 3: 19 channels with scroll and line for min/max. Offsets are 0.5
-# 4: 32 channels with scroll and line for central channel. Offsets are 0.5
-# 5: 32 channels with scroll and line for min/max. Offsets are 0.5
+# 4: 32 channels wo scroll and line for central channel. Offsets are 0.5
+# 5: 32 channels wo scroll and line for min/max. Offsets are 0.5
 # 6: 19 channels scroll and no lines
+# 7: 9 channels with scroll and no lines. Offsets are 1
 
 
 class ExGData(DataContainer):
@@ -121,9 +122,9 @@ class ExGData(DataContainer):
 
             n_chan = self.explorer.n_active_chan
             # pyqtgraph starts plotting at the bottom, we want to add ch at the top of the plot -> reversed
-            if visualization_option > 1:
+            if visualization_option in [2, 3, 4, 5, 6]:
                 self.offsets = [i for i in reversed(np.arange(0.5, (n_chan + 1) / 2, 0.5)[:, np.newaxis].astype(float))]
-            elif visualization_option == 1:
+            elif visualization_option in [1, 7]:
                 self.offsets = [i for i in reversed(np.arange(1, n_chan + 1)[:, np.newaxis].astype(float))]
 
         if DataAttributes.BASELINE in attributes:
@@ -434,9 +435,9 @@ class ExGPlot(BasePlots):
         # TODO maximum must depend of number of active channels
         # TODO if chan 8 or less hide scroll bar
         # both above move to on_connect function (??)
-        if visualization_option == 1:
-            self.ui.verticalScrollBar.setMinimum(0)
-            self.ui.verticalScrollBar.setMaximum(33)
+        if visualization_option in [1, 7]:
+            self.ui.verticalScrollBar.setMinimum(1)
+            self.ui.verticalScrollBar.setMaximum(25)
         else:
             self.ui.verticalScrollBar.setMinimum(18)
             self.ui.verticalScrollBar.setMaximum(26)
@@ -458,6 +459,7 @@ class ExGPlot(BasePlots):
         value = self.ui.verticalScrollBar.value()
         n_chan = self.model.explorer.n_active_chan
         # if visualization_option in [1]
+        print(value)
         up_lim = (2 - value) + n_chan
         low_lim = up_lim - 9
         self.ui.plot_exg.setYRange(low_lim, up_lim)
@@ -521,7 +523,7 @@ class ExGPlot(BasePlots):
         if visualization_option in [2, 3, 6]:
             up_lim = (2 - value) + n_chan + 0.5
             y_range = (up_lim - 9, up_lim)
-        elif visualization_option in [1]:
+        elif visualization_option in [1, 7]:
             y_range = (23, 33)
         else:
             y_range = (0, 16)
@@ -560,7 +562,7 @@ class ExGPlot(BasePlots):
         if visualization_option == 1:
             ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
             ticks_right += [(0.5, '')]
-        elif visualization_option in [2, 4, 6]:
+        elif visualization_option in [2, 4, 6, 7]:
             ticks_right = []
         elif visualization_option in [3, 5]:
             ticks_right = [(i, '') for i in np.arange(0.25, 17, 0.5)]
@@ -573,10 +575,16 @@ class ExGPlot(BasePlots):
         """
         active_chan = self.model.explorer.active_chan_list(custom_name=True)
 
-        if visualization_option == 1:
+        if visualization_option in [1]:
             ticks = [
                 (
                     idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+                ) for idx, ch in enumerate(reversed(active_chan))]
+            
+        elif visualization_option in [7]:
+            ticks = [
+                (
+                    idx + 1, f'{ch}'
                 ) for idx, ch in enumerate(reversed(active_chan))]
 
         else:
