@@ -459,7 +459,6 @@ class ExGPlot(BasePlots):
         value = self.ui.verticalScrollBar.value()
         n_chan = self.model.explorer.n_active_chan
         # if visualization_option in [1]
-        print(value)
         up_lim = (2 - value) + n_chan
         low_lim = up_lim - 9
         self.ui.plot_exg.setYRange(low_lim, up_lim)
