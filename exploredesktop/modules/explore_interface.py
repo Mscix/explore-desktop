@@ -16,8 +16,8 @@ from explorepy.stream_processor import TOPICS
 from explorepy.tools import bt_scan
 
 
-from exploredesktop.modules.app_settings import Settings
-from exploredesktop.modules.utils import ELECTRODES_10_20  # isort: skip
+from exploredesktop.modules.app_settings import Settings  # isort: skip
+# from exploredesktop.modules.utils import ELECTRODES_10_20  # isort: skip
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -124,10 +124,10 @@ class ExploreInterface(Explore):
             chan_mask = [1] * self.device_chan
 
             if new_dict is None:
-                # custom_names = [f"ch{i}" for i in range(1, self.device_chan + 1)]
+                custom_names = [f"ch{i}" for i in range(1, self.device_chan + 1)]
                 # NOTE Change line below to hardcode different channel names
-                custom_names = ELECTRODES_10_20 + [
-                    f"ch{i}" for i in range(len(ELECTRODES_10_20) + 1, self.device_chan + 1)]
+                # custom_names = ELECTRODES_10_20 + [
+                #     f"ch{i}" for i in range(len(ELECTRODES_10_20) + 1, self.device_chan + 1)]
                 signal_types = ["EEG"] * self.device_chan
             else:
                 custom_names = [d["name"] for d in new_dict]
