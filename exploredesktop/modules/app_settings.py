@@ -40,7 +40,10 @@ class ConnectionStatus(BaseEnum):
     CONNECTED = "Connected to dev_name"
     RECONNECTING = "Reconnecting ..."
     DISCONNECTED = "Not connected"
-    UNSTABLE = '<html><head/><body><p><span style=" font-weight:600; color:#c80000;">Unstable BT connection</span></p></body></html>'
+    UNSTABLE = (
+        '<html><head/><body><p><span style=" font-weight:600; '
+        'color:#c80000;">Unstable BT connection</span></p></body></html>'
+    )
 
 
 class ImpModes(BaseEnum):

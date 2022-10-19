@@ -579,7 +579,7 @@ class ExGPlot(BasePlots):
                 (
                     idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
                 ) for idx, ch in enumerate(reversed(active_chan))]
-            
+
         elif visualization_option in [7]:
             ticks = [
                 (
