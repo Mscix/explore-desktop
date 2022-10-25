@@ -119,7 +119,10 @@ class FFTPlot(BasePlots):
         plot_wdgt.setLogMode(x=False, y=True)
         plot_wdgt.setMouseEnabled(x=False, y=False)
 
-        active_chan = self.model.explorer.active_chan_list(custom_name=True)
+        # active_chan = self.model.explorer.active_chan_list(custom_name=True)
+        # TODO REMOVE AFTER TEST
+        active_chan = [f"ch{i+1}" for i in range(32)]
+
         all_curves_list = [
             plot_wdgt.getPlotItem().plot(
                 pen=Stylesheets.FFT_LINE_COLORS[idx], name=f'{ch}', skipFiniteCheck=True
@@ -131,7 +134,10 @@ class FFTPlot(BasePlots):
         """Plot FFT data
         """
         plot_wdgt = self.ui.plot_fft
-        plot_wdgt.setXRange(0, 70, padding=0.01)
+        # NOTE uncomment below to have FFT range = Sampling Rate / 2
+        # max_x_range = round(self.model.explorer.sampling_rate / 2)
+        max_x_range = 70
+        plot_wdgt.setXRange(0, max_x_range, padding=0.01)
         data = self.model.fft_plot_data()
         if data is None:
             return

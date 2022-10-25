@@ -1,0 +1,489 @@
+import os
+import re
+from abc import abstractmethod
+from typing import Union
+
+import numpy as np
+from PySide6.QtCore import (
+    QRegularExpression,
+    QSettings
+)
+from PySide6.QtGui import (
+    QCloseEvent,
+    QIcon,
+    QRegularExpressionValidator
+)
+from PySide6.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog
+)
+
+
+from exploredesktop.modules.app_settings import (  # isort: skip
+    FileTypes,
+    GUISettings,
+    Messages,
+    Settings
+)
+from exploredesktop.modules.utils import verify_filters  # isort: skip
+from exploredesktop.modules.ui import (  # isort: skip
+    Ui_PlotDialog,
+    Ui_RecordingDialog
+)
+
+par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+ICON_PATH = os.path.join(par_dir, "MentalabLogo.ico")
+
+
+class CustomDialog(QDialog):
+    """Base class for custom pop-up dialogs
+
+    Args:
+       QDialog (Pyside6.QtWidgets.QDialog): pyside widget
+    """
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.setWindowIcon(QIcon(ICON_PATH))
+        self.close = False
+
+    # pylint: disable=invalid-name
+    def closeEvent(self, arg__1: QCloseEvent) -> None:
+        """Rewrite close event
+
+        Args:
+            arg__1 (PySide6.QtGui.QCloseEvent): pyside close event
+        """
+        self.close = True
+        return super().closeEvent(arg__1)
+
+    def reject(self) -> None:
+        """Rewrite reject event, i.e. clicking on cancel
+        """
+        self.close = True
+        return super().reject()
+
+    @abstractmethod
+    def get_data(self):
+        """Abstract function to be implemented in child classes
+
+        Raises:
+            NotImplementedError: method has to be override in child class
+        """
+        raise NotImplementedError("Must override get_data method")
+
+    def exec(self) -> Union[bool, dict]:
+        """Rewrite exec method
+
+        Returns:
+            Union[bool, dict]: False if dialog was closed or canceled. Otherwise dictionary with data from pop-up
+        """
+        super().exec()
+
+        if self.close:
+            return False
+
+        data = self.get_data()
+        return data
+
+
+class RecordingDialog(CustomDialog):
+    """Dialog Recording Settings pop up
+
+    Args:
+        QDialog (Pyside6.QtWidgets.QDialog): pyside widget
+    """
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.ui = Ui_RecordingDialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Recording Settings")
+        self.filename_ok = True
+        self.filepath_ok = True
+
+        self.recording_time = int(self.ui.spinBox_recording_time.value())
+        self.file_type = FileTypes.CSV.value
+        self.recording_path = ""
+
+        self.ui.btn_browse.clicked.connect(self.save_dir_name)
+
+        self.ui.rdbtn_csv.toggled.connect(self.validate_filepath)
+        self.ui.rdbtn_edf.toggled.connect(self.validate_filepath)
+        self.ui.input_filepath.textChanged.connect(self.validate_filepath)
+        self.ui.input_file_name.textChanged.connect(self.validate_filepath)
+
+        self.ui.input_file_name.textChanged.connect(lambda text: self.validate_filename(text, input_field="file_name"))
+        self.ui.input_filepath.textChanged.connect(lambda text: self.validate_filename(text, input_field="file_path"))
+
+        self.set_default_ui_values()
+
+    def set_default_ui_values(self) -> None:
+        """Set up default values for GUI elements
+        """
+        self.ui.spinBox_recording_time.setMaximum(10000000)
+        self.ui.spinBox_recording_time.setValue(3600)
+        self.ui.rdbtn_csv.setChecked(True)
+        self.ui.warning_label.setHidden(True)
+
+    def validate_filename(self, text: str, input_field: str) -> None:
+        """Validate input file name by removing special characters and warning the user
+
+        Args:
+            text (str): file name input by the user
+        """
+        print("in validate filename")
+        if any(char in text for char in GUISettings.RESERVED_CHARS):
+            self._display_warning_char(input_field)
+            self.remove_special_chars(text)
+            self.filename_ok = False
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        else:
+            self.filename_ok = True
+            self._hide_warning()
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+
+    def validate_filepath(self) -> None:
+        """Validate selected path by checking if it already exists and warning the user
+        """
+        print("in validate filepath")
+        file_path = self.get_file_path()
+        if os.path.isfile(file_path):
+            self._display_warning_file_exists()
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+            self.filepath_ok = False
+        else:
+            self.filepath_ok = True
+            self._hide_warning()
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+
+    def get_file_path(self) -> str:
+        """Join directory and file name to obtain file path
+
+        Returns:
+            str: file path
+        """
+        file_dir = self._get_file_dir()
+        file_name = self._get_file_name()
+
+        file_path = os.path.join(file_dir, file_name)
+        return file_path
+
+    def _get_file_name(self) -> str:
+        """Returns file name. If empty it returns the placeholder text
+        """
+        input_name = self.ui.input_file_name.text()
+        placeholder_name = self.ui.input_filepath.placeholderText()
+        file_name = input_name if input_name != "" else placeholder_name
+        file_name += "_ExG." + self.file_extension()
+        return file_name
+
+    def _get_file_dir(self) -> str:
+        """Returns file directory. If empty it returns the placeholder text
+        """
+        input_dir = self.ui.input_filepath.text()
+        placeholder_dir = self.ui.input_filepath.placeholderText()
+        file_dir = input_dir if input_dir != "" else placeholder_dir
+        return file_dir
+
+    def remove_special_chars(self, text: str) -> None:
+        """Remove special characters from input file name
+
+        Args:
+            text (str): input file name
+        """
+        new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
+        self.ui.input_file_name.setText(new_text)
+
+    def _hide_warning(self) -> None:
+        """Hide warning from dialog
+        """
+        print("in hide\n")
+        print(f"{self.filepath_ok=}")
+        print(f"{self.filename_ok=}")
+        if self.filepath_ok is True and self.filename_ok is True:
+            self.ui.input_file_name.setStyleSheet("")
+            self.ui.warning_label.setHidden(True)
+
+    def _display_warning_char(self, input_field: str = "file_name") -> None:
+        """Display warning for special characters in file name"""
+        print('in display\n')
+        self.ui.warning_label.setText(Messages.SPECIAL_CHAR_WARNING)
+        if input_field == "file_name":
+            self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        else:
+            self.ui.input_filepath.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        self.ui.warning_label.setHidden(False)
+
+    def _display_warning_file_exists(self) -> None:
+        """Display warning for file already exists"""
+        self.ui.warning_label.setText(Messages.FILE_EXISTS)
+        self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        self.ui.warning_label.setHidden(False)
+
+    def file_extension(self) -> str:
+        """Retrun file extension selected
+
+        Returns:
+            str: file extension (edf or csv)
+        """
+        if self.ui.rdbtn_edf.isChecked():
+            self.file_type = FileTypes.BDF.value
+        else:
+            self.file_type = FileTypes.CSV.value
+
+        return self.file_type
+
+    def save_dir_name(self) -> None:
+        """
+        Open a dialog to select file name to be saved
+        """
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = self.get_dir_path(settings)
+
+        dialog = QFileDialog()
+        file_path = dialog.getExistingDirectory(
+            self,
+            "Choose Directory",
+            path,
+            QFileDialog.ShowDirsOnly)
+
+        self.recording_path = file_path
+        self.ui.input_filepath.setText(self.recording_path)
+        if path != self.recording_path:
+            settings.setValue("last_record_folder", self.recording_path)
+
+    def get_dir_path(self, settings: QSettings) -> str:
+        """Returns last used directory. If running for the first time, retruns user directory
+
+        Args:
+            settings (QSettings): QSettings
+        """
+        path = settings.value("last_record_folder")
+        if not path:
+            path = os.path.expanduser("~")
+        return path
+
+    def get_data(self) -> dict:
+        """Get dialog data
+
+        Returns:
+            dict: dictionary with dialog data
+        """
+        data = {
+            "file_name": self.ui.input_file_name.text(),
+            "file_path": self.ui.input_filepath.text(),
+            "duration": int(self.ui.spinBox_recording_time.value()),
+            "file_type": self.file_extension()
+        }
+        return data
+
+
+class FiltersDialog(CustomDialog):
+    """Dialog Filters Pop-upa
+
+    Args:
+        QDialog (Pyside6.QtWidgets.QDialog): pyside widget
+    """
+
+    def __init__(self, sr, current_filters, parent=None) -> None:
+        super().__init__(parent)
+        self.ui = Ui_PlotDialog()
+        self.s_rate = float(sr)
+        self.current_filters = current_filters
+
+        self.ui.setupUi(self)
+        self.setWindowTitle("Visualization Settings")
+
+        self.ui.lbl_warning.hide()
+        self.ui.cb_offset.setToolTip(Messages.OFFSET_EXPLANATION)
+
+        self.set_filter_values()
+        self.display_current_values()
+        self.add_validators()
+
+        # Verify input without output message when typing
+        self.ui.value_lowcutoff.textChanged.connect(self.verify_input)
+        self.ui.value_highcutoff.textChanged.connect(self.verify_input)
+
+        # Verify input without output message when typing
+        self.ui.value_lowcutoff.textChanged.connect(self.verify_input)
+        self.ui.value_highcutoff.textChanged.connect(self.verify_input)
+
+    def set_filter_values(self) -> None:
+        """Set values from current filters to attributes
+        """
+        if self.current_filters is None:  # default values
+            self._set_default_values()
+        else:
+            self._set_current_values()
+
+        if self.high_cutoff == "None":
+            self.high_cutoff = ""
+        if self.low_cutoff == "None":
+            self.low_cutoff = ""
+
+    def _set_current_values(self) -> None:
+        """Set filter current values"""
+        self.offset = self.current_filters["offset"]
+        self.notch = str(self.current_filters["notch"])
+        self.low_cutoff = str(self.current_filters["low_cutoff"])
+        self.high_cutoff = str(self.current_filters["high_cutoff"])
+
+    def _set_default_values(self) -> None:
+        """Set filter default values"""
+        self.offset = True
+        self.notch = "50"
+        self.low_cutoff = "1" if self.s_rate < 1000 else "2"
+        self.high_cutoff = "30"
+
+    def display_current_values(self) -> None:
+        """Add filter values to UI
+        """
+        # Add options to notch combobox
+        self.ui.value_notch.addItems(["", "50", "60"])
+
+        # Display current values
+        self.ui.value_notch.setCurrentText(self.notch)
+        self.ui.value_highcutoff.setText(self.high_cutoff)
+        self.ui.value_lowcutoff.setText(self.low_cutoff)
+        self.ui.cb_offset.setChecked(self.offset)
+
+    def add_validators(self) -> None:
+        """Add validator to text boxes to only accept doubles
+        """
+        # Set validators (only accept doubles)
+        regex = QRegularExpression(r"([0-9]+\.?[0-9]|\.[0-9])")
+        self.ui.value_highcutoff.setValidator(QRegularExpressionValidator(regex))
+        self.ui.value_lowcutoff.setValidator(QRegularExpressionValidator(regex))
+
+    def verify_input(self) -> None:
+        """Verify frequencies are not above/below the threshold
+        """
+
+        hc_freq = "" if self.ui.value_highcutoff.text() in [None, 'None', ''] else self.ui.value_highcutoff.text()
+        lc_freq = "" if self.ui.value_lowcutoff.text() in [None, 'None', ''] else self.ui.value_lowcutoff.text()
+
+        hc_stylesheet = ""
+        lc_stylesheet = ""
+        lbl_txt = ""
+
+        if hc_freq in ["."] or lc_freq in ["."]:
+            return
+
+        filter_ok = verify_filters((lc_freq, hc_freq), self.s_rate)
+
+        hc_stylesheet, lc_stylesheet, lbl_txt = self.get_le_stylesheets(filter_ok)
+
+        self._apply_le_stylesheets(lc_stylesheet, hc_stylesheet, lbl_txt)
+        enable = False not in filter_ok.values()
+        self._enable_ok_button(enable)
+
+    def get_le_stylesheets(self, filter_ok: dict) -> Union[str, str, str]:
+        """Get stylesheets for UI lineedits
+
+        Args:
+            filter_ok (dict): dictionary containing whether filters are corrects
+
+        Returns:
+            Union[str, str, str]: stylesheet for line edit and warning text to display
+        """
+        hc_stylesheet, lc_stylesheet, lbl_txt = "", "", ""
+        hc_freq_warning, lc_freq_warning, bp_freq_warning = self._get_warning_msg()
+
+        if filter_ok['lc_freq'] is False:
+            lbl_txt = lc_freq_warning
+            hc_stylesheet = ""
+            lc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
+
+        elif filter_ok['hc_freq'] is False:
+            lbl_txt = hc_freq_warning
+            hc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
+            lc_stylesheet = ""
+
+        elif filter_ok['bp_valid'] is False:
+            lbl_txt = bp_freq_warning
+            hc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
+            lc_stylesheet = "border: 1px solid rgb(217, 0, 0)"
+
+        return hc_stylesheet, lc_stylesheet, lbl_txt
+
+    def _get_warning_msg(self) -> Union[str, str, str]:
+        """Generate warning message with appropiate frequencies
+
+        Returns:
+            Union[str, str, str]: warning messages for high cutoff, lowcutoff and bandpass
+        """
+        nyq_freq = self.s_rate / 2.
+        max_hc_freq = nyq_freq - 1
+        min_lc_freq = Settings.MIN_LC_WEIGHT * nyq_freq
+
+        hc_freq_warning = (
+            "High cutoff frequency cannot be larger than or equal to the nyquist frequency."
+            f"The maximum high cutoff frequency is {np.ceil(max_hc_freq*10)/10} Hz!"
+        )
+
+        lc_freq_warning = (
+            "Transient band for low cutoff frequency is too narrow."
+            f"The minimum low cutoff frequency is {np.ceil(min_lc_freq*10)/10} Hz!"
+        )
+
+        bp_freq_warning = ("High cutoff frequency must be larger than low cutoff frequency.")
+        return hc_freq_warning, lc_freq_warning, bp_freq_warning
+
+    def _apply_le_stylesheets(self, lc_stylesheet: str, hc_stylesheet: str, lbl_txt: str) -> None:
+        """Apply stylesheets to lineedit widgets and display warning text
+
+        Args:
+            lc_stylesheet (str): stylesheet for low cutoff frequency lineedit
+            hc_stylesheet (str): stylesheet for low cutoff frequency lineedit
+            lbl_txt (str): warning text
+        """
+        self.ui.value_highcutoff.setStyleSheet(hc_stylesheet)
+        self.ui.value_lowcutoff.setStyleSheet(lc_stylesheet)
+        self.ui.lbl_warning.setText(lbl_txt)
+        if lbl_txt != "":
+            self.ui.lbl_warning.setHidden(False)
+        else:
+            self.ui.lbl_warning.setHidden(True)
+
+    def _enable_ok_button(self, enable: bool) -> None:
+        """Enable OK button while filter value changes
+
+        Args:
+            enable (bool): whether to enable
+        """
+        self.ui.value_lowcutoff.textChanged.connect(
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(enable))
+        self.ui.value_highcutoff.textChanged.connect(
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(enable))
+
+    def get_data(self) -> dict:
+        """Get filter data from dialog
+
+        Returns:
+            dict: dictionary containing filter values
+        """
+        data = {
+            "offset":
+                self.ui.cb_offset.isChecked(),
+            "notch":
+                None if self.ui.value_notch.currentText() == "" else int(self.ui.value_notch.currentText()),
+            "low_cutoff":
+                None if self.ui.value_lowcutoff.text() in [None, 'None', ""] else float(self.ui.value_lowcutoff.text()),
+            "high_cutoff":
+                None if self.ui.value_highcutoff.text() in [
+                    None, 'None', ""] else float(self.ui.value_highcutoff.text())
+        }
+        return data
+
+
+if __name__ == "__main__":
+    import sys
+
+    from PySide6.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    dial = RecordingDialog()
+    data = dial.exec()
+    print(data)

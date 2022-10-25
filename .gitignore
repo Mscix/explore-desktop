@@ -173,15 +173,11 @@ ExploreDesktopInstaller.app/Contents/Resources/installer.dat
 installer/ExploreDesktopInstaller/ExploreDesktop/packages/com.Mentalab.ExploreDesktop/data/*
 
 .qt_for_python/
-exploredesktop/modules/ui/MV/ui_main_window_model.py
-exploredesktop/modules/ui/MV/ui_main_window_model.ui
 .gitignore
 repository/2022-07-20-1041_meta.7z
 repository/Updates.xml
 repository/com.Mentalab.ExploreDesktop/0.3.2meta.7z
-exploredesktop/modules/ui/old/dialog_plot_settings.py
-exploredesktop/modules/ui/old/dialog_recording_settings.py
-exploredesktop/modules/ui/old/ui_main_window.py
-exploredesktop/modules/ui/old/ui_main_window.ui
-tests/bt_functions.py
-tests/testing_completer.py
+tests/*
+exploredesktop/modules/ui/old/*
+exploredesktop/modules/ui/MV/*
+

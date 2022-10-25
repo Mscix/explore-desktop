@@ -51,6 +51,7 @@ class SettingsFrameView(BaseModel):
         # Setup signal connections
         self.signals.dataSettingsChanged.connect(self.disable_apply)
 
+    @Slot()
     def disable_apply(self, index: QModelIndex) -> None:
         """Disable apply button based on the names of the channels
 
@@ -93,6 +94,20 @@ class SettingsFrameView(BaseModel):
         # Resize to fill all horizontal space
         self.ui.table_settings.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.ui.table_settings.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.ui.table_settings.verticalHeader().setVisible(False)
+
+        # Stylesheet
+        self.ui.table_settings.setAlternatingRowColors(True)
+        self.ui.table_settings.horizontalHeader().setStyleSheet("""
+        QHeaderView::section {
+            border-bottom: 1px solid black;
+            border-right: 0px;
+            border-top: 0px;
+        }""")
+
+        self.ui.table_settings.setStyleSheet("""
+        border: none;""")
+
         # Remove button to select all
         self.ui.table_settings.setCornerButtonEnabled(False)
 
@@ -103,14 +118,15 @@ class SettingsFrameView(BaseModel):
         """Initialize dropdowns and checkboxes
         """
         self.ui.value_sampling_rate.addItems([str(int(sr)) for sr in Settings.SAMPLING_RATES])
-        self.ui.dropdown_signal_type.addItems(ExGModes.all_values())
-        self.ui.cb_multitype_signal.setChecked(False)
-        self.ui.dropdown_signal_type.setHidden(False)
+        # TODO uncomment later if implemented
+        # self.ui.dropdown_signal_type.addItems(ExGModes.all_values())
+        # self.ui.cb_multitype_signal.setChecked(False)
+        # self.ui.dropdown_signal_type.setHidden(False)
 
         # Hide multitype signal dropdown and checkbox
-        self.ui.cb_multitype_signal.setHidden(True)
-        self.ui.dropdown_signal_type.setHidden(True)
-        self.ui.cb_1020.setHidden(True)
+        # self.ui.cb_multitype_signal.setHidden(True)
+        # self.ui.dropdown_signal_type.setHidden(True)
+        # self.ui.cb_1020.setHidden(True)
 
     def setup_ui_connections(self) -> None:
         """Connect ui widgets to corresponding slot
@@ -123,9 +139,10 @@ class SettingsFrameView(BaseModel):
         # TODO uncomment when implemented
         # self.ui.btn_calibrate.setHidden(True)
 
-        self.ui.cb_multitype_signal.stateChanged.connect(self.multisignal_clicked)
-        self.ui.dropdown_signal_type.currentTextChanged.connect(self.signal_type_changed)
-        self.ui.cb_1020.stateChanged.connect(self.enable_10_20)
+        # TODO uncomment later when implemented
+        # self.ui.cb_multitype_signal.stateChanged.connect(self.multisignal_clicked)
+        # self.ui.dropdown_signal_type.currentTextChanged.connect(self.signal_type_changed)
+        # self.ui.cb_1020.stateChanged.connect(self.enable_10_20)
 
     def setup_settings_frame(self) -> None:
         """Setup the settings frame
@@ -207,6 +224,7 @@ class SettingsFrameView(BaseModel):
         with wait_cursor():
             self._remove_filters()
 
+            # TODO uncomment when adc mask is implemented
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
 
@@ -255,16 +273,22 @@ class SettingsFrameView(BaseModel):
 
         active_chan = self.get_active_chan_ui()
         active_chan_int = [int(i) for i in active_chan]
-
+        chan_names_table = [one_chan_dict["name"] for one_chan_dict in self.ui.table_settings.model().chan_data]
         # verify at least one channel is selected
         n_active = sum(active_chan_int)
         if n_active == 0:
             display_msg(Messages.SELECT_1_CHAN)
             return
 
-        if active_chan_int != self.explorer.stream_processor.device_info['adc_mask']:
-            mask = "".join(active_chan)
-            changed = self.explorer.set_channels(mask)
+        if (
+            active_chan_int != self.explorer.stream_processor.device_info['adc_mask']
+        ) or (
+            chan_names_table != self.explorer.active_chan_list(custom_name=True)
+        ):
+            # TODO uncomment when adc mask is implemented
+            changed = True
+            # mask = "".join(active_chan)
+            # changed = self.explorer.set_channels(mask)
 
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
             self.update_modules()
@@ -306,6 +330,33 @@ class SettingsFrameView(BaseModel):
             logger.info("New Sampling rate: %s", self.explorer.sampling_rate)
 
         return changed
+
+    def check_settings_saved(self) -> bool:
+        """Check if the settings in UI are the same as in explore, i.e. all settings have been saved
+
+        Returns:
+            bool: whether settings have been saved
+        """
+        saved = True
+        if not self.explorer.is_connected:
+            return saved
+        current_sr = int(self.explorer.sampling_rate)
+        ui_sr = int(self.ui.value_sampling_rate.currentText())
+
+        current_chan_names = self.explorer.active_chan_list(custom_name=True)
+        ui_chan_names = [one_chan_dict["name"] for one_chan_dict in self.ui.table_settings.model().chan_data]
+
+        # TODO uncomment when adc mask is implemented
+        # current_active_chan = self.explorer.stream_processor.device_info['adc_mask']
+        # ui_active_chan = [int(i) for i in self.get_active_chan_ui()]
+
+        if (
+            current_sr != ui_sr
+        ) or (
+            current_chan_names != ui_chan_names
+        ):  # ) or (current_active_chan != ui_active_chan):
+            saved = False
+        return saved
 
     ###
     # Vis feedback slots
@@ -492,7 +543,8 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         # column description
         self.columns = [
             {'property': 'input', 'header': 'Channel', 'edit': False, 'editor': 'default'},
-            {'property': 'enable', 'header': 'Enable', 'edit': True, 'editor': 'checkbox'},
+            # TODO change edit to true when adc mask/ channel enabling is implemented
+            {'property': 'enable', 'header': 'Enable', 'edit': False, 'editor': 'checkbox'},
             {'property': 'name', 'header': 'Name', 'edit': True, 'editor': 'default'},
             {'property': 'type', 'header': 'Type', 'edit': False, 'editor': 'combobox'},
         ]
@@ -527,6 +579,9 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
                 "".join(
                     e for e in value if e.isalnum()).strip() == "" or self.get_list_names().count(value) > 1):
                 return QBrush("#fa5c62")
+
+        if role == Qt.TextAlignmentRole:
+            return Qt.AlignHCenter
 
     def get_list_names(self) -> list:
         """Return list of custom names

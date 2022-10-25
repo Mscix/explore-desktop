@@ -40,6 +40,10 @@ class ConnectionStatus(BaseEnum):
     CONNECTED = "Connected to dev_name"
     RECONNECTING = "Reconnecting ..."
     DISCONNECTED = "Not connected"
+    UNSTABLE = (
+        '<html><head/><body><p><span style=" font-weight:600; '
+        'color:#c80000;">Unstable BT connection</span></p></body></html>'
+    )
 
 
 class ImpModes(BaseEnum):
@@ -126,16 +130,6 @@ class Stylesheets():
     EXG_LINE_COLOR = "#42C4F7"
 
     # TODO category8 palette bookeh
-    FFT_LINE_COLORS = [
-        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
-        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
-        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
-        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
-        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
-        '#2ca02c', '#98df8a', '#d62728', '#ff9896',
-        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
-        '#2ca02c', '#98df8a', '#d62728', '#ff9896']
-
     FFT_LINE_COLORS = [
         '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
         '#2ca02c', '#98df8a', '#d62728', '#ff9896',
@@ -298,6 +292,7 @@ class Messages():
     DISABLED_SETTINGS = "Changing the settings during recording and LSL streaming is not possible"
     DISABLED_RESET = "Resetting the settings during recording and LSL streaming is not possible"
     DISABLED_FORMAT_MEM = "Formatting the memory during recording and LSL streaming is not possible"
+    SETTINGS_NOT_SAVED = "Settings were not applied and will not be saved. Do you still want to exit?"
 
     #########################
     # dialogs
@@ -322,6 +317,7 @@ class Messages():
         "Impedance mode only works in 250 Hz sampling rate!"
         "\nThe current sampling rate is s_rate. "
         "Click on Yes to change the sampling rate.")
+    DISABLE_FAIL = "Couldn't disable impedance measurement mode.\nPlease restart your device manually."
 
     #########################
     # vis functions

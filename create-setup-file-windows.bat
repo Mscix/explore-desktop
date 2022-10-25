@@ -47,6 +47,9 @@ call pip install pyinstaller==4.7
 call pip install eeglabio
 call pip install mne
 call pip install -e .
+@REM Uncomment below if ExploreDesktop required the develop branch of explorepy
+@REM call pip uninstall -y explorepy
+@REM call pip install git+https://github.com/Mentalab-hub/explorepy.git@develop
 
 @REM  Clean required directories
 call set exploredesktop_path="installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\"
@@ -78,11 +81,13 @@ cd %repo_wiki_path%
 cd ..\..
 call hugo -t ace-documentation
 @REM need to commit two times
+call git pull
 call git add .
 call git commit -m "Commit from %DATE%"
 call set /p asd="Hit enter to continue"
 call git push origin main
 cd public
+call git pull
 call git add .
 call git commit -m "Commit from %DATE%"
 call set /p asd="Hit enter to continue"
