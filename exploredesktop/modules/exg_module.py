@@ -26,6 +26,8 @@ from exploredesktop.modules.base_data_module import (  # isort:skip
 )
 from exploredesktop.modules.utils import _remove_old_plot_item, display_msg   # isort:skip
 
+import yaml
+from yaml.loader import SafeLoader
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -63,6 +65,9 @@ class ExGData(DataContainer):
         self.rr_warning_displayed = False
 
         self.mode = ExGModes.EEG
+
+        stream = open("channels.yaml", 'r')
+        self.dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
 
     def reset_vars(self) -> None:
         """Reset class variables"""
@@ -184,6 +189,16 @@ class ExGData(DataContainer):
         chan_list = self.explorer.active_chan_list()
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
+        #print("timestamp shape is {} and exg shape is {}".format(timestamp.shape, exg.shape))
+        
+        # dynamic channels
+        
+
+        for index, item in enumerate(exg):
+            value = int(self.dictionary["ch" + str(index +1)])
+            if value == 0:
+                exg[index] = 0
+
 
         # self.handle_disconnection(timestamp)
         # From timestamp to seconds
