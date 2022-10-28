@@ -30,7 +30,7 @@ call pip install pyinstaller==4.7
 
 @REM Uncomment below if ExploreDesktop required the develop branch of explorepy
 call pip uninstall -y explorepy
-call pip install git+https://github.com/Mentalab-hub/explorepy.git@dynamic-update-ch
+call pip install git+https://github.com/Mentalab-hub/explorepy.git@develop
 
 @REM Install ExploreDesktop
 call pip install eeglabio
