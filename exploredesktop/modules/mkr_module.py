@@ -168,12 +168,14 @@ class MarkerPlot(BasePlots):
             list: list of plotted lines
         """
         lines = []
-        line = self.ui.plot_orn.getItem(0, 0).addLine(t_point, label=code, pen=pen_marker)
-        lines.append(line)
-        line = self.ui.plot_orn.getItem(1, 0).addLine(t_point, label=code, pen=pen_marker)
-        lines.append(line)
-        line = self.ui.plot_orn.getItem(2, 0).addLine(t_point, label=code, pen=pen_marker)
-        lines.append(line)
+        # NOTE uncomment below to add markers to ORN plots. If a lot of markers are set in a 
+        # short time, the program will freeze
+        # line = self.ui.plot_orn.getItem(0, 0).addLine(t_point, label=code, pen=pen_marker)
+        # lines.append(line)
+        # line = self.ui.plot_orn.getItem(1, 0).addLine(t_point, label=code, pen=pen_marker)
+        # lines.append(line)
+        # line = self.ui.plot_orn.getItem(2, 0).addLine(t_point, label=code, pen=pen_marker)
+        # lines.append(line)
         line = self.ui.plot_exg.addLine(t_point, label=code, pen=pen_marker)
         lines.append(line)
         return lines
