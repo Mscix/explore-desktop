@@ -461,8 +461,6 @@ class ExGPlot(BasePlots):
         # TODO: uncomment when implemented
         # self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
         self.ui.verticalScrollBar.valueChanged.connect(self.scroll)
-        if visualization_option in [4, 5]:
-            self.ui.verticalScrollBar.setHidden(True)
 
     def scroll(self):
         """Change the plot range when useing scrollbar
@@ -524,13 +522,18 @@ class ExGPlot(BasePlots):
             pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
         self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
 
+        if visualization_option in [4, 5] or self.model.explorer.device_chan < 9:
+            self.ui.verticalScrollBar.setHidden(True)
+
     def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
         n_chan = self.model.explorer.n_active_chan if self.model.explorer.n_active_chan > 8 else 8
         timescale = self.time_scale
         value = self.ui.verticalScrollBar.value()
 
-        if visualization_option in [2, 3, 6]:
+        if self.model.explorer.device_chan < 9:
+            y_range = (-0.5, n_chan + 1)
+        elif visualization_option in [2, 3, 6]:
             up_lim = (2 - value) + n_chan + 0.5
             y_range = (up_lim - 9, up_lim)
         elif visualization_option in [1, 7]:
