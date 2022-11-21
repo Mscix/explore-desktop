@@ -17,11 +17,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
-    QHBoxLayout, QHeaderView, QLabel, QLineEdit,
-    QListWidget, QListWidgetItem, QMainWindow, QPushButton,
-    QScrollBar, QSizePolicy, QSpacerItem, QSpinBox,
-    QStackedWidget, QTabWidget, QTableView, QVBoxLayout,
-    QWidget)
+    QGridLayout, QHBoxLayout, QHeaderView, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
+    QPushButton, QScrollBar, QSizePolicy, QSpacerItem,
+    QSpinBox, QStackedWidget, QTabWidget, QTableView,
+    QVBoxLayout, QWidget)
 
 from pyqtgraph import (GraphicsLayoutWidget, PlotWidget)
 from exploredesktop import app_resources_rc
@@ -703,11 +703,8 @@ class Ui_MainWindow(object):
         self.frame_settings.setStyleSheet(u"")
         self.frame_settings.setFrameShape(QFrame.StyledPanel)
         self.frame_settings.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_19 = QVBoxLayout(self.frame_settings)
-        self.verticalLayout_19.setObjectName(u"verticalLayout_19")
-        self.verticalLayout_19.setContentsMargins(0, -1, 0, -1)
-        self.horizontalLayout_31 = QHBoxLayout()
-        self.horizontalLayout_31.setObjectName(u"horizontalLayout_31")
+        self.gridLayout = QGridLayout(self.frame_settings)
+        self.gridLayout.setObjectName(u"gridLayout")
         self.frame_device = QFrame(self.frame_settings)
         self.frame_device.setObjectName(u"frame_device")
         sizePolicy2 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Preferred)
@@ -758,6 +755,14 @@ class Ui_MainWindow(object):
         self.table_settings.horizontalHeader().setCascadingSectionResizes(True)
 
         self.verticalLayout_2.addWidget(self.table_settings)
+
+        self.spacer_frame = QFrame(self.frame_device)
+        self.spacer_frame.setObjectName(u"spacer_frame")
+        self.spacer_frame.setMinimumSize(QSize(0, 30))
+        self.spacer_frame.setFrameShape(QFrame.StyledPanel)
+        self.spacer_frame.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_2.addWidget(self.spacer_frame)
 
         self.frame_samplingrate = QFrame(self.frame_device)
         self.frame_samplingrate.setObjectName(u"frame_samplingrate")
@@ -865,10 +870,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addItem(self.verticalSpacer_19)
 
 
-        self.horizontalLayout_31.addWidget(self.frame_device)
-
-
-        self.verticalLayout_19.addLayout(self.horizontalLayout_31)
+        self.gridLayout.addWidget(self.frame_device, 0, 0, 1, 1)
 
 
         self.verticalLayout_8.addWidget(self.frame_settings)
