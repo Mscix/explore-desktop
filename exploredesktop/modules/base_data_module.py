@@ -289,8 +289,11 @@ class BasePlots:
         # Verify curves and chan dict have the same length, if not reset chan_dict
         chan_dict = self.model.explorer.get_chan_dict_list()
 
-        if len(all_curves) != len(chan_dict):
-            self.model.explorer.set_chan_dict_list()
+        if len(all_curves) != len(self.model.explorer.active_chan_list()):
+            logger.debug(
+                "Number of plot curves doesn't match number of active channels. "
+                "Updating chan_dict_list from base_data_module")
+            self.model.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
 
         active_curves = []
 

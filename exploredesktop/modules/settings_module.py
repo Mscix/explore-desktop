@@ -224,7 +224,6 @@ class SettingsFrameView(BaseModel):
         with wait_cursor():
             self._remove_filters()
 
-            # TODO uncomment when adc mask is implemented
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
 
@@ -235,8 +234,7 @@ class SettingsFrameView(BaseModel):
 
         if changed_sr or changed_chan:
             self._display_new_settings()
-
-        self.signals.restartPlot.emit()
+            self.signals.restartPlot.emit()
 
     def _display_new_settings(self) -> None:
         """Display popup with new sampling rate and active channels
@@ -273,7 +271,7 @@ class SettingsFrameView(BaseModel):
 
         active_chan = self.get_active_chan_ui()
         active_chan_int = [int(i) for i in active_chan]
-        chan_names_table = [one_chan_dict["name"] for one_chan_dict in self.ui.table_settings.model().chan_data]
+        chan_names_table = self.ui.table_settings.model().get_list_names()
         # verify at least one channel is selected
         n_active = sum(active_chan_int)
         if n_active == 0:
@@ -281,15 +279,15 @@ class SettingsFrameView(BaseModel):
             return
 
         if (
-            active_chan_int != self.explorer.stream_processor.device_info['adc_mask']
+            active_chan_int != self.explorer.chan_mask
         ) or (
             chan_names_table != self.explorer.active_chan_list(custom_name=True)
         ):
-            # TODO uncomment when adc mask is implemented
+            # TODO decide how we handle (de)activation of channels for 4, 8 chan
             changed = True
             # mask = "".join(active_chan)
             # changed = self.explorer.set_channels(mask)
-
+            self.explorer.chan_mask = self.ui.table_settings.model().get_chan_mask()
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
             self.update_modules()
 
@@ -307,7 +305,7 @@ class SettingsFrameView(BaseModel):
             list[str]: binary list indicating whether channel is active
         """
         active_chan = [str(one_chan_dict["enable"]) for one_chan_dict in self.ui.table_settings.model().chan_data]
-        active_chan = list(reversed(active_chan))
+        # active_chan = list(reversed(active_chan))
         return active_chan
 
     def change_sampling_rate(self) -> bool:
@@ -344,17 +342,18 @@ class SettingsFrameView(BaseModel):
         ui_sr = int(self.ui.value_sampling_rate.currentText())
 
         current_chan_names = self.explorer.active_chan_list(custom_name=True)
-        ui_chan_names = [one_chan_dict["name"] for one_chan_dict in self.ui.table_settings.model().chan_data]
+        ui_chan_names = self.ui.table_settings.model().get_list_names()
 
         # TODO uncomment when adc mask is implemented
         # current_active_chan = self.explorer.stream_processor.device_info['adc_mask']
-        # ui_active_chan = [int(i) for i in self.get_active_chan_ui()]
+        current_active_chan = self.explorer.chan_mask
+        ui_active_chan = [int(i) for i in self.get_active_chan_ui()]
 
         if (
             current_sr != ui_sr
         ) or (
             current_chan_names != ui_chan_names
-        ):  # ) or (current_active_chan != ui_active_chan):
+        ) or (current_active_chan != ui_active_chan):
             saved = False
         return saved
 
@@ -543,8 +542,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         # column description
         self.columns = [
             {'property': 'input', 'header': 'Channel', 'edit': False, 'editor': 'default'},
-            # TODO change edit to true when adc mask/ channel enabling is implemented
-            {'property': 'enable', 'header': 'Enable', 'edit': False, 'editor': 'checkbox'},
+            {'property': 'enable', 'header': 'Enable', 'edit': True, 'editor': 'checkbox'},
             {'property': 'name', 'header': 'Name', 'edit': True, 'editor': 'default'},
             {'property': 'type', 'header': 'Type', 'edit': False, 'editor': 'combobox'},
         ]
@@ -587,6 +585,10 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         """Return list of custom names
         """
         return [d["name"] for d in self.chan_data if d["enable"]]
+
+    def get_chan_mask(self) -> list:
+        """Return channel mask as list"""
+        return [d["enable"] for d in self.chan_data]
 
     # pylint: disable=invalid-name
     def rowCount(self, index) -> int:

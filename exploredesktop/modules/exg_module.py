@@ -188,13 +188,15 @@ class ExGData(DataContainer):
         chan_list = self.explorer.active_chan_list()
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
-        # print("timestamp shape is {} and exg shape is {}".format(timestamp.shape, exg.shape))
 
         # dynamic channels
         for index, item in enumerate(exg):
             value = int(self.dictionary["ch" + str(index + 1)])
             if value == 0:
                 exg[index] = 0
+
+        # Remove channels not active
+        exg = np.array([e for e, val in zip(exg, self.explorer.chan_mask) if val])
 
         # self.handle_disconnection(timestamp)
         # From timestamp to seconds
@@ -516,7 +518,7 @@ class ExGPlot(BasePlots):
         self._setup_righ_axis(plot_wdgt)
 
         # Add range of time axis
-        self._setup_time_axis(plot_wdgt)
+        self._setup_plot_range(plot_wdgt)
 
         all_curves_list = [
             pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
@@ -525,9 +527,9 @@ class ExGPlot(BasePlots):
         if visualization_option in [4, 5] or self.model.explorer.device_chan < 9:
             self.ui.verticalScrollBar.setHidden(True)
 
-    def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
+    def _setup_plot_range(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
-        n_chan = self.model.explorer.n_active_chan if self.model.explorer.n_active_chan > 8 else 8
+        n_chan = self.model.explorer.n_active_chan
         timescale = self.time_scale
         value = self.ui.verticalScrollBar.value()
 
