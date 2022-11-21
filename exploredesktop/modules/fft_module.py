@@ -119,9 +119,7 @@ class FFTPlot(BasePlots):
         plot_wdgt.setLogMode(x=False, y=True)
         plot_wdgt.setMouseEnabled(x=False, y=False)
 
-        # active_chan = self.model.explorer.active_chan_list(custom_name=True)
-        # TODO REMOVE AFTER TEST
-        active_chan = [f"ch{i+1}" for i in range(32)]
+        active_chan = self.model.explorer.active_chan_list(custom_name=True)
 
         all_curves_list = [
             plot_wdgt.getPlotItem().plot(
