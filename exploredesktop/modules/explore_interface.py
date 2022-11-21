@@ -190,6 +190,16 @@ class ExploreInterface(Explore):
             return [one_chan_dict['name'] for one_chan_dict in self.chan_dict_list if one_chan_dict['enable']]
         return [one_chan_dict['input'] for one_chan_dict in self.chan_dict_list if one_chan_dict['enable']]
 
+    def full_chan_list(self, custom_name) -> list:
+        """Returns list of all channels
+
+        Args:
+            custom_name (bool, optional): whether to return custom names set by user. Defaults to False.
+        """
+        if custom_name:
+            return [one_chan_dict['name'] for one_chan_dict in self.chan_dict_list]
+        return [one_chan_dict['input'] for one_chan_dict in self.chan_dict_list]
+
     # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:
         """Activate impedance measurement mode and subscribe to impedance topic"""
