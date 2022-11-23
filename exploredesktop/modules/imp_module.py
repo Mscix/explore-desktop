@@ -158,7 +158,9 @@ class ImpModel(BaseModel):
         Returns:
             str: formatted impedance value
         """
-        if value < 5:
+        if isinstance(value, str):
+            str_value = value
+        elif value < 5:
             str_value = "<span>&#60; 5 K&#8486;</span>"
         elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
                 (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
@@ -173,8 +175,9 @@ class ImpModel(BaseModel):
         Args:
             packet (explorepy.packet.EEG): EEG packet
         """
-        chan_list = self.explorer.active_chan_list(custom_name=True)
-        n_chan = self.explorer.n_active_chan
+        chan_list = self.explorer.full_chan_list(custom_name=True)
+        chan_mask = self.explorer.chan_mask
+        n_chan = self.explorer.device_chan
 
         imp_values = packet.get_impedances()
         texts = []
@@ -183,8 +186,11 @@ class ImpModel(BaseModel):
         x_pos, y_pos = self.get_pos_lists(n_chan)
         pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
 
-        for chan, value in zip(chan_list, imp_values):
-            value = value / 2
+        for chan, active, value in zip(chan_list, chan_mask, imp_values):
+            if active:
+                value = value / 2
+            else:
+                value = "NA"
             brushes.append(self.get_stylesheet(value))
             value = self.format_imp_value(value)
             texts.append(f"{chan}\n{value}")
