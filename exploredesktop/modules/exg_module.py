@@ -4,6 +4,7 @@ import logging
 import explorepy
 import numpy as np
 import pyqtgraph as pg
+import yaml
 from explorepy.tools import HeartRateEstimator
 from PySide6.QtCore import (
     QTimer,
@@ -63,6 +64,9 @@ class ExGData(DataContainer):
         self.rr_warning_displayed = False
 
         self.mode = ExGModes.EEG
+
+        stream = open("channels.yaml", 'r')
+        self.dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
 
     def reset_vars(self) -> None:
         """Reset class variables"""
@@ -184,6 +188,13 @@ class ExGData(DataContainer):
         chan_list = self.explorer.active_chan_list()
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
+        # print("timestamp shape is {} and exg shape is {}".format(timestamp.shape, exg.shape))
+
+        # dynamic channels
+        for index, item in enumerate(exg):
+            value = int(self.dictionary["ch" + str(index + 1)])
+            if value == 0:
+                exg[index] = 0
 
         # self.handle_disconnection(timestamp)
         # From timestamp to seconds
@@ -450,8 +461,6 @@ class ExGPlot(BasePlots):
         # TODO: uncomment when implemented
         # self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
         self.ui.verticalScrollBar.valueChanged.connect(self.scroll)
-        if visualization_option in [4, 5]:
-            self.ui.verticalScrollBar.setHidden(True)
 
     def scroll(self):
         """Change the plot range when useing scrollbar
@@ -513,13 +522,18 @@ class ExGPlot(BasePlots):
             pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
         self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
 
+        if visualization_option in [4, 5] or self.model.explorer.device_chan < 9:
+            self.ui.verticalScrollBar.setHidden(True)
+
     def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
         n_chan = self.model.explorer.n_active_chan if self.model.explorer.n_active_chan > 8 else 8
         timescale = self.time_scale
         value = self.ui.verticalScrollBar.value()
 
-        if visualization_option in [2, 3, 6]:
+        if self.model.explorer.device_chan < 9:
+            y_range = (-0.5, n_chan + 1)
+        elif visualization_option in [2, 3, 6]:
             up_lim = (2 - value) + n_chan + 0.5
             y_range = (up_lim - 9, up_lim)
         elif visualization_option in [1, 7]:
