@@ -23,7 +23,8 @@ from exploredesktop.modules.app_settings import Settings  # isort: skip
 logger = logging.getLogger("explorepy." + __name__)
 
 # write below idx of channels to display, e.g. [0,1,2,3,4,5,6,7] for first 8 chan
-IDX_CHAN_TO_DISPLAY = [i for i in range(32)]
+IDX_CHAN_TO_DISPLAY = [0, 1, 2, 3, 4, 5, 6, 7]
+# IDX_CHAN_TO_DISPLAY = [i for i in range(32)]
 # IDX_CHAN_TO_DISPLAY = [0, 1, 2, 3, 4, 5, 6, 7]
 # IDX_CHAN_TO_DISPLAY = [0]
 # write max number of channels
@@ -37,6 +38,7 @@ class ExploreInterface(Explore):
         super().__init__()
         self.device_chan = None
         self.chan_dict_list = []
+        self.chan_mask = "1111"
 
     @property
     def sampling_rate(self) -> Optional[int]:
@@ -52,8 +54,8 @@ class ExploreInterface(Explore):
         """Returns number of active channels"""
         if self.is_connected:
             # TODO uncomment when adc mask is implemented
+            return sum(self.chan_mask)
             # return sum(self.stream_processor.device_info['adc_mask'])
-            return len(IDX_CHAN_TO_DISPLAY)
 
         logger.debug("Device is not connected but the number of active channels method is called.")
         return None
@@ -103,7 +105,8 @@ class ExploreInterface(Explore):
             time.sleep(.05)
         self.unsubscribe(topic=TOPICS.raw_ExG, callback=self._set_n_chan)
 
-        # Set channel status
+        # Set channel status and channel mask
+        self.set_chan_mask()
         self.set_chan_dict_list()
         return True
 
@@ -114,6 +117,16 @@ class ExploreInterface(Explore):
         self.chan_dict_list = []
         return super().disconnect()
 
+    def set_chan_mask(self, mask=None):
+        """Set channel mask.
+        """
+        if mask is None:
+            self.chan_mask = [1] * self.device_chan
+        elif mask is not None and isinstance(mask, list):
+            self.chan_mask = mask
+        else:
+            logger.error("Mask must be a list, not a %s. Current mask is %s" % (type(mask), mask))
+
     # TODO change to property
     def set_chan_dict_list(self, new_dict=None):
         """Set the channel status dictionary i.e. whether channels are active or inactive
@@ -121,7 +134,6 @@ class ExploreInterface(Explore):
         if self.is_connected:
             # TODO uncomment when adc mask is implemented
             # chan_mask = list(reversed(self.stream_processor.device_info['adc_mask']))
-            chan_mask = [1] * self.device_chan
 
             if new_dict is None:
                 custom_names = [f"ch{i}" for i in range(1, self.device_chan + 1)]
@@ -137,11 +149,10 @@ class ExploreInterface(Explore):
                 {
                     "input": ch, "enable": active, "name": name, "type": sig_type
                 } for ch, active, name, sig_type in zip(
-                    [c.lower() for c in Settings.CHAN_LIST], chan_mask, custom_names, signal_types)
+                    [c.lower() for c in Settings.CHAN_LIST], self.chan_mask, custom_names, signal_types)
             ]
-            # TODO uncomment when adc mask is implemented
-            # self.chan_dict_list = self.chan_dict_list[:self.device_chan]
-            self.chan_dict_list = [self.chan_dict_list[i] for i in IDX_CHAN_TO_DISPLAY]
+
+            self.chan_dict_list = self.chan_dict_list[:self.device_chan]
 
     def get_chan_dict_list(self) -> dict:
         """Retrun channel status dictionary
@@ -161,7 +172,8 @@ class ExploreInterface(Explore):
         # TODO change to 5 when packet number changes
         elif timestamp.shape[0] == 4:
             self.device_chan = 32
-        elif timestamp.shape[0] == 4:
+        # TODO verify 16
+        elif timestamp.shape[0] == 16:
             self.device_chan = 8
 
     def get_device_chan(self) -> int:

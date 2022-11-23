@@ -3,6 +3,7 @@
 Module containing impedance related functionalities
 """
 import logging
+import time
 from typing import Tuple
 
 import explorepy
@@ -20,7 +21,6 @@ from exploredesktop.modules.app_settings import (  # isort: skip
 )
 from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
-import time
 # Enable antialiasing for prettier plots
 pg.setConfigOptions(antialias=True)
 logger = logging.getLogger("explorepy." + __name__)

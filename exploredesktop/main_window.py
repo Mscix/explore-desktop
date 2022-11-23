@@ -30,8 +30,8 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QGraphicsDropShadowEffect,
     QMainWindow,
-    QPushButton,
-    QMessageBox
+    QMessageBox,
+    QPushButton
 )
 
 
