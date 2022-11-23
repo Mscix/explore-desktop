@@ -7,7 +7,10 @@ from enum import Enum
 from typing import Union
 
 import PySide6
-from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
+# from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
+from exploredesktop.modules.ui.ui_ui_main_window_redisign_menubar import (
+    Ui_MainWindow
+)
 from explorepy.log_config import (
     read_config,
     write_config
@@ -23,7 +26,8 @@ from PySide6.QtCore import (
 from PySide6.QtGui import (
     QColor,
     QFont,
-    QIcon
+    QIcon,
+    QKeySequence
 )
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -167,6 +171,15 @@ class MainWindow(QMainWindow, BaseModel):
 
         # signal connections
         self.setup_signal_connections()
+
+        # MENUBAR
+        self.ui.actionNew.triggered.connect(lambda: print("new clicked"))
+        self.ui.actionExit.triggered.connect(self.close)
+        self.ui.actionExit.setShortcut(QKeySequence("Alt+F4"))
+        self.ui.actionCSV_data.setEnabled(False)
+        self.ui.actionCSV_data.setVisible(False)
+        self.ui.actionMetadata.triggered.connect(self.explorer.get_settings)
+        self.ui.actionMetadata_2.triggered.connect(self.settings_frame.export_settings)
 
     #########################
     # UI Functions
@@ -701,30 +714,6 @@ class MainWindow(QMainWindow, BaseModel):
     def changeEvent(self, event: PySide6.QtCore.QEvent) -> None:
         if event.type() == QEvent.WindowStateChange:
             self.resize_settings_table()
-
-            # if event.oldState() and Qt.WindowMinimized:
-            #     print("\nWindowMinimized")
-            #     print(f"{self.height()=}")
-            #     # print(f"{self.width()=}\n\n")
-            #     # print(self.ui.table_settings.height())
-            #     # self.ui.table_settings.setFixedHeight(400)
-            #     self.ui.table_settings.setFixedHeight(192)
-            #     # self.ui.table_settings.resize(self.ui.table_settings.width(), 192)
-            #     # self.ui.verticalSpacer_21.changeSize(20, 40)
-            #     self.ui.spacer_frame.setFixedHeight(30)
-            #     print(f"{self.ui.spacer_frame.size()=}")
-
-            # elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
-            #     print("\nWindowMaximized")
-            #     print(f"{self.height()=}")
-            #     # print(f"{self.width()=}\n\n")
-            #     # self.ui.table_settings.setFixedHeight(192)
-            #     if self.height() > 1000:
-            #         self.ui.table_settings.setFixedHeight(192 * 2)
-            #         # resize(self.ui.table_settings.width(), 192 * 2)
-            #         self.ui.spacer_frame.setFixedHeight(100)
-            #         print(f"{self.ui.spacer_frame.size()=}")
-
         return super().changeEvent(event)
 
     def resize_settings_table(self):
