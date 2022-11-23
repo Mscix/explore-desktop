@@ -12,6 +12,7 @@ from typing import (
 
 import explorepy.packet
 from explorepy import Explore
+from explorepy.settings_manager import SettingsManager
 from explorepy.stream_processor import TOPICS
 from explorepy.tools import bt_scan
 
@@ -39,6 +40,7 @@ class ExploreInterface(Explore):
         self.device_chan = None
         self.chan_dict_list = []
         self.chan_mask = "1111"
+        self.settings = None
 
     @property
     def sampling_rate(self) -> Optional[int]:
@@ -95,6 +97,7 @@ class ExploreInterface(Explore):
         """
         try:
             super().connect(device_name=device_name)
+
         except ConnectionAbortedError as error:
             logger.debug("Could not connect! %s", str(error))
             return False
@@ -105,9 +108,13 @@ class ExploreInterface(Explore):
             time.sleep(.05)
         self.unsubscribe(topic=TOPICS.raw_ExG, callback=self._set_n_chan)
 
-        # Set channel status and channel mask
+        # Set channel status and channel mask and default chan names
+        self.settings = SettingsManager(device_name)
         self.set_chan_mask()
         self.set_chan_dict_list()
+        self.settings.settings_dict[self.settings.channel_name_key] = [
+            f"ch{i + 1}" for i in range(self.device_chan)]
+
         return True
 
     def disconnect(self):
@@ -122,8 +129,10 @@ class ExploreInterface(Explore):
         """
         if mask is None:
             self.chan_mask = [1] * self.device_chan
+            self.settings.set_software_channel_mask(self.chan_mask)
         elif mask is not None and isinstance(mask, list):
             self.chan_mask = mask
+            self.settings.set_software_channel_mask(self.chan_mask)
         else:
             logger.error("Mask must be a list, not a %s. Current mask is %s" % (type(mask), mask))
 
@@ -226,7 +235,10 @@ class ExploreInterface(Explore):
         if sampling_rate == self.sampling_rate:
             return False
         try:
-            return super().set_sampling_rate(sampling_rate=int(sampling_rate))
+            changed = super().set_sampling_rate(sampling_rate=int(sampling_rate))
+            if changed:
+                self.settings.set_sampling_rate(int(sampling_rate))
+            return changed
         except (ValueError, ConnectionAbortedError) as error:
             logger.error("Error during set sampling rate: %s", str(error))
             return False
@@ -260,3 +272,7 @@ class ExploreInterface(Explore):
         min_lc_freq = round(0.0035 * nyq_freq, 1)
 
         return min_lc_freq, max_hc_freq
+
+    def get_settings(self):
+        self.settings.load_current_settings()
+        print(f"{self.settings.settings_dict=}")

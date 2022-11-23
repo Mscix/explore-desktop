@@ -1,5 +1,7 @@
 """Settings module"""
+import os
 import logging
+import yaml
 from copy import deepcopy
 
 from PySide6.QtCore import (
@@ -7,7 +9,8 @@ from PySide6.QtCore import (
     QEvent,
     QModelIndex,
     Qt,
-    Slot
+    Slot,
+    QSettings
 )
 from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import (
@@ -15,7 +18,8 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QItemDelegate,
     QMessageBox,
-    QStyledItemDelegate
+    QStyledItemDelegate,
+    QFileDialog
 )
 
 
@@ -287,8 +291,11 @@ class SettingsFrameView(BaseModel):
             changed = True
             # mask = "".join(active_chan)
             # changed = self.explorer.set_channels(mask)
-            self.explorer.chan_mask = self.ui.table_settings.model().get_chan_mask()
+            # self.explorer.chan_mask = self.ui.table_settings.model().get_chan_mask()
+            mask = self.ui.table_settings.model().get_chan_mask()
+            self.explorer.set_chan_mask(mask)
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
+            self.explorer.settings.set_chan_names(self.ui.table_settings.model().get_list_names())
             self.update_modules()
 
         return changed
@@ -439,6 +446,42 @@ class SettingsFrameView(BaseModel):
             self.ui.table_settings.model().change_column_editor("name", "default")
 
         self.ui.table_settings.viewport().update()
+
+    # TODO create a class for menubar and move there
+    def export_settings(self):
+        """
+        Open a dialog to select folder to be saved
+        """
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = settings.value("last_settings_save_folder")
+        if not path:
+            path = os.path.expanduser("~")
+
+        dialog = QFileDialog()
+        file_path = dialog.getSaveFileName(
+            None,
+            "Choose Directory",
+            os.path.join(path, "untitled.yaml"),
+            "YAML (*.yaml)")
+
+        file_path = file_path[0]
+
+        if path != os.path.dirname(file_path):
+            settings.setValue("last_settings_save_folder", os.path.dirname(file_path))
+
+        settings_to_export = self.explorer.settings.settings_dict.copy()
+        del settings_to_export["adc_mask"]
+        del settings_to_export["firmware_version"]
+        del settings_to_export["mac_address"]
+
+        with open(file_path, 'w+') as fp:
+            yaml.safe_dump(settings_to_export, fp, default_flow_style=False)
+            fp.close()
+
+    def import_settings():
+        pass
+        # stream = open(file_path, 'r')
+        # self.settings_dict = yaml.load(stream, Loader=yaml.SafeLoader)
 
 
 class CheckBoxDelegate(QItemDelegate):
