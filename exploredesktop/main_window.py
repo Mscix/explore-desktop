@@ -173,13 +173,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.setup_signal_connections()
 
         # MENUBAR
-        self.ui.actionNew.triggered.connect(lambda: print("new clicked"))
-        self.ui.actionExit.triggered.connect(self.close)
-        self.ui.actionExit.setShortcut(QKeySequence("Alt+F4"))
-        self.ui.actionCSV_data.setEnabled(False)
-        self.ui.actionCSV_data.setVisible(False)
-        self.ui.actionMetadata.triggered.connect(self.settings_frame.import_settings)
-        self.ui.actionMetadata_2.triggered.connect(self.settings_frame.export_settings)
+        self._setup_menubar()
 
     #########################
     # UI Functions
@@ -249,6 +243,7 @@ class MainWindow(QMainWindow, BaseModel):
         btn_connect_text = "Connect"
         btn_scan_enabled = True
         self.signals.pageChange.emit("btn_bt")
+        self._enable_menubar(False)
 
         self.stop_processes()
         self.reset_vars()
@@ -278,10 +273,44 @@ class MainWindow(QMainWindow, BaseModel):
         self.settings_frame.setup_settings_frame()
         # initialize visualization offsets
         self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.DATA])
+        # initialize menubar
+        self._enable_menubar(True)
 
         self._init_plots()
 
         return btn_connect_text, btn_scan_enabled
+
+    def _enable_menubar(self, enable: bool) -> None:
+        """Enable or disable menubar actions dependent on Explorepy connection
+
+        Args:
+            enable (bool): whether to enable
+        """
+        self.ui.actionMetadata.setEnabled(enable)
+        self.ui.actionMetadata_2.setEnabled(enable)
+
+    def _setup_menubar(self) -> None:
+        """Setup menubar actions
+        """
+        self.ui.actionNew.triggered.connect(lambda: print("new clicked"))
+        # Exit action
+        self.ui.actionExit.triggered.connect(self.close)
+        self.ui.actionExit.setShortcut(QKeySequence("Alt+F4"))
+
+        # Hide import actions
+        self.ui.actionCSV_data.setEnabled(False)
+        self.ui.actionCSV_data.setVisible(False)
+        self.ui.actionBIN_data.setVisible(False)
+        self.ui.actionBIN_data.setVisible(False)
+        self.ui.actionEDF_data.setVisible(False)
+        self.ui.actionEDF_data.setVisible(False)
+
+        # Disable actions requiring connection with explorepy
+        self._enable_menubar(False)
+
+        # Metadata actions
+        self.ui.actionMetadata.triggered.connect(self.settings_frame.import_settings)
+        self.ui.actionMetadata_2.triggered.connect(self.settings_frame.export_settings)
 
     def _init_plots(self) -> None:
         """Initialize plots"""
