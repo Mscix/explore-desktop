@@ -223,7 +223,7 @@ class ExGData(DataContainer):
         data = dict(zip(reversed(chan_list), reversed(exg)))
         data['t'] = time_vector
 
-        self.insert_new_data(data)
+        self.insert_new_data(data, exg=True)
         self.update_pointer(data)
         self.new_t_axis()
         self.handle_bt_drop(data, sec_th=10)

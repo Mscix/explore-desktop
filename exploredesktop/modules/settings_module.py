@@ -232,7 +232,6 @@ class SettingsFrameView(BaseModel):
             changed_sr = self.change_sampling_rate()
             changed_chan_names = self.change_channel_names()
 
-            print(f"{changed_chan_names=}")
             # Reset exg data and reapply filters
             self.signals.updateDataAttributes.emit([DataAttributes.DATA])
             if self.filters.current_filters is not None:
@@ -275,8 +274,6 @@ class SettingsFrameView(BaseModel):
         changed = False
         chan_names_table = self.ui.table_settings.model().get_list_names()
 
-        print(f"{self.explorer.active_chan_list(custom_name=True)=}")
-        print(f"{self.ui.table_settings.model().get_list_names()=}")
         if chan_names_table != self.explorer.active_chan_list(custom_name=True):
             changed = True
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
