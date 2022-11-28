@@ -17,10 +17,11 @@ from .imp_module import (
 from .ui import (
     Ui_MainWindow,
     Ui_PlotDialog,
-    Ui_RecordingDialog
+    Ui_RecordingDialog,
+    Ui_BinDialog
 )
 
 
 __all__ = ["Ui_MainWindow", "Ui_PlotDialog", "Ui_RecordingDialog", "UIFunctions",
            "BaseModel", "ImpedanceGraph", "ImpModel", "ImpFrameView",
-           "Messages", "Stylesheets", "Settings", "GUISettings"]
+           "Messages", "Stylesheets", "Settings", "GUISettings", "Ui_BinDialog"]
