@@ -32,6 +32,7 @@ class RecordFunctions(BaseModel):
     def __init__(self, ui) -> None:
         super().__init__()
         self.ui = ui
+        self.timer = QTimer()
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""

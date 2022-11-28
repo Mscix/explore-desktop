@@ -24,12 +24,17 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     FileTypes,
     GUISettings,
     Messages,
+    QSettingsKeys,
     Settings
 )
-from exploredesktop.modules.utils import verify_filters  # isort: skip
+from exploredesktop.modules.utils import (  # isort: skip
+    verify_filters,
+    get_path_settings
+)
 from exploredesktop.modules.ui import (  # isort: skip
     Ui_PlotDialog,
-    Ui_RecordingDialog
+    Ui_RecordingDialog,
+    Ui_BinDialog
 )
 
 par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
@@ -219,8 +224,9 @@ class RecordingDialog(CustomDialog):
         """
         Open a dialog to select file name to be saved
         """
+        key = QSettingsKeys.RECORD_FOLDER
         settings = QSettings("Mentalab", "ExploreDesktop")
-        path = self.get_dir_path(settings)
+        path = get_path_settings(settings, key)
 
         dialog = QFileDialog()
         file_path = dialog.getExistingDirectory(
@@ -232,18 +238,7 @@ class RecordingDialog(CustomDialog):
         self.recording_path = file_path
         self.ui.input_filepath.setText(self.recording_path)
         if path != self.recording_path:
-            settings.setValue("last_record_folder", self.recording_path)
-
-    def get_dir_path(self, settings: QSettings) -> str:
-        """Returns last used directory. If running for the first time, Returns user directory
-
-        Args:
-            settings (QSettings): QSettings
-        """
-        path = settings.value("last_record_folder")
-        if not path:
-            path = os.path.expanduser("~")
-        return path
+            settings.setValue(key, self.recording_path)
 
     def get_data(self) -> dict:
         """Get dialog data
@@ -459,11 +454,112 @@ class FiltersDialog(CustomDialog):
         return data
 
 
+class ConvertBinDialog(CustomDialog):
+    """Dialog Convert BIN File pop up
+
+    Args:
+        QDialog (Pyside6.QtWidgets.QDialog): pyside widget
+    """
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.ui = Ui_BinDialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Convert .BIN")
+
+        self.file_type = FileTypes.CSV.value
+        self.bin_path = ""
+        self.dst_folder = ""
+
+        self.ui.btn_browse_bin.clicked.connect(self.get_bin_path)
+        self.ui.btn_browse_dest_folder.clicked.connect(self.get_dst_folder)
+        # self.ui.input_file_name.textChanged.connect(self.validate_filename)
+
+        # self.ui.rdbtn_csv.toggled.connect(self.validate_filepath)
+        # self.ui.rdbtn_edf.toggled.connect(self.validate_filepath)
+        # self.ui.input_filepath.textChanged.connect(self.validate_filepath)
+        # self.ui.input_file_name.textChanged.connect(self.validate_filepath)
+
+        self.set_default_ui_values()
+
+    def set_default_ui_values(self) -> None:
+        """Set up default values for GUI elements
+        """
+        self.ui.rdbtn_csv.setChecked(True)
+        self.ui.warning_label.setHidden(True)
+
+    def get_bin_path(self) -> None:
+        """
+        Open a dialog to select file name to be saved
+        """
+        key = QSettingsKeys.BIN_FOLDER.value
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = get_path_settings(settings, key)
+
+        dialog = QFileDialog()
+        file_path = dialog.getOpenFileName(
+            self,
+            "Select .BIN file",
+            path,
+            "BIN (*.BIN)")
+
+        self.bin_path = file_path[0]
+        self.ui.input_filepath.setText(self.bin_path)
+        if path != self.bin_path:
+            settings.setValue(key, os.path.dirname(self.bin_path))
+
+    def get_dst_folder(self) -> None:
+        """
+        Open a dialog to select file name to be saved
+        """
+        key = QSettingsKeys.BIN_EXPORT.value
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = get_path_settings(settings, key)
+
+        dialog = QFileDialog()
+        file_path = dialog.getExistingDirectory(
+            self,
+            "Select Destination Directory",
+            path,
+            QFileDialog.ShowDirsOnly)
+
+        self.dst_folder = file_path
+        self.ui.input_dest_folder.setText(self.dst_folder)
+        if path != self.dst_folder:
+            settings.setValue(key, self.dst_folder)
+
+    def file_extension(self) -> str:
+        """Return file extension selected
+
+        Returns:
+            str: file extension (edf or csv)
+        """
+        if self.ui.rdbtn_edf.isChecked():
+            self.file_type = FileTypes.BDF.value
+        else:
+            self.file_type = FileTypes.CSV.value
+
+        return self.file_type
+
+    def get_data(self) -> dict:
+        """Get dialog data
+
+        Returns:
+            dict: dictionary with dialog data
+        """
+        data = {
+            "bin_path": self.ui.input_filepath.text(),
+            "dst_folder": self.ui.input_dest_folder.text(),
+            "file_type": self.file_extension()
+        }
+        return data
+
+
 if __name__ == "__main__":
     import sys
 
     from PySide6.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    dial = RecordingDialog()
+    dial = ConvertBinDialog()
     data = dial.exec()
     print(data)
