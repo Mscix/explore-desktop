@@ -460,7 +460,7 @@ class SettingsFrameView(BaseModel):
         dialog = QFileDialog()
         file_path = dialog.getSaveFileName(
             None,
-            "Choose Directory",
+            "Save As",
             os.path.join(path, "untitled.yaml"),
             "YAML (*.yaml)")
 
@@ -478,10 +478,35 @@ class SettingsFrameView(BaseModel):
             yaml.safe_dump(settings_to_export, fp, default_flow_style=False)
             fp.close()
 
-    def import_settings():
-        pass
-        # stream = open(file_path, 'r')
-        # self.settings_dict = yaml.load(stream, Loader=yaml.SafeLoader)
+    def import_settings(self):
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = settings.value("last_settings_import_folder")
+        if not path:
+            path = os.path.expanduser("~")
+
+        dialog = QFileDialog()
+        file_path = dialog.getOpenFileName(
+            None,
+            "Import",
+            path,
+            "YAML (*.yaml)")
+
+        file_path = file_path[0]
+
+        if path != os.path.dirname(file_path):
+            settings.setValue("last_settings_import_folder", os.path.dirname(file_path))
+
+        stream = open(file_path, 'r')
+        settings_dict = yaml.load(stream, Loader=yaml.SafeLoader)
+        new_dict_list = [
+            {
+                'input': f'ch{idx + 1}', 'enable': val[0],
+                'name': val[1], 'type': 'EEG'} 
+            for idx, val in enumerate(zip(settings_dict['software_mask'], settings_dict['channel_name']))]
+        self.ui.table_settings.setModel(ConfigTableModel(new_dict_list))
+        self.ui.value_sampling_rate.setCurrentText(str(int(settings_dict['sampling_rate'])))
+        self.explorer.chan_dict_list = new_dict_list
+        self.change_settings()
 
 
 class CheckBoxDelegate(QItemDelegate):

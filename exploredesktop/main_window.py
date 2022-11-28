@@ -178,7 +178,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionExit.setShortcut(QKeySequence("Alt+F4"))
         self.ui.actionCSV_data.setEnabled(False)
         self.ui.actionCSV_data.setVisible(False)
-        self.ui.actionMetadata.triggered.connect(self.explorer.get_settings)
+        self.ui.actionMetadata.triggered.connect(self.settings_frame.import_settings)
         self.ui.actionMetadata_2.triggered.connect(self.settings_frame.export_settings)
 
     #########################
