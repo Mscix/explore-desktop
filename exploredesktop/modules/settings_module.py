@@ -501,7 +501,7 @@ class SettingsFrameView(BaseModel):
         new_dict_list = [
             {
                 'input': f'ch{idx + 1}', 'enable': val[0],
-                'name': val[1], 'type': 'EEG'} 
+                'name': val[1], 'type': 'EEG'}
             for idx, val in enumerate(zip(settings_dict['software_mask'], settings_dict['channel_name']))]
         self.ui.table_settings.setModel(ConfigTableModel(new_dict_list))
         self.ui.value_sampling_rate.setCurrentText(str(int(settings_dict['sampling_rate'])))
