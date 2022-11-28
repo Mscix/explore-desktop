@@ -1,25 +1,25 @@
 """Settings module"""
-import os
 import logging
-import yaml
+import os
 from copy import deepcopy
 
+import yaml
 from PySide6.QtCore import (
     QAbstractTableModel,
     QEvent,
     QModelIndex,
+    QSettings,
     Qt,
-    Slot,
-    QSettings
+    Slot
 )
 from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QHeaderView,
     QItemDelegate,
     QMessageBox,
-    QStyledItemDelegate,
-    QFileDialog
+    QStyledItemDelegate
 )
 
 
