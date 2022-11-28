@@ -33,6 +33,7 @@ from exploredesktop.modules import (  # isort: skip
     Settings,
     BaseModel
 )
+from exploredesktop.modules.dialogs import ConvertBinDialog
 from exploredesktop.modules.utils import display_msg, wait_cursor, ELECTRODES_10_20  # isort: skip
 
 
@@ -492,7 +493,7 @@ class SettingsFrameView(BaseModel):
     def import_settings(self):
         """Import settings
         """
-        settings_dict = self._open_settings_file()
+        settings_dict = self._read_settings_file()
 
         if not self._verify_settings(settings_dict):
             return
@@ -530,7 +531,7 @@ class SettingsFrameView(BaseModel):
 
         return settings_ok
 
-    def _open_settings_file(self) -> dict:
+    def _read_settings_file(self) -> dict:
         """Open settings yaml file
 
         Returns:
@@ -556,6 +557,18 @@ class SettingsFrameView(BaseModel):
         stream = open(file_path, 'r')
         settings_dict = yaml.load(stream, Loader=yaml.SafeLoader)
         return settings_dict
+
+    def convert_bin(self):
+        dialog = ConvertBinDialog()
+        data = dialog.exec()
+        print(data)
+        self.explorer.convert_bin(
+            bin_file=data['bin_path'],
+            out_dir=data['dst_folder'],
+            file_type=data['file_type'],
+            out_dir_is_full=True
+        )
+        print("Converted")
 
 
 class CheckBoxDelegate(QItemDelegate):

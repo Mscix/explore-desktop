@@ -307,10 +307,10 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Disable actions requiring connection with explorepy
         self._enable_menubar(False)
-
         # Metadata actions
         self.ui.actionMetadata.triggered.connect(self.settings_frame.import_settings)
         self.ui.actionMetadata_2.triggered.connect(self.settings_frame.export_settings)
+        self.ui.actionConvert.triggered.connect(self.settings_frame.convert_bin)
 
     def _init_plots(self) -> None:
         """Initialize plots"""
