@@ -568,7 +568,7 @@ class SettingsFrameView(BaseModel):
             file_type=data['file_type'],
             out_dir_is_full=True
         )
-        print("Converted")
+        display_msg("Conversion finished", popup_type="info")
 
 
 class CheckBoxDelegate(QItemDelegate):
