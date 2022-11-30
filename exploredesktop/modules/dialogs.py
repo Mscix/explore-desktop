@@ -93,7 +93,58 @@ class CustomDialog(QDialog):
         return data
 
 
-class RecordingDialog(CustomDialog):
+class PathInputDialog(CustomDialog):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.file_type = FileTypes.CSV.value
+
+    def validate_filepath(self) -> None:
+        """Validate selected path by checking if it already exists and warning the user
+        """
+        file_path = self.get_file_path()
+        print(f"{file_path=}")
+        if os.path.isfile(file_path):
+            self._display_warning_file_exists()
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        else:
+            self._hide_warning()
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+
+    @abstractmethod
+    def get_file_path(self):
+        raise NotImplementedError
+
+    def file_extension(self) -> str:
+        """Return file extension selected
+
+        Returns:
+            str: file extension (edf or csv)
+        """
+        if self.ui.rdbtn_edf.isChecked():
+            self.file_type = FileTypes.BDF.value
+        else:
+            self.file_type = FileTypes.CSV.value
+
+        return self.file_type
+
+    def _display_warning_file_exists(self) -> None:
+        """Display warning for file already exists"""
+        self.ui.warning_label.setText(Messages.FILE_EXISTS)
+        self.ui.warning_label.setHidden(False)
+
+    def _hide_warning(self) -> None:
+        """Hide warning from dialog
+        """
+        self.ui.warning_label.setHidden(True)
+
+    def _display_warning_char(self) -> None:
+        """Display warning for special characters in file name"""
+        self.ui.warning_label.setText(Messages.SPECIAL_CHAR_WARNING)
+        self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        self.ui.warning_label.setHidden(False)
+
+
+class RecordingDialog(PathInputDialog):
     """Dialog Recording Settings pop up
 
     Args:
@@ -128,29 +179,6 @@ class RecordingDialog(CustomDialog):
         self.ui.rdbtn_csv.setChecked(True)
         self.ui.warning_label.setHidden(True)
 
-    def validate_filename(self, text: str) -> None:
-        """Validate input file name by removing special characters and warning the user
-
-        Args:
-            text (str): file name input by the user
-        """
-        if any(char in text for char in GUISettings.RESERVED_CHARS):
-            self.remove_special_chars(text)
-            self._display_warning_char()
-        else:
-            self._hide_warning()
-
-    def validate_filepath(self) -> None:
-        """Validate selected path by checking if it already exists and warning the user
-        """
-        file_path = self.get_file_path()
-        if os.path.isfile(file_path):
-            self._display_warning_file_exists()
-            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
-        else:
-            self._hide_warning()
-            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
-
     def get_file_path(self) -> str:
         """Join directory and file name to obtain file path
 
@@ -180,46 +208,6 @@ class RecordingDialog(CustomDialog):
         file_dir = input_dir if input_dir != "" else placeholder_dir
         return file_dir
 
-    def remove_special_chars(self, text: str) -> None:
-        """Remove special characters from input file name
-
-        Args:
-            text (str): input file name
-        """
-        new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
-        self.ui.input_file_name.setText(new_text)
-
-    def _hide_warning(self) -> None:
-        """Hide warning from dialog
-        """
-        self.ui.input_file_name.setStyleSheet("")
-        self.ui.warning_label.setHidden(True)
-
-    def _display_warning_char(self) -> None:
-        """Display warning for special characters in file name"""
-        self.ui.warning_label.setText(Messages.SPECIAL_CHAR_WARNING)
-        self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
-        self.ui.warning_label.setHidden(False)
-
-    def _display_warning_file_exists(self) -> None:
-        """Display warning for file already exists"""
-        self.ui.warning_label.setText(Messages.FILE_EXISTS)
-        self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
-        self.ui.warning_label.setHidden(False)
-
-    def file_extension(self) -> str:
-        """Return file extension selected
-
-        Returns:
-            str: file extension (edf or csv)
-        """
-        if self.ui.rdbtn_edf.isChecked():
-            self.file_type = FileTypes.BDF.value
-        else:
-            self.file_type = FileTypes.CSV.value
-
-        return self.file_type
-
     def save_dir_name(self) -> None:
         """
         Open a dialog to select file name to be saved
@@ -239,6 +227,35 @@ class RecordingDialog(CustomDialog):
         self.ui.input_filepath.setText(self.recording_path)
         if path != self.recording_path:
             settings.setValue(key, self.recording_path)
+
+    def validate_filename(self, text: str) -> None:
+        """Validate input file name by removing special characters and warning the user
+
+        Args:
+            text (str): file name input by the user
+        """
+        if any(char in text for char in GUISettings.RESERVED_CHARS):
+            self.remove_special_chars(text)
+            self._display_warning_char()
+        else:
+            self._hide_warning()
+
+    def remove_special_chars(self, text: str) -> None:
+        """Remove special characters from input file name
+
+        Args:
+            text (str): input file name
+        """
+        new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
+        self.ui.input_file_name.setText(new_text)
+
+    def _display_warning_file_exists(self) -> None:
+        self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        super()._display_warning_file_exists()
+
+    def _hide_warning(self) -> None:
+        self.ui.input_file_name.setStyleSheet("")
+        super()._hide_warning()
 
     def get_data(self) -> dict:
         """Get dialog data
@@ -454,7 +471,7 @@ class FiltersDialog(CustomDialog):
         return data
 
 
-class ConvertBinDialog(CustomDialog):
+class ConvertBinDialog(PathInputDialog):
     """Dialog Convert BIN File pop up
 
     Args:
@@ -473,12 +490,14 @@ class ConvertBinDialog(CustomDialog):
 
         self.ui.btn_browse_bin.clicked.connect(self.get_bin_path)
         self.ui.btn_browse_dest_folder.clicked.connect(self.get_dst_folder)
-        # self.ui.input_file_name.textChanged.connect(self.validate_filename)
 
-        # self.ui.rdbtn_csv.toggled.connect(self.validate_filepath)
-        # self.ui.rdbtn_edf.toggled.connect(self.validate_filepath)
-        # self.ui.input_filepath.textChanged.connect(self.validate_filepath)
-        # self.ui.input_file_name.textChanged.connect(self.validate_filepath)
+        self.ui.rdbtn_csv.toggled.connect(self.validate_filepath)
+        self.ui.rdbtn_edf.toggled.connect(self.validate_filepath)
+        self.ui.input_filepath.textChanged.connect(self.validate_filepath)
+        self.ui.input_filepath.textChanged.connect(self.validate_input_file)
+        self.ui.input_filepath.textChanged.connect(self.check_not_empty)
+        self.ui.input_dest_folder.textChanged.connect(self.validate_filepath)
+        self.ui.input_dest_folder.textChanged.connect(self.check_not_empty)
 
         self.set_default_ui_values()
 
@@ -487,6 +506,7 @@ class ConvertBinDialog(CustomDialog):
         """
         self.ui.rdbtn_csv.setChecked(True)
         self.ui.warning_label.setHidden(True)
+        self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
 
     def get_bin_path(self) -> None:
         """
@@ -528,18 +548,43 @@ class ConvertBinDialog(CustomDialog):
         if path != self.dst_folder:
             settings.setValue(key, self.dst_folder)
 
-    def file_extension(self) -> str:
-        """Return file extension selected
+    def get_file_path(self) -> str:
+        """Get full path to the file to save
 
         Returns:
-            str: file extension (edf or csv)
+            str: file path
         """
-        if self.ui.rdbtn_edf.isChecked():
-            self.file_type = FileTypes.BDF.value
-        else:
-            self.file_type = FileTypes.CSV.value
+        file_dir = self.ui.input_dest_folder.text()
+        file_name = os.path.basename(self.ui.input_filepath.text()).replace(".BIN", "_ExG." + self.file_extension())
+        return os.path.join(file_dir, file_name)
 
-        return self.file_type
+    def _display_warning_file_exists(self) -> None:
+        self.ui.input_dest_folder.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        super()._display_warning_file_exists()
+
+    def _hide_warning(self) -> None:
+        self.ui.input_dest_folder.setStyleSheet("")
+        super()._hide_warning()
+
+    def validate_input_file(self) -> None:
+        file = self.ui.input_filepath.text()
+        if file.replace(" ", "") != "" and not file.endswith(".BIN"):
+            self._display_warning_notBin()
+        else:
+            self.ui.input_filepath.setStyleSheet("")
+            self.ui.warning_label.setText("")
+
+    def _display_warning_notBin(self) -> None:
+        self.ui.input_filepath.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        self.ui.warning_label.setText("File must be .BIN")
+
+    def check_not_empty(self) -> None:
+        folder_field = self.ui.input_dest_folder.text().replace(" ", "")
+        input_file_field = self.ui.input_filepath.text().replace(" ", "")
+        if (folder_field == "" or input_file_field == ""):
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        else:
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
 
     def get_data(self) -> dict:
         """Get dialog data
