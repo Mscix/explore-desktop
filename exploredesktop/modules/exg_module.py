@@ -4,7 +4,6 @@ import logging
 import explorepy
 import numpy as np
 import pyqtgraph as pg
-import yaml
 from explorepy.tools import HeartRateEstimator
 from PySide6.QtCore import (
     QTimer,
@@ -64,9 +63,6 @@ class ExGData(DataContainer):
         self.rr_warning_displayed = False
 
         self.mode = ExGModes.EEG
-
-        stream = open("channels.yaml", 'r')
-        self.dictionary = yaml.load(stream, Loader=yaml.SafeLoader)
 
     def reset_vars(self) -> None:
         """Reset class variables"""
@@ -188,12 +184,6 @@ class ExGData(DataContainer):
         chan_list = self.explorer.active_chan_list()
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
-
-        # dynamic channels
-        for index, item in enumerate(exg):
-            value = int(self.dictionary["ch" + str(index + 1)])
-            if value == 0:
-                exg[index] = 0
 
         # Remove channels not active
         exg = np.array([e for e, val in zip(exg, self.explorer.chan_mask) if val])
