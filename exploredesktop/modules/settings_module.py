@@ -4,6 +4,7 @@ import os
 from copy import deepcopy
 
 import yaml
+from exploredesktop.modules.dialogs import ConvertBinDialog
 from PySide6.QtCore import (
     QAbstractTableModel,
     QEvent,
@@ -33,7 +34,6 @@ from exploredesktop.modules import (  # isort: skip
     Settings,
     BaseModel
 )
-from exploredesktop.modules.dialogs import ConvertBinDialog
 from exploredesktop.modules.utils import display_msg, wait_cursor, ELECTRODES_10_20  # isort: skip
 
 

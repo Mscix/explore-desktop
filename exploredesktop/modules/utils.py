@@ -6,12 +6,15 @@ Functions:
     display_message
     wait_cursor
 """
-import os
 import logging
+import os
 from contextlib import contextmanager
 
 import numpy as np
-from PySide6.QtCore import Qt, QSettings
+from PySide6.QtCore import (
+    QSettings,
+    Qt
+)
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (
     QApplication,

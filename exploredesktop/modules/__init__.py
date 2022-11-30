@@ -15,10 +15,10 @@ from .imp_module import (
 )
 # GUI FILE
 from .ui import (
+    Ui_BinDialog,
     Ui_MainWindow,
     Ui_PlotDialog,
-    Ui_RecordingDialog,
-    Ui_BinDialog
+    Ui_RecordingDialog
 )
 
 
