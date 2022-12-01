@@ -33,6 +33,7 @@ class RecordFunctions(BaseModel):
         super().__init__()
         self.ui = ui
         self.timer = QTimer()
+        self.t_start_record = None
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
@@ -66,12 +67,13 @@ class RecordFunctions(BaseModel):
         self.explorer.record_data(
             file_name=os.path.join(file_path, file_name),
             file_type=file_type,
-            duration=record_duration,
-            exg_ch_names=self.explorer.active_chan_list(custom_name=True)
+            duration=record_duration
+            # exg_ch_names=self.explorer.active_chan_list(custom_name=True)
         )
 
         self.start_timer_recorder(duration=record_duration)
-
+        self.signals.recordStart.emit()
+        self.t_start_record = datetime.now()
         self._update_button()
 
     def get_dialog_data(self) -> Tuple[str, str, Union[bool, dict]]:
@@ -151,9 +153,13 @@ class RecordFunctions(BaseModel):
         """
         Stop recording
         """
+        total_time = datetime.now() - self.t_start_record
         self.explorer.stop_recording()
+        # total_time = datetime.now() - self.t_start_record
         self.timer.stop()
+        self.signals.recordEnd.emit(total_time.total_seconds())
         self._update_button(start=False)
+        self.t_start_record = None
 
     def start_timer_recorder(self, duration: int) -> None:
         """Start timer to display recording time

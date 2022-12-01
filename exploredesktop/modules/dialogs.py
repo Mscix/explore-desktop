@@ -102,7 +102,6 @@ class PathInputDialog(CustomDialog):
         """Validate selected path by checking if it already exists and warning the user
         """
         file_path = self.get_file_path()
-        print(f"{file_path=}")
         if os.path.isfile(file_path):
             self._display_warning_file_exists()
             self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
@@ -212,7 +211,7 @@ class RecordingDialog(PathInputDialog):
         """
         Open a dialog to select file name to be saved
         """
-        key = QSettingsKeys.RECORD_FOLDER
+        key = QSettingsKeys.RECORD_FOLDER.value
         settings = QSettings("Mentalab", "ExploreDesktop")
         path = get_path_settings(settings, key)
 
@@ -605,6 +604,7 @@ if __name__ == "__main__":
 
     from PySide6.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    dial = ConvertBinDialog()
+    dial = RecordingDialog()
+    # dial = ConvertBinDialog()
     data = dial.exec()
     print(data)

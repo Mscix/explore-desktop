@@ -369,6 +369,9 @@ class MainWindow(QMainWindow, BaseModel):
         # self.signals.heartRate.connect(self.ui.value_heartRate.setText)
         self.signals.plotRR.connect(self.exg_plot.plot_rr_point)
 
+        self.signals.recordStart.connect(self.exg_plot.model.set_packet_offset)
+        self.signals.recordEnd.connect(self.exg_plot.model.log_n_packets)
+
     def style_ui(self) -> None:
         """Initial style for UI
         """

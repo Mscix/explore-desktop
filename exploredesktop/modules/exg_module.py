@@ -418,6 +418,29 @@ class ExGData(DataContainer):
 
         return peaks_dict, to_remove
 
+    @Slot()
+    def set_packet_offset(self):
+        self.packet_offset = self.packet_count
+
+    @Slot(float)
+    def log_n_packets(self, rec_time):
+        n_packets = self.packet_count - self.packet_offset
+        if self.explorer.device_chan == 4:
+            sample_per_packet = 33
+        elif self.explorer.device_chan == 8:
+            sample_per_packet = 16
+        elif self.explorer.device_chan == 32:
+            sample_per_packet = 4
+
+        expected_packets = rec_time * self.explorer.sampling_rate / sample_per_packet
+        logger.info("Total number of packets in recording (%f): %i" % (rec_time, n_packets))
+        logger.info("Expected number of packets in recording (%f): %i" % (rec_time, expected_packets))
+
+        if expected_packets * 0.9 < n_packets < expected_packets * 1.1:
+            logger.info("At least 90% of the expected packets recieved")
+        else:
+            logger.info("Less than 90% of the expected packets recieved")
+
 
 class ExGPlot(BasePlots):
     """_summary_

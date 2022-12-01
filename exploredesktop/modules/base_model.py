@@ -71,6 +71,9 @@ class SignalsContainer(QObject):
 
     dataSettingsChanged = Signal(QModelIndex)
 
+    recordStart = Signal()
+    recordEnd = Signal(float)
+
 
 class BaseModel(object):
     """Base class for models
