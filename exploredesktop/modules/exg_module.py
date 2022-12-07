@@ -436,7 +436,7 @@ class ExGData(DataContainer):
         logger.info("Total number of packets in recording (%f): %i" % (rec_time, n_packets))
         logger.info("Expected number of packets in recording (%f): %i" % (rec_time, expected_packets))
 
-        percentage_recieved = round(n_packets / expected_packets) * 100 
+        percentage_recieved = round(n_packets / expected_packets) * 100
         percentage_recieved = percentage_recieved if percentage_recieved <= 100 else 100
         msg = (
             "Recording complete.\n\n"
