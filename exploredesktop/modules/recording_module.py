@@ -67,8 +67,8 @@ class RecordFunctions(BaseModel):
         self.explorer.record_data(
             file_name=os.path.join(file_path, file_name),
             file_type=file_type,
-            duration=record_duration
-            # exg_ch_names=self.explorer.active_chan_list(custom_name=True)
+            duration=record_duration,
+            exg_ch_names=self.explorer.active_chan_list(custom_name=True)
         )
 
         self.start_timer_recorder(duration=record_duration)
