@@ -131,10 +131,10 @@ class ExploreInterface(Explore):
         """
         if mask is None:
             self.chan_mask = [1] * self.device_chan
-            self.settings.set_software_channel_mask(self.chan_mask)
+            self.settings.set_adc_mask(list(reversed(self.chan_mask)))
         elif mask is not None and isinstance(mask, list):
             self.chan_mask = mask
-            self.settings.set_software_channel_mask(self.chan_mask)
+            self.settings.set_adc_mask(list(reversed(self.chan_mask)))
         else:
             logger.error("Mask must be a list, not a %s. Current mask is %s" % (type(mask), mask))
 

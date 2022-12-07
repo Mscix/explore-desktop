@@ -266,6 +266,12 @@ class MainWindow(QMainWindow, BaseModel):
         data = {EnvVariables.FIRMWARE: firmware}
         self.signals.devInfoChanged.emit(data)
 
+        # Uncomment below to disable change of sampling rate
+        # if self.explorer.device_chan == 32:
+        #     self.ui.value_sampling_rate.setEnabled(False)
+        # else:
+        #     self.ui.value_sampling_rate.setEnabled(True)
+
         # initialize impedance
         self.signals.displayDefaultImp.emit()
         # subscribe environmental data callback
