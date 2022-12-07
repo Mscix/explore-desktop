@@ -436,10 +436,21 @@ class ExGData(DataContainer):
         logger.info("Total number of packets in recording (%f): %i" % (rec_time, n_packets))
         logger.info("Expected number of packets in recording (%f): %i" % (rec_time, expected_packets))
 
-        if expected_packets * 0.9 < n_packets < expected_packets * 1.1:
-            logger.info("At least 90% of the expected packets recieved")
+        percentage_recieved = round(n_packets / expected_packets) * 100 
+        percentage_recieved = percentage_recieved if percentage_recieved <= 100 else 100
+        msg = (
+            "Recording complete.\n\n"
+            f"{percentage_recieved}% of the expected packets recieved"
+            # f"Recorded packets: {n_packets}\n"
+            # f"Estimated expected packets: {int(expected_packets)}\n"
+        )
+        if expected_packets * 0.95 < n_packets < expected_packets * 1.05:
+            # msg += "At least 95% of the expected packets recieved"
+            logger.info("At least 95% of the expected packets were recieved")
         else:
-            logger.info("Less than 90% of the expected packets recieved")
+            logger.info("Less than 95% of the expected packets recieved")
+            # msg += "Less than 95% of the expected packets recieved"
+        display_msg(msg_text=msg, popup_type='info')
 
 
 class ExGPlot(BasePlots):
