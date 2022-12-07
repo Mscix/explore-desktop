@@ -73,12 +73,14 @@ WINDOW_SIZE = False
 logger = logging.getLogger("explorepy." + __name__)
 
 if sys.platform == "linux" or sys.platform == "linux2":
+    logger.debug("CWD: %s" % os.getcwd())
     dir_main = os.path.dirname(os.path.abspath(__file__))
     ICON_PATH = os.path.join(dir_main, "images", "MentalabLogo.ico")
+    logger.debug("Icon path: %s" % ICON_PATH)
 elif sys.platform == "win32":
     logger.debug("CWD: %s" % os.getcwd())
-    par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    ICON_PATH = os.path.join(par_dir, "MentalabLogo.ico")
+    ICON_PATH = os.path.join(os.getcwd(), "MentalabLogo.ico")
+    logger.debug("Icon path: %s" % ICON_PATH)
 
 
 class MainWindow(QMainWindow, BaseModel):
@@ -92,7 +94,6 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        logger.debug("Icon path: %s" % ICON_PATH)
         self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle('Explore Desktop')
 
