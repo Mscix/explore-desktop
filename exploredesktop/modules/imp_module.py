@@ -304,6 +304,11 @@ class ImpFrameView():
             self.disable_imp()
             return
 
+        if not self.explorer.is_measuring_imp and (self.explorer.is_recording or self.explorer.is_pushing_lsl):
+            response = display_msg(msg_text=Messages.IMP_NOISE, popup_type='question')
+            if response == QMessageBox.StandardButton.No:
+                return
+
         sr_ok = self.verify_s_rate()
         if not sr_ok:
             return
