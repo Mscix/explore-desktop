@@ -378,6 +378,8 @@ class MainWindow(QMainWindow, BaseModel):
 
         self.signals.recordStart.connect(self.exg_plot.model.set_packet_offset)
         self.signals.recordEnd.connect(self.exg_plot.model.log_n_packets)
+        self.signals.recordStart.connect(lambda: self.settings_frame.enable_settings(False))
+        self.signals.recordEnd.connect(self.settings_frame.enable_settings)
 
     def style_ui(self) -> None:
         """Initial style for UI

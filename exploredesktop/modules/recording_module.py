@@ -157,8 +157,8 @@ class RecordFunctions(BaseModel):
         self.explorer.stop_recording()
         # total_time = datetime.now() - self.t_start_record
         self.timer.stop()
-        self.signals.recordEnd.emit(total_time.total_seconds())
         self._update_button(start=False)
+        self.signals.recordEnd.emit(total_time.total_seconds())
         self.t_start_record = None
 
     def start_timer_recorder(self, duration: int) -> None:
