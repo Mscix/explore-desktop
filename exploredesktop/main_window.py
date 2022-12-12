@@ -50,7 +50,8 @@ from exploredesktop.modules.app_settings import (  # isort:skip
     ConnectionStatus,
     DataAttributes,
     EnvVariables,
-    Messages
+    Messages,
+    VisModes
 )
 from exploredesktop.modules.bt_module import BTFrameView  # isort:skip
 from exploredesktop.modules.exg_module import ExGPlot  # isort:skip
@@ -320,8 +321,30 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionMetadata_import.triggered.connect(self.settings_frame.import_settings)
         self.ui.actionMetadata_export.triggered.connect(self.settings_frame.export_settings)
         self.ui.actionConvert.triggered.connect(self.settings_frame.convert_bin)
+        self.ui.actionEEGLAB_Dataset.triggered.connect(self.export_eeglab_dataset)
+
+        # View actions
+        # self.ui.actionFull_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
+        # self.ui.actionScroll_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
         # TODO implement below
         # self.ui.actionLast_Session_Settings.triggered.connect(self.settings_frame.import_last_session_settings)
+
+        from PySide6.QtGui import QActionGroup
+        view_group = QActionGroup(self)
+        view_group.setExclusive(True)
+
+        actionFullView = view_group.addAction("Full View AG")
+        actionFullView.setCheckable(True)
+        actionScrollView = view_group.addAction("Scroll View AG")
+        actionScrollView.setCheckable(True)
+        actionScrollView.setChecked(True)
+
+        self.ui.menuVisualization.addActions(view_group.actions())
+
+        actionFullView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
+        actionFullView.triggered.connect(self._init_plots)
+        actionScrollView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
+        actionScrollView.triggered.connect(self._init_plots)
 
     def _init_plots(self) -> None:
         """Initialize plots"""
@@ -429,6 +452,18 @@ class MainWindow(QMainWindow, BaseModel):
         # Start with foucus on line edit for device name
         self.ui.dev_name_input.setFocus()
 
+        # hide eeglabexport from home
+        self.ui.label_6.setHidden(True)
+        self.ui.btn_generate_bdf.setHidden(True)
+        self.ui.btn_import_edf.setHidden(True)
+        self.ui.le_import_edf.setHidden(True)
+
+        # hide view menu at start
+        self.ui.menuVisualization.menuAction().setVisible(False)
+
+        # hide integration page button
+        self.ui.btn_integration.setHidden(True)
+
     def _verify_imp(self, btn_name: str) -> bool:
         """Verify if impedance measurement is active before moving to another page
 
@@ -500,6 +535,11 @@ class MainWindow(QMainWindow, BaseModel):
             self._move_to_settings()
 
         elif btn_name == "btn_plots":
+            if self.explorer.device_chan > 9:
+                self.ui.menuVisualization.menuAction().setVisible(True)
+            else:
+                self.ui.menuVisualization.menuAction().setVisible(False)
+
             filt = True
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
 
@@ -512,7 +552,6 @@ class MainWindow(QMainWindow, BaseModel):
                 self.highlight_main_menu_item("btn_settings")
                 return False
 
-            # if not self.is_streaming and filt:
             if not self.is_streaming and filt:
                 self._subscribe_callbacks()
                 # TODO
@@ -701,7 +740,11 @@ class MainWindow(QMainWindow, BaseModel):
     def export_eeglab_dataset(self):
         """Export eeglab dataset
         """
-        folder_name = self.ui.le_import_edf.text()
+        folder_name = self.select_edf_file()
+        print(f"{folder_name=}")
+        if folder_name in [False, '']:
+            return
+
         if not os.path.isdir(folder_name):
             display_msg("Directory does not exist. Please select an existing folder")
             return
@@ -754,7 +797,8 @@ class MainWindow(QMainWindow, BaseModel):
             "",
             QFileDialog.ShowDirsOnly)
 
-        self.ui.le_import_edf.setText(file_path)
+        return file_path
+        # self.ui.le_import_edf.setText(file_path)
 
     def changeEvent(self, event: PySide6.QtCore.QEvent) -> None:
         if event.type() == QEvent.WindowStateChange:
