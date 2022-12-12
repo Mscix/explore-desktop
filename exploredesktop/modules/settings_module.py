@@ -428,6 +428,9 @@ class SettingsFrameView(BaseModel):
 
         self.ui.label_warning_disabled.setHidden(enabled)
 
+        self.ui.table_settings.model().change_column_edit('enable', enabled)
+        self.ui.table_settings.model().change_column_edit('name', enabled)
+
     def multisignal_clicked(self) -> None:
         """Allow/Block selection of multiple signal types
         """
