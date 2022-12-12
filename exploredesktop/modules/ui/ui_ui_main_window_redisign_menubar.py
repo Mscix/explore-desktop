@@ -52,6 +52,12 @@ class Ui_MainWindow(object):
         self.actionExit.setObjectName(u"actionExit")
         self.actionLast_Session_Settings = QAction(MainWindow)
         self.actionLast_Session_Settings.setObjectName(u"actionLast_Session_Settings")
+        self.actionEEGLAB_Dataset = QAction(MainWindow)
+        self.actionEEGLAB_Dataset.setObjectName(u"actionEEGLAB_Dataset")
+        self.actionFull_View = QAction(MainWindow)
+        self.actionFull_View.setObjectName(u"actionFull_View")
+        self.actionScroll_View = QAction(MainWindow)
+        self.actionScroll_View.setObjectName(u"actionScroll_View")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
@@ -895,10 +901,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_33.setObjectName(u"horizontalLayout_33")
         self.btn_record = QPushButton(self.page_plotsNoWidget)
         self.btn_record.setObjectName(u"btn_record")
-        self.btn_record.setMinimumSize(QSize(100, 30))
+        self.btn_record.setMinimumSize(QSize(30, 30))
         self.btn_record.setCursor(QCursor(Qt.PointingHandCursor))
         icon8 = QIcon()
-        icon8.addFile(u":/icons/icons/cil-media-record.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon8.addFile(u":/icons/icons/record-button.png", QSize(), QIcon.Normal, QIcon.Off)
         self.btn_record.setIcon(icon8)
         self.btn_record.setIconSize(QSize(18, 18))
 
@@ -988,6 +994,18 @@ class Ui_MainWindow(object):
         self.btn_plot_filters.setIconSize(QSize(16, 12))
 
         self.horizontalLayout_32.addWidget(self.btn_plot_filters)
+
+        self.horizontalSpacer_10 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_32.addItem(self.horizontalSpacer_10)
+
+        self.btn_lsl = QPushButton(self.page_plotsNoWidget)
+        self.btn_lsl.setObjectName(u"btn_lsl")
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/icons/cil-media-play.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_lsl.setIcon(icon10)
+
+        self.horizontalLayout_32.addWidget(self.btn_lsl)
 
 
         self.verticalLayout_21.addLayout(self.horizontalLayout_32)
@@ -1252,9 +1270,9 @@ class Ui_MainWindow(object):
         self.imp_meas_info.setStyleSheet(u"background-color: transparent;\n"
 "border: none;\n"
 "color: #FFF;")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/pngfind.com-png-circle-1194554.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.imp_meas_info.setIcon(icon10)
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/icons/pngfind.com-png-circle-1194554.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.imp_meas_info.setIcon(icon11)
         self.imp_meas_info.setIconSize(QSize(20, 20))
 
         self.horizontalLayout_11.addWidget(self.imp_meas_info, 0, Qt.AlignHCenter|Qt.AlignVCenter)
@@ -1567,9 +1585,12 @@ class Ui_MainWindow(object):
         self.menuImport.setObjectName(u"menuImport")
         self.menuExport = QMenu(self.menuFile)
         self.menuExport.setObjectName(u"menuExport")
+        self.menuVisualization = QMenu(self.menuBar)
+        self.menuVisualization.setObjectName(u"menuVisualization")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
+        self.menuBar.addAction(self.menuVisualization.menuAction())
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.menuImport.menuAction())
         self.menuFile.addAction(self.menuExport.menuAction())
@@ -1581,10 +1602,13 @@ class Ui_MainWindow(object):
         self.menuImport.addAction(self.actionMetadata_import)
         self.menuImport.addAction(self.actionLast_Session_Settings)
         self.menuExport.addAction(self.actionMetadata_export)
+        self.menuExport.addAction(self.actionEEGLAB_Dataset)
+        self.menuVisualization.addAction(self.actionFull_View)
+        self.menuVisualization.addAction(self.actionScroll_View)
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(3)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -1606,6 +1630,9 @@ class Ui_MainWindow(object):
         self.actionConvert.setText(QCoreApplication.translate("MainWindow", u"Convert BIN", None))
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.actionLast_Session_Settings.setText(QCoreApplication.translate("MainWindow", u"Last Session Settings", None))
+        self.actionEEGLAB_Dataset.setText(QCoreApplication.translate("MainWindow", u"EEGLAB Dataset", None))
+        self.actionFull_View.setText(QCoreApplication.translate("MainWindow", u"Full View", None))
+        self.actionScroll_View.setText(QCoreApplication.translate("MainWindow", u"Scroll View", None))
         self.btn_left_menu_toggle.setText(QCoreApplication.translate("MainWindow", u"        Hide", None))
         self.btn_home.setText(QCoreApplication.translate("MainWindow", u"        Home", None))
         self.btn_bt.setText(QCoreApplication.translate("MainWindow", u"        Connect", None))
@@ -1646,13 +1673,14 @@ class Ui_MainWindow(object):
         self.btn_format_memory.setText(QCoreApplication.translate("MainWindow", u"Format Memory", None))
         self.btn_reset_settings.setText(QCoreApplication.translate("MainWindow", u"Reset Settings", None))
         self.btn_calibrate.setText(QCoreApplication.translate("MainWindow", u"Calibrate ORN", None))
-        self.btn_record.setText(QCoreApplication.translate("MainWindow", u" Record", None))
+        self.btn_record.setText("")
         self.label_recording_time.setText(QCoreApplication.translate("MainWindow", u"00:00:00", None))
         self.label_yAxis.setText(QCoreApplication.translate("MainWindow", u"Y-axis Scale", None))
         self.label_timeScale.setText(QCoreApplication.translate("MainWindow", u"Time window", None))
         self.value_event_code.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Event Code", None))
         self.btn_marker.setText(QCoreApplication.translate("MainWindow", u" Set Marker", None))
         self.btn_plot_filters.setText(QCoreApplication.translate("MainWindow", u"Filters", None))
+        self.btn_lsl.setText(QCoreApplication.translate("MainWindow", u"LSL", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.exg), QCoreApplication.translate("MainWindow", u"  ExG  ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.orn), QCoreApplication.translate("MainWindow", u"  Orientation  ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.fft), QCoreApplication.translate("MainWindow", u"  FFT  ", None))
@@ -1701,5 +1729,6 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuImport.setTitle(QCoreApplication.translate("MainWindow", u"Import", None))
         self.menuExport.setTitle(QCoreApplication.translate("MainWindow", u"Export", None))
+        self.menuVisualization.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
     # retranslateUi
 
