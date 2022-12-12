@@ -54,10 +54,6 @@ class Ui_MainWindow(object):
         self.actionLast_Session_Settings.setObjectName(u"actionLast_Session_Settings")
         self.actionEEGLAB_Dataset = QAction(MainWindow)
         self.actionEEGLAB_Dataset.setObjectName(u"actionEEGLAB_Dataset")
-        self.actionFull_View = QAction(MainWindow)
-        self.actionFull_View.setObjectName(u"actionFull_View")
-        self.actionScroll_View = QAction(MainWindow)
-        self.actionScroll_View.setObjectName(u"actionScroll_View")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
@@ -1603,12 +1599,10 @@ class Ui_MainWindow(object):
         self.menuImport.addAction(self.actionLast_Session_Settings)
         self.menuExport.addAction(self.actionMetadata_export)
         self.menuExport.addAction(self.actionEEGLAB_Dataset)
-        self.menuVisualization.addAction(self.actionFull_View)
-        self.menuVisualization.addAction(self.actionScroll_View)
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(6)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -1631,8 +1625,6 @@ class Ui_MainWindow(object):
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.actionLast_Session_Settings.setText(QCoreApplication.translate("MainWindow", u"Last Session Settings", None))
         self.actionEEGLAB_Dataset.setText(QCoreApplication.translate("MainWindow", u"EEGLAB Dataset", None))
-        self.actionFull_View.setText(QCoreApplication.translate("MainWindow", u"Full View", None))
-        self.actionScroll_View.setText(QCoreApplication.translate("MainWindow", u"Scroll View", None))
         self.btn_left_menu_toggle.setText(QCoreApplication.translate("MainWindow", u"        Hide", None))
         self.btn_home.setText(QCoreApplication.translate("MainWindow", u"        Home", None))
         self.btn_bt.setText(QCoreApplication.translate("MainWindow", u"        Connect", None))
