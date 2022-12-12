@@ -341,7 +341,11 @@ class BasePlots:
         """
         values, ticks = data
         for plt in self.plots_list:
-            plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
+            try:
+                plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
+            # AttributeError might happen closing the app (signal send but object already desctructed)
+            except AttributeError:
+                pass
 
     def _connection_vector(self, length, n_nans=10, id_th=None) -> np.array:
         """Create connection vector to connect old and new data with a gap
