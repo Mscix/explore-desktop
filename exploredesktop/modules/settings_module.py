@@ -561,7 +561,8 @@ class SettingsFrameView(BaseModel):
     def convert_bin(self):
         dialog = ConvertBinDialog()
         data = dialog.exec()
-        print(data)
+        if data is False:
+            return
         self.explorer.convert_bin(
             bin_file=data['bin_path'],
             out_dir=data['dst_folder'],
