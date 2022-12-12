@@ -279,6 +279,7 @@ class SettingsFrameView(BaseModel):
             changed = True
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
             self.explorer.settings.set_chan_names(self.ui.table_settings.model().get_list_names())
+            logger.info(f"Channel names changed: {self.ui.table_settings.model().get_list_names()}")
         return changed
 
     def change_active_channels(self) -> bool:
@@ -309,6 +310,7 @@ class SettingsFrameView(BaseModel):
             self.explorer.set_chan_mask(mask)
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
             self.update_modules()
+            logger.info(f"Active channels changed: {self.explorer.settings.settings_dict}")
 
         return changed
 
@@ -341,11 +343,12 @@ class SettingsFrameView(BaseModel):
         if int(current_sr) != new_sr:
             if self.filters.current_filters is not None:
                 self.filters.check_filters_sr(new_sr)
-
-            logger.info("Old Sampling rate: %s", self.explorer.sampling_rate)
+            print(f"{self.explorer.settings.settings_dict=}")
+            logger.info("\nOld Sampling rate: %s", self.explorer.sampling_rate)
             changed = self.explorer.set_sampling_rate(sampling_rate=new_sr)
-            logger.info("New Sampling rate: %s", self.explorer.sampling_rate)
-
+            self.explorer.settings.set_adc_mask(list(reversed(self.explorer.chan_mask)))
+            logger.info("\nNew Sampling rate: %s", self.explorer.sampling_rate)
+            print(f"{self.explorer.settings.settings_dict=}")
         return changed
 
     def check_settings_saved(self) -> bool:

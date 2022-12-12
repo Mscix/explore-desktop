@@ -155,7 +155,6 @@ class RecordFunctions(BaseModel):
         """
         total_time = datetime.now() - self.t_start_record
         self.explorer.stop_recording()
-        self.explorer.is_recording = False
         # total_time = datetime.now() - self.t_start_record
         self.timer.stop()
         self._update_button(start=False)

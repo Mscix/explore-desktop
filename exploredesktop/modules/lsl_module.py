@@ -52,7 +52,6 @@ class IntegrationFrameView(BaseModel):
     def stop_lsl_push(self) -> None:
         """Stop pushing to lsl"""
         self.explorer.stop_lsl()
-        self.explorer.is_pushing_lsl = False
         self.ui.btn_push_lsl.setText("Push")
 
     @Slot()
