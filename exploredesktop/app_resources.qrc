@@ -50,5 +50,9 @@
         <file>icons/cil-pin.png</file>
         <file>icons/cil-save.png</file>
         <file>icons/thermometer.png</file>
+        <file>icons/record-button.png</file>
+        <file>icons/cil-media-pause.png</file>
+        <file>icons/cil-media-play.png</file>
+        <file>icons/stop-button.png</file>
     </qresource>
 </RCC>

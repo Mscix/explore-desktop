@@ -96,11 +96,11 @@ class RecordFunctions(BaseModel):
             start (bool, optional): Whether recording is starting. Defaults to True.
         """
         if start:
-            self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-stop.png"))
-            self.ui.btn_record.setText("Stop")
+            self.ui.btn_record.setIcon(QIcon(u":icons/icons/stop-button.png"))
+            # self.ui.btn_record.setText("Stop")
         else:
-            self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-record.png"))
-            self.ui.btn_record.setText("Record")
+            self.ui.btn_record.setIcon(QIcon(u":icons/icons/record-button.png"))
+            # self.ui.btn_record.setText("Record")
             self.ui.label_recording_time.setText("00:00:00")
         QApplication.processEvents()
 
