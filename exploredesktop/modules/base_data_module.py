@@ -298,7 +298,6 @@ class BasePlots:
         """
         # Verify curves and chan dict have the same length, if not reset chan_dict
         chan_dict = self.model.explorer.get_chan_dict_list()
-
         if len(all_curves) != len(self.model.explorer.active_chan_list()):
             logger.debug(
                 "Number of plot curves doesn't match number of active channels. "
@@ -307,7 +306,7 @@ class BasePlots:
 
         active_curves = []
 
-        for curve, active_state in zip(all_curves, reversed([one_chan_dict['enable'] for one_chan_dict in chan_dict])):
+        for curve, active_state in zip(all_curves, [one_chan_dict['enable'] for one_chan_dict in chan_dict]):
             if active_state == 1:
                 plot_widget.addItem(curve)
                 active_curves.append(curve)
