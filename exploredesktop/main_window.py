@@ -461,9 +461,6 @@ class MainWindow(QMainWindow, BaseModel):
         # hide view menu at start
         self.ui.menuVisualization.menuAction().setVisible(False)
 
-        # hide integration page button
-        self.ui.btn_integration.setHidden(True)
-
     def _verify_imp(self, btn_name: str) -> bool:
         """Verify if impedance measurement is active before moving to another page
 
@@ -512,7 +509,7 @@ class MainWindow(QMainWindow, BaseModel):
         btn_page_map = {
             "btn_home": self.ui.page_home, "btn_bt": self.ui.page_bt,
             "btn_settings": self.ui.page_settings, "btn_plots": self.ui.page_plotsNoWidget,
-            "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
+            "btn_impedance": self.ui.page_impedance}
 
         # If not navigating to impedance, verify if imp mode is active
         imp_disabled = self._verify_imp(btn_name)
@@ -535,10 +532,11 @@ class MainWindow(QMainWindow, BaseModel):
             self._move_to_settings()
 
         elif btn_name == "btn_plots":
-            if self.explorer.device_chan > 9:
-                self.ui.menuVisualization.menuAction().setVisible(True)
-            else:
-                self.ui.menuVisualization.menuAction().setVisible(False)
+            # TODO Uncomment when scroll/full view is implemented
+            # if self.explorer.device_chan > 9:
+            #     self.ui.menuVisualization.menuAction().setVisible(True)
+            # else:
+            #     self.ui.menuVisualization.menuAction().setVisible(False)
 
             filt = True
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)

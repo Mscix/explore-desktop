@@ -424,29 +424,6 @@ QTabBar::tab{
                </property>
               </widget>
              </item>
-             <item>
-              <widget class="QPushButton" name="btn_integration">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>45</height>
-                </size>
-               </property>
-               <property name="cursor">
-                <cursorShape>PointingHandCursor</cursorShape>
-               </property>
-               <property name="styleSheet">
-                <string notr="true"/>
-               </property>
-               <property name="text">
-                <string>        Integration</string>
-               </property>
-               <property name="icon">
-                <iconset resource="../../app_resources.qrc">
-                 <normaloff>:/icons/icons/cil-share-boxed.png</normaloff>:/icons/icons/cil-share-boxed.png</iconset>
-               </property>
-              </widget>
-             </item>
             </layout>
            </widget>
           </item>
@@ -511,7 +488,7 @@ QTabBar::tab{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>6</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -809,53 +786,6 @@ QTabBar::tab{
                    <widget class="QLabel" name="label_9">
                     <property name="text">
                      <string>Measure and visualize the channel's impedance</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_10">
-                  <item>
-                   <widget class="QPushButton" name="btn_integration_2">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>45</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>60</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="cursor">
-                     <cursorShape>ArrowCursor</cursorShape>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true"/>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../../app_resources.qrc">
-                      <normaloff>:/icons/icons/cil-share-boxed.png</normaloff>
-                      <disabledon>:/icons/icons/cil-share-boxed.png</disabledon>:/icons/icons/cil-share-boxed.png</iconset>
-                    </property>
-                    <property name="flat">
-                     <bool>false</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item alignment="Qt::AlignVCenter">
-                   <widget class="QLabel" name="label_8">
-                    <property name="text">
-                     <string>Integrate with other platforms</string>
                     </property>
                    </widget>
                   </item>

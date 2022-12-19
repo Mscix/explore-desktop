@@ -444,7 +444,7 @@ class ExGData(DataContainer):
         percentage_recieved = percentage_recieved if percentage_recieved <= 100 else 100
         msg = (
             "Recording complete.\n\n"
-            f"{percentage_recieved}% of the expected packets recieved"
+            f"{percentage_recieved}% of the expected packets received"
             # f"Recorded packets: {n_packets}\n"
             # f"Estimated expected packets: {int(expected_packets)}\n"
         )

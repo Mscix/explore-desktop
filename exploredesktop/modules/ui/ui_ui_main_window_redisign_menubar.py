@@ -280,17 +280,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_30.addWidget(self.btn_impedance)
 
-        self.btn_integration = QPushButton(self.btns_left_menu)
-        self.btn_integration.setObjectName(u"btn_integration")
-        self.btn_integration.setMinimumSize(QSize(0, 45))
-        self.btn_integration.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_integration.setStyleSheet(u"")
-        icon6 = QIcon()
-        icon6.addFile(u":/icons/icons/cil-share-boxed.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_integration.setIcon(icon6)
-
-        self.verticalLayout_30.addWidget(self.btn_integration)
-
 
         self.verticalLayout_29.addWidget(self.btns_left_menu, 0, Qt.AlignTop)
 
@@ -454,31 +443,6 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_18.addLayout(self.horizontalLayout_42)
-
-        self.horizontalLayout_10 = QHBoxLayout()
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.btn_integration_2 = QPushButton(self.page_home)
-        self.btn_integration_2.setObjectName(u"btn_integration_2")
-        self.btn_integration_2.setEnabled(False)
-        self.btn_integration_2.setMinimumSize(QSize(0, 45))
-        self.btn_integration_2.setMaximumSize(QSize(60, 16777215))
-        self.btn_integration_2.setCursor(QCursor(Qt.ArrowCursor))
-        self.btn_integration_2.setStyleSheet(u"")
-        icon7 = QIcon()
-        icon7.addFile(u":/icons/icons/cil-share-boxed.png", QSize(), QIcon.Normal, QIcon.Off)
-        icon7.addFile(u":/icons/icons/cil-share-boxed.png", QSize(), QIcon.Disabled, QIcon.On)
-        self.btn_integration_2.setIcon(icon7)
-        self.btn_integration_2.setFlat(False)
-
-        self.horizontalLayout_10.addWidget(self.btn_integration_2)
-
-        self.label_8 = QLabel(self.page_home)
-        self.label_8.setObjectName(u"label_8")
-
-        self.horizontalLayout_10.addWidget(self.label_8, 0, Qt.AlignVCenter)
-
-
-        self.verticalLayout_18.addLayout(self.horizontalLayout_10)
 
 
         self.verticalLayout_7.addLayout(self.verticalLayout_18)
@@ -899,9 +863,9 @@ class Ui_MainWindow(object):
         self.btn_record.setObjectName(u"btn_record")
         self.btn_record.setMinimumSize(QSize(30, 30))
         self.btn_record.setCursor(QCursor(Qt.PointingHandCursor))
-        icon8 = QIcon()
-        icon8.addFile(u":/icons/icons/record-button.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_record.setIcon(icon8)
+        icon6 = QIcon()
+        icon6.addFile(u":/icons/icons/record-button.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_record.setIcon(icon6)
         self.btn_record.setIconSize(QSize(18, 18))
 
         self.horizontalLayout_33.addWidget(self.btn_record)
@@ -984,9 +948,9 @@ class Ui_MainWindow(object):
         self.btn_plot_filters.setObjectName(u"btn_plot_filters")
         self.btn_plot_filters.setMinimumSize(QSize(100, 30))
         self.btn_plot_filters.setCursor(QCursor(Qt.PointingHandCursor))
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/icons/cil-options.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_plot_filters.setIcon(icon9)
+        icon7 = QIcon()
+        icon7.addFile(u":/icons/icons/cil-options.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_plot_filters.setIcon(icon7)
         self.btn_plot_filters.setIconSize(QSize(16, 12))
 
         self.horizontalLayout_32.addWidget(self.btn_plot_filters)
@@ -997,9 +961,9 @@ class Ui_MainWindow(object):
 
         self.btn_lsl = QPushButton(self.page_plotsNoWidget)
         self.btn_lsl.setObjectName(u"btn_lsl")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/cil-media-play.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_lsl.setIcon(icon10)
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/icons/cil-media-play.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_lsl.setIcon(icon8)
 
         self.horizontalLayout_32.addWidget(self.btn_lsl)
 
@@ -1266,9 +1230,9 @@ class Ui_MainWindow(object):
         self.imp_meas_info.setStyleSheet(u"background-color: transparent;\n"
 "border: none;\n"
 "color: #FFF;")
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/pngfind.com-png-circle-1194554.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.imp_meas_info.setIcon(icon11)
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/icons/pngfind.com-png-circle-1194554.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.imp_meas_info.setIcon(icon9)
         self.imp_meas_info.setIconSize(QSize(20, 20))
 
         self.horizontalLayout_11.addWidget(self.imp_meas_info, 0, Qt.AlignHCenter|Qt.AlignVCenter)
@@ -1602,7 +1566,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(6)
+        self.stackedWidget.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -1631,7 +1595,6 @@ class Ui_MainWindow(object):
         self.btn_settings.setText(QCoreApplication.translate("MainWindow", u"        Settings", None))
         self.btn_plots.setText(QCoreApplication.translate("MainWindow", u"        Visualization", None))
         self.btn_impedance.setText(QCoreApplication.translate("MainWindow", u"        Impedance", None))
-        self.btn_integration.setText(QCoreApplication.translate("MainWindow", u"        Integration", None))
         self.home_title.setText(QCoreApplication.translate("MainWindow", u"Welcome to Mentalab's ExploreDesktop", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">HOW TO</span></p></body></html>", None))
         self.btn_bt_2.setText("")
@@ -1642,8 +1605,6 @@ class Ui_MainWindow(object):
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"Filter and visualize the ExG signal, its spectral analysis and the orientation data", None))
         self.btn_impedance_2.setText("")
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Measure and visualize the channel's impedance", None))
-        self.btn_integration_2.setText("")
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Integrate with other platforms", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">DATA SHARING PERMISSION</span></p></body></html>", None))
         self.cb_permission.setText(QCoreApplication.translate("MainWindow", u"Automatically send error logs to Mentalab", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">EXPORT EEGLAB DATASET</span></p></body></html>", None))
