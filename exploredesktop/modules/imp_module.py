@@ -98,14 +98,14 @@ class ImpedanceGraph(pg.GraphItem):
         for item in self.text_items:
             item.scene().removeItem(item)
 
-    @Slot(dict)
-    def on_new_data(self, data: dict) -> None:
+    @Slot(dict, int)
+    def on_new_data(self, data: dict, n_packet_update: int) -> None:
         """Fetch new incoming data and update the graph
 
         Args:
             data (dict): dict containing text, position, symbols and brush style
         """
-        if self.packet % 50 == 0:
+        if self.packet % n_packet_update == 0:
             texts = data["texts"]
             pos = data["pos"]
             brushes = data["brushes"]
@@ -195,7 +195,8 @@ class ImpModel(BaseModel):
             texts.append(f"{chan}\n{value}")
 
         data = {"texts": texts, "brushes": brushes, "pos": pos}
-        self.signals.impedanceChanged.emit(data)
+        n_packet_update = 75 if self.explorer.device_chan > 9 else 10
+        self.signals.impedanceChanged.emit(data, n_packet_update)
 
     @staticmethod
     def get_pos_lists(n_chan: int) -> Tuple[list, list]:
