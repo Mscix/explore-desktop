@@ -20,7 +20,8 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QItemDelegate,
     QMessageBox,
-    QStyledItemDelegate
+    QStyledItemDelegate,
+    QLineEdit
 )
 
 
@@ -483,6 +484,8 @@ class SettingsFrameView(BaseModel):
             "YAML (*.yaml)")
 
         file_path = file_path[0]
+        if file_path == "":
+            return
 
         if path != os.path.dirname(file_path):
             settings.setValue("last_settings_save_folder", os.path.dirname(file_path))
@@ -500,7 +503,8 @@ class SettingsFrameView(BaseModel):
         """Import settings
         """
         settings_dict = self._read_settings_file()
-
+        if settings_dict is None:
+            return
         if not self._verify_settings(settings_dict):
             return
 
@@ -556,6 +560,8 @@ class SettingsFrameView(BaseModel):
             "YAML (*.yaml)")
 
         file_path = file_path[0]
+        if file_path == "":
+            return None
 
         if path != os.path.dirname(file_path):
             settings.setValue("last_settings_import_folder", os.path.dirname(file_path))
@@ -640,6 +646,12 @@ class _ConfigItemDelegate(QStyledItemDelegate):
         if index.model().editorType(index.column()) == 'checkbox':
             return None
 
+        if index.model().editorType(index.column()) == 'limit_text':
+            editor = QLineEdit(parent)
+            max_char = 10
+            editor.setMaxLength(max_char)
+            return editor
+
         return QStyledItemDelegate.createEditor(self, parent, option, index)
 
     # pylint: disable=invalid-name
@@ -652,6 +664,10 @@ class _ConfigItemDelegate(QStyledItemDelegate):
             if i == -1:
                 i = 0
             editor.setCurrentIndex(i)
+
+        elif index.model().columns[index.column()]['editor'] == 'limit_text':
+            text = index.model().data(index, Qt.DisplayRole)
+            editor.setText(text)
         QStyledItemDelegate.setEditorData(self, editor, index)
 
     # pylint: disable=invalid-name
@@ -661,6 +677,8 @@ class _ConfigItemDelegate(QStyledItemDelegate):
         if model.columns[index.column()]['editor'] == 'combobox':
             model.setData(index, editor.currentText(), Qt.EditRole)
             # model.reset()
+        elif model.columns[index.column()]['editor'] == 'limit_text':
+            model.setData(index, editor.text(), Qt.EditRole)
         QStyledItemDelegate.setModelData(self, editor, model, index)
 
 
@@ -680,7 +698,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         self.columns = [
             {'property': 'input', 'header': 'Channel', 'edit': False, 'editor': 'default'},
             {'property': 'enable', 'header': 'Enable', 'edit': True, 'editor': 'checkbox'},
-            {'property': 'name', 'header': 'Name', 'edit': True, 'editor': 'default'},
+            {'property': 'name', 'header': 'Name', 'edit': True, 'editor': 'limit_text'},
             {'property': 'type', 'header': 'Type', 'edit': False, 'editor': 'combobox'},
         ]
 
@@ -716,7 +734,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
                 return QBrush("#fa5c62")
 
         if role == Qt.TextAlignmentRole:
-            return Qt.AlignHCenter
+            return int(Qt.AlignHCenter | Qt.AlignVCenter)
 
     def get_list_names(self) -> list:
         """Return list of custom names
