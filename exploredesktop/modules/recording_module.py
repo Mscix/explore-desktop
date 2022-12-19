@@ -145,7 +145,7 @@ class RecordFunctions(BaseModel):
             str: default file name
         """
         default_file_name = self.explorer.device_name
-        default_file_name += datetime.now().strftime("_%d%b%Y_%H%M")
+        default_file_name += datetime.now().strftime("_%d%b%Y_%H%M%S")
         dialog.ui.input_file_name.setPlaceholderText(default_file_name)
         return default_file_name
 
