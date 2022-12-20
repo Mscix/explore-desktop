@@ -166,6 +166,7 @@ class RecordingDialog(PathInputDialog):
         self.ui.rdbtn_csv.toggled.connect(self.validate_filepath)
         self.ui.rdbtn_edf.toggled.connect(self.validate_filepath)
         self.ui.input_filepath.textChanged.connect(self.validate_filepath)
+        self.ui.input_filepath.textChanged.connect(self.remove_special_chars_filepath)
         self.ui.input_file_name.textChanged.connect(self.validate_filepath)
 
         self.set_default_ui_values()
@@ -247,6 +248,15 @@ class RecordingDialog(PathInputDialog):
         """
         new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
         self.ui.input_file_name.setText(new_text)
+
+    def remove_special_chars_filepath(self, text: str) -> None:
+        """Remove special characters from input file name
+
+        Args:
+            text (str): input file name
+        """
+        new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
+        self.ui.input_filepath.setText(new_text)
 
     def _display_warning_file_exists(self) -> None:
         self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
