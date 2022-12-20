@@ -277,18 +277,18 @@ class SettingsFrameView(BaseModel):
 
         if chan_names_table != self.explorer.active_chan_list(custom_name=True):
             changed = True
-
             new_dict = [
                 {
                     "input": ch, "enable": active, "name": name, "type": sig_type
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST],
                     [d["enable"] for d in self.explorer.chan_dict_list],
-                    chan_names_table,
+                    self.ui.table_settings.model().get_list_names(full=True),
                     [d["type"] for d in self.explorer.chan_dict_list])
             ]
+
             self.explorer.set_chan_dict_list(new_dict)
-            self.explorer.settings.set_chan_names(self.ui.table_settings.model().get_list_names())
+            self.explorer.settings.set_chan_names(self.ui.table_settings.model().get_list_names(full=True))
 
             logger.info(f"Channel names changed: {self.ui.table_settings.model().get_list_names()}")
         return changed
@@ -621,7 +621,12 @@ class CheckBoxDelegate(QItemDelegate):
         """
         Paint a checkbox without the label.
         """
-        self.drawCheck(painter, option, option.rect, Qt.Unchecked if int(index.data()) == 0 else Qt.Checked)
+        value = int(index.data())
+        if value == 0:
+            value = Qt.Unchecked
+        else:
+            value = Qt.Checked
+        self.drawCheck(painter, option, option.rect, value)
 
     # pylint: disable=invalid-name
     def editorEvent(self, event, model, option, index):
@@ -755,9 +760,11 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         if role == Qt.TextAlignmentRole:
             return int(Qt.AlignHCenter | Qt.AlignVCenter)
 
-    def get_list_names(self) -> list:
+    def get_list_names(self, full=False) -> list:
         """Return list of custom names
         """
+        if full is True:
+            return [d["name"] for d in self.chan_data]
         return [d["name"] for d in self.chan_data if d["enable"]]
 
     def get_chan_mask(self) -> list:
