@@ -273,9 +273,9 @@ class SettingsFrameView(BaseModel):
             bool: _description_
         """
         changed = False
-        chan_names_table = self.ui.table_settings.model().get_list_names()
+        chan_names_table = self.ui.table_settings.model().get_list_names(full=True)
 
-        if chan_names_table != self.explorer.active_chan_list(custom_name=True):
+        if chan_names_table != self.explorer.full_chan_list(custom_name=True):
             changed = True
             new_dict = [
                 {
@@ -283,12 +283,12 @@ class SettingsFrameView(BaseModel):
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST],
                     [d["enable"] for d in self.explorer.chan_dict_list],
-                    self.ui.table_settings.model().get_list_names(full=True),
+                    chan_names_table,
                     [d["type"] for d in self.explorer.chan_dict_list])
             ]
 
             self.explorer.set_chan_dict_list(new_dict)
-            self.explorer.settings.set_chan_names(self.ui.table_settings.model().get_list_names(full=True))
+            self.explorer.settings.set_chan_names(chan_names_table)
 
             logger.info(f"Channel names changed: {self.ui.table_settings.model().get_list_names()}")
         return changed
