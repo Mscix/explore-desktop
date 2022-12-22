@@ -131,7 +131,10 @@ class ImpModel(BaseModel):
             str: stylesheet corresponding to input value
         """
         if self.mode == ImpModes.DRY:
-            return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+            if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
+                return Stylesheets.GRAY_IMPEDANCE_STYLESHEET
+            else:
+                return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
         rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
             imp_stylesheet = Stylesheets.GRAY_IMPEDANCE_STYLESHEET
