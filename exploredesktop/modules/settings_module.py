@@ -626,7 +626,6 @@ class CheckBoxDelegate(QItemDelegate):
             value = Qt.Unchecked
         else:
             value = Qt.Checked
-        print(f"option_rect = {option.rect}")
         self.drawCheck(painter, option, option.rect, value)
 
     # pylint: disable=invalid-name
