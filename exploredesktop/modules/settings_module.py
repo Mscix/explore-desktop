@@ -4,6 +4,7 @@ import os
 from copy import deepcopy
 
 import yaml
+from exploredesktop.modules.dialogs import ConvertBinDialog
 from PySide6.QtCore import (
     QAbstractTableModel,
     QEvent,
@@ -232,7 +233,6 @@ class SettingsFrameView(BaseModel):
             changed_sr = self.change_sampling_rate()
             changed_chan_names = self.change_channel_names()
 
-            print(f"{changed_chan_names=}")
             # Reset exg data and reapply filters
             self.signals.updateDataAttributes.emit([DataAttributes.DATA])
             if self.filters.current_filters is not None:
@@ -275,8 +275,6 @@ class SettingsFrameView(BaseModel):
         changed = False
         chan_names_table = self.ui.table_settings.model().get_list_names()
 
-        print(f"{self.explorer.active_chan_list(custom_name=True)=}")
-        print(f"{self.ui.table_settings.model().get_list_names()=}")
         if chan_names_table != self.explorer.active_chan_list(custom_name=True):
             changed = True
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
@@ -495,7 +493,7 @@ class SettingsFrameView(BaseModel):
     def import_settings(self):
         """Import settings
         """
-        settings_dict = self._open_settings_file()
+        settings_dict = self._read_settings_file()
 
         if not self._verify_settings(settings_dict):
             return
@@ -533,7 +531,7 @@ class SettingsFrameView(BaseModel):
 
         return settings_ok
 
-    def _open_settings_file(self) -> dict:
+    def _read_settings_file(self) -> dict:
         """Open settings yaml file
 
         Returns:
@@ -559,6 +557,18 @@ class SettingsFrameView(BaseModel):
         stream = open(file_path, 'r')
         settings_dict = yaml.load(stream, Loader=yaml.SafeLoader)
         return settings_dict
+
+    def convert_bin(self):
+        dialog = ConvertBinDialog()
+        data = dialog.exec()
+        print(data)
+        self.explorer.convert_bin(
+            bin_file=data['bin_path'],
+            out_dir=data['dst_folder'],
+            file_type=data['file_type'],
+            out_dir_is_full=True
+        )
+        display_msg("Conversion finished", popup_type="info")
 
 
 class CheckBoxDelegate(QItemDelegate):

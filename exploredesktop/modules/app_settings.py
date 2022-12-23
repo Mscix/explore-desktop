@@ -84,6 +84,12 @@ class PlotItems(BaseEnum):
     POINTS = ["points", "r_peak"]
 
 
+class QSettingsKeys(BaseEnum):
+    BIN_FOLDER = "last_bin_folder"
+    BIN_EXPORT = "last_bin_export"
+    RECORD_FOLDER = "last_record_folder"
+
+
 class Stylesheets():
     """
     Class containig stylesheets for GUI

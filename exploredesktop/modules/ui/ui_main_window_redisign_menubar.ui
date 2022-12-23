@@ -3281,13 +3281,14 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionCSV_data"/>
      <addaction name="actionEDF_data"/>
      <addaction name="actionBIN_data"/>
-     <addaction name="actionMetadata"/>
+     <addaction name="actionMetadata_import"/>
+     <addaction name="actionLast_Session_Settings"/>
     </widget>
     <widget class="QMenu" name="menuExport">
      <property name="title">
       <string>Export</string>
      </property>
-     <addaction name="actionMetadata_2"/>
+     <addaction name="actionMetadata_export"/>
     </widget>
     <addaction name="actionNew"/>
     <addaction name="menuImport"/>
@@ -3320,14 +3321,14 @@ p, li { white-space: pre-wrap; }
     <string>BIN data</string>
    </property>
   </action>
-  <action name="actionMetadata">
+  <action name="actionMetadata_import">
    <property name="text">
-    <string>Metadata</string>
+    <string>Device Settings</string>
    </property>
   </action>
-  <action name="actionMetadata_2">
+  <action name="actionMetadata_export">
    <property name="text">
-    <string>Metadata</string>
+    <string>Device Settings</string>
    </property>
   </action>
   <action name="actionConvert">
@@ -3338,6 +3339,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionLast_Session_Settings">
+   <property name="text">
+    <string>Last Session Settings</string>
    </property>
   </action>
  </widget>

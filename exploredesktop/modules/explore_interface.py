@@ -114,6 +114,8 @@ class ExploreInterface(Explore):
         self.set_chan_dict_list()
         self.settings.settings_dict[self.settings.channel_name_key] = [
             f"ch{i + 1}" for i in range(self.device_chan)]
+        if self.device_chan in [4, 8] and sum(self.stream_processor.device_info['adc_mask']) != self.device_chan:
+            self.set_channels("1" * self.device_chan)
 
         return True
 

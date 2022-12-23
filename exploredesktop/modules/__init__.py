@@ -15,6 +15,7 @@ from .imp_module import (
 )
 # GUI FILE
 from .ui import (
+    Ui_BinDialog,
     Ui_MainWindow,
     Ui_PlotDialog,
     Ui_RecordingDialog
@@ -23,4 +24,4 @@ from .ui import (
 
 __all__ = ["Ui_MainWindow", "Ui_PlotDialog", "Ui_RecordingDialog", "UIFunctions",
            "BaseModel", "ImpedanceGraph", "ImpModel", "ImpFrameView",
-           "Messages", "Stylesheets", "Settings", "GUISettings"]
+           "Messages", "Stylesheets", "Settings", "GUISettings", "Ui_BinDialog"]

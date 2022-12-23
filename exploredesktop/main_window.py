@@ -286,8 +286,9 @@ class MainWindow(QMainWindow, BaseModel):
         Args:
             enable (bool): whether to enable
         """
-        self.ui.actionMetadata.setEnabled(enable)
-        self.ui.actionMetadata_2.setEnabled(enable)
+        self.ui.actionMetadata_import.setEnabled(enable)
+        self.ui.actionMetadata_export.setEnabled(enable)
+        self.ui.actionLast_Session_Settings.setEnabled(enable)
 
     def _setup_menubar(self) -> None:
         """Setup menubar actions
@@ -304,13 +305,16 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionBIN_data.setVisible(False)
         self.ui.actionEDF_data.setVisible(False)
         self.ui.actionEDF_data.setVisible(False)
+        self.ui.actionLast_Session_Settings.setVisible(False)
 
         # Disable actions requiring connection with explorepy
         self._enable_menubar(False)
-
         # Metadata actions
-        self.ui.actionMetadata.triggered.connect(self.settings_frame.import_settings)
-        self.ui.actionMetadata_2.triggered.connect(self.settings_frame.export_settings)
+        self.ui.actionMetadata_import.triggered.connect(self.settings_frame.import_settings)
+        self.ui.actionMetadata_export.triggered.connect(self.settings_frame.export_settings)
+        self.ui.actionConvert.triggered.connect(self.settings_frame.convert_bin)
+        # TODO implement below
+        # self.ui.actionLast_Session_Settings.triggered.connect(self.settings_frame.import_last_session_settings)
 
     def _init_plots(self) -> None:
         """Initialize plots"""
