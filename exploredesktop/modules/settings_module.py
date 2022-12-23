@@ -1,17 +1,21 @@
 """Settings module"""
 import logging
+import os
 from copy import deepcopy
 
+import yaml
 from PySide6.QtCore import (
     QAbstractTableModel,
     QEvent,
     QModelIndex,
+    QSettings,
     Qt,
     Slot
 )
 from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QHeaderView,
     QItemDelegate,
     QMessageBox,
@@ -226,15 +230,18 @@ class SettingsFrameView(BaseModel):
 
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
+            changed_chan_names = self.change_channel_names()
 
+            print(f"{changed_chan_names=}")
             # Reset exg data and reapply filters
             self.signals.updateDataAttributes.emit([DataAttributes.DATA])
             if self.filters.current_filters is not None:
                 self.filters.apply_filters()
 
-        if changed_sr or changed_chan:
+        if changed_sr or changed_chan or changed_chan_names:
             self._display_new_settings()
             self.signals.restartPlot.emit()
+            self.signals.displayDefaultImp.emit()
 
     def _display_new_settings(self) -> None:
         """Display popup with new sampling rate and active channels
@@ -259,6 +266,23 @@ class SettingsFrameView(BaseModel):
     ###
     # Change settings functions
     ###
+    def change_channel_names(self) -> bool:
+        """Read table and change the channel names
+
+        Returns:
+            bool: _description_
+        """
+        changed = False
+        chan_names_table = self.ui.table_settings.model().get_list_names()
+
+        print(f"{self.explorer.active_chan_list(custom_name=True)=}")
+        print(f"{self.ui.table_settings.model().get_list_names()=}")
+        if chan_names_table != self.explorer.active_chan_list(custom_name=True):
+            changed = True
+            self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
+            self.explorer.settings.set_chan_names(self.ui.table_settings.model().get_list_names())
+        return changed
+
     def change_active_channels(self) -> bool:
         """
         Read selected checkboxes and set the channel mask of the device
@@ -271,23 +295,20 @@ class SettingsFrameView(BaseModel):
 
         active_chan = self.get_active_chan_ui()
         active_chan_int = [int(i) for i in active_chan]
-        chan_names_table = self.ui.table_settings.model().get_list_names()
         # verify at least one channel is selected
         n_active = sum(active_chan_int)
         if n_active == 0:
             display_msg(Messages.SELECT_1_CHAN)
             return
 
-        if (
-            active_chan_int != self.explorer.chan_mask
-        ) or (
-            chan_names_table != self.explorer.active_chan_list(custom_name=True)
-        ):
+        if (active_chan_int != self.explorer.chan_mask):
             # TODO decide how we handle (de)activation of channels for 4, 8 chan
             changed = True
             # mask = "".join(active_chan)
             # changed = self.explorer.set_channels(mask)
-            self.explorer.chan_mask = self.ui.table_settings.model().get_chan_mask()
+            # self.explorer.chan_mask = self.ui.table_settings.model().get_chan_mask()
+            mask = self.ui.table_settings.model().get_chan_mask()
+            self.explorer.set_chan_mask(mask)
             self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
             self.update_modules()
 
@@ -439,6 +460,105 @@ class SettingsFrameView(BaseModel):
             self.ui.table_settings.model().change_column_editor("name", "default")
 
         self.ui.table_settings.viewport().update()
+
+    # TODO create a class for menubar and move there
+    def export_settings(self):
+        """
+        Open a dialog to select folder to be saved
+        """
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = settings.value("last_settings_save_folder")
+        if not path:
+            path = os.path.expanduser("~")
+
+        dialog = QFileDialog()
+        file_path = dialog.getSaveFileName(
+            None,
+            "Save As",
+            os.path.join(path, "untitled.yaml"),
+            "YAML (*.yaml)")
+
+        file_path = file_path[0]
+
+        if path != os.path.dirname(file_path):
+            settings.setValue("last_settings_save_folder", os.path.dirname(file_path))
+
+        settings_to_export = self.explorer.settings.settings_dict.copy()
+        del settings_to_export["adc_mask"]
+        del settings_to_export["firmware_version"]
+        del settings_to_export["mac_address"]
+
+        with open(file_path, 'w+') as fp:
+            yaml.safe_dump(settings_to_export, fp, default_flow_style=False)
+            fp.close()
+
+    def import_settings(self):
+        """Import settings
+        """
+        settings_dict = self._open_settings_file()
+
+        if not self._verify_settings(settings_dict):
+            return
+
+        new_dict_list = [
+            {
+                'input': f'ch{idx + 1}', 'enable': val[0],
+                'name': val[1], 'type': 'EEG'}
+            for idx, val in enumerate(zip(settings_dict['software_mask'], settings_dict['channel_name']))]
+        self.ui.table_settings.setModel(ConfigTableModel(new_dict_list))
+        self.ui.value_sampling_rate.setCurrentText(str(int(settings_dict['sampling_rate'])))
+        self.change_settings()
+        self.explorer.chan_dict_list = new_dict_list
+
+    def _verify_settings(self, settings_dict: dict) -> bool:
+        """Check if imported settings can be applied to connected device
+
+        Args:
+            settings_dict (dict): dictionary of imported settings
+
+        Returns:
+            bool: whether imported settings are ok
+        """
+        settings_ok = True
+        if len(settings_dict['software_mask']) == self.explorer.device_chan:
+            return settings_ok
+
+        extra = len(settings_dict['software_mask']) - self.explorer.device_chan
+        if extra > 0:
+            blurb = "The file selected has too many channels for the current device"
+        elif extra < 0:
+            blurb = "The file selected is missing some channels"
+        display_msg(blurb, title="Invalid file")
+        settings_ok = False
+
+        return settings_ok
+
+    def _open_settings_file(self) -> dict:
+        """Open settings yaml file
+
+        Returns:
+            dict: dictionary with imported settings
+        """
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = settings.value("last_settings_import_folder")
+        if not path:
+            path = os.path.expanduser("~")
+
+        dialog = QFileDialog()
+        file_path = dialog.getOpenFileName(
+            None,
+            "Import",
+            path,
+            "YAML (*.yaml)")
+
+        file_path = file_path[0]
+
+        if path != os.path.dirname(file_path):
+            settings.setValue("last_settings_import_folder", os.path.dirname(file_path))
+
+        stream = open(file_path, 'r')
+        settings_dict = yaml.load(stream, Loader=yaml.SafeLoader)
+        return settings_dict
 
 
 class CheckBoxDelegate(QItemDelegate):

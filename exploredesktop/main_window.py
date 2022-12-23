@@ -7,7 +7,10 @@ from enum import Enum
 from typing import Union
 
 import PySide6
-from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
+# from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
+from exploredesktop.modules.ui.ui_ui_main_window_redisign_menubar import (
+    Ui_MainWindow
+)
 from explorepy.log_config import (
     read_config,
     write_config
@@ -23,7 +26,8 @@ from PySide6.QtCore import (
 from PySide6.QtGui import (
     QColor,
     QFont,
-    QIcon
+    QIcon,
+    QKeySequence
 )
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -168,6 +172,9 @@ class MainWindow(QMainWindow, BaseModel):
         # signal connections
         self.setup_signal_connections()
 
+        # MENUBAR
+        self._setup_menubar()
+
     #########################
     # UI Functions
     #########################
@@ -236,6 +243,7 @@ class MainWindow(QMainWindow, BaseModel):
         btn_connect_text = "Connect"
         btn_scan_enabled = True
         self.signals.pageChange.emit("btn_bt")
+        self._enable_menubar(False)
 
         self.stop_processes()
         self.reset_vars()
@@ -265,10 +273,44 @@ class MainWindow(QMainWindow, BaseModel):
         self.settings_frame.setup_settings_frame()
         # initialize visualization offsets
         self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.DATA])
+        # initialize menubar
+        self._enable_menubar(True)
 
         self._init_plots()
 
         return btn_connect_text, btn_scan_enabled
+
+    def _enable_menubar(self, enable: bool) -> None:
+        """Enable or disable menubar actions dependent on Explorepy connection
+
+        Args:
+            enable (bool): whether to enable
+        """
+        self.ui.actionMetadata.setEnabled(enable)
+        self.ui.actionMetadata_2.setEnabled(enable)
+
+    def _setup_menubar(self) -> None:
+        """Setup menubar actions
+        """
+        self.ui.actionNew.triggered.connect(lambda: print("new clicked"))
+        # Exit action
+        self.ui.actionExit.triggered.connect(self.close)
+        self.ui.actionExit.setShortcut(QKeySequence("Alt+F4"))
+
+        # Hide import actions
+        self.ui.actionCSV_data.setEnabled(False)
+        self.ui.actionCSV_data.setVisible(False)
+        self.ui.actionBIN_data.setVisible(False)
+        self.ui.actionBIN_data.setVisible(False)
+        self.ui.actionEDF_data.setVisible(False)
+        self.ui.actionEDF_data.setVisible(False)
+
+        # Disable actions requiring connection with explorepy
+        self._enable_menubar(False)
+
+        # Metadata actions
+        self.ui.actionMetadata.triggered.connect(self.settings_frame.import_settings)
+        self.ui.actionMetadata_2.triggered.connect(self.settings_frame.export_settings)
 
     def _init_plots(self) -> None:
         """Initialize plots"""
@@ -701,30 +743,6 @@ class MainWindow(QMainWindow, BaseModel):
     def changeEvent(self, event: PySide6.QtCore.QEvent) -> None:
         if event.type() == QEvent.WindowStateChange:
             self.resize_settings_table()
-
-            # if event.oldState() and Qt.WindowMinimized:
-            #     print("\nWindowMinimized")
-            #     print(f"{self.height()=}")
-            #     # print(f"{self.width()=}\n\n")
-            #     # print(self.ui.table_settings.height())
-            #     # self.ui.table_settings.setFixedHeight(400)
-            #     self.ui.table_settings.setFixedHeight(192)
-            #     # self.ui.table_settings.resize(self.ui.table_settings.width(), 192)
-            #     # self.ui.verticalSpacer_21.changeSize(20, 40)
-            #     self.ui.spacer_frame.setFixedHeight(30)
-            #     print(f"{self.ui.spacer_frame.size()=}")
-
-            # elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
-            #     print("\nWindowMaximized")
-            #     print(f"{self.height()=}")
-            #     # print(f"{self.width()=}\n\n")
-            #     # self.ui.table_settings.setFixedHeight(192)
-            #     if self.height() > 1000:
-            #         self.ui.table_settings.setFixedHeight(192 * 2)
-            #         # resize(self.ui.table_settings.width(), 192 * 2)
-            #         self.ui.spacer_frame.setFixedHeight(100)
-            #         print(f"{self.ui.spacer_frame.size()=}")
-
         return super().changeEvent(event)
 
     def resize_settings_table(self):
