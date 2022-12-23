@@ -19,9 +19,9 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QHeaderView,
     QItemDelegate,
+    QLineEdit,
     QMessageBox,
-    QStyledItemDelegate,
-    QLineEdit
+    QStyledItemDelegate
 )
 
 
