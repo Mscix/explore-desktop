@@ -315,6 +315,8 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionEDF_data.setVisible(False)
         self.ui.actionLast_Session_Settings.setVisible(False)
 
+        self.ui.actionNew.setVisible(False)
+
         # Disable actions requiring connection with explorepy
         self._enable_menubar(False)
         # Metadata actions
@@ -804,7 +806,6 @@ class MainWindow(QMainWindow, BaseModel):
         return super().changeEvent(event)
 
     def resize_settings_table(self):
-        print(f"{self.height()=}")
         if self.height() > 800:
             self.ui.table_settings.setFixedHeight(192 * 2)
             self.ui.spacer_frame.setFixedHeight(100)
