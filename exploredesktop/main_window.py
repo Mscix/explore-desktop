@@ -18,7 +18,6 @@ from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
     QPropertyAnimation,
-    Qt,
     QThreadPool
 )
 from PySide6.QtGui import (
@@ -701,12 +700,41 @@ class MainWindow(QMainWindow, BaseModel):
 
     def changeEvent(self, event: PySide6.QtCore.QEvent) -> None:
         if event.type() == QEvent.WindowStateChange:
-            if event.oldState() and Qt.WindowMinimized:
-                print("WindowMinimized")
-                # print(f"{self.height()=}")
-                # print(f"{self.width()=}\n\n")
-            elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
-                print("WindowMaximized")
-                # print(f"{self.height()=}")
-                # print(f"{self.width()=}\n\n")
+            self.resize_settings_table()
+
+            # if event.oldState() and Qt.WindowMinimized:
+            #     print("\nWindowMinimized")
+            #     print(f"{self.height()=}")
+            #     # print(f"{self.width()=}\n\n")
+            #     # print(self.ui.table_settings.height())
+            #     # self.ui.table_settings.setFixedHeight(400)
+            #     self.ui.table_settings.setFixedHeight(192)
+            #     # self.ui.table_settings.resize(self.ui.table_settings.width(), 192)
+            #     # self.ui.verticalSpacer_21.changeSize(20, 40)
+            #     self.ui.spacer_frame.setFixedHeight(30)
+            #     print(f"{self.ui.spacer_frame.size()=}")
+
+            # elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
+            #     print("\nWindowMaximized")
+            #     print(f"{self.height()=}")
+            #     # print(f"{self.width()=}\n\n")
+            #     # self.ui.table_settings.setFixedHeight(192)
+            #     if self.height() > 1000:
+            #         self.ui.table_settings.setFixedHeight(192 * 2)
+            #         # resize(self.ui.table_settings.width(), 192 * 2)
+            #         self.ui.spacer_frame.setFixedHeight(100)
+            #         print(f"{self.ui.spacer_frame.size()=}")
+
         return super().changeEvent(event)
+
+    def resize_settings_table(self):
+        if self.height() > 800:
+            self.ui.table_settings.setFixedHeight(192 * 2)
+            self.ui.spacer_frame.setFixedHeight(100)
+        else:
+            self.ui.table_settings.setFixedHeight(192)
+            self.ui.spacer_frame.setFixedHeight(30)
+
+    def resizeEvent(self, event: PySide6.QtGui.QResizeEvent) -> None:
+        self.resize_settings_table()
+        return super().resizeEvent(event)
