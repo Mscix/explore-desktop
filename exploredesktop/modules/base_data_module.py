@@ -298,7 +298,6 @@ class BasePlots:
         """
         # Verify curves and chan dict have the same length, if not reset chan_dict
         chan_dict = self.model.explorer.get_chan_dict_list()
-
         if len(all_curves) != len(self.model.explorer.active_chan_list()):
             logger.debug(
                 "Number of plot curves doesn't match number of active channels. "
@@ -307,7 +306,7 @@ class BasePlots:
 
         active_curves = []
 
-        for curve, active_state in zip(all_curves, reversed([one_chan_dict['enable'] for one_chan_dict in chan_dict])):
+        for curve, active_state in zip(all_curves, [one_chan_dict['enable'] for one_chan_dict in chan_dict]):
             if active_state == 1:
                 plot_widget.addItem(curve)
                 active_curves.append(curve)
@@ -341,7 +340,11 @@ class BasePlots:
         """
         values, ticks = data
         for plt in self.plots_list:
-            plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
+            try:
+                plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
+            # AttributeError might happen closing the app (signal send but object already desctructed)
+            except AttributeError:
+                pass
 
     def _connection_vector(self, length, n_nans=10, id_th=None) -> np.array:
         """Create connection vector to connect old and new data with a gap

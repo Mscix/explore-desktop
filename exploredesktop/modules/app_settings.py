@@ -66,6 +66,11 @@ class DataAttributes(BaseEnum):
     ORNPOINTER = auto()
 
 
+class VisModes(BaseEnum):
+    FULL = "full"
+    SCROLL = "scroll"
+
+
 class ExGModes(BaseEnum):
     """Enum for supported ExG modes"""
     EEG = "EEG"

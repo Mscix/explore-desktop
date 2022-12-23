@@ -45,7 +45,6 @@ class ImpedanceGraph(pg.GraphItem):
         n_chan = self.model.explorer.device_chan
         x_pos, y_pos = self.model.get_pos_lists(n_chan)
         pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
-        # TODO: show all channels, gray if disabled?
         texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
@@ -99,14 +98,14 @@ class ImpedanceGraph(pg.GraphItem):
         for item in self.text_items:
             item.scene().removeItem(item)
 
-    @Slot(dict)
-    def on_new_data(self, data: dict) -> None:
+    @Slot(dict, int)
+    def on_new_data(self, data: dict, n_packet_update: int) -> None:
         """Fetch new incoming data and update the graph
 
         Args:
             data (dict): dict containing text, position, symbols and brush style
         """
-        if self.packet % 75 == 0:
+        if self.packet % n_packet_update == 0:
             texts = data["texts"]
             pos = data["pos"]
             brushes = data["brushes"]
@@ -132,7 +131,10 @@ class ImpModel(BaseModel):
             str: stylesheet corresponding to input value
         """
         if self.mode == ImpModes.DRY:
-            return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+            if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
+                return Stylesheets.GRAY_IMPEDANCE_STYLESHEET
+            else:
+                return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
         rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
             imp_stylesheet = Stylesheets.GRAY_IMPEDANCE_STYLESHEET
@@ -196,7 +198,8 @@ class ImpModel(BaseModel):
             texts.append(f"{chan}\n{value}")
 
         data = {"texts": texts, "brushes": brushes, "pos": pos}
-        self.signals.impedanceChanged.emit(data)
+        n_packet_update = 75 if self.explorer.device_chan > 9 else 10
+        self.signals.impedanceChanged.emit(data, n_packet_update)
 
     @staticmethod
     def get_pos_lists(n_chan: int) -> Tuple[list, list]:
@@ -303,6 +306,11 @@ class ImpFrameView():
         if self.explorer.is_measuring_imp:
             self.disable_imp()
             return
+
+        if not self.explorer.is_measuring_imp and (self.explorer.is_recording or self.explorer.is_pushing_lsl):
+            response = display_msg(msg_text=Messages.IMP_NOISE, popup_type='question')
+            if response == QMessageBox.StandardButton.No:
+                return
 
         sr_ok = self.verify_s_rate()
         if not sr_ok:

@@ -21,7 +21,7 @@ class SignalsContainer(QObject):
     """Class containig signals used in the GUI
     """
     # Impedance related signals
-    impedanceChanged = Signal(dict)
+    impedanceChanged = Signal(dict, int)
     btnImpMeasureChanged = Signal(str)
     displayDefaultImp = Signal()
 
@@ -70,6 +70,9 @@ class SignalsContainer(QObject):
     plotRR = Signal(list)
 
     dataSettingsChanged = Signal(QModelIndex)
+
+    recordStart = Signal()
+    recordEnd = Signal(float)
 
 
 class BaseModel(object):

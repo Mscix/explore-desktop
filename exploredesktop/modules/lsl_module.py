@@ -6,6 +6,7 @@ from PySide6.QtCore import (
     QTimer,
     Slot
 )
+from PySide6.QtGui import QIcon
 
 
 from exploredesktop.modules.base_model import BaseModel  # isort:skip
@@ -21,7 +22,7 @@ class IntegrationFrameView(BaseModel):
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
-        self.ui.btn_push_lsl.clicked.connect(self.on_push_clicked)
+        self.ui.btn_lsl.clicked.connect(self.on_push_clicked)
         self.ui.cb_lsl_duration.stateChanged.connect(self.enable_lsl_duration)
 
     @Slot()
@@ -46,13 +47,13 @@ class IntegrationFrameView(BaseModel):
         """
         duration = 3600 if duration is None else duration
         self.explorer.push2lsl(duration, block=False)
-        self.ui.btn_push_lsl.setText("Stop")
+        self.ui.btn_lsl.setIcon(QIcon(u":icons/icons/cil-media-pause.png"))
         self.start_timer(duration)
 
     def stop_lsl_push(self) -> None:
         """Stop pushing to lsl"""
         self.explorer.stop_lsl()
-        self.ui.btn_push_lsl.setText("Push")
+        self.ui.btn_lsl.setIcon(QIcon(u":icons/icons/cil-media-play.png"))
 
     @Slot()
     def enable_lsl_duration(self) -> None:

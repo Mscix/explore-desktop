@@ -33,6 +33,7 @@ class RecordFunctions(BaseModel):
         super().__init__()
         self.ui = ui
         self.timer = QTimer()
+        self.t_start_record = None
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
@@ -71,7 +72,8 @@ class RecordFunctions(BaseModel):
         )
 
         self.start_timer_recorder(duration=record_duration)
-
+        self.signals.recordStart.emit()
+        self.t_start_record = datetime.now()
         self._update_button()
 
     def get_dialog_data(self) -> Tuple[str, str, Union[bool, dict]]:
@@ -94,11 +96,11 @@ class RecordFunctions(BaseModel):
             start (bool, optional): Whether recording is starting. Defaults to True.
         """
         if start:
-            self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-stop.png"))
-            self.ui.btn_record.setText("Stop")
+            self.ui.btn_record.setIcon(QIcon(u":icons/icons/stop-button.png"))
+            # self.ui.btn_record.setText("Stop")
         else:
-            self.ui.btn_record.setIcon(QIcon(u":icons/icons/cil-media-record.png"))
-            self.ui.btn_record.setText("Record")
+            self.ui.btn_record.setIcon(QIcon(u":icons/icons/record-button.png"))
+            # self.ui.btn_record.setText("Record")
             self.ui.label_recording_time.setText("00:00:00")
         QApplication.processEvents()
 
@@ -143,7 +145,7 @@ class RecordFunctions(BaseModel):
             str: default file name
         """
         default_file_name = self.explorer.device_name
-        default_file_name += datetime.now().strftime("_%d%b%Y_%H%M")
+        default_file_name += datetime.now().strftime("_%d%b%Y_%H%M%S")
         dialog.ui.input_file_name.setPlaceholderText(default_file_name)
         return default_file_name
 
@@ -151,9 +153,13 @@ class RecordFunctions(BaseModel):
         """
         Stop recording
         """
+        total_time = datetime.now() - self.t_start_record
         self.explorer.stop_recording()
+        # total_time = datetime.now() - self.t_start_record
         self.timer.stop()
         self._update_button(start=False)
+        self.signals.recordEnd.emit(total_time.total_seconds())
+        self.t_start_record = None
 
     def start_timer_recorder(self, duration: int) -> None:
         """Start timer to display recording time

@@ -102,7 +102,6 @@ class PathInputDialog(CustomDialog):
         """Validate selected path by checking if it already exists and warning the user
         """
         file_path = self.get_file_path()
-        print(f"{file_path=}")
         if os.path.isfile(file_path):
             self._display_warning_file_exists()
             self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
@@ -167,6 +166,7 @@ class RecordingDialog(PathInputDialog):
         self.ui.rdbtn_csv.toggled.connect(self.validate_filepath)
         self.ui.rdbtn_edf.toggled.connect(self.validate_filepath)
         self.ui.input_filepath.textChanged.connect(self.validate_filepath)
+        self.ui.input_filepath.textChanged.connect(self.remove_special_chars_filepath)
         self.ui.input_file_name.textChanged.connect(self.validate_filepath)
 
         self.set_default_ui_values()
@@ -212,7 +212,7 @@ class RecordingDialog(PathInputDialog):
         """
         Open a dialog to select file name to be saved
         """
-        key = QSettingsKeys.RECORD_FOLDER
+        key = QSettingsKeys.RECORD_FOLDER.value
         settings = QSettings("Mentalab", "ExploreDesktop")
         path = get_path_settings(settings, key)
 
@@ -248,6 +248,15 @@ class RecordingDialog(PathInputDialog):
         """
         new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
         self.ui.input_file_name.setText(new_text)
+
+    def remove_special_chars_filepath(self, text: str) -> None:
+        """Remove special characters from input file name
+
+        Args:
+            text (str): input file name
+        """
+        new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
+        self.ui.input_filepath.setText(new_text)
 
     def _display_warning_file_exists(self) -> None:
         self.ui.input_file_name.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
@@ -605,6 +614,7 @@ if __name__ == "__main__":
 
     from PySide6.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    dial = ConvertBinDialog()
+    dial = RecordingDialog()
+    # dial = ConvertBinDialog()
     data = dial.exec()
     print(data)

@@ -18,7 +18,8 @@ from exploredesktop.modules.app_settings import (  # isort:skip
     ExGModes,
     Messages,
     Settings,
-    Stylesheets
+    Stylesheets,
+    VisModes
 )
 from exploredesktop.modules.base_data_module import (  # isort:skip
     BasePlots,
@@ -29,7 +30,7 @@ from exploredesktop.modules.utils import _remove_old_plot_item, display_msg   # 
 
 logger = logging.getLogger("explorepy." + __name__)
 
-visualization_option = 7
+visualization_option = 5
 # 1: 9 channels with scroll and lines for min/max. Offsetts are 1
 # 2: 19 channels with scroll and line for central channel. Offsets are 0.5
 # 3: 19 channels with scroll and line for min/max. Offsets are 0.5
@@ -63,6 +64,7 @@ class ExGData(DataContainer):
         self.rr_warning_displayed = False
 
         self.mode = ExGModes.EEG
+        self.vis_mode = VisModes.SCROLL
 
     def reset_vars(self) -> None:
         """Reset class variables"""
@@ -122,9 +124,11 @@ class ExGData(DataContainer):
 
             n_chan = self.explorer.n_active_chan
             # pyqtgraph starts plotting at the bottom, we want to add ch at the top of the plot -> reversed
-            if visualization_option in [2, 3, 4, 5, 6]:
+            # if visualization_option in [2, 3, 4, 5, 6]:
+            if self.vis_mode == VisModes.FULL:
                 self.offsets = [i for i in reversed(np.arange(0.5, (n_chan + 1) / 2, 0.5)[:, np.newaxis].astype(float))]
-            elif visualization_option in [1, 7]:
+            # elif visualization_option in [1, 7]:
+            elif self.vis_mode == VisModes.SCROLL:
                 self.offsets = [i for i in reversed(np.arange(1, n_chan + 1)[:, np.newaxis].astype(float))]
 
         if DataAttributes.BASELINE in attributes:
@@ -418,6 +422,45 @@ class ExGData(DataContainer):
 
         return peaks_dict, to_remove
 
+    @Slot()
+    def set_packet_offset(self):
+        self.packet_offset = self.packet_count
+
+    @Slot(float)
+    def log_n_packets(self, rec_time):
+        n_packets = self.packet_count - self.packet_offset
+        if self.explorer.device_chan == 4:
+            sample_per_packet = 33
+        elif self.explorer.device_chan == 8:
+            sample_per_packet = 16
+        elif self.explorer.device_chan == 32:
+            sample_per_packet = 4
+
+        expected_packets = rec_time * self.explorer.sampling_rate / sample_per_packet
+        logger.info("Total number of packets in recording (%f): %i" % (rec_time, n_packets))
+        logger.info("Expected number of packets in recording (%f): %i" % (rec_time, expected_packets))
+
+        percentage_recieved = round(n_packets / expected_packets) * 100
+        percentage_recieved = percentage_recieved if percentage_recieved <= 100 else 100
+        msg = (
+            "Recording complete.\n\n"
+            f"{percentage_recieved}% of the expected packets received"
+            # f"Recorded packets: {n_packets}\n"
+            # f"Estimated expected packets: {int(expected_packets)}\n"
+        )
+        if expected_packets * 0.95 < n_packets < expected_packets * 1.05:
+            # msg += "At least 95% of the expected packets recieved"
+            logger.info("At least 95% of the expected packets were recieved")
+        else:
+            logger.info("Less than 95% of the expected packets recieved")
+            # msg += "Less than 95% of the expected packets recieved"
+        display_msg(msg_text=msg, popup_type='info')
+
+    def change_vis_mode(self, mode):
+        print(f"new mode: {mode}")
+        self.vis_mode = mode
+        self.update_attributes([DataAttributes.OFFSETS])
+
 
 class ExGPlot(BasePlots):
     """_summary_
@@ -435,15 +478,6 @@ class ExGPlot(BasePlots):
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
-        # TODO maximum must depend of number of active channels
-        # TODO if chan 8 or less hide scroll bar
-        # both above move to on_connect function (??)
-        if visualization_option in [1, 7]:
-            self.ui.verticalScrollBar.setMinimum(1)
-            self.ui.verticalScrollBar.setMaximum(25)
-        else:
-            self.ui.verticalScrollBar.setMinimum(18)
-            self.ui.verticalScrollBar.setMaximum(26)
 
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
@@ -454,12 +488,22 @@ class ExGPlot(BasePlots):
         # self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
         self.ui.verticalScrollBar.valueChanged.connect(self.scroll)
 
+    def setup_scrollbar(self):
+        """Add maximum and minimum to explorepy
+        """
+        # if visualization_option in [1, 7]:
+        if self.model.vis_mode == VisModes.SCROLL:
+            self.ui.verticalScrollBar.setMinimum(1)
+            self.ui.verticalScrollBar.setMaximum(25)
+        else:
+            self.ui.verticalScrollBar.setMinimum(18)
+            self.ui.verticalScrollBar.setMaximum(26)
+
     def scroll(self):
         """Change the plot range when useing scrollbar
         """
         value = self.ui.verticalScrollBar.value()
         n_chan = self.model.explorer.n_active_chan
-        # if visualization_option in [1]
         up_lim = (2 - value) + n_chan
         low_lim = up_lim - 9
         self.ui.plot_exg.setYRange(low_lim, up_lim)
@@ -514,8 +558,12 @@ class ExGPlot(BasePlots):
             pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
         self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
 
-        if visualization_option in [4, 5] or self.model.explorer.device_chan < 9:
+        self.setup_scrollbar()
+        # if visualization_option in [4, 5] or self.model.explorer.device_chan < 9:
+        if self.model.vis_mode == VisModes.FULL or self.model.explorer.device_chan < 9:
             self.ui.verticalScrollBar.setHidden(True)
+        else:
+            self.ui.verticalScrollBar.setHidden(False)
 
     def _setup_plot_range(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
@@ -525,14 +573,14 @@ class ExGPlot(BasePlots):
 
         if self.model.explorer.device_chan < 9:
             y_range = (-0.5, n_chan + 1)
-        elif visualization_option in [2, 3, 6]:
+        # elif visualization_option in [2, 3, 6, 7]:
+        elif self.model.vis_mode == VisModes.SCROLL:
             up_lim = (2 - value) + n_chan + 0.5
             y_range = (up_lim - 9, up_lim)
-        elif visualization_option in [1, 7]:
-            y_range = (23, 33)
         else:
-            y_range = (0, 16)
+            y_range = (0, 32)
 
+        print(f"{y_range=}")
         plot_wdgt.setRange(
             yRange=y_range,
             xRange=(0, int(timescale)), padding=0.01)
@@ -561,13 +609,12 @@ class ExGPlot(BasePlots):
         Add upper and lower lines delimiting the channels in exg plot
         """
         active_chan = self.model.explorer.active_chan_list()
-        # ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
-        # ticks_right += [(0.5, '')]
-        # ticks_right = []
+
         if visualization_option == 1:
             ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
             ticks_right += [(0.5, '')]
-        elif visualization_option in [2, 4, 6, 7]:
+        # elif visualization_option in [2, 4, 6, 7]:
+        elif self.model.vis_mode in [VisModes.FULL, VisModes.SCROLL]:
             ticks_right = []
         elif visualization_option in [3, 5]:
             ticks_right = [(i, '') for i in np.arange(0.25, 17, 0.5)]
@@ -586,7 +633,8 @@ class ExGPlot(BasePlots):
                     idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
                 ) for idx, ch in enumerate(reversed(active_chan))]
 
-        elif visualization_option in [7]:
+        # elif visualization_option in [7]:
+        elif self.model.vis_mode in [VisModes.SCROLL]:
             ticks = [
                 (
                     idx + 1, f'{ch}'

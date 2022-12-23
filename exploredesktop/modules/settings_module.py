@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QHeaderView,
     QItemDelegate,
+    QLineEdit,
     QMessageBox,
     QStyledItemDelegate
 )
@@ -232,7 +233,6 @@ class SettingsFrameView(BaseModel):
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
             changed_chan_names = self.change_channel_names()
-
             # Reset exg data and reapply filters
             self.signals.updateDataAttributes.emit([DataAttributes.DATA])
             if self.filters.current_filters is not None:
@@ -273,12 +273,24 @@ class SettingsFrameView(BaseModel):
             bool: _description_
         """
         changed = False
-        chan_names_table = self.ui.table_settings.model().get_list_names()
+        chan_names_table = self.ui.table_settings.model().get_list_names(full=True)
 
-        if chan_names_table != self.explorer.active_chan_list(custom_name=True):
+        if chan_names_table != self.explorer.full_chan_list(custom_name=True):
             changed = True
-            self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
-            self.explorer.settings.set_chan_names(self.ui.table_settings.model().get_list_names())
+            new_dict = [
+                {
+                    "input": ch, "enable": active, "name": name, "type": sig_type
+                } for ch, active, name, sig_type in zip(
+                    [c.lower() for c in Settings.CHAN_LIST],
+                    [d["enable"] for d in self.explorer.chan_dict_list],
+                    chan_names_table,
+                    [d["type"] for d in self.explorer.chan_dict_list])
+            ]
+
+            self.explorer.set_chan_dict_list(new_dict)
+            self.explorer.settings.set_chan_names(chan_names_table)
+
+            logger.info(f"Channel names changed: {self.ui.table_settings.model().get_list_names()}")
         return changed
 
     def change_active_channels(self) -> bool:
@@ -307,8 +319,20 @@ class SettingsFrameView(BaseModel):
             # self.explorer.chan_mask = self.ui.table_settings.model().get_chan_mask()
             mask = self.ui.table_settings.model().get_chan_mask()
             self.explorer.set_chan_mask(mask)
-            self.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
+
+            new_dict = [
+                {
+                    "input": ch, "enable": active, "name": name, "type": sig_type
+                } for ch, active, name, sig_type in zip(
+                    [c.lower() for c in Settings.CHAN_LIST],
+                    mask,
+                    [d["name"] for d in self.explorer.chan_dict_list],
+                    [d["type"] for d in self.explorer.chan_dict_list])
+            ]
+
+            self.explorer.set_chan_dict_list(new_dict)
             self.update_modules()
+            logger.info(f"Active channels changed: {self.explorer.settings.settings_dict}")
 
         return changed
 
@@ -341,11 +365,10 @@ class SettingsFrameView(BaseModel):
         if int(current_sr) != new_sr:
             if self.filters.current_filters is not None:
                 self.filters.check_filters_sr(new_sr)
-
-            logger.info("Old Sampling rate: %s", self.explorer.sampling_rate)
+            logger.info("\nOld Sampling rate: %s", self.explorer.sampling_rate)
             changed = self.explorer.set_sampling_rate(sampling_rate=new_sr)
-            logger.info("New Sampling rate: %s", self.explorer.sampling_rate)
-
+            self.explorer.settings.set_adc_mask(list(reversed(self.explorer.chan_mask)))
+            logger.info("\nNew Sampling rate: %s", self.explorer.sampling_rate)
         return changed
 
     def check_settings_saved(self) -> bool:
@@ -428,6 +451,9 @@ class SettingsFrameView(BaseModel):
 
         self.ui.label_warning_disabled.setHidden(enabled)
 
+        self.ui.table_settings.model().change_column_edit('enable', enabled)
+        self.ui.table_settings.model().change_column_edit('name', enabled)
+
     def multisignal_clicked(self) -> None:
         """Allow/Block selection of multiple signal types
         """
@@ -477,6 +503,8 @@ class SettingsFrameView(BaseModel):
             "YAML (*.yaml)")
 
         file_path = file_path[0]
+        if file_path == "":
+            return
 
         if path != os.path.dirname(file_path):
             settings.setValue("last_settings_save_folder", os.path.dirname(file_path))
@@ -494,7 +522,8 @@ class SettingsFrameView(BaseModel):
         """Import settings
         """
         settings_dict = self._read_settings_file()
-
+        if settings_dict is None:
+            return
         if not self._verify_settings(settings_dict):
             return
 
@@ -550,6 +579,8 @@ class SettingsFrameView(BaseModel):
             "YAML (*.yaml)")
 
         file_path = file_path[0]
+        if file_path == "":
+            return None
 
         if path != os.path.dirname(file_path):
             settings.setValue("last_settings_import_folder", os.path.dirname(file_path))
@@ -561,7 +592,8 @@ class SettingsFrameView(BaseModel):
     def convert_bin(self):
         dialog = ConvertBinDialog()
         data = dialog.exec()
-        print(data)
+        if data is False:
+            return
         self.explorer.convert_bin(
             bin_file=data['bin_path'],
             out_dir=data['dst_folder'],
@@ -589,7 +621,12 @@ class CheckBoxDelegate(QItemDelegate):
         """
         Paint a checkbox without the label.
         """
-        self.drawCheck(painter, option, option.rect, Qt.Unchecked if int(index.data()) == 0 else Qt.Checked)
+        value = int(index.data())
+        if value == 0:
+            value = Qt.Unchecked
+        else:
+            value = Qt.Checked
+        self.drawCheck(painter, option, option.rect, value)
 
     # pylint: disable=invalid-name
     def editorEvent(self, event, model, option, index):
@@ -633,6 +670,12 @@ class _ConfigItemDelegate(QStyledItemDelegate):
         if index.model().editorType(index.column()) == 'checkbox':
             return None
 
+        if index.model().editorType(index.column()) == 'limit_text':
+            editor = QLineEdit(parent)
+            max_char = 10
+            editor.setMaxLength(max_char)
+            return editor
+
         return QStyledItemDelegate.createEditor(self, parent, option, index)
 
     # pylint: disable=invalid-name
@@ -645,6 +688,10 @@ class _ConfigItemDelegate(QStyledItemDelegate):
             if i == -1:
                 i = 0
             editor.setCurrentIndex(i)
+
+        elif index.model().columns[index.column()]['editor'] == 'limit_text':
+            text = index.model().data(index, Qt.DisplayRole)
+            editor.setText(text)
         QStyledItemDelegate.setEditorData(self, editor, index)
 
     # pylint: disable=invalid-name
@@ -654,6 +701,8 @@ class _ConfigItemDelegate(QStyledItemDelegate):
         if model.columns[index.column()]['editor'] == 'combobox':
             model.setData(index, editor.currentText(), Qt.EditRole)
             # model.reset()
+        elif model.columns[index.column()]['editor'] == 'limit_text':
+            model.setData(index, editor.text(), Qt.EditRole)
         QStyledItemDelegate.setModelData(self, editor, model, index)
 
 
@@ -673,7 +722,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         self.columns = [
             {'property': 'input', 'header': 'Channel', 'edit': False, 'editor': 'default'},
             {'property': 'enable', 'header': 'Enable', 'edit': True, 'editor': 'checkbox'},
-            {'property': 'name', 'header': 'Name', 'edit': True, 'editor': 'default'},
+            {'property': 'name', 'header': 'Name', 'edit': True, 'editor': 'limit_text'},
             {'property': 'type', 'header': 'Type', 'edit': False, 'editor': 'combobox'},
         ]
 
@@ -709,11 +758,13 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
                 return QBrush("#fa5c62")
 
         if role == Qt.TextAlignmentRole:
-            return Qt.AlignHCenter
+            return int(Qt.AlignHCenter | Qt.AlignVCenter)
 
-    def get_list_names(self) -> list:
+    def get_list_names(self, full=False) -> list:
         """Return list of custom names
         """
+        if full is True:
+            return [d["name"] for d in self.chan_data]
         return [d["name"] for d in self.chan_data if d["enable"]]
 
     def get_chan_mask(self) -> list:
