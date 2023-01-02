@@ -37,6 +37,7 @@ class BTFrameView(BaseModel):
         self.ui.dev_name_input.returnPressed.connect(self.connect_clicked)
         self.ui.dev_name_input.textChanged.connect(self.auto_capital)
         self.ui.btn_scan.clicked.connect(self.scan_clicked)
+        self.ui.list_devices.clicked.connect(self.scanned_item_clicked)
         self.setup_autocomplete()
 
     def setup_autocomplete(self) -> None:
@@ -57,7 +58,6 @@ class BTFrameView(BaseModel):
         elif not isinstance(names, list):
             names = [names]
             settings.setValue("known_devices", names)
-
         return names
 
     def add_name_to_settings(self, dev_name: str) -> None:
@@ -291,6 +291,9 @@ class BTFrameView(BaseModel):
             logger.debug("Got an exception while scanning for devices: %s of type: %s", err_msg, err_type)
 
         display_msg(msg)
+
+    def scanned_item_clicked(self) -> None:
+        self.ui.dev_name_input.setText("")
 
     #########################
     # Visual feedback

@@ -72,7 +72,7 @@ if sys.platform == 'darwin':
                  name='ExploreDesktop.app',
                  icon=icon_path,
                  bundle_identifier='com.mentalab.exploredesktop',
-                 version='0.4.4',
+                 version='0.5.0',
                  info_plist={
                   'NSPrincipalClass': 'NSApplication',
                   'NSAppleScriptEnabled': False,

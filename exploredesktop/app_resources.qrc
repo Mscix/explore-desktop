@@ -3,6 +3,28 @@
         <file>images/MentalabLogo.png</file>
         <file>images/MentalabLogo_full.png</file>
         <file>images/MentalLabLogo5050.png</file>
+        <file>icons/cil-battery-0.png</file>
+        <file>icons/cil-battery-3.png</file>
+        <file>icons/cil-battery-alert.png</file>
+        <file>icons/cil-battery-full.png</file>
+        <file>icons/cil-bluetooth.png</file>
+        <file>icons/cil-chart-line.png</file>
+        <file>icons/cil-hamburger-menu.png</file>
+        <file>icons/cil-home.png</file>
+        <file>icons/cil-media-record.png</file>
+        <file>icons/cil-media-stop.png</file>
+        <file>icons/cil-memory.png</file>
+        <file>icons/cil-options.png</file>
+        <file>icons/cil-pin.png</file>
+        <file>icons/cil-save.png</file>
+        <file>icons/cil-settings.png</file>
+        <file>icons/cil-share-boxed.png</file>
+        <file>icons/cil-speedometer.png</file>
+        <file>icons/cil-window-maximize.png</file>
+        <file>icons/cil-window-minimize.png</file>
+        <file>icons/cil-window-restore.png</file>
+        <file>icons/cil-x.png</file>
+        <file>icons/pngfind.com-png-circle-1194554.png</file>
     </qresource>
     <qresource prefix="/icons">
         <file>icons/cil-bluetooth.png</file>
@@ -20,5 +42,17 @@
         <file>icons/cil-window-restore.png</file>
         <file>icons/cil-x.png</file>
         <file>icons/pngfind.com-png-circle-1194554.png</file>
+        <file>icons/cil-battery-0.png</file>
+        <file>icons/cil-battery-3.png</file>
+        <file>icons/cil-battery-alert.png</file>
+        <file>icons/cil-battery-full.png</file>
+        <file>icons/cil-memory.png</file>
+        <file>icons/cil-pin.png</file>
+        <file>icons/cil-save.png</file>
+        <file>icons/thermometer.png</file>
+        <file>icons/record-button.png</file>
+        <file>icons/cil-media-pause.png</file>
+        <file>icons/cil-media-play.png</file>
+        <file>icons/stop-button.png</file>
     </qresource>
 </RCC>

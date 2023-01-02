@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'dialog_recording_settings_light.ui'
+## Form generated from reading UI file 'dialog_convert_bin.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.2.1
 ##
@@ -17,8 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
     QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QRadioButton, QSizePolicy, QSpacerItem, QSpinBox,
-    QVBoxLayout)
+    QRadioButton, QSizePolicy, QSpacerItem, QVBoxLayout)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -27,6 +26,26 @@ class Ui_Dialog(object):
         Dialog.resize(460, 285)
         self.verticalLayout = QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.lbl_step2 = QLabel(Dialog)
+        self.lbl_step2.setObjectName(u"lbl_step2")
+
+        self.verticalLayout.addWidget(self.lbl_step2)
+
+        self.layout_folder_browse = QHBoxLayout()
+        self.layout_folder_browse.setObjectName(u"layout_folder_browse")
+        self.input_filepath = QLineEdit(Dialog)
+        self.input_filepath.setObjectName(u"input_filepath")
+
+        self.layout_folder_browse.addWidget(self.input_filepath)
+
+        self.btn_browse_bin = QPushButton(Dialog)
+        self.btn_browse_bin.setObjectName(u"btn_browse_bin")
+
+        self.layout_folder_browse.addWidget(self.btn_browse_bin)
+
+
+        self.verticalLayout.addLayout(self.layout_folder_browse)
+
         self.layout_file_format = QHBoxLayout()
         self.layout_file_format.setObjectName(u"layout_file_format")
         self.lbl_step1_2 = QLabel(Dialog)
@@ -47,47 +66,25 @@ class Ui_Dialog(object):
 
         self.verticalLayout.addLayout(self.layout_file_format)
 
-        self.lbl_step2 = QLabel(Dialog)
-        self.lbl_step2.setObjectName(u"lbl_step2")
+        self.lbl_step2_2 = QLabel(Dialog)
+        self.lbl_step2_2.setObjectName(u"lbl_step2_2")
 
-        self.verticalLayout.addWidget(self.lbl_step2)
+        self.verticalLayout.addWidget(self.lbl_step2_2)
 
-        self.layout_folder_browse = QHBoxLayout()
-        self.layout_folder_browse.setObjectName(u"layout_folder_browse")
-        self.lbl_folder = QLabel(Dialog)
-        self.lbl_folder.setObjectName(u"lbl_folder")
-        self.lbl_folder.setMinimumSize(QSize(54, 0))
+        self.layout_folder_browse_2 = QHBoxLayout()
+        self.layout_folder_browse_2.setObjectName(u"layout_folder_browse_2")
+        self.input_dest_folder = QLineEdit(Dialog)
+        self.input_dest_folder.setObjectName(u"input_dest_folder")
 
-        self.layout_folder_browse.addWidget(self.lbl_folder)
+        self.layout_folder_browse_2.addWidget(self.input_dest_folder)
 
-        self.input_filepath = QLineEdit(Dialog)
-        self.input_filepath.setObjectName(u"input_filepath")
+        self.btn_browse_dest_folder = QPushButton(Dialog)
+        self.btn_browse_dest_folder.setObjectName(u"btn_browse_dest_folder")
 
-        self.layout_folder_browse.addWidget(self.input_filepath)
-
-        self.btn_browse = QPushButton(Dialog)
-        self.btn_browse.setObjectName(u"btn_browse")
-
-        self.layout_folder_browse.addWidget(self.btn_browse)
+        self.layout_folder_browse_2.addWidget(self.btn_browse_dest_folder)
 
 
-        self.verticalLayout.addLayout(self.layout_folder_browse)
-
-        self.layout_file_name = QHBoxLayout()
-        self.layout_file_name.setObjectName(u"layout_file_name")
-        self.lbl_file_name = QLabel(Dialog)
-        self.lbl_file_name.setObjectName(u"lbl_file_name")
-        self.lbl_file_name.setMinimumSize(QSize(54, 0))
-
-        self.layout_file_name.addWidget(self.lbl_file_name)
-
-        self.input_file_name = QLineEdit(Dialog)
-        self.input_file_name.setObjectName(u"input_file_name")
-
-        self.layout_file_name.addWidget(self.input_file_name)
-
-
-        self.verticalLayout.addLayout(self.layout_file_name)
+        self.verticalLayout.addLayout(self.layout_folder_browse_2)
 
         self.warning_label = QLabel(Dialog)
         self.warning_label.setObjectName(u"warning_label")
@@ -95,23 +92,6 @@ class Ui_Dialog(object):
         self.warning_label.setWordWrap(True)
 
         self.verticalLayout.addWidget(self.warning_label)
-
-        self.layout_recording_time = QHBoxLayout()
-        self.layout_recording_time.setObjectName(u"layout_recording_time")
-        self.lbl_step3 = QLabel(Dialog)
-        self.lbl_step3.setObjectName(u"lbl_step3")
-
-        self.layout_recording_time.addWidget(self.lbl_step3)
-
-        self.spinBox_recording_time = QSpinBox(Dialog)
-        self.spinBox_recording_time.setObjectName(u"spinBox_recording_time")
-        self.spinBox_recording_time.setMaximum(1000000)
-        self.spinBox_recording_time.setValue(3600)
-
-        self.layout_recording_time.addWidget(self.spinBox_recording_time)
-
-
-        self.verticalLayout.addLayout(self.layout_recording_time)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -139,14 +119,13 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
-        self.lbl_step1_2.setText(QCoreApplication.translate("Dialog", u"1. Select the file format :     ", None))
+        self.lbl_step2.setText(QCoreApplication.translate("Dialog", u"1. Select the file to convert:", None))
+        self.btn_browse_bin.setText(QCoreApplication.translate("Dialog", u"Browse", None))
+        self.lbl_step1_2.setText(QCoreApplication.translate("Dialog", u"2. Select the output file format :     ", None))
         self.rdbtn_csv.setText(QCoreApplication.translate("Dialog", u"csv", None))
         self.rdbtn_edf.setText(QCoreApplication.translate("Dialog", u"bdf", None))
-        self.lbl_step2.setText(QCoreApplication.translate("Dialog", u"2. Select the folder and name to store the file:", None))
-        self.lbl_folder.setText(QCoreApplication.translate("Dialog", u"Folder:", None))
-        self.btn_browse.setText(QCoreApplication.translate("Dialog", u"Browse", None))
-        self.lbl_file_name.setText(QCoreApplication.translate("Dialog", u"File name:", None))
+        self.lbl_step2_2.setText(QCoreApplication.translate("Dialog", u"3. Select the folder to export the file:", None))
+        self.btn_browse_dest_folder.setText(QCoreApplication.translate("Dialog", u"Browse", None))
         self.warning_label.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p><span style=\" color:#d90000;\">A file name can't contain any of the following characters:</span></p><p align=\"center\"><span style=\" color:#d90000;\">| \\ ? * &lt; &quot; : &gt; + [ ] / '</span></p></body></html>", None))
-        self.lbl_step3.setText(QCoreApplication.translate("Dialog", u"3. Select recording time (s):", None))
     # retranslateUi
 

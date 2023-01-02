@@ -105,7 +105,6 @@ class MarkerPlot(BasePlots):
         """
         Get the value for the event code from the GUI and set the event.
         """
-        # TODO catch input here, emit signal and asign marker in data
         event_code = int(self.ui.value_event_code.text())
         code_ok = self._verify_code_value(event_code)
         if not code_ok:
@@ -169,12 +168,14 @@ class MarkerPlot(BasePlots):
             list: list of plotted lines
         """
         lines = []
-        line = self.ui.plot_orn.getItem(0, 0).addLine(t_point, label=code, pen=pen_marker)
-        lines.append(line)
-        line = self.ui.plot_orn.getItem(1, 0).addLine(t_point, label=code, pen=pen_marker)
-        lines.append(line)
-        line = self.ui.plot_orn.getItem(2, 0).addLine(t_point, label=code, pen=pen_marker)
-        lines.append(line)
+        # NOTE uncomment below to add markers to ORN plots. If a lot of markers are set in a
+        # short time, the program will freeze
+        # line = self.ui.plot_orn.getItem(0, 0).addLine(t_point, label=code, pen=pen_marker)
+        # lines.append(line)
+        # line = self.ui.plot_orn.getItem(1, 0).addLine(t_point, label=code, pen=pen_marker)
+        # lines.append(line)
+        # line = self.ui.plot_orn.getItem(2, 0).addLine(t_point, label=code, pen=pen_marker)
+        # lines.append(line)
         line = self.ui.plot_exg.addLine(t_point, label=code, pen=pen_marker)
         lines.append(line)
         return lines

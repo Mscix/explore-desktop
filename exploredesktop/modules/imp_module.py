@@ -3,6 +3,8 @@
 Module containing impedance related functionalities
 """
 import logging
+import time
+from typing import Tuple
 
 import explorepy
 import numpy as np
@@ -17,9 +19,8 @@ from exploredesktop.modules.app_settings import (  # isort: skip
     Settings,
     Stylesheets,
 )
-from exploredesktop.modules.utils import display_msg  # isort: skip
+from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
-
 # Enable antialiasing for prettier plots
 pg.setConfigOptions(antialias=True)
 logger = logging.getLogger("explorepy." + __name__)
@@ -34,20 +35,22 @@ class ImpedanceGraph(pg.GraphItem):
         super().__init__()
         self.model = model
         self.signals = self.model.get_signals()
+        self.packet = 0
+        self.start = time.time()
 
     def display_default_imp(self) -> None:
         """Initialize impedance graph
         """
-        chan_dict = self.model.explorer.get_chan_dict()
-        n_chan = self.model.explorer.n_active_chan
-        pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
-        texts = [f"{key}\nNA" for key in chan_dict if chan_dict[key] == 1]
+        chan_dict = self.model.explorer.get_chan_dict_list()
+        n_chan = self.model.explorer.device_chan
+        x_pos, y_pos = self.model.get_pos_lists(n_chan)
+        pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
+        texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict]
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
-
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
 
     def get_model(self):
-        """Retruns impedance model
+        """Returns impedance model
 
         Returns:
             ImpModel: impedance data model
@@ -95,17 +98,19 @@ class ImpedanceGraph(pg.GraphItem):
         for item in self.text_items:
             item.scene().removeItem(item)
 
-    @Slot(dict)
-    def on_new_data(self, data: dict) -> None:
+    @Slot(dict, int)
+    def on_new_data(self, data: dict, n_packet_update: int) -> None:
         """Fetch new incoming data and update the graph
 
         Args:
             data (dict): dict containing text, position, symbols and brush style
         """
-        texts = data["texts"]
-        pos = data["pos"]
-        brushes = data["brushes"]
-        self.setData(pos=pos, symbolBrush=brushes, text=texts)
+        if self.packet % n_packet_update == 0:
+            texts = data["texts"]
+            pos = data["pos"]
+            brushes = data["brushes"]
+            self.setData(pos=pos, symbolBrush=brushes, text=texts)
+        self.packet += 1
 
 
 class ImpModel(BaseModel):
@@ -126,8 +131,10 @@ class ImpModel(BaseModel):
             str: stylesheet corresponding to input value
         """
         if self.mode == ImpModes.DRY:
-            return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
-        # rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
+            if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
+                return Stylesheets.GRAY_IMPEDANCE_STYLESHEET
+            else:
+                return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
         rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
             imp_stylesheet = Stylesheets.GRAY_IMPEDANCE_STYLESHEET
@@ -153,9 +160,10 @@ class ImpModel(BaseModel):
         Returns:
             str: formatted impedance value
         """
-        if value < 5:
-            str_value = " > "
-            str_value += "5 K\u03A9"
+        if isinstance(value, str):
+            str_value = value
+        elif value < 5:
+            str_value = "<span>&#60; 5 K&#8486;</span>"
         elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
                 (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
             str_value = "Open"
@@ -169,21 +177,51 @@ class ImpModel(BaseModel):
         Args:
             packet (explorepy.packet.EEG): EEG packet
         """
-        chan_dict = self.explorer.get_chan_dict()
-        n_chan = self.explorer.n_active_chan
+        chan_list = self.explorer.full_chan_list(custom_name=True)
+        chan_mask = self.explorer.chan_mask
+        n_chan = self.explorer.device_chan
 
         imp_values = packet.get_impedances()
         texts = []
         brushes = []
-        pos = np.array([[0 + i * 3, 0] for i in range(n_chan)], dtype=float)
-        for chan, value in zip([item[0] for item in chan_dict.items() if item[1]], imp_values):
-            value = value / 2
+
+        x_pos, y_pos = self.get_pos_lists(n_chan)
+        pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
+
+        for chan, active, value in zip(chan_list, chan_mask, imp_values):
+            if active:
+                value = value / 2
+            else:
+                value = "NA"
             brushes.append(self.get_stylesheet(value))
             value = self.format_imp_value(value)
             texts.append(f"{chan}\n{value}")
 
         data = {"texts": texts, "brushes": brushes, "pos": pos}
-        self.signals.impedanceChanged.emit(data)
+        n_packet_update = 75 if self.explorer.device_chan > 9 else 10
+        self.signals.impedanceChanged.emit(data, n_packet_update)
+
+    @staticmethod
+    def get_pos_lists(n_chan: int) -> Tuple[list, list]:
+        """Get list of x, y coordinates
+
+        Args:
+            n_chan (int): number of channels to display
+
+        Returns:
+            Tuple[list, list]: list of x and y coordinates
+        """
+        y_pos = [i // 8 * -3 for i in range(n_chan)]
+        x_pos = [0 + i * 3 for i in range(8)]
+        # multiplier to get desired list length
+        mult = n_chan / 8
+
+        if mult < 1:
+            x_pos = x_pos[:n_chan]
+        else:
+            x_pos = x_pos * int(mult)
+
+        return x_pos, y_pos
 
     def set_mode(self, text: str) -> None:
         """Set impedance mode
@@ -253,7 +291,10 @@ class ImpFrameView():
         """
         if not self.explorer.is_connected:
             return
-        self.explorer.disable_imp(self.model.imp_callback)
+        with wait_cursor():
+            disabled = self.explorer.disable_imp(self.model.imp_callback)
+        if not disabled:
+            self.explorer.is_measuring_imp = False
         self.signals.btnImpMeasureChanged.emit("Measure Impedances")
         self.signals.displayDefaultImp.emit()
 
@@ -265,6 +306,11 @@ class ImpFrameView():
         if self.explorer.is_measuring_imp:
             self.disable_imp()
             return
+
+        if not self.explorer.is_measuring_imp and (self.explorer.is_recording or self.explorer.is_pushing_lsl):
+            response = display_msg(msg_text=Messages.IMP_NOISE, popup_type='question')
+            if response == QMessageBox.StandardButton.No:
+                return
 
         sr_ok = self.verify_s_rate()
         if not sr_ok:

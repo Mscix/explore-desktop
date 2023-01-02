@@ -12,11 +12,14 @@ from PySide6.QtCore import (
 
 
 from exploredesktop.modules.app_settings import (  # isort:skip
+    ConnectionStatus,
     DataAttributes,
+    EnvVariables,
     ExGModes,
     Messages,
     Settings,
-    Stylesheets
+    Stylesheets,
+    VisModes
 )
 from exploredesktop.modules.base_data_module import (  # isort:skip
     BasePlots,
@@ -26,6 +29,15 @@ from exploredesktop.modules.utils import _remove_old_plot_item, display_msg   # 
 
 
 logger = logging.getLogger("explorepy." + __name__)
+
+visualization_option = 5
+# 1: 9 channels with scroll and lines for min/max. Offsetts are 1
+# 2: 19 channels with scroll and line for central channel. Offsets are 0.5
+# 3: 19 channels with scroll and line for min/max. Offsets are 0.5
+# 4: 32 channels wo scroll and line for central channel. Offsets are 0.5
+# 5: 32 channels wo scroll and line for min/max. Offsets are 0.5
+# 6: 19 channels scroll and no lines
+# 7: 9 channels with scroll and no lines. Offsets are 1
 
 
 class ExGData(DataContainer):
@@ -52,6 +64,7 @@ class ExGData(DataContainer):
         self.rr_warning_displayed = False
 
         self.mode = ExGModes.EEG
+        self.vis_mode = VisModes.SCROLL
 
     def reset_vars(self) -> None:
         """Reset class variables"""
@@ -108,14 +121,21 @@ class ExGData(DataContainer):
             attributes (list): list of attributes to update
         """
         if DataAttributes.OFFSETS in attributes:
+
             n_chan = self.explorer.n_active_chan
-            self.offsets = np.arange(1, n_chan + 1)[:, np.newaxis].astype(float)
+            # pyqtgraph starts plotting at the bottom, we want to add ch at the top of the plot -> reversed
+            # if visualization_option in [2, 3, 4, 5, 6]:
+            if self.vis_mode == VisModes.FULL:
+                self.offsets = [i for i in reversed(np.arange(0.5, (n_chan + 1) / 2, 0.5)[:, np.newaxis].astype(float))]
+            # elif visualization_option in [1, 7]:
+            elif self.vis_mode == VisModes.SCROLL:
+                self.offsets = [i for i in reversed(np.arange(1, n_chan + 1)[:, np.newaxis].astype(float))]
 
         if DataAttributes.BASELINE in attributes:
             self._baseline = None
 
         if DataAttributes.DATA in attributes:
-            active_chan = self.explorer.active_chan_list
+            active_chan = self.explorer.active_chan_list()
             points = self.plot_points()
             self.plot_data = {ch: np.array([np.NaN] * points) for ch in active_chan}
             self.t_plot_data = np.array([np.NaN] * points)
@@ -150,11 +170,14 @@ class ExGData(DataContainer):
                 "BlueTooth drop:\nt_point={}\nDataContainer.last_t={}\n".format(t_point, DataContainer.last_t))
             self.bt_drop_warning_displayed = True
             self.t_bt_drop = t_point
-            self.signals.btDrop.emit(True)
+            # self.signals.btDrop.emit(True)
+            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: ConnectionStatus.UNSTABLE.value})
 
         elif (self.t_bt_drop is not None) and (t_point > DataContainer.last_t) and \
                 (t_point - self.t_bt_drop > sec_th) and self.bt_drop_warning_displayed is True:
             self.bt_drop_warning_displayed = False
+            connection_label = ConnectionStatus.CONNECTED.value.replace("dev_name", self.explorer.device_name)
+            self.signals.devInfoChanged.emit({EnvVariables.DEVICE_NAME: connection_label})
 
     def callback(self, packet: explorepy.packet.EEG) -> None:
         """Callback to get EEG data
@@ -162,9 +185,12 @@ class ExGData(DataContainer):
         Args:
             packet (explorepy.packet.EEG): EEG packet
         """
-        chan_list = self.explorer.active_chan_list
+        chan_list = self.explorer.active_chan_list()
         exg_fs = self.explorer.sampling_rate
         timestamp, exg = packet.get_data(exg_fs)
+
+        # Remove channels not active
+        exg = np.array([e for e, val in zip(exg, self.explorer.chan_mask) if val])
 
         # self.handle_disconnection(timestamp)
         # From timestamp to seconds
@@ -187,13 +213,14 @@ class ExGData(DataContainer):
         except ValueError as error:
             logger.warning("ValueError: %s", str(error))
 
-        data = dict(zip(chan_list, exg))
+        # pyqtgraph starts plotting at the bottom, we want to add ch at the top of the plot -> reversed
+        data = dict(zip(reversed(chan_list), reversed(exg)))
         data['t'] = time_vector
 
-        self.insert_new_data(data)
+        self.insert_new_data(data, exg=True)
         self.update_pointer(data)
         self.new_t_axis()
-        self.handle_bt_drop(data)
+        self.handle_bt_drop(data, sec_th=10)
 
         DataContainer.last_t = data['t'][-1]
         self.packet_count += 1
@@ -304,7 +331,7 @@ class ExGData(DataContainer):
             old_unit (float): old axis unit
             new_unit (float): new axis unit
         """
-        chan_list = self.explorer.active_chan_list
+        chan_list = self.explorer.active_chan_list()
         for chan, value in self.plot_data.items():
             if chan in chan_list:
                 temp_offset = self.offsets[chan_list.index(chan)]
@@ -395,6 +422,45 @@ class ExGData(DataContainer):
 
         return peaks_dict, to_remove
 
+    @Slot()
+    def set_packet_offset(self):
+        self.packet_offset = self.packet_count
+
+    @Slot(float)
+    def log_n_packets(self, rec_time):
+        n_packets = self.packet_count - self.packet_offset
+        if self.explorer.device_chan == 4:
+            sample_per_packet = 33
+        elif self.explorer.device_chan == 8:
+            sample_per_packet = 16
+        elif self.explorer.device_chan == 32:
+            sample_per_packet = 4
+
+        expected_packets = rec_time * self.explorer.sampling_rate / sample_per_packet
+        logger.info("Total number of packets in recording (%f): %i" % (rec_time, n_packets))
+        logger.info("Expected number of packets in recording (%f): %i" % (rec_time, expected_packets))
+
+        percentage_recieved = round(n_packets / expected_packets) * 100
+        percentage_recieved = percentage_recieved if percentage_recieved <= 100 else 100
+        msg = (
+            "Recording complete.\n\n"
+            f"{percentage_recieved}% of the expected packets received"
+            # f"Recorded packets: {n_packets}\n"
+            # f"Estimated expected packets: {int(expected_packets)}\n"
+        )
+        if expected_packets * 0.95 < n_packets < expected_packets * 1.05:
+            # msg += "At least 95% of the expected packets recieved"
+            logger.info("At least 95% of the expected packets were recieved")
+        else:
+            logger.info("Less than 95% of the expected packets recieved")
+            # msg += "Less than 95% of the expected packets recieved"
+        display_msg(msg_text=msg, popup_type='info')
+
+    def change_vis_mode(self, mode):
+        print(f"new mode: {mode}")
+        self.vis_mode = mode
+        self.update_attributes([DataAttributes.OFFSETS])
+
 
 class ExGPlot(BasePlots):
     """_summary_
@@ -412,11 +478,35 @@ class ExGPlot(BasePlots):
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
+
         super().setup_ui_connections()
         self.ui.value_timeScale.currentTextChanged.connect(self.model.change_timescale)
         self.ui.value_yAxis.currentTextChanged.connect(self.model.change_scale)
-        self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
-        self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
+        # TODO: this will depend on new chan dict
+        # self.ui.value_signal.currentTextChanged.connect(self.change_signal_mode)
+        # TODO: uncomment when implemented
+        # self.ui.cb_antialiasing.stateChanged.connect(self.antialiasing)
+        self.ui.verticalScrollBar.valueChanged.connect(self.scroll)
+
+    def setup_scrollbar(self):
+        """Add maximum and minimum to explorepy
+        """
+        # if visualization_option in [1, 7]:
+        if self.model.vis_mode == VisModes.SCROLL:
+            self.ui.verticalScrollBar.setMinimum(1)
+            self.ui.verticalScrollBar.setMaximum(25)
+        else:
+            self.ui.verticalScrollBar.setMinimum(18)
+            self.ui.verticalScrollBar.setMaximum(26)
+
+    def scroll(self):
+        """Change the plot range when useing scrollbar
+        """
+        value = self.ui.verticalScrollBar.value()
+        n_chan = self.model.explorer.n_active_chan
+        up_lim = (2 - value) + n_chan
+        low_lim = up_lim - 9
+        self.ui.plot_exg.setYRange(low_lim, up_lim)
 
     @Slot(bool)
     def antialiasing(self, cb_status):
@@ -438,6 +528,8 @@ class ExGPlot(BasePlots):
         self.lines = [None]
         self.plots_list = [self.ui.plot_exg]
         self.bt_drop_warning_displayed = False
+        self.ui.value_yAxis.setCurrentText("1 mV")
+        self.ui.value_timeScale.setCurrentText("10 s")
 
         self.model.reset_vars()
 
@@ -460,18 +552,38 @@ class ExGPlot(BasePlots):
         self._setup_righ_axis(plot_wdgt)
 
         # Add range of time axis
-        self._setup_time_axis(plot_wdgt)
+        self._setup_plot_range(plot_wdgt)
 
         all_curves_list = [
             pg.PlotCurveItem(pen=Stylesheets.EXG_LINE_COLOR) for i in range(self.model.explorer.device_chan)]
         self.active_curves_list = self.add_active_curves(all_curves_list, plot_wdgt)
 
-    def _setup_time_axis(self, plot_wdgt: pg.PlotWidget):
+        self.setup_scrollbar()
+        # if visualization_option in [4, 5] or self.model.explorer.device_chan < 9:
+        if self.model.vis_mode == VisModes.FULL or self.model.explorer.device_chan < 9:
+            self.ui.verticalScrollBar.setHidden(True)
+        else:
+            self.ui.verticalScrollBar.setHidden(False)
+
+    def _setup_plot_range(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
         n_chan = self.model.explorer.n_active_chan
         timescale = self.time_scale
+        value = self.ui.verticalScrollBar.value()
 
-        plot_wdgt.setRange(yRange=(-0.5, n_chan + 1), xRange=(0, int(timescale)), padding=0.01)
+        if self.model.explorer.device_chan < 9:
+            y_range = (-0.5, n_chan + 1)
+        # elif visualization_option in [2, 3, 6, 7]:
+        elif self.model.vis_mode == VisModes.SCROLL:
+            up_lim = (2 - value) + n_chan + 0.5
+            y_range = (up_lim - 9, up_lim)
+        else:
+            y_range = (0, 32)
+
+        print(f"{y_range=}")
+        plot_wdgt.setRange(
+            yRange=y_range,
+            xRange=(0, int(timescale)), padding=0.01)
         plot_wdgt.setLabel('bottom', 'time (s)')
 
     def _setup_righ_axis(self, plot_wdgt: pg.PlotWidget):
@@ -485,17 +597,27 @@ class ExGPlot(BasePlots):
         plot_wdgt.setLabel('left', 'Voltage')
         self.add_left_axis_ticks()
         plot_wdgt.getAxis('left').setWidth(60)
-        plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
-        plot_wdgt.getAxis('left').setGrid(50)
+        if visualization_option in [1, 2, 4]:
+            plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
+            plot_wdgt.getAxis('left').setGrid(50)
+        else:
+            plot_wdgt.getAxis('left').setPen(color=(255, 255, 255, 50))
+            # plot_wdgt.getAxis('left').setGrid(0)
 
     def add_right_axis_ticks(self) -> None:
         """
         Add upper and lower lines delimiting the channels in exg plot
         """
-        active_chan = self.model.explorer.active_chan_list
+        active_chan = self.model.explorer.active_chan_list()
 
-        ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
-        ticks_right += [(0.5, '')]
+        if visualization_option == 1:
+            ticks_right = [(idx + 1.5, '') for idx, _ in enumerate(active_chan)]
+            ticks_right += [(0.5, '')]
+        # elif visualization_option in [2, 4, 6, 7]:
+        elif self.model.vis_mode in [VisModes.FULL, VisModes.SCROLL]:
+            ticks_right = []
+        elif visualization_option in [3, 5]:
+            ticks_right = [(i, '') for i in np.arange(0.25, 17, 0.5)]
 
         self.ui.plot_exg.getAxis('right').setTicks([ticks_right])
 
@@ -503,10 +625,33 @@ class ExGPlot(BasePlots):
         """
         Add central lines and channel name ticks in exg plot
         """
-        active_chan = self.model.explorer.active_chan_list
+        active_chan = self.model.explorer.active_chan_list(custom_name=True)
 
-        ticks = [
-            (idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})') for idx, ch in enumerate(active_chan)]
+        if visualization_option in [1]:
+            ticks = [
+                (
+                    idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+                ) for idx, ch in enumerate(reversed(active_chan))]
+
+        # elif visualization_option in [7]:
+        elif self.model.vis_mode in [VisModes.SCROLL]:
+            ticks = [
+                (
+                    idx + 1, f'{ch}'
+                ) for idx, ch in enumerate(reversed(active_chan))]
+
+        else:
+            ticks = [
+                (
+                    idx / 2 + 0.5, f'{ch}'
+                    # idx + 1, f'{ch}\n' + '(\u00B1' + f'{self.model.y_string})'
+                ) for idx, ch in enumerate(reversed(active_chan))]
+
+        # ticks = [
+        #     (
+        #         idx / 2 + 0.5, f'{ch}'
+        #     ) for idx, ch in enumerate(reversed(active_chan))]
+
         self.ui.plot_exg.getAxis('left').setTicks([ticks])
 
     @Slot(dict)
@@ -520,7 +665,7 @@ class ExGPlot(BasePlots):
         connection = self._connection_vector(len(t_vector))
 
         # Paint curves
-        for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list):
+        for curve, chan in zip(self.active_curves_list, self.model.explorer.active_chan_list()):
             try:
                 curve.setData(t_vector, plot_data[chan], connect=connection)
             # KeyError might happen when (de)activating channels during visualization

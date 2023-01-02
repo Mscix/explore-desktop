@@ -7,10 +7,14 @@ Functions:
     wait_cursor
 """
 import logging
+import os
 from contextlib import contextmanager
 
 import numpy as np
-from PySide6.QtCore import Qt
+from PySide6.QtCore import (
+    QSettings,
+    Qt
+)
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (
     QApplication,
@@ -144,7 +148,7 @@ def _remove_old_plot_item(item_dict: dict, t_vector: np.array, item_type: str, p
         item_type (str): specifies item to remove (line or points).
         plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
 
-    Retrun:
+    Return:
         list: list with objects to remove
     """
     assert item_type in ['line', 'points'], 'item type parameter must be line or points'
@@ -161,3 +165,26 @@ def _remove_old_plot_item(item_dict: dict, t_vector: np.array, item_type: str, p
             to_remove.append([item_dict[key][idx_t] for key in item_dict.keys()])
             # [item_dict['t'][idx_t], item_dict['r_peak'][idx_t], item_dict['points'][idx_t]])
     return to_remove
+
+
+def get_path_settings(settings: QSettings, key: str) -> str:
+    """Returns last used directory.
+    If running for the first time, Returns user directory
+
+    Args:
+        settings (QSettings): QSettings
+        key (str): key to get from settings
+    """
+    path = settings.value(key)
+    if not path:
+        path = os.path.expanduser("~")
+    return path
+
+
+ELECTRODES_10_20 = [
+    'A1', 'A2',
+    'C3', 'C4', 'Cz',
+    'F3', 'F4', 'F7', 'F8', 'Fp1', 'Fp2', 'Fz',
+    'O1', 'O2',
+    'P3', 'P4', 'Pz',
+    'T3', 'T4', 'T5', 'T6']

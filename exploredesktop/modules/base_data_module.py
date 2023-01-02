@@ -13,7 +13,6 @@ from PySide6.QtCore import Slot
 
 
 from exploredesktop.modules.app_settings import (  # isort: skip
-    ExGModes,
     Settings,
     Stylesheets
 )
@@ -127,26 +126,49 @@ class DataContainer(BaseModel):
         n_new_points = len(data[list(data.keys())[0]])
         return n_new_points
 
-    def insert_new_data(self, data: dict, fft: bool = False):
+    def insert_new_data(self, data: dict, fft: bool = False, exg=None):
         """Insert new data into plot vectors
 
         Args:
             data (dict): data to insert
             fft (bool, optional): whether data is for FFT plot. Defaults to False.
         """
+        if fft is False and data['t'][0] < DataContainer.last_t:
+            bt_drop = True
+        else:
+            bt_drop = False
+        # bt_drop = False
         n_new_points = self.get_n_new_points(data)
         idxs = np.arange(self.pointer, self.pointer + n_new_points)
 
         if fft is False:
+            # if bt_drop and exg:
+            #     print(f"\n{data['t']=}")
+            #     print(f"{DataContainer.last_t=}")
+            #     a = np.arange(idxs[0] - 10, idxs[-1] + 10)
+            #     try:
+            #         print(f"Before adding: t={self.t_plot_data[a]}")
+            #     except:
+            #         pass
+
             self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
 
+            # if bt_drop and exg:
+            #     try:
+            #         print(f"After adding: t={self.t_plot_data[a]}")
+            #     except:
+            #         pass
+
         for key, val in self.plot_data.items():
-            try:
-                val.put(idxs, data[key], mode='wrap')
-            # KeyError might happen when active chanels are changed
-            # if this happens, add nans instead of data coming from packet
-            except KeyError:
+            if bt_drop is True:
                 val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
+            else:
+                try:
+                    val.put(idxs, data[key], mode='wrap')
+                # KeyError might happen when active chanels are changed
+                # if this happens, add nans instead of data coming from packet
+                except KeyError:
+                    val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
 
     def update_pointer(self, data, signal=None, fft=False):
         """update pointer"""
@@ -233,12 +255,8 @@ class BasePlots:
     def set_dropdowns(self) -> None:
         """Initialize dropdowns"""
         # Avoid double initialization
-        if self.ui.value_signal.count() > 0:
+        if self.ui.value_yAxis.count() > 0:
             return
-
-        # value_signal_type
-        self.ui.value_signal.addItems(ExGModes.all_values())
-        self.ui.value_signal_rec.addItems(ExGModes.all_values())
 
         # value_yaxis
         self.ui.value_yAxis.addItems(Settings.SCALE_MENU.keys())
@@ -279,14 +297,17 @@ class BasePlots:
             list: list of curves added to plot
         """
         # Verify curves and chan dict have the same length, if not reset chan_dict
-        chan_dict = self.model.explorer.get_chan_dict()
-
-        if len(all_curves) != len(list(chan_dict.values())):
-            self.model.explorer.set_chan_dict()
+        chan_dict = self.model.explorer.get_chan_dict_list()
+        if len(all_curves) != len(self.model.explorer.active_chan_list()):
+            logger.debug(
+                "Number of plot curves doesn't match number of active channels. "
+                "Updating chan_dict_list from base_data_module")
+            self.model.explorer.set_chan_dict_list(self.ui.table_settings.model().chan_data)
 
         active_curves = []
-        for curve, act in zip(all_curves, list(chan_dict.values())):
-            if act == 1:
+
+        for curve, active_state in zip(all_curves, [one_chan_dict['enable'] for one_chan_dict in chan_dict]):
+            if active_state == 1:
                 plot_widget.addItem(curve)
                 active_curves.append(curve)
             else:
@@ -319,7 +340,11 @@ class BasePlots:
         """
         values, ticks = data
         for plt in self.plots_list:
-            plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
+            try:
+                plt.getAxis('bottom').setTicks([[(t, str(tick)) for t, tick in zip(values, ticks)]])
+            # AttributeError might happen closing the app (signal send but object already desctructed)
+            except AttributeError:
+                pass
 
     def _connection_vector(self, length, n_nans=10, id_th=None) -> np.array:
         """Create connection vector to connect old and new data with a gap
@@ -378,7 +403,7 @@ class BasePlots:
             item_type (str): specifies item to remove (line or points).
             plot_widget (pyqtgraph PlotWidget): plot widget containing item to remove
 
-        Retruns:
+        Returns:
             list: list with objects to remove
         """
         assert 't' in item_dict.keys(), 'the items dictionary must have the key \'t\''

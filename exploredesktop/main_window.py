@@ -7,6 +7,10 @@ from enum import Enum
 from typing import Union
 
 import PySide6
+# from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
+from exploredesktop.modules.ui.ui_ui_main_window_redisign_menubar import (
+    Ui_MainWindow
+)
 from explorepy.log_config import (
     read_config,
     write_config
@@ -15,18 +19,21 @@ from explorepy.stream_processor import TOPICS
 from explorepy.tools import generate_eeglab_dataset
 from PySide6.QtCore import (
     QEasingCurve,
+    QEvent,
     QPropertyAnimation,
     QThreadPool
 )
 from PySide6.QtGui import (
     QColor,
     QFont,
-    QIcon
+    QIcon,
+    QKeySequence
 )
 from PySide6.QtWidgets import (
     QFileDialog,
     QGraphicsDropShadowEffect,
     QMainWindow,
+    QMessageBox,
     QPushButton
 )
 
@@ -36,12 +43,15 @@ from exploredesktop.modules import (  # isort:skip
     BaseModel,
     GUISettings,
     Stylesheets,
-    Ui_MainWindow
+    # this import will replace the Ui_MainWindow from window_redisign in the future
+    # Ui_MainWindow
 )
 from exploredesktop.modules.app_settings import (  # isort:skip
     ConnectionStatus,
     DataAttributes,
-    EnvVariables
+    EnvVariables,
+    Messages,
+    VisModes
 )
 from exploredesktop.modules.bt_module import BTFrameView  # isort:skip
 from exploredesktop.modules.exg_module import ExGPlot  # isort:skip
@@ -64,12 +74,14 @@ WINDOW_SIZE = False
 logger = logging.getLogger("explorepy." + __name__)
 
 if sys.platform == "linux" or sys.platform == "linux2":
+    logger.debug("CWD: %s" % os.getcwd())
     dir_main = os.path.dirname(os.path.abspath(__file__))
     ICON_PATH = os.path.join(dir_main, "images", "MentalabLogo.ico")
+    logger.debug("Icon path: %s" % ICON_PATH)
 elif sys.platform == "win32":
     logger.debug("CWD: %s" % os.getcwd())
-    par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    ICON_PATH = os.path.join(par_dir, "MentalabLogo.ico")
+    ICON_PATH = os.path.join(os.getcwd(), "MentalabLogo.ico")
+    logger.debug("Icon path: %s" % ICON_PATH)
 
 
 class MainWindow(QMainWindow, BaseModel):
@@ -83,7 +95,6 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        logger.debug("Icon path: %s" % ICON_PATH)
         self.setWindowIcon(QIcon(ICON_PATH))
         self.setWindowTitle('Explore Desktop')
 
@@ -150,6 +161,8 @@ class MainWindow(QMainWindow, BaseModel):
         self.mkr_plot = MarkerPlot(self.ui)
         self.mkr_plot.setup_ui_connections()
 
+        self.ui.tabWidget.currentChanged.connect(self.plot_tab_changed)
+
         # RECORDING
         self.recording = RecordFunctions(self.ui)
         self.recording.setup_ui_connections()
@@ -160,6 +173,9 @@ class MainWindow(QMainWindow, BaseModel):
 
         # signal connections
         self.setup_signal_connections()
+
+        # MENUBAR
+        self._setup_menubar()
 
     #########################
     # UI Functions
@@ -229,6 +245,7 @@ class MainWindow(QMainWindow, BaseModel):
         btn_connect_text = "Connect"
         btn_scan_enabled = True
         self.signals.pageChange.emit("btn_bt")
+        self._enable_menubar(False)
 
         self.stop_processes()
         self.reset_vars()
@@ -250,6 +267,12 @@ class MainWindow(QMainWindow, BaseModel):
         data = {EnvVariables.FIRMWARE: firmware}
         self.signals.devInfoChanged.emit(data)
 
+        # Uncomment below to disable change of sampling rate
+        # if self.explorer.device_chan == 32:
+        #     self.ui.value_sampling_rate.setEnabled(False)
+        # else:
+        #     self.ui.value_sampling_rate.setEnabled(True)
+
         # initialize impedance
         self.signals.displayDefaultImp.emit()
         # subscribe environmental data callback
@@ -258,10 +281,72 @@ class MainWindow(QMainWindow, BaseModel):
         self.settings_frame.setup_settings_frame()
         # initialize visualization offsets
         self.signals.updateDataAttributes.emit([DataAttributes.OFFSETS, DataAttributes.DATA])
+        # initialize menubar
+        self._enable_menubar(True)
 
         self._init_plots()
 
         return btn_connect_text, btn_scan_enabled
+
+    def _enable_menubar(self, enable: bool) -> None:
+        """Enable or disable menubar actions dependent on Explorepy connection
+
+        Args:
+            enable (bool): whether to enable
+        """
+        self.ui.actionMetadata_import.setEnabled(enable)
+        self.ui.actionMetadata_export.setEnabled(enable)
+        self.ui.actionLast_Session_Settings.setEnabled(enable)
+
+    def _setup_menubar(self) -> None:
+        """Setup menubar actions
+        """
+        self.ui.actionNew.triggered.connect(lambda: print("new clicked"))
+        # Exit action
+        self.ui.actionExit.triggered.connect(self.close)
+        self.ui.actionExit.setShortcut(QKeySequence("Alt+F4"))
+
+        # Hide import actions
+        self.ui.actionCSV_data.setEnabled(False)
+        self.ui.actionCSV_data.setVisible(False)
+        self.ui.actionBIN_data.setVisible(False)
+        self.ui.actionBIN_data.setVisible(False)
+        self.ui.actionEDF_data.setVisible(False)
+        self.ui.actionEDF_data.setVisible(False)
+        self.ui.actionLast_Session_Settings.setVisible(False)
+
+        self.ui.actionNew.setVisible(False)
+
+        # Disable actions requiring connection with explorepy
+        self._enable_menubar(False)
+        # Metadata actions
+        self.ui.actionMetadata_import.triggered.connect(self.settings_frame.import_settings)
+        self.ui.actionMetadata_export.triggered.connect(self.settings_frame.export_settings)
+        self.ui.actionConvert.triggered.connect(self.settings_frame.convert_bin)
+        self.ui.actionEEGLAB_Dataset.triggered.connect(self.export_eeglab_dataset)
+
+        # View actions
+        # self.ui.actionFull_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
+        # self.ui.actionScroll_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
+        # TODO implement below
+        # self.ui.actionLast_Session_Settings.triggered.connect(self.settings_frame.import_last_session_settings)
+
+        from PySide6.QtGui import QActionGroup
+        view_group = QActionGroup(self)
+        view_group.setExclusive(True)
+
+        actionFullView = view_group.addAction("Full View AG")
+        actionFullView.setCheckable(True)
+        actionScrollView = view_group.addAction("Scroll View AG")
+        actionScrollView.setCheckable(True)
+        actionScrollView.setChecked(True)
+
+        self.ui.menuVisualization.addActions(view_group.actions())
+
+        actionFullView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
+        actionFullView.triggered.connect(self._init_plots)
+        actionScrollView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
+        actionScrollView.triggered.connect(self._init_plots)
 
     def _init_plots(self) -> None:
         """Initialize plots"""
@@ -272,8 +357,6 @@ class MainWindow(QMainWindow, BaseModel):
     def setup_signal_connections(self):
         """Connect custom signals to corresponding slots
         """
-        # TODO move to appropiate module
-        # change button text
         # TODO move to appropiate module
         self.signals.btnImpMeasureChanged.connect(self.ui.btn_imp_meas.setText)
         self.signals.btnConnectChanged.connect(self.ui.btn_connect.setText)
@@ -315,8 +398,13 @@ class MainWindow(QMainWindow, BaseModel):
         self.signals.rrPeakRemove.connect(self.exg_plot.remove_old_r_peak)
         # self.signals.rrPeakPlot.connect(self.exg_plot.plot_rr_point)
 
-        self.signals.heartRate.connect(self.ui.value_heartRate.setText)
+        # self.signals.heartRate.connect(self.ui.value_heartRate.setText)
         self.signals.plotRR.connect(self.exg_plot.plot_rr_point)
+
+        self.signals.recordStart.connect(self.exg_plot.model.set_packet_offset)
+        self.signals.recordEnd.connect(self.exg_plot.model.log_n_packets)
+        self.signals.recordStart.connect(lambda: self.settings_frame.enable_settings(False))
+        self.signals.recordEnd.connect(self.settings_frame.enable_settings)
 
     def style_ui(self) -> None:
         """Initial style for UI
@@ -336,8 +424,7 @@ class MainWindow(QMainWindow, BaseModel):
         # plotting page
         self.ui.label_3.setHidden(True)
         self.ui.label_7.setHidden(True)
-        # TODO remove when antialiasing is tested
-        self.ui.cb_antialiasing.setHidden(True)
+
         # settings page
         self.ui.label_warning_disabled.setHidden(True)
         self.ui.lbl_sr_warning.hide()
@@ -353,7 +440,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # # Hide os bar
         # self.setWindowFlags(Qt.FramelessWindowHint)
-        self.ui.main_header.setHidden(True)
         # Add app version to footer
         self.ui.ft_label_version.setText(VERSION_APP)
 
@@ -367,6 +453,15 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Start with foucus on line edit for device name
         self.ui.dev_name_input.setFocus()
+
+        # hide eeglabexport from home
+        self.ui.label_6.setHidden(True)
+        self.ui.btn_generate_bdf.setHidden(True)
+        self.ui.btn_import_edf.setHidden(True)
+        self.ui.le_import_edf.setHidden(True)
+
+        # hide view menu at start
+        self.ui.menuVisualization.menuAction().setVisible(False)
 
     def _verify_imp(self, btn_name: str) -> bool:
         """Verify if impedance measurement is active before moving to another page
@@ -383,6 +478,26 @@ class MainWindow(QMainWindow, BaseModel):
             imp_disabled = self.imp_frame.check_is_imp()
         return imp_disabled
 
+    def _verify_settings_changed(self, btn_name: str) -> bool:
+        """
+        Check if settings have been saved. If not, ask the user if they want to still exit the page
+        Args:
+            btn_name (str): button name to the page to move
+
+        Returns:
+            bool: whether settings are saved or user wants to exit anyway
+        """
+        changes_saved = True
+        if btn_name != "btn_settings":
+            changes_saved = self.settings_frame.check_settings_saved()
+
+        if not changes_saved:
+            response = display_msg(msg_text=Messages.SETTINGS_NOT_SAVED, popup_type="question")
+
+            if response == QMessageBox.StandardButton.Yes:
+                changes_saved = True
+        return changes_saved
+
     def change_page(self, btn_name: str) -> bool:
         """Change the active page when the object is clicked
 
@@ -396,11 +511,16 @@ class MainWindow(QMainWindow, BaseModel):
         btn_page_map = {
             "btn_home": self.ui.page_home, "btn_bt": self.ui.page_bt,
             "btn_settings": self.ui.page_settings, "btn_plots": self.ui.page_plotsNoWidget,
-            "btn_impedance": self.ui.page_impedance, "btn_integration": self.ui.page_integration}
+            "btn_impedance": self.ui.page_impedance}
 
         # If not navigating to impedance, verify if imp mode is active
         imp_disabled = self._verify_imp(btn_name)
         if not imp_disabled:
+            return False
+
+        # If not navigating to settings, verify if settings have been changed
+        settings_saved = self._verify_settings_changed(btn_name)
+        if not settings_saved:
             return False
 
         # If the page requires connection to a Explore device, verify
@@ -414,6 +534,12 @@ class MainWindow(QMainWindow, BaseModel):
             self._move_to_settings()
 
         elif btn_name == "btn_plots":
+            # TODO Uncomment when scroll/full view is implemented
+            # if self.explorer.device_chan > 9:
+            #     self.ui.menuVisualization.menuAction().setVisible(True)
+            # else:
+            #     self.ui.menuVisualization.menuAction().setVisible(False)
+
             filt = True
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_plotsNoWidget)
 
@@ -426,7 +552,6 @@ class MainWindow(QMainWindow, BaseModel):
                 self.highlight_main_menu_item("btn_settings")
                 return False
 
-            # if not self.is_streaming and filt:
             if not self.is_streaming and filt:
                 self._subscribe_callbacks()
                 # TODO
@@ -437,20 +562,29 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.stackedWidget.setCurrentWidget(btn_page_map[btn_name])
         return True
 
+    def plot_tab_changed(self, idx: int) -> None:
+        """Activate/deactivate fft measurment when plot tab changes
+
+        Args:
+            idx (int): index of the active tab
+        """
+        if idx == 2:  # FFT tab active
+            self.fft_plot.start_timer()
+        else:
+            self.fft_plot.stop_timer()
+
     def _subscribe_callbacks(self) -> None:
         """Subscribe signal callbacks
         """
         self.explorer.subscribe(callback=self.orn_plot.model.callback, topic=TOPICS.raw_orn)
         self.explorer.subscribe(callback=self.exg_plot.model.callback, topic=TOPICS.filtered_ExG)
         self.explorer.subscribe(callback=self.fft_plot.model.callback, topic=TOPICS.filtered_ExG)
-        self.fft_plot.start_timer()
         self.explorer.subscribe(callback=self.mkr_plot.model.callback, topic=TOPICS.marker)
 
     def _move_to_settings(self) -> None:
         """Actions to perform before moving to settings
         """
         self.settings_frame.setup_settings_frame()
-        self.settings_frame.one_chan_selected()
         enable = not self.explorer.is_recording and not self.explorer.is_pushing_lsl
         self.settings_frame.enable_settings(enable)
         self.ui.value_sampling_rate.setEnabled(enable)
@@ -606,7 +740,11 @@ class MainWindow(QMainWindow, BaseModel):
     def export_eeglab_dataset(self):
         """Export eeglab dataset
         """
-        folder_name = self.ui.le_import_edf.text()
+        folder_name = self.select_edf_file()
+        print(f"{folder_name=}")
+        if folder_name in [False, '']:
+            return
+
         if not os.path.isdir(folder_name):
             display_msg("Directory does not exist. Please select an existing folder")
             return
@@ -659,4 +797,22 @@ class MainWindow(QMainWindow, BaseModel):
             "",
             QFileDialog.ShowDirsOnly)
 
-        self.ui.le_import_edf.setText(file_path)
+        return file_path
+        # self.ui.le_import_edf.setText(file_path)
+
+    def changeEvent(self, event: PySide6.QtCore.QEvent) -> None:
+        if event.type() == QEvent.WindowStateChange:
+            self.resize_settings_table()
+        return super().changeEvent(event)
+
+    def resize_settings_table(self):
+        if self.height() > 800:
+            self.ui.table_settings.setFixedHeight(192 * 2)
+            self.ui.spacer_frame.setFixedHeight(100)
+        else:
+            self.ui.table_settings.setFixedHeight(192)
+            self.ui.spacer_frame.setFixedHeight(30)
+
+    def resizeEvent(self, event: PySide6.QtGui.QResizeEvent) -> None:
+        self.resize_settings_table()
+        return super().resizeEvent(event)
