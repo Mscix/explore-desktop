@@ -413,6 +413,7 @@ class MainWindow(QMainWindow, BaseModel):
         bold_font = QFont()
         bold_font.setBold(True)
         self.ui.ft_label_device_3.setFont(bold_font)
+        self.ui.ft_label_device_3.setStyleSheet("font-weight: bold")
         self.ui.menuBar.setStyleSheet("font: 10pt")
 
         # Hide unnecessary labels
