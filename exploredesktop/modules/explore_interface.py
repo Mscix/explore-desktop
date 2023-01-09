@@ -177,10 +177,8 @@ class ExploreInterface(Explore):
             packet: EEG packet
         """
         exg_fs = self.stream_processor.device_info['sampling_rate']
-        if (
-            'board_id' in self.stream_processor.device_info.keys() and \
-            self.stream_processor.device_info['board_id'] == 'PCB_305_801_XXX'
-        ):
+        if 'board_id' in self.stream_processor.device_info.keys() and \
+                self.stream_processor.device_info['board_id'] == 'PCB_305_801_XXX':
             self.device_chan = 16
             return
         timestamp, _ = packet.get_data(exg_fs)
