@@ -133,11 +133,11 @@ class DataContainer(BaseModel):
             data (dict): data to insert
             fft (bool, optional): whether data is for FFT plot. Defaults to False.
         """
-        if fft is False and data['t'][0] < DataContainer.last_t:
-            bt_drop = True
-        else:
-            bt_drop = False
-        # bt_drop = False
+        # if fft is False and data['t'][0] < DataContainer.last_t:
+        #     bt_drop = True
+        # else:
+        #     bt_drop = False
+        bt_drop = False
         n_new_points = self.get_n_new_points(data)
         idxs = np.arange(self.pointer, self.pointer + n_new_points)
 

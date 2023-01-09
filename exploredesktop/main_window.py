@@ -414,6 +414,7 @@ class MainWindow(QMainWindow, BaseModel):
         bold_font.setBold(True)
         self.ui.ft_label_device_3.setFont(bold_font)
         self.ui.ft_label_device_3.setStyleSheet("font-weight: bold")
+        self.ui.menuBar.setStyleSheet("font: 10pt")
 
         # Hide unnecessary labels
         # TODO: review in QtCreator if labels are needed in the future or can be deleted

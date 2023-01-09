@@ -255,7 +255,7 @@ class RecordingDialog(PathInputDialog):
         Args:
             text (str): input file name
         """
-        new_text = re.sub(GUISettings.RESERVED_CHARS, "", text)
+        new_text = re.sub(r"[|?*<\">[\]+']", "", text)
         self.ui.input_filepath.setText(new_text)
 
     def _display_warning_file_exists(self) -> None:
