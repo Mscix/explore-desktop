@@ -6,7 +6,6 @@ from enum import Enum
 from typing import Union
 
 import PySide6
-
 # from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
 from exploredesktop.modules.ui.ui_ui_main_window_redisign_menubar import (
     Ui_MainWindow
