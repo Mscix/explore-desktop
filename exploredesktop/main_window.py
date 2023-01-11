@@ -1,12 +1,12 @@
 """Main Application"""
 import logging
 import os
-import shutil
 import sys
 from enum import Enum
 from typing import Union
 
 import PySide6
+
 # from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
 from exploredesktop.modules.ui.ui_ui_main_window_redisign_menubar import (
     Ui_MainWindow
@@ -16,7 +16,6 @@ from explorepy.log_config import (
     write_config
 )
 from explorepy.stream_processor import TOPICS
-from explorepy.tools import generate_eeglab_dataset
 from PySide6.QtCore import (
     QEasingCurve,
     QEvent,
@@ -30,7 +29,6 @@ from PySide6.QtGui import (
     QKeySequence
 )
 from PySide6.QtWidgets import (
-    QFileDialog,
     QGraphicsDropShadowEffect,
     QMainWindow,
     QMessageBox,
@@ -60,6 +58,7 @@ from exploredesktop.modules.filters_module import Filters  # isort:skip
 from exploredesktop.modules.footer_module import FooterFrameView  # isort:skip
 from exploredesktop.modules.imp_module import ImpFrameView  # isort:skip
 from exploredesktop.modules.lsl_module import IntegrationFrameView  # isort:skip
+from exploredesktop.modules.menubar_module import MenuBarActions   # isort:skip
 from exploredesktop.modules.mkr_module import MarkerPlot  # isort:skip
 from exploredesktop.modules.orn_module import ORNPlot  # isort:skip
 from exploredesktop.modules.recording_module import RecordFunctions  # isort:skip
@@ -126,12 +125,6 @@ class MainWindow(QMainWindow, BaseModel):
 
         # HOME PAGE
         self.ui.cb_permission.stateChanged.connect(self.set_permissions)
-        self.ui.btn_import_edf.clicked.connect(self.select_edf_file)
-        self.ui.btn_generate_bdf.setEnabled(False)
-        self.ui.btn_generate_bdf.clicked.connect(self.export_eeglab_dataset)
-        self.ui.le_import_edf.textChanged.connect(
-            lambda: self.ui.btn_generate_bdf.setEnabled(self.ui.le_import_edf.text() != "")
-        )
 
         # IMPEDANCE PAGE
         self.imp_frame = ImpFrameView(self.ui)
@@ -301,6 +294,7 @@ class MainWindow(QMainWindow, BaseModel):
     def _setup_menubar(self) -> None:
         """Setup menubar actions
         """
+        self.menubar_actions = MenuBarActions()
         self.ui.actionNew.triggered.connect(lambda: print("new clicked"))
         # Exit action
         self.ui.actionExit.triggered.connect(self.close)
@@ -322,8 +316,9 @@ class MainWindow(QMainWindow, BaseModel):
         # Metadata actions
         self.ui.actionMetadata_import.triggered.connect(self.settings_frame.import_settings)
         self.ui.actionMetadata_export.triggered.connect(self.settings_frame.export_settings)
-        self.ui.actionConvert.triggered.connect(self.settings_frame.convert_bin)
-        self.ui.actionEEGLAB_Dataset.triggered.connect(self.export_eeglab_dataset)
+        self.ui.actionConvert.triggered.connect(self.menubar_actions.convert_bin)
+        self.ui.actionEEGLAB_Dataset.triggered.connect(self.menubar_actions.export_eeglab_dataset)
+        self.ui.actionData_Repair.triggered.connect(self.menubar_actions.repair_data)
 
         # View actions
         # self.ui.actionFull_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
@@ -736,70 +731,6 @@ class MainWindow(QMainWindow, BaseModel):
             self.ui.cb_permission.setChecked(config)
             exist = True
         return exist
-
-    # NOTE: will move this to appropiate section later
-    def export_eeglab_dataset(self):
-        """Export eeglab dataset
-        """
-        folder_name = self.select_edf_file()
-        print(f"{folder_name=}")
-        if folder_name in [False, '']:
-            return
-
-        if not os.path.isdir(folder_name):
-            display_msg("Directory does not exist. Please select an existing folder")
-            return
-
-        folder_bdfs = os.path.join(folder_name, "bdf")
-        if not os.path.isdir(folder_bdfs):
-            os.mkdir(folder_bdfs)
-            logger.info("Creating folder %s to store bdf files" % folder_bdfs)
-
-        folder_datasets = os.path.join(folder_name, "datasets")
-        if not os.path.isdir(folder_datasets):
-            os.mkdir(folder_datasets)
-            logger.info("Creating folder %s to store dataset files" % folder_datasets)
-
-        n_files = 0
-        for file in os.listdir(folder_name):
-            file_path = os.path.join(folder_name, file)
-            if file_path.endswith(".edf") and os.path.isfile(file_path):
-                bdf_file = os.path.splitext(file)[0] + ".bdf"
-                dataset_file = os.path.splitext(file)[0] + ".set"
-                bdf_path = os.path.join(folder_bdfs, bdf_file)
-                dataset_path = os.path.join(folder_datasets, dataset_file)
-                shutil.copy2(file_path, bdf_path)
-                generate_eeglab_dataset(bdf_path, dataset_path)
-                n_files += 1
-            elif file_path.endswith(".bdf") and os.path.isfile(file_path):
-                dataset_file = os.path.splitext(file)[0] + ".set"
-                dataset_path = os.path.join(folder_datasets, dataset_file)
-                generate_eeglab_dataset(file_path, dataset_path)
-                n_files += 1
-
-        if len(os.listdir(folder_bdfs)) == 0:
-            os.rmdir(folder_bdfs)
-        # folder_bdfs = os.path.dirname(folder_name)
-        folder_datasets = folder_datasets.replace("/", "\\")
-        msg = f"{n_files} datasets exported in folder {folder_datasets}"
-        logger.info(msg)
-        display_msg(msg, popup_type="info")
-
-    def select_edf_file(self):
-        """
-        Open a dialog to select file name to be saved
-        """
-        # TODO get path from last used directory
-
-        dialog = QFileDialog()
-        file_path = dialog.getExistingDirectory(
-            self,
-            "Choose Directory containing EDF/BDF files",
-            "",
-            QFileDialog.ShowDirsOnly)
-
-        return file_path
-        # self.ui.le_import_edf.setText(file_path)
 
     def changeEvent(self, event: PySide6.QtCore.QEvent) -> None:
         if event.type() == QEvent.WindowStateChange:

@@ -93,6 +93,7 @@ class QSettingsKeys(BaseEnum):
     BIN_FOLDER = "last_bin_folder"
     BIN_EXPORT = "last_bin_export"
     RECORD_FOLDER = "last_record_folder"
+    REPAIR_FOLDER = "last_repair_folder"
 
 
 class Stylesheets():

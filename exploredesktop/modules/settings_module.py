@@ -4,7 +4,6 @@ import os
 from copy import deepcopy
 
 import yaml
-from exploredesktop.modules.dialogs import ConvertBinDialog
 from PySide6.QtCore import (
     QAbstractTableModel,
     QEvent,
@@ -588,19 +587,6 @@ class SettingsFrameView(BaseModel):
         stream = open(file_path, 'r')
         settings_dict = yaml.load(stream, Loader=yaml.SafeLoader)
         return settings_dict
-
-    def convert_bin(self):
-        dialog = ConvertBinDialog()
-        data = dialog.exec()
-        if data is False:
-            return
-        self.explorer.convert_bin(
-            bin_file=data['bin_path'],
-            out_dir=data['dst_folder'],
-            file_type=data['file_type'],
-            out_dir_is_full=True
-        )
-        display_msg("Conversion finished", popup_type="info")
 
 
 class CheckBoxDelegate(QItemDelegate):
