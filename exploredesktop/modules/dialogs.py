@@ -34,7 +34,8 @@ from exploredesktop.modules.utils import (  # isort: skip
 from exploredesktop.modules.ui import (  # isort: skip
     Ui_PlotDialog,
     Ui_RecordingDialog,
-    Ui_BinDialog
+    Ui_BinDialog,
+    Ui_RepairDialog
 )
 
 par_dir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
@@ -609,12 +610,96 @@ class ConvertBinDialog(PathInputDialog):
         return data
 
 
+class RepairDataDialog(PathInputDialog):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.ui = Ui_RepairDialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Repair .csv")
+
+        self.csv_path = ""
+        self.folder_path = ""
+        self.ui.btn_browse.clicked.connect(self.browse)
+        self.ui.btn_browse.clicked.connect(self.verify_bin_path)
+        self.ui.input_filename.textChanged.connect(self.check_not_empty)
+        self.ui.input_filename.textChanged.connect(self.verify_bin_path)
+
+        self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        self.ui.warning_label.setHidden(True)
+
+    def browse(self):
+        key = QSettingsKeys.REPAIR_FOLDER.value
+        settings = QSettings("Mentalab", "ExploreDesktop")
+        path = get_path_settings(settings, key)
+
+        dialog = QFileDialog()
+        file_path = dialog.getOpenFileName(
+            self,
+            "Select .csv file to repair",
+            path,
+            "CSV (*.csv)")
+
+        self.csv_path = file_path[0]
+        self.ui.input_filename.setText(self.csv_path)
+        self.folder_path = os.path.dirname(self.csv_path)
+        if path != self.csv_path:
+            settings.setValue(key, self.folder_path)
+
+    def verify_bin_path(self):
+        try:
+            self.bin_path = self.get_bin_path()
+        except FileNotFoundError:
+            self._display_warning_notBin()
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+            return
+        print(f"{self.bin_path=}")
+        self._hide_warning()
+        self.ui.input_filename.setStyleSheet("")
+        self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+
+    def _display_warning_notBin(self) -> None:
+        self.ui.input_filename.setStyleSheet("border: 1px solid rgb(217, 0, 0)")
+        self.ui.warning_label.setHidden(False)
+
+    def get_bin_path(self) -> str:
+        """Return path of binary file to use in data repair
+        """
+        if self.folder_path == "":
+            return ""
+
+        for file in os.listdir(self.folder_path):
+            if os.path.isfile(os.path.join(self.folder_path, file)) and file.endswith(".BIN"):
+                # self.bin_path = os.path.join(self.folder_path, file)
+                return os.path.join(self.folder_path, file)
+        # self.bin_path = ""
+        raise FileNotFoundError
+
+    def check_not_empty(self):
+        if self.ui.input_filename.text().replace(" ", "") == "":
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        else:
+            self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+
+    def get_data(self) -> dict:
+        """Get dialog data
+
+        Returns:
+            dict: dictionary with dialog data
+        """
+        data = {
+            "csv_path": self.ui.input_filename.text(),
+            "bin_path": self.get_bin_path()
+        }
+        return data
+
+
 if __name__ == "__main__":
     import sys
 
     from PySide6.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    dial = RecordingDialog()
+    dial = RepairDataDialog()
+    # dial = RecordingDialog()
     # dial = ConvertBinDialog()
     data = dial.exec()
     print(data)
