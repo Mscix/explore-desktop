@@ -6,10 +6,6 @@ from enum import Enum
 from typing import Union
 
 import PySide6
-# from exploredesktop.modules.ui.ui_main_window_redisign import Ui_MainWindow
-from exploredesktop.modules.ui.ui_ui_main_window_redisign_menubar import (
-    Ui_MainWindow
-)
 from explorepy.log_config import (
     read_config,
     write_config
@@ -40,8 +36,7 @@ from exploredesktop.modules import (  # isort:skip
     BaseModel,
     GUISettings,
     Stylesheets,
-    # this import will replace the Ui_MainWindow from window_redisign in the future
-    # Ui_MainWindow
+    Ui_MainWindow
 )
 from exploredesktop.modules.app_settings import (  # isort:skip
     ConnectionStatus,
@@ -306,7 +301,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionBIN_data.setVisible(False)
         self.ui.actionEDF_data.setVisible(False)
         self.ui.actionEDF_data.setVisible(False)
-        self.ui.actionLast_Session_Settings.setVisible(False)
+        # self.ui.actionLast_Session_Settings.setVisible(False)
 
         self.ui.actionNew.setVisible(False)
 

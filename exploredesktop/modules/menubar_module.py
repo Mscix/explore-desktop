@@ -4,8 +4,14 @@ import os
 import shutil
 from pathlib import Path
 
-from explorepy.tools import generate_eeglab_dataset, compare_recover_from_bin
-from PySide6.QtWidgets import QFileDialog, QMessageBox
+from explorepy.tools import (
+    compare_recover_from_bin,
+    generate_eeglab_dataset
+)
+from PySide6.QtWidgets import (
+    QFileDialog,
+    QMessageBox
+)
 
 
 from exploredesktop.modules import (  # isort:skip
