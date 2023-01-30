@@ -153,13 +153,14 @@ class RecordFunctions(BaseModel):
         """
         Stop recording
         """
-        total_time = datetime.now() - self.t_start_record
-        self.explorer.stop_recording()
-        # total_time = datetime.now() - self.t_start_record
-        self.timer.stop()
-        self._update_button(start=False)
-        self.signals.recordEnd.emit(total_time.total_seconds())
-        self.t_start_record = None
+        if self.explorer.is_recording and self.t_start_record is not None:
+            total_time = datetime.now() - self.t_start_record
+            self.explorer.stop_recording()
+            # total_time = datetime.now() - self.t_start_record
+            self.timer.stop()
+            self._update_button(start=False)
+            self.signals.recordEnd.emit(total_time.total_seconds())
+            self.t_start_record = None
 
     def start_timer_recorder(self, duration: int) -> None:
         """Start timer to display recording time

@@ -2,9 +2,10 @@
 import logging
 import os
 import shutil
+from pathlib import Path
 
-from explorepy.tools import generate_eeglab_dataset
-from PySide6.QtWidgets import QFileDialog
+from explorepy.tools import generate_eeglab_dataset, compare_recover_from_bin
+from PySide6.QtWidgets import QFileDialog, QMessageBox
 
 
 from exploredesktop.modules import (  # isort:skip
@@ -101,10 +102,55 @@ class MenuBarActions(BaseModel):
         display_msg("Conversion finished", popup_type="info")
 
     def repair_data(self) -> None:
+        """Repair recorded csv file by comparison with the binary file
+        """
         dialog = RepairDataDialog()
         data = dialog.exec()
+
         if data is False:
             return
-        import time
-        time.sleep(3)
-        display_msg("Repair finished", popup_type="info")
+
+        folder_path = Path(data['bin_path']).parent.absolute()
+        outfile_bin = self._get_filename_repair(data['bin_path'])
+        outfile_csv = self._get_filename_repair(data['csv_path'])
+
+        try:
+            self.explorer.convert_bin(
+                bin_file=data['bin_path'],
+                out_dir=folder_path,
+                file_type='csv',
+                out_dir_is_full=True
+            )
+        except FileExistsError:
+            msg = (
+                "A csv file already exists for the selected .BIN file. Do you want to overwite?"
+                # "\nOtherwise, the repare will be done with the existing file"
+            )
+            response = display_msg(msg_text=msg, popup_type="question")
+
+            if response == QMessageBox.StandardButton.Yes:
+                self.explorer.convert_bin(
+                    bin_file=data['bin_path'],
+                    out_dir=folder_path,
+                    file_type='csv',
+                    out_dir_is_full=True,
+                    do_overwrite=True
+                )
+            # check if this is wanted bbehaviour of continue
+            else:
+                return
+        try:
+            compare_recover_from_bin(outfile_csv, outfile_bin)
+            display_msg("Repair finished", popup_type="info")
+        except Exception as e:
+            logger.debug(f"An error occured during csv recovery: {type(e)}: {e}")
+            display_msg("An error occured during csv repair")
+
+    @staticmethod
+    def _get_filename_repair(path: str) -> str:
+        """Return file name for the given path without file extension"""
+        _, full_filename = os.path.split(path)
+        filename, _ = os.path.splitext(full_filename)
+        out_file = os.path.join(Path(path).parent.absolute(), filename)
+        out_file = out_file.replace("_ExG", "").replace("_Meta", "").replace("ORN", "").replace("_Marker", "")
+        return out_file
