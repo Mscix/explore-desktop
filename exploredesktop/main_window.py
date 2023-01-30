@@ -318,7 +318,7 @@ class MainWindow(QMainWindow, BaseModel):
         # self.ui.actionFull_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
         # self.ui.actionScroll_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
         # TODO implement below
-        # self.ui.actionLast_Session_Settings.triggered.connect(self.settings_frame.import_last_session_settings)
+        self.ui.actionLast_Session_Settings.triggered.connect(self.settings_frame.import_last_session_settings)
 
         from PySide6.QtGui import QActionGroup
         view_group = QActionGroup(self)
@@ -703,6 +703,7 @@ class MainWindow(QMainWindow, BaseModel):
         """
         QThreadPool().globalInstance().waitForDone()
         self.stop_processes()
+        self.explorer.disconnect()
         return super().closeEvent(event)
 
     def set_permissions(self) -> None:

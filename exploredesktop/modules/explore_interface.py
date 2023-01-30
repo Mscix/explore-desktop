@@ -124,6 +124,7 @@ class ExploreInterface(Explore):
         """
         self.device_chan = None
         self.chan_dict_list = []
+        SettingsManager(self.device_name).save_current_session()
         return super().disconnect()
 
     def set_chan_mask(self, mask=None):

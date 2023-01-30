@@ -4,6 +4,7 @@ import os
 from copy import deepcopy
 
 import yaml
+from appdirs import user_config_dir
 from PySide6.QtCore import (
     QAbstractTableModel,
     QEvent,
@@ -35,7 +36,6 @@ from exploredesktop.modules import (  # isort: skip
     BaseModel
 )
 from exploredesktop.modules.utils import display_msg, wait_cursor, ELECTRODES_10_20  # isort: skip
-
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -520,17 +520,25 @@ class SettingsFrameView(BaseModel):
     def import_settings(self):
         """Import settings
         """
-        settings_dict = self._read_settings_file()
+        settings_dict = self._open_settings_file()
         if settings_dict is None:
             return
         if not self._verify_settings(settings_dict):
             return
 
+        self._apply_imported_settings(settings_dict)
+
+    def _apply_imported_settings(self, settings_dict: dict) -> None:
+        """Apply imported settings to explorepy
+
+        Args:
+            settings_dict (dict): dictionary containing new settings
+        """
         new_dict_list = [
             {
                 'input': f'ch{idx + 1}', 'enable': val[0],
                 'name': val[1], 'type': 'EEG'}
-            for idx, val in enumerate(zip(settings_dict['software_mask'], settings_dict['channel_name']))]
+            for idx, val in enumerate(zip(reversed(settings_dict['software_mask']), settings_dict['channel_name']))]
         self.ui.table_settings.setModel(ConfigTableModel(new_dict_list))
         self.ui.value_sampling_rate.setCurrentText(str(int(settings_dict['sampling_rate'])))
         self.change_settings()
@@ -559,7 +567,7 @@ class SettingsFrameView(BaseModel):
 
         return settings_ok
 
-    def _read_settings_file(self) -> dict:
+    def _open_settings_file(self) -> dict:
         """Open settings yaml file
 
         Returns:
@@ -584,9 +592,29 @@ class SettingsFrameView(BaseModel):
         if path != os.path.dirname(file_path):
             settings.setValue("last_settings_import_folder", os.path.dirname(file_path))
 
+        settings_dict = self._read_settings_file(file_path)
+        return settings_dict
+
+    @staticmethod
+    def _read_settings_file(file_path: str) -> dict:
+        """Read yaml settings file
+
+        Args:
+            file_path (str): path to the yaml file
+
+        Returns:
+            dict: dictionary with the settings included in the yaml file
+        """
         stream = open(file_path, 'r')
         settings_dict = yaml.load(stream, Loader=yaml.SafeLoader)
         return settings_dict
+
+    def import_last_session_settings(self) -> None:
+        """Import settings from last session"""
+        data_path = user_config_dir(appname="Mentalab", appauthor="explorepy", version='archive')
+        file_path = os.path.join(data_path, self.explorer.device_name + ".yaml")
+        settings_dict = self._read_settings_file(file_path)
+        self._apply_imported_settings(settings_dict)
 
 
 class CheckBoxDelegate(QItemDelegate):
