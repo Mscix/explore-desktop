@@ -301,7 +301,6 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionBIN_data.setVisible(False)
         self.ui.actionEDF_data.setVisible(False)
         self.ui.actionEDF_data.setVisible(False)
-        # self.ui.actionLast_Session_Settings.setVisible(False)
 
         self.ui.actionNew.setVisible(False)
 
