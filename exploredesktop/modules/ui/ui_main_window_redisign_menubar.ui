@@ -488,7 +488,7 @@ QTabBar::tab{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>6</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -2861,12 +2861,18 @@ p, li { white-space: pre-wrap; }
                      <property name="text">
                       <string>Device Name: </string>
                      </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="dev_name_input">
-                     <property name="styleSheet">
-                      <string notr="true"/>
+                    <widget class="QComboBox" name="dev_name_input">
+                     <property name="editable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="insertPolicy">
+                      <enum>QComboBox::InsertAtTop</enum>
                      </property>
                      <property name="placeholderText">
                       <string>Explore_XXXX or XXXX</string>

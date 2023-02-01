@@ -702,7 +702,8 @@ class MainWindow(QMainWindow, BaseModel):
         """
         QThreadPool().globalInstance().waitForDone()
         self.stop_processes()
-        self.explorer.disconnect()
+        if self.explorer.device_name is not None:
+            self.explorer.disconnect()
         return super().closeEvent(event)
 
     def set_permissions(self) -> None:

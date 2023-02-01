@@ -1372,12 +1372,14 @@ class Ui_MainWindow(object):
         self.label_15 = QLabel(self.frame_8)
         self.label_15.setObjectName(u"label_15")
         self.label_15.setStyleSheet(u"")
+        self.label_15.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.horizontalLayout_16.addWidget(self.label_15)
 
-        self.dev_name_input = QLineEdit(self.frame_8)
+        self.dev_name_input = QComboBox(self.frame_8)
         self.dev_name_input.setObjectName(u"dev_name_input")
-        self.dev_name_input.setStyleSheet(u"")
+        self.dev_name_input.setEditable(True)
+        self.dev_name_input.setInsertPolicy(QComboBox.InsertAtTop)
 
         self.horizontalLayout_16.addWidget(self.dev_name_input)
 
@@ -1572,7 +1574,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(6)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
