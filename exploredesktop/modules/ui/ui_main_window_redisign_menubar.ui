@@ -3256,8 +3256,15 @@ p, li { white-space: pre-wrap; }
      <string>View</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuToold">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionData_Repair"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuVisualization"/>
+   <addaction name="menuToold"/>
   </widget>
   <action name="actionNew">
    <property name="text">
@@ -3310,6 +3317,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionEEGLAB_Dataset">
    <property name="text">
     <string>EEGLAB Dataset</string>
+   </property>
+  </action>
+  <action name="actionData_Repair">
+   <property name="text">
+    <string>Data Repair</string>
    </property>
   </action>
  </widget>

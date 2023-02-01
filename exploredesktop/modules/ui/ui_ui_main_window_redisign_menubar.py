@@ -54,6 +54,8 @@ class Ui_MainWindow(object):
         self.actionLast_Session_Settings.setObjectName(u"actionLast_Session_Settings")
         self.actionEEGLAB_Dataset = QAction(MainWindow)
         self.actionEEGLAB_Dataset.setObjectName(u"actionEEGLAB_Dataset")
+        self.actionData_Repair = QAction(MainWindow)
+        self.actionData_Repair.setObjectName(u"actionData_Repair")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
@@ -1547,10 +1549,13 @@ class Ui_MainWindow(object):
         self.menuExport.setObjectName(u"menuExport")
         self.menuVisualization = QMenu(self.menuBar)
         self.menuVisualization.setObjectName(u"menuVisualization")
+        self.menuToold = QMenu(self.menuBar)
+        self.menuToold.setObjectName(u"menuToold")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuVisualization.menuAction())
+        self.menuBar.addAction(self.menuToold.menuAction())
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.menuImport.menuAction())
         self.menuFile.addAction(self.menuExport.menuAction())
@@ -1563,6 +1568,7 @@ class Ui_MainWindow(object):
         self.menuImport.addAction(self.actionLast_Session_Settings)
         self.menuExport.addAction(self.actionMetadata_export)
         self.menuExport.addAction(self.actionEEGLAB_Dataset)
+        self.menuToold.addAction(self.actionData_Repair)
 
         self.retranslateUi(MainWindow)
 
@@ -1589,6 +1595,7 @@ class Ui_MainWindow(object):
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.actionLast_Session_Settings.setText(QCoreApplication.translate("MainWindow", u"Last Session Settings", None))
         self.actionEEGLAB_Dataset.setText(QCoreApplication.translate("MainWindow", u"EEGLAB Dataset", None))
+        self.actionData_Repair.setText(QCoreApplication.translate("MainWindow", u"Data Repair", None))
         self.btn_left_menu_toggle.setText(QCoreApplication.translate("MainWindow", u"        Hide", None))
         self.btn_home.setText(QCoreApplication.translate("MainWindow", u"        Home", None))
         self.btn_bt.setText(QCoreApplication.translate("MainWindow", u"        Connect", None))
@@ -1683,5 +1690,6 @@ class Ui_MainWindow(object):
         self.menuImport.setTitle(QCoreApplication.translate("MainWindow", u"Import", None))
         self.menuExport.setTitle(QCoreApplication.translate("MainWindow", u"Export", None))
         self.menuVisualization.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
+        self.menuToold.setTitle(QCoreApplication.translate("MainWindow", u"Tools", None))
     # retranslateUi
 
