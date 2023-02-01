@@ -433,7 +433,7 @@ class ExGData(DataContainer):
             sample_per_packet = 33
         elif self.explorer.device_chan == 8:
             sample_per_packet = 16
-        elif self.explorer.device_chan == 32:
+        elif self.explorer.device_chan in [16, 32]:
             sample_per_packet = 4
 
         expected_packets = rec_time * self.explorer.sampling_rate / sample_per_packet
@@ -492,7 +492,10 @@ class ExGPlot(BasePlots):
         """Add maximum and minimum to explorepy
         """
         # if visualization_option in [1, 7]:
-        if self.model.vis_mode == VisModes.SCROLL:
+        if self.model.vis_mode == VisModes.SCROLL and self.model.explorer.device_chan > 9:
+            self.ui.verticalScrollBar.setMinimum(1)
+            self.ui.verticalScrollBar.setMaximum(9)
+        elif self.model.vis_mode == VisModes.SCROLL and self.model.explorer.device_chan > 16:
             self.ui.verticalScrollBar.setMinimum(1)
             self.ui.verticalScrollBar.setMaximum(25)
         else:
