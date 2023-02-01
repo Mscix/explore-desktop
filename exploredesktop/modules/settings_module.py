@@ -534,6 +534,8 @@ class SettingsFrameView(BaseModel):
         Args:
             settings_dict (dict): dictionary containing new settings
         """
+        if 'channel_name' not in settings_dict.keys():
+            settings_dict['channel_name'] = [f"ch{i + 1}" for i in range(len(settings_dict['software_mask']))]
         new_dict_list = [
             {
                 'input': f'ch{idx + 1}', 'enable': val[0],
