@@ -492,13 +492,14 @@ class ExGPlot(BasePlots):
         """Add maximum and minimum to explorepy
         """
         # if visualization_option in [1, 7]:
-        if self.model.vis_mode == VisModes.SCROLL and self.model.explorer.device_chan > 9:
-            self.ui.verticalScrollBar.setMinimum(1)
-            self.ui.verticalScrollBar.setMaximum(9)
-        elif self.model.vis_mode == VisModes.SCROLL and self.model.explorer.device_chan > 16:
+        if self.model.vis_mode == VisModes.SCROLL and self.model.explorer.device_chan > 16:
             self.ui.verticalScrollBar.setMinimum(1)
             self.ui.verticalScrollBar.setMaximum(25)
+        elif self.model.vis_mode == VisModes.SCROLL and self.model.explorer.device_chan > 9:
+            self.ui.verticalScrollBar.setMinimum(1)
+            self.ui.verticalScrollBar.setMaximum(9)
         else:
+            print("in else")
             self.ui.verticalScrollBar.setMinimum(18)
             self.ui.verticalScrollBar.setMaximum(26)
 
@@ -571,6 +572,7 @@ class ExGPlot(BasePlots):
     def _setup_plot_range(self, plot_wdgt: pg.PlotWidget):
         """Setup time axis"""
         n_chan = self.model.explorer.n_active_chan
+        print(f"{n_chan=}")
         timescale = self.time_scale
         value = self.ui.verticalScrollBar.value()
 
