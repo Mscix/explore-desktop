@@ -124,7 +124,8 @@ class ExploreInterface(Explore):
         """
         self.device_chan = None
         self.chan_dict_list = []
-        SettingsManager(self.device_name).save_current_session()
+        if self.device_name is not None:
+            SettingsManager(self.device_name).save_current_session()
         return super().disconnect()
 
     def set_chan_mask(self, mask=None):
@@ -183,7 +184,6 @@ class ExploreInterface(Explore):
             self.device_chan = 16
             return
         timestamp, _ = packet.get_data(exg_fs)
-        print(f"\n\n{timestamp.shape[0]=}\n\n")
         if timestamp.shape[0] == 33:
             self.device_chan = 4
         # TODO change to 5 when packet number changes
