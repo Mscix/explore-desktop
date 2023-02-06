@@ -164,9 +164,10 @@ class ImpModel(BaseModel):
             str_value = value
         elif value < 5:
             str_value = "<span>&#60; 5 K&#8486;</span>"
-        elif (self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]) or \
-                (self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]):
-            str_value = "Open"
+        elif self.mode == ImpModes.WET and value > Settings.COLOR_RULES_WET["open"]:
+            str_value =  f"<span>&#62; {str(Settings.COLOR_RULES_WET['open'])} K&#8486;</span>"
+        elif self.mode == ImpModes.DRY and value > Settings.COLOR_RULES_DRY["open"]:
+            str_value = f"<span>&#62; {str(Settings.COLOR_RULES_DRY['open'])} K&#8486;</span>"
         else:
             str_value = str(int(round(value, 0))) + " K\u03A9"
         return str_value
