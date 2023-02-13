@@ -48,6 +48,7 @@ class RecordFunctions(BaseModel):
         if self.explorer.is_recording is False:
             self.start_record()
         else:
+            print("\nstopping record")
             self.stop_record()
 
     def start_record(self) -> None:
@@ -67,7 +68,7 @@ class RecordFunctions(BaseModel):
         self.explorer.record_data(
             file_name=os.path.join(file_path, file_name),
             file_type=file_type,
-            duration=record_duration,
+            # duration=record_duration,
             exg_ch_names=self.explorer.active_chan_list(custom_name=True)
         )
 
@@ -153,14 +154,22 @@ class RecordFunctions(BaseModel):
         """
         Stop recording
         """
+        print("\nIn stop_record")
+        print(f"{self.explorer.is_recording =}")
+        print(f"{self.t_start_record=}")
         if self.explorer.is_recording and self.t_start_record is not None:
+            print("in if")
+            # print(f"{=}")
             total_time = datetime.now() - self.t_start_record
+            print(f"{total_time=}")
             self.explorer.stop_recording()
             # total_time = datetime.now() - self.t_start_record
             self.timer.stop()
             self._update_button(start=False)
             self.signals.recordEnd.emit(total_time.total_seconds())
             self.t_start_record = None
+            print("end of if")
+        print("end in stop_record")
 
     def start_timer_recorder(self, duration: int) -> None:
         """Start timer to display recording time
@@ -187,4 +196,5 @@ class RecordFunctions(BaseModel):
         if duration is None or total_sec <= duration:
             self.ui.label_recording_time.setText(strtime)
         else:
+            print("stop record from display rec time")
             self.stop_record()
