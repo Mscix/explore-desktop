@@ -249,7 +249,7 @@ class Settings():
     V_TH = [10, 5 * 10 ** 3]  # Noise threshold for ECG (microVolt)
 
     SCALE_MENU = {
-        "1 uV": 0, "5 uV": -0.66667, "10 uV": -1, "100 uV": -2,
+        "1 uV": 0, "5 uV": -0.66667, "10 uV": -1, "50 uV": -1.66667, "100 uV": -2,
         "200 uV": -2.33333, "500 uV": -2.66667, "1 mV": -3,
         "5 mV": -3.66667, "10 mV": -4, "100 mV": -5}
 
