@@ -91,11 +91,11 @@ class MarkerData(DataContainer):
         inlet = StreamInlet(streams[0], processing_flags=1 | 8)
         while self.acquire_external_markers:
             sample, timestamp = inlet.pull_sample()
-            print("got %s at time %s" % (sample[0], timestamp))
-            self.explorer.set_external_marker(timestamp, str(sample[0]))
-            if DataContainer.vis_time_offset is not None:
-                data = [timestamp - DataContainer.vis_time_offset, str(sample[0]), False]
-                self.signals.mkrAdd.emit(data)
+            if self.acquire_external_markers:
+                self.explorer.set_external_marker(timestamp, str(sample[0]))
+                if DataContainer.vis_time_offset is not None:
+                    data = [timestamp - DataContainer.vis_time_offset, str(sample[0]), False]
+                    self.signals.mkrAdd.emit(data)
 
     def enable_external_markers(self, state: bool) -> None:
         """Enable and disable external marker acquisition
@@ -122,6 +122,7 @@ class MarkerData(DataContainer):
         logger.info("Stopping LSL marker acquisition")
         self.worker.stop()
         self.threadpool.clear()
+        self.threadpool.tryTake(self.worker)
 
 
 class MarkerPlot(BasePlots):
