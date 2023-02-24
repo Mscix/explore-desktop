@@ -336,6 +336,8 @@ class MainWindow(QMainWindow, BaseModel):
         actionScrollView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
         actionScrollView.triggered.connect(self._init_plots)
 
+        self.ui.actionReceive_LSL_Markers.triggered.connect(self.mkr_plot.model.enable_external_markers)
+
     def _init_plots(self) -> None:
         """Initialize plots"""
         self.orn_plot.init_plot()
@@ -546,6 +548,7 @@ class MainWindow(QMainWindow, BaseModel):
                 # TODO
                 # self.update_heart_rate()
                 self.is_streaming = True
+                self.mkr_plot.model.start_lsl_marker_thread()
 
         # Move to page
         self.ui.stackedWidget.setCurrentWidget(btn_page_map[btn_name])

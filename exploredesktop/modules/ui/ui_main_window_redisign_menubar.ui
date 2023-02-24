@@ -3267,6 +3267,7 @@ p, li { white-space: pre-wrap; }
      <string>Tools</string>
     </property>
     <addaction name="actionData_Repair"/>
+    <addaction name="actionReceive_LSL_Markers"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuVisualization"/>
@@ -3328,6 +3329,17 @@ p, li { white-space: pre-wrap; }
   <action name="actionData_Repair">
    <property name="text">
     <string>Data Repair</string>
+   </property>
+  </action>
+  <action name="actionReceive_LSL_Markers">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Receive LSL Markers</string>
    </property>
   </action>
  </widget>

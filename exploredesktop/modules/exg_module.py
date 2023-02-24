@@ -499,7 +499,6 @@ class ExGPlot(BasePlots):
             self.ui.verticalScrollBar.setMinimum(1)
             self.ui.verticalScrollBar.setMaximum(9)
         else:
-            print("in else")
             self.ui.verticalScrollBar.setMinimum(18)
             self.ui.verticalScrollBar.setMaximum(26)
 
