@@ -50,9 +50,7 @@ class Worker(QRunnable):
         except:  # noqa: E722
             exctype, value = sys.exc_info()[:2]
             self.signals.error.emit((exctype, value, traceback.format_exc()))
-            print("ERROR in thread")
-            print(exctype)
-            print(value)
+            logger.debug(f"Error in thread {exctype}: {value}")
         else:
             self.signals.result.emit(result)  # Returns the result of the processing
         finally:
