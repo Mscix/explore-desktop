@@ -7,7 +7,6 @@ import yaml
 from appdirs import user_config_dir
 from PySide6.QtCore import (
     QAbstractTableModel,
-    QEvent,
     QModelIndex,
     QSettings,
     Qt,
@@ -18,7 +17,6 @@ from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
     QHeaderView,
-    QItemDelegate,
     QLineEdit,
     QMessageBox,
     QStyledItemDelegate
@@ -620,7 +618,7 @@ class SettingsFrameView(BaseModel):
 
 
 class _ConfigItemDelegate(QStyledItemDelegate):
-    ''' Combobox item editor
+    '''Combobox item editor
     '''
 
     # pylint: disable=invalid-name
@@ -719,11 +717,11 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
             if self.columns[index.column()]['property'] == 'enable':
                 value = True if value == 2 else False
             return value
-    
+
         elif role == Qt.CheckStateRole and self.columns[index.column()]['property'] == 'enable':
             # print(f"data - {value=}")
             return value
-        
+
         if role == Qt.BackgroundRole:
             if index.column() == 2 and (
                 "".join(
@@ -800,13 +798,13 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         """
         fl = QAbstractTableModel.flags(self, index)
         if self.columns[index.column()]['editor'] == "checkbox":
-            fl |=  Qt.ItemIsUserCheckable
+            fl |= Qt.ItemIsUserCheckable
             # fl |= Qt.ItemIsEditable | Qt.ItemIsUserCheckable
         if not index.isValid():
             return Qt.ItemIsEnabled
         if not self.columns[index.column()]['edit']:
             return Qt.NoItemFlags
-        return fl  | Qt.ItemIsEditable
+        return fl | Qt.ItemIsEditable
 
     def _setitem(self, row: int, column: int, value: str) -> bool:
         """Set property item based on table row and column
@@ -821,13 +819,13 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         """
         if (row >= len(self.chan_data)) or (column >= len(self.columns)):
             return False
-        
+
         # get channel properties
         property = self.chan_data[row]
-        
+
         # get property name from column description
         property_name = self.columns[column]['property']
-        
+
         # set channel property
         if property_name == 'enable':
             value = True if value == 2 else False
