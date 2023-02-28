@@ -619,55 +619,6 @@ class SettingsFrameView(BaseModel):
         self._apply_imported_settings(settings_dict)
 
 
-# class CheckBoxDelegate(QItemDelegate):
-#     """
-#     A delegate that places a fully functioning QCheckBox cell of the column to which it's applied.
-#     """
-#     def __init__(self, parent):
-#         QItemDelegate.__init__(self, parent)
-
-#     # pylint: disable=invalid-name
-#     def createEditor(self, parent, option, index):
-#         """
-#         Important, otherwise an editor is created if the user clicks in this cell.
-#         """
-#         return None
-
-#     def paint(self, painter, option, index):
-#         """
-#         Paint a checkbox without the label.
-#         """
-#         value = int(index.data())
-#         if value == 0:
-#             value = Qt.Unchecked
-#         else:
-#             value = Qt.Checked
-#         self.drawCheck(painter, option, option.rect, value)
-
-#     # pylint: disable=invalid-name
-#     def editorEvent(self, event, model, option, index):
-#         """
-#         Change the data in the model and the state of the checkbox
-#         if the user presses the left mousebutton and this cell is editable. Otherwise do nothing.
-#         """
-#         if not int(index.flags() & Qt.ItemIsEditable) > 0:
-#             return False
-
-#         if event.type() == QEvent.MouseButtonRelease and event.button() == Qt.LeftButton:
-#             # Change the checkbox-state
-#             self.setModelData(None, model, index)
-#             return True
-
-#         return False
-
-#     # pylint: disable=invalid-name
-#     def setModelData(self, editor, model, index):
-#         """
-#         Set new data in the model
-#         """
-#         model.setData(index, 1 if int(index.data()) == 0 else 0, Qt.EditRole)
-
-
 class _ConfigItemDelegate(QStyledItemDelegate):
     ''' Combobox item editor
     '''
