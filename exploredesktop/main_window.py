@@ -183,6 +183,7 @@ class MainWindow(QMainWindow, BaseModel):
         self._stop_recording()
         self._stop_impedance()
         self._stop_lsl()
+        self.mkr_plot.model.stop_lsl_marker_thread()
 
     def _stop_lsl(self) -> None:
         """Stop lsl if active

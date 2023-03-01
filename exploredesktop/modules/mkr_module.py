@@ -36,6 +36,7 @@ class MarkerData(DataContainer):
         self.mrk_plot = {'t': [], 'code': [], 'lines': []}
         self.mrk_replot = {'t': [], 'code': [], 'lines': []}
 
+        self.worker = None
         self.acquire_external_markers = True
 
     def callback(self, packet: explorepy.packet.EventMarker) -> None:
@@ -119,10 +120,11 @@ class MarkerData(DataContainer):
     def stop_lsl_marker_thread(self):
         """Stop LSL marker acquisition
         """
-        logger.info("Stopping LSL marker acquisition")
-        self.worker.stop()
-        self.threadpool.clear()
-        self.threadpool.tryTake(self.worker)
+        if self.worker is not None:
+            logger.info("Stopping LSL marker acquisition")
+            self.worker.stop()
+            self.threadpool.clear()
+            self.threadpool.tryTake(self.worker)
 
 
 class MarkerPlot(BasePlots):
