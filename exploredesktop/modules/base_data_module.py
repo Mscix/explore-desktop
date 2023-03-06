@@ -123,8 +123,12 @@ class DataContainer(BaseModel):
         Returns:
             int: number of points
         """
-        n_new_points = len(data[list(data.keys())[0]])
-        return n_new_points
+        try:
+            n_new_points = len(data[list(data.keys())[0]])
+            return n_new_points
+        # Error happens on disconnect, when some signals are terminated before others
+        except IndexError:
+            return
 
     def insert_new_data(self, data: dict, fft: bool = False, exg=None):
         """Insert new data into plot vectors
@@ -133,31 +137,59 @@ class DataContainer(BaseModel):
             data (dict): data to insert
             fft (bool, optional): whether data is for FFT plot. Defaults to False.
         """
-        # if fft is False and data['t'][0] < DataContainer.last_t:
-        #     bt_drop = True
-        # else:
-        #     bt_drop = False
-        bt_drop = False
+        if fft is False and data['t'][0] < DataContainer.last_t:
+            bt_drop = True
+        else:
+            bt_drop = False
+        # bt_drop = False
         n_new_points = self.get_n_new_points(data)
         idxs = np.arange(self.pointer, self.pointer + n_new_points)
 
         if fft is False:
-            # if bt_drop and exg:
+            # if exg:
             #     print(f"\n{data['t']=}")
             #     print(f"{DataContainer.last_t=}")
             #     a = np.arange(idxs[0] - 10, idxs[-1] + 10)
+
             #     try:
             #         print(f"Before adding: t={self.t_plot_data[a]}")
             #     except:
             #         pass
 
-            self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
 
+            if bt_drop and exg:
+                # print(f"\n{data['t']=}")
+                # print(f"{DataContainer.last_t=}")
+                # print("drop")
+                # a = np.arange(idxs[0] - 10, idxs[-1] + 10)
+                # try:
+                    # print(f"Before adding: t={self.t_plot_data[a]}")
+                # except:
+                #     pass
+                try:
+                    i = np.where(self.t_plot_data<data['t'][0])[0][-1] + 1
+                    """idxs = np.arange(i, i+n_new_points)
+                    self.t_plot_data = np.insert(self.t_plot_data, idxs, data['t'])
+                    self.t_plot_data = self.t_plot_data[:-len(idxs)]"""
+                    self.pointer = i
+                    idxs = np.arange(self.pointer, self.pointer + n_new_points)
+                    # DataContainer.last_t = data['t'][-1]
+                except IndexError:
+                    print("IndexError - ", np.where(self.t_plot_data<data['t'][0]))
+
+            # if len(self.t_plot_data[~np.isnan(self.t_plot_data)])>0 and data['t'][0] - self.t_plot_data[~np.isnan(self.t_plot_data)][-1] > 0.005:
+            #     data['t'] = np.arange(self.t_plot_data[~np.isnan(self.t_plot_data)][-1], data['t'][0], 0.004)
+            #     idxs = np.arange(self.pointer, len(data['t']))
+
+            # else:
+            self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
+            
+            # if exg:
             # if bt_drop and exg:
-            #     try:
-            #         print(f"After adding: t={self.t_plot_data[a]}")
-            #     except:
-            #         pass
+                # try:
+                #     print(f"After adding: t={self.t_plot_data[a]}")
+                # except:
+                #     pass
 
         for key, val in self.plot_data.items():
             if bt_drop is True:
