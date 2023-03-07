@@ -7,7 +7,6 @@ import yaml
 from appdirs import user_config_dir
 from PySide6.QtCore import (
     QAbstractTableModel,
-    QEvent,
     QModelIndex,
     QSettings,
     Qt,
@@ -18,7 +17,6 @@ from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
     QHeaderView,
-    QItemDelegate,
     QLineEdit,
     QMessageBox,
     QStyledItemDelegate
@@ -93,7 +91,7 @@ class SettingsFrameView(BaseModel):
         """Configure settings table
         """
         # Add delegates
-        self.ui.table_settings.setItemDelegateForColumn(1, CheckBoxDelegate(None))
+        # self.ui.table_settings.setItemDelegateForColumn(1, CheckBoxDelegate(None))
         self.ui.table_settings.setItemDelegate(_ConfigItemDelegate())
 
         # Resize to fill all horizontal space
@@ -346,7 +344,7 @@ class SettingsFrameView(BaseModel):
         Returns:
             list[str]: binary list indicating whether channel is active
         """
-        active_chan = [str(one_chan_dict["enable"]) for one_chan_dict in self.ui.table_settings.model().chan_data]
+        active_chan = [str(int(one_chan_dict["enable"])) for one_chan_dict in self.ui.table_settings.model().chan_data]
         # active_chan = list(reversed(active_chan))
         return active_chan
 
@@ -538,7 +536,7 @@ class SettingsFrameView(BaseModel):
             settings_dict['channel_name'] = [f"ch{i + 1}" for i in range(len(settings_dict['software_mask']))]
         new_dict_list = [
             {
-                'input': f'ch{idx + 1}', 'enable': val[0],
+                'input': f'ch{idx + 1}', 'enable': bool(val[0]),
                 'name': val[1], 'type': 'EEG'}
             for idx, val in enumerate(zip(reversed(settings_dict['software_mask']), settings_dict['channel_name']))]
         self.ui.table_settings.setModel(ConfigTableModel(new_dict_list))
@@ -619,57 +617,8 @@ class SettingsFrameView(BaseModel):
         self._apply_imported_settings(settings_dict)
 
 
-class CheckBoxDelegate(QItemDelegate):
-    """
-    A delegate that places a fully functioning QCheckBox cell of the column to which it's applied.
-    """
-    def __init__(self, parent):
-        QItemDelegate.__init__(self, parent)
-
-    # pylint: disable=invalid-name
-    def createEditor(self, parent, option, index):
-        """
-        Important, otherwise an editor is created if the user clicks in this cell.
-        """
-        return None
-
-    def paint(self, painter, option, index):
-        """
-        Paint a checkbox without the label.
-        """
-        value = int(index.data())
-        if value == 0:
-            value = Qt.Unchecked
-        else:
-            value = Qt.Checked
-        self.drawCheck(painter, option, option.rect, value)
-
-    # pylint: disable=invalid-name
-    def editorEvent(self, event, model, option, index):
-        """
-        Change the data in the model and the state of the checkbox
-        if the user presses the left mousebutton and this cell is editable. Otherwise do nothing.
-        """
-        if not int(index.flags() & Qt.ItemIsEditable) > 0:
-            return False
-
-        if event.type() == QEvent.MouseButtonRelease and event.button() == Qt.LeftButton:
-            # Change the checkbox-state
-            self.setModelData(None, model, index)
-            return True
-
-        return False
-
-    # pylint: disable=invalid-name
-    def setModelData(self, editor, model, index):
-        """
-        Set new data in the model
-        """
-        model.setData(index, 1 if int(index.data()) == 0 else 0, Qt.EditRole)
-
-
 class _ConfigItemDelegate(QStyledItemDelegate):
-    ''' Combobox item editor
+    '''Combobox item editor
     '''
 
     # pylint: disable=invalid-name
@@ -765,16 +714,23 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         value = self._getitem(index.row(), index.column())
 
         if (role == Qt.DisplayRole) or (role == Qt.EditRole):
+            if self.columns[index.column()]['property'] == 'enable':
+                value = True if value == 2 else False
+            return value
+
+        elif role == Qt.CheckStateRole and self.columns[index.column()]['property'] == 'enable':
+            # print(f"data - {value=}")
             return value
 
         if role == Qt.BackgroundRole:
             if index.column() == 2 and (
                 "".join(
-                    e for e in value if e.isalnum()).strip() == "" or self.get_list_names().count(value) > 1):
+                    e for e in value if e.isalnum()).strip() == "" or self.get_list_names(full=True).count(value) > 1):
                 return QBrush("#fa5c62")
 
         if role == Qt.TextAlignmentRole:
             return int(Qt.AlignHCenter | Qt.AlignVCenter)
+        return None
 
     def get_list_names(self, full=False) -> list:
         """Return list of custom names
@@ -785,7 +741,7 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
 
     def get_chan_mask(self) -> list:
         """Return channel mask as list"""
-        return [d["enable"] for d in self.chan_data]
+        return [int(d["enable"]) for d in self.chan_data]
 
     # pylint: disable=invalid-name
     def rowCount(self, index) -> int:
@@ -840,19 +796,15 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
     def flags(self, index):
         """Abstract method from QAbstactTableModel
         """
+        fl = QAbstractTableModel.flags(self, index)
+        if self.columns[index.column()]['editor'] == "checkbox":
+            fl |= Qt.ItemIsUserCheckable
+            # fl |= Qt.ItemIsEditable | Qt.ItemIsUserCheckable
         if not index.isValid():
             return Qt.ItemIsEnabled
         if not self.columns[index.column()]['edit']:
             return Qt.NoItemFlags
-        if self.columns[index.column()]['header'] == "Enable":
-            n_active = sum(item["enable"] for item in self.chan_data)
-            if n_active == 1:
-                ch_active = next(item for item in self.chan_data if item["enable"] == 1)["input"]
-                row_active = int(ch_active.replace("ch", "")) - 1
-                if index.column() == 1 and index.row() == row_active:
-                    return Qt.NoItemFlags
-
-        return QAbstractTableModel.flags(self, index) | Qt.ItemIsEditable
+        return fl | Qt.ItemIsEditable
 
     def _setitem(self, row: int, column: int, value: str) -> bool:
         """Set property item based on table row and column
@@ -867,13 +819,18 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         """
         if (row >= len(self.chan_data)) or (column >= len(self.columns)):
             return False
+
         # get channel properties
         property = self.chan_data[row]
+
         # get property name from column description
         property_name = self.columns[column]['property']
+
         # set channel property
         if property_name == 'enable':
+            value = True if value == 2 else False
             property["enable"] = value
+            # print(f"set_item - {value=}")
             return True
 
         if property_name == 'name':
@@ -908,8 +865,10 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         # get property name from column description
         property_name = self.columns[column]['property']
         # get property value
-        if property_name in ['input', 'enable', 'name', 'type']:
+        if property_name in ['input', 'name', 'type']:
             d = str(property[property_name])
+        elif property_name == 'enable':
+            d = 2 if property[property_name] is True else 0
         else:
             d = None
         return d
@@ -918,14 +877,12 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
     def setData(self, index, value, role):
         """Abstract method from QAbstactTableModel to set cell data based on role
         """
-        if index.isValid():
-            if role == Qt.EditRole:
-                if not self._setitem(index.row(), index.column(), value):
-                    return False
-                self.signals.dataSettingsChanged.emit(index)
-                return True
-            elif role == Qt.CheckStateRole:
-                if not self._setitem(index.row(), index.column(), Qt.QVariant(value == Qt.Checked)):
-                    return False
-                return True
+        if not index.isValid():
+            return False
+
+        if role == Qt.CheckStateRole or role == Qt.EditRole:
+            if not self._setitem(index.row(), index.column(), value):
+                return False
+            self.signals.dataSettingsChanged.emit(index)
+            return True
         return False
