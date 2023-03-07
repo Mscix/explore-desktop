@@ -212,11 +212,15 @@ class ImpModel(BaseModel):
         Returns:
             Tuple[list, list]: list of x and y coordinates
         """
+        # block below to handle TypeError that may occur on exploredesktop initialization
+        if n_chan is None:
+            logger.debug("n_chan is None, setting it to 8 (default)")
+            n_chan = 8
         y_pos = [i // 8 * -3 for i in range(n_chan)]
         x_pos = [0 + i * 3 for i in range(8)]
+
         # multiplier to get desired list length
         mult = n_chan / 8
-
         if mult < 1:
             x_pos = x_pos[:n_chan]
         else:
