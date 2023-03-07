@@ -294,8 +294,11 @@ class ImpFrameView():
             return
         with wait_cursor():
             disabled = self.explorer.disable_imp(self.model.imp_callback)
-        if not disabled:
-            self.explorer.is_measuring_imp = False
+
+        # catch disconnection error when sending command
+        if not self.explorer.is_connected or disabled is False:
+            return
+
         self.signals.btnImpMeasureChanged.emit("Measure Impedances")
         self.signals.displayDefaultImp.emit()
 
