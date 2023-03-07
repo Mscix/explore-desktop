@@ -160,7 +160,7 @@ class ExploreInterface(Explore):
 
             self.chan_dict_list = [
                 {
-                    "input": ch, "enable": active, "name": name, "type": sig_type
+                    "input": ch, "enable": bool(active), "name": name, "type": sig_type
                 } for ch, active, name, sig_type in zip(
                     [c.lower() for c in Settings.CHAN_LIST], self.chan_mask, custom_names, signal_types)
             ]
