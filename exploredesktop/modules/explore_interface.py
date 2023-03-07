@@ -55,9 +55,9 @@ class ExploreInterface(Explore):
     def n_active_chan(self) -> Optional[int]:
         """Returns number of active channels"""
         if self.is_connected:
-            # TODO uncomment when adc mask is implemented
+            if isinstance(self.chan_mask, str):
+                return sum([int(i) for i in self.chan_mask])
             return sum(self.chan_mask)
-            # return sum(self.stream_processor.device_info['adc_mask'])
 
         logger.debug("Device is not connected but the number of active channels method is called.")
         return None
