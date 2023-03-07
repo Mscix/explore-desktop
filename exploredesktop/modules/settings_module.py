@@ -359,13 +359,23 @@ class SettingsFrameView(BaseModel):
         new_sr = int(self.ui.value_sampling_rate.currentText())
         changed = False
 
-        if int(current_sr) != new_sr:
-            if self.filters.current_filters is not None:
-                self.filters.check_filters_sr(new_sr)
-            logger.info("\nOld Sampling rate: %s", self.explorer.sampling_rate)
-            changed = self.explorer.set_sampling_rate(sampling_rate=new_sr)
+        if int(current_sr) == new_sr:
+            return changed
+
+        if self.filters.current_filters is not None:
+            self.filters.check_filters_sr(new_sr)
+        logger.info("\nOld Sampling rate: %s", self.explorer.sampling_rate)
+        changed = self.explorer.set_sampling_rate(sampling_rate=new_sr)
+
+        if changed:
             self.explorer.settings.set_adc_mask(list(reversed(self.explorer.chan_mask)))
             logger.info("\nNew Sampling rate: %s", self.explorer.sampling_rate)
+
+        else:
+            display_msg("The command has not been received by the device. Try again")
+            s_rate = int(self.explorer.sampling_rate)
+            self.ui.value_sampling_rate.setCurrentText(str(s_rate))
+
         return changed
 
     def check_settings_saved(self) -> bool:
