@@ -1,7 +1,13 @@
 
+import logging
+
 import explorepy
 import numpy as np
 import pyqtgraph as pg
+from pylsl import (
+    StreamInlet,
+    resolve_stream
+)
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QIntValidator
 
@@ -16,6 +22,10 @@ from exploredesktop.modules.base_data_module import (  # isort: skip
     DataContainer
 )
 from exploredesktop.modules.utils import display_msg  # isort: skip
+from exploredesktop.modules.worker import Worker  # isort: skip
+
+
+logger = logging.getLogger("explorepy." + __name__)
 
 
 class MarkerData(DataContainer):
@@ -25,6 +35,9 @@ class MarkerData(DataContainer):
         super().__init__()
         self.mrk_plot = {'t': [], 'code': [], 'lines': []}
         self.mrk_replot = {'t': [], 'code': [], 'lines': []}
+
+        self.worker = None
+        self.acquire_external_markers = True
 
     def callback(self, packet: explorepy.packet.EventMarker) -> None:
         """Get marker data from packet and emit signal
@@ -70,6 +83,48 @@ class MarkerData(DataContainer):
                 self.mrk_replot['t'].append(t_point)
                 self.mrk_replot['code'].append(code)
                 self.signals.mkrPlot.emit([t_point, code, True])
+
+    def get_lsl_marker(self) -> None:
+        """Acquire LSL markers and emit signal to plot
+        """
+        logger.info("looking for a marker stream...")
+        streams = resolve_stream('type', 'Markers')
+        inlet = StreamInlet(streams[0], processing_flags=1 | 8)
+        while self.acquire_external_markers:
+            sample, timestamp = inlet.pull_sample()
+            if self.acquire_external_markers:
+                self.explorer.set_external_marker(timestamp, str(sample[0]))
+                if DataContainer.vis_time_offset is not None:
+                    data = [timestamp - DataContainer.vis_time_offset, str(sample[0]), False]
+                    self.signals.mkrAdd.emit(data)
+
+    def enable_external_markers(self, state: bool) -> None:
+        """Enable and disable external marker acquisition
+
+        Args:
+            state (bool): whether to acquire
+        """
+        if state:
+            self.acquire_external_markers = True
+            self.start_lsl_marker_thread()
+        else:
+            self.acquire_external_markers = False
+            self.stop_lsl_marker_thread()
+
+    def start_lsl_marker_thread(self) -> None:
+        """Start worker and move to threadpool
+        """
+        self.worker = Worker(self.get_lsl_marker)
+        self.threadpool.start(self.worker)
+
+    def stop_lsl_marker_thread(self):
+        """Stop LSL marker acquisition
+        """
+        if self.worker is not None:
+            logger.info("Stopping LSL marker acquisition")
+            self.worker.stop()
+            self.threadpool.clear()
+            self.threadpool.tryTake(self.worker)
 
 
 class MarkerPlot(BasePlots):

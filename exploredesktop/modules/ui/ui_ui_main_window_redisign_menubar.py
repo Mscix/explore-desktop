@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'ui_main_window_redisign_menubar.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.2.1
+## Created by: Qt User Interface Compiler version 6.4.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -56,6 +56,10 @@ class Ui_MainWindow(object):
         self.actionEEGLAB_Dataset.setObjectName(u"actionEEGLAB_Dataset")
         self.actionData_Repair = QAction(MainWindow)
         self.actionData_Repair.setObjectName(u"actionData_Repair")
+        self.actionReceive_LSL_Markers = QAction(MainWindow)
+        self.actionReceive_LSL_Markers.setObjectName(u"actionReceive_LSL_Markers")
+        self.actionReceive_LSL_Markers.setCheckable(True)
+        self.actionReceive_LSL_Markers.setChecked(True)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
@@ -1571,6 +1575,7 @@ class Ui_MainWindow(object):
         self.menuExport.addAction(self.actionMetadata_export)
         self.menuExport.addAction(self.actionEEGLAB_Dataset)
         self.menuToold.addAction(self.actionData_Repair)
+        self.menuToold.addAction(self.actionReceive_LSL_Markers)
 
         self.retranslateUi(MainWindow)
 
@@ -1598,6 +1603,7 @@ class Ui_MainWindow(object):
         self.actionLast_Session_Settings.setText(QCoreApplication.translate("MainWindow", u"Last Session Settings", None))
         self.actionEEGLAB_Dataset.setText(QCoreApplication.translate("MainWindow", u"EEGLAB Dataset", None))
         self.actionData_Repair.setText(QCoreApplication.translate("MainWindow", u"Data Repair", None))
+        self.actionReceive_LSL_Markers.setText(QCoreApplication.translate("MainWindow", u"Receive LSL Markers", None))
         self.btn_left_menu_toggle.setText(QCoreApplication.translate("MainWindow", u"        Hide", None))
         self.btn_home.setText(QCoreApplication.translate("MainWindow", u"        Home", None))
         self.btn_bt.setText(QCoreApplication.translate("MainWindow", u"        Connect", None))
