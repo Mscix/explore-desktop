@@ -8,12 +8,12 @@ on:
         required: false
         default: false
         type: boolean
+env:
+  exploredesktop_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\'
+  config_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml'
+  package_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages'
 jobs:
   build:
-    env:
-      exploredesktop_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\'
-      config_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml'
-      package_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages'
     strategy:
       matrix:
         os: [ windows-latest ]
@@ -61,11 +61,11 @@ jobs:
           pyinstaller --onedir --console --noconfirm ExploreDesktop.spec
       - name: Copy files to data folders
         run: |
-          xcopy /I /E /H /R /Q dist\ExploreDesktop ${{exploredesktop_path}}data\ExploreDesktop
-          xcopy ${{exploredesktop_path}}extras\MentalabLogo.ico ${{exploredesktop_path}}data
+          xcopy /I /E /H /R /Q dist\ExploreDesktop ${{ env.exploredesktop_path }}data\ExploreDesktop
+          xcopy ${{ env.exploredesktop_path }}extras\MentalabLogo.ico ${{ env.exploredesktop_path }}data
       - name: Generate installer
         run: |
-          binarycreator.exe -c $config_path -p $package_path --verbose ExploreDesktopInstallerOffline.exe
+          binarycreator.exe -c ${{ env.config_path }} -p ${{ env.package_path }} --verbose ExploreDesktopInstallerOffline.exe
       - name: Upload installer
         uses: actions/upload-artifact@v3
         with:
