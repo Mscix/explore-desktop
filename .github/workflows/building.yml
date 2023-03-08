@@ -1,6 +1,6 @@
 name: building-offline
 on:
-  workflow-dispatch:
+  workflow_dispatch:
     inputs:
       usedevelop:
         description: Use develop branch of explorepy
