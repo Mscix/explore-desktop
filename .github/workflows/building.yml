@@ -1,6 +1,7 @@
 name: building-offline
 on:
-  workflow_dispatch:
+  push:
+    branches: [APIS-730-Generate-Binaries-on-Merge-to-Master]
     inputs:
       usedevelop:
         description: Use develop branch of explorepy
