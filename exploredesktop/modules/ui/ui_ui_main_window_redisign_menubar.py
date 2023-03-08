@@ -1161,11 +1161,11 @@ class Ui_MainWindow(object):
 "border-radius: 30px;\n"
 "background-color: rgb(169, 169, 169)\n"
 "}")
-        self.verticalLayout_16 = QVBoxLayout(self.page_impedance)
-        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
+        self.verticalLayout_5 = QVBoxLayout(self.page_impedance)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.verticalSpacer_13 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
-        self.verticalLayout_16.addItem(self.verticalSpacer_13)
+        self.verticalLayout_5.addItem(self.verticalSpacer_13)
 
         self.frame_impedance_title = QFrame(self.page_impedance)
         self.frame_impedance_title.setObjectName(u"frame_impedance_title")
@@ -1186,20 +1186,20 @@ class Ui_MainWindow(object):
         self.horizontalLayout_17.addWidget(self.impedance_title)
 
 
-        self.verticalLayout_16.addWidget(self.frame_impedance_title)
+        self.verticalLayout_5.addWidget(self.frame_impedance_title)
 
         self.verticalSpacer_12 = QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Preferred)
 
-        self.verticalLayout_16.addItem(self.verticalSpacer_12)
+        self.verticalLayout_5.addItem(self.verticalSpacer_12)
 
         self.imp_graph_layout = GraphicsLayoutWidget(self.page_impedance)
         self.imp_graph_layout.setObjectName(u"imp_graph_layout")
 
-        self.verticalLayout_16.addWidget(self.imp_graph_layout)
+        self.verticalLayout_5.addWidget(self.imp_graph_layout)
 
         self.verticalSpacer_15 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Preferred)
 
-        self.verticalLayout_16.addItem(self.verticalSpacer_15)
+        self.verticalLayout_5.addItem(self.verticalSpacer_15)
 
         self.imp_mode = QComboBox(self.page_impedance)
         self.imp_mode.setObjectName(u"imp_mode")
@@ -1207,7 +1207,7 @@ class Ui_MainWindow(object):
         self.imp_mode.setMaximumSize(QSize(200, 16777215))
         self.imp_mode.setStyleSheet(u"")
 
-        self.verticalLayout_16.addWidget(self.imp_mode, 0, Qt.AlignHCenter)
+        self.verticalLayout_5.addWidget(self.imp_mode, 0, Qt.AlignHCenter)
 
         self.horizontalLayout_11 = QHBoxLayout()
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
@@ -1248,11 +1248,139 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11.addItem(self.horizontalSpacer_8)
 
 
-        self.verticalLayout_16.addLayout(self.horizontalLayout_11)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_11)
 
-        self.verticalSpacer_17 = QSpacerItem(20, 60, QSizePolicy.Minimum, QSizePolicy.Maximum)
+        self.verticalSpacer_21 = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Minimum)
 
-        self.verticalLayout_16.addItem(self.verticalSpacer_17)
+        self.verticalLayout_5.addItem(self.verticalSpacer_21)
+
+        self.horizontalLayout_28 = QHBoxLayout()
+        self.horizontalLayout_28.setSpacing(15)
+        self.horizontalLayout_28.setObjectName(u"horizontalLayout_28")
+        self.horizontalSpacer_17 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_28.addItem(self.horizontalSpacer_17)
+
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.frame_green_imp = QFrame(self.page_impedance)
+        self.frame_green_imp.setObjectName(u"frame_green_imp")
+        self.frame_green_imp.setMinimumSize(QSize(20, 20))
+        self.frame_green_imp.setMaximumSize(QSize(20, 20))
+        self.frame_green_imp.setStyleSheet(u"border-radius: 10px;\n"
+"background-color: rgb(43, 133, 26)")
+        self.frame_green_imp.setFrameShape(QFrame.StyledPanel)
+        self.frame_green_imp.setFrameShadow(QFrame.Raised)
+
+        self.horizontalLayout_6.addWidget(self.frame_green_imp)
+
+        self.lbl_green_imp = QLabel(self.page_impedance)
+        self.lbl_green_imp.setObjectName(u"lbl_green_imp")
+
+        self.horizontalLayout_6.addWidget(self.lbl_green_imp)
+
+
+        self.horizontalLayout_28.addLayout(self.horizontalLayout_6)
+
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.frame_yellow_imp = QFrame(self.page_impedance)
+        self.frame_yellow_imp.setObjectName(u"frame_yellow_imp")
+        self.frame_yellow_imp.setMinimumSize(QSize(20, 20))
+        self.frame_yellow_imp.setMaximumSize(QSize(20, 20))
+        self.frame_yellow_imp.setStyleSheet(u"border-radius: 10px;\n"
+"background-color: rgb(197, 197, 39)")
+        self.frame_yellow_imp.setFrameShape(QFrame.StyledPanel)
+        self.frame_yellow_imp.setFrameShadow(QFrame.Raised)
+
+        self.horizontalLayout_10.addWidget(self.frame_yellow_imp)
+
+        self.lbl_yellow_imp = QLabel(self.page_impedance)
+        self.lbl_yellow_imp.setObjectName(u"lbl_yellow_imp")
+
+        self.horizontalLayout_10.addWidget(self.lbl_yellow_imp)
+
+
+        self.horizontalLayout_28.addLayout(self.horizontalLayout_10)
+
+        self.horizontalLayout_18 = QHBoxLayout()
+        self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
+        self.frame_orange_imp = QFrame(self.page_impedance)
+        self.frame_orange_imp.setObjectName(u"frame_orange_imp")
+        self.frame_orange_imp.setMinimumSize(QSize(20, 20))
+        self.frame_orange_imp.setMaximumSize(QSize(20, 20))
+        self.frame_orange_imp.setStyleSheet(u"border-radius: 10px;\n"
+"background-color: rgb(207, 143, 37);")
+        self.frame_orange_imp.setFrameShape(QFrame.StyledPanel)
+        self.frame_orange_imp.setFrameShadow(QFrame.Raised)
+
+        self.horizontalLayout_18.addWidget(self.frame_orange_imp)
+
+        self.lbl_orange_imp = QLabel(self.page_impedance)
+        self.lbl_orange_imp.setObjectName(u"lbl_orange_imp")
+
+        self.horizontalLayout_18.addWidget(self.lbl_orange_imp)
+
+
+        self.horizontalLayout_28.addLayout(self.horizontalLayout_18)
+
+        self.horizontalLayout_20 = QHBoxLayout()
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.frame_red_imp = QFrame(self.page_impedance)
+        self.frame_red_imp.setObjectName(u"frame_red_imp")
+        self.frame_red_imp.setMinimumSize(QSize(20, 20))
+        self.frame_red_imp.setMaximumSize(QSize(20, 20))
+        self.frame_red_imp.setStyleSheet(u"border-radius: 10px;\n"
+"background-color: rgb(203, 0, 0)")
+        self.frame_red_imp.setFrameShape(QFrame.StyledPanel)
+        self.frame_red_imp.setFrameShadow(QFrame.Raised)
+
+        self.horizontalLayout_20.addWidget(self.frame_red_imp)
+
+        self.lbl_red_imp = QLabel(self.page_impedance)
+        self.lbl_red_imp.setObjectName(u"lbl_red_imp")
+
+        self.horizontalLayout_20.addWidget(self.lbl_red_imp)
+
+
+        self.horizontalLayout_28.addLayout(self.horizontalLayout_20)
+
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.frame_black_imp = QFrame(self.page_impedance)
+        self.frame_black_imp.setObjectName(u"frame_black_imp")
+        self.frame_black_imp.setMinimumSize(QSize(20, 20))
+        self.frame_black_imp.setMaximumSize(QSize(20, 20))
+        self.frame_black_imp.setStyleSheet(u"border-radius: 10px;\n"
+"background-color: rgb(17, 17, 17);")
+        self.frame_black_imp.setFrameShape(QFrame.StyledPanel)
+        self.frame_black_imp.setFrameShadow(QFrame.Raised)
+
+        self.horizontalLayout_3.addWidget(self.frame_black_imp)
+
+        self.lbl_black_imp = QLabel(self.page_impedance)
+        self.lbl_black_imp.setObjectName(u"lbl_black_imp")
+
+        self.horizontalLayout_3.addWidget(self.lbl_black_imp)
+
+
+        self.horizontalLayout_28.addLayout(self.horizontalLayout_3)
+
+        self.label_8 = QLabel(self.page_impedance)
+        self.label_8.setObjectName(u"label_8")
+
+        self.horizontalLayout_28.addWidget(self.label_8)
+
+        self.horizontalSpacer_13 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_28.addItem(self.horizontalSpacer_13)
+
+
+        self.verticalLayout_5.addLayout(self.horizontalLayout_28)
+
+        self.verticalSpacer_17 = QSpacerItem(15, 50, QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+        self.verticalLayout_5.addItem(self.verticalSpacer_17)
 
         self.stackedWidget.addWidget(self.page_impedance)
         self.page_bt = QWidget()
@@ -1579,7 +1707,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(6)
+        self.stackedWidget.setCurrentIndex(5)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_rec.setCurrentIndex(0)
 
@@ -1670,6 +1798,12 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.btn_imp_meas.setText(QCoreApplication.translate("MainWindow", u"Measure Impedances", None))
         self.imp_meas_info.setText("")
+        self.lbl_green_imp.setText(QCoreApplication.translate("MainWindow", u"<= 10", None))
+        self.lbl_yellow_imp.setText(QCoreApplication.translate("MainWindow", u"11 - 20", None))
+        self.lbl_orange_imp.setText(QCoreApplication.translate("MainWindow", u"21 - 30", None))
+        self.lbl_red_imp.setText(QCoreApplication.translate("MainWindow", u" 31 - 50", None))
+        self.lbl_black_imp.setText(QCoreApplication.translate("MainWindow", u"> 50", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"kOhm", None))
         self.bt_title.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"

@@ -280,10 +280,60 @@ class ImpFrameView():
         """Setup connections between widgets and slots"""
         # change impedance mode
         self.ui.imp_mode.currentTextChanged.connect(self.model.set_mode)
+        self.ui.imp_mode.currentTextChanged.connect(self.change_legend)
         # start/stop impedance measurement
         self.ui.btn_imp_meas.clicked.connect(self.measure_imp_clicked)
         # question mark button clicked
         self.ui.imp_meas_info.clicked.connect(self.imp_info_clicked)
+
+    def change_legend(self):
+        mode = self.model.mode
+        rules_dict = Settings.COLOR_RULES_DRY if mode == ImpModes.DRY else Settings.COLOR_RULES_WET
+        
+        label = "<=" + str(rules_dict["green"])
+        color = Stylesheets.GREEN_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        stylesheet = f"""
+        border-radius: 10px;
+        background-color: {color};
+        """
+        self.ui.lbl_green_imp.setText(label)
+        self.ui.frame_green_imp.setStyleSheet(stylesheet)
+        
+        label = str(rules_dict["green"] + 1) + " - " + str(rules_dict["yellow"])
+        color = Stylesheets.YELLOW_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        stylesheet = f"""
+        border-radius: 10px;
+        background-color: {color};
+        """
+        self.ui.lbl_yellow_imp.setText(label)
+        self.ui.frame_yellow_imp.setStyleSheet(stylesheet)
+
+        label = str(rules_dict["yellow"] + 1) + " - " + str(rules_dict["orange"])
+        color = Stylesheets.ORANGE_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        stylesheet = f"""
+        border-radius: 10px;
+        background-color: {color};
+        """
+        self.ui.lbl_orange_imp.setText(label)
+        self.ui.frame_orange_imp.setStyleSheet(stylesheet)
+
+        label = str(rules_dict["orange"] + 1) + " - " + str(rules_dict["red"])
+        color = Stylesheets.RED_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        stylesheet = f"""
+        border-radius: 10px;
+        background-color: {color};
+        """
+        self.ui.lbl_red_imp.setText(label)
+        self.ui.frame_red_imp.setStyleSheet(stylesheet)
+
+        label = ">" + str(rules_dict["red"])
+        color = Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        stylesheet = f"""
+        border-radius: 10px;
+        background-color: {color};
+        """
+        self.ui.lbl_black_imp.setText(label)
+        self.ui.frame_black_imp.setStyleSheet(stylesheet)
 
     def set_dropdown(self) -> None:
         """Initialize dropdowns
