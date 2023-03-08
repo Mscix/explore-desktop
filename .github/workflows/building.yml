@@ -38,7 +38,6 @@ jobs:
           python-version: ${{ matrix.python }}
           conda-channels: anaconda, conda-forge, conda-canary
       - name: Install QT dependencies
-        shell: cmd
         run: |
           pip install aqtinstall
           python -m aqt install-qt -O ${{ github.workspace }}/Qt/ windows desktop 6.2.0 win64_msvc2019_64
