@@ -1,7 +1,6 @@
 name: building-offline
 on:
-  push:
-    branches: [APIS-730-Generate-Binaries-on-Merge-to-Master]
+  workflow-dispatch:
     inputs:
       usedevelop:
         description: Use develop branch of explorepy
@@ -38,10 +37,11 @@ jobs:
           python-version: ${{ matrix.python }}
           conda-channels: anaconda, conda-forge, conda-canary
       - name: Install QT dependencies
+        shell: cmd
         run: |
           pip install aqtinstall
-          python3 -m aqt install-qt -O ${{ github.workspace }}/Qt/ windows desktop 6.2.0 win64_msvc2019_64
-          python3 -m aqt install-tool -O ${{ github.workspace }}/Qt/ windows desktop tools_ifw
+          python -m aqt install-qt -O ${{ github.workspace }}/Qt/ windows desktop 6.2.0 win64_msvc2019_64
+          python -m aqt install-tool -O ${{ github.workspace }}/Qt/ windows desktop tools_ifw
           echo "${{ github.workspace }}/Qt/6.2.0/msvc2019_64/bin/" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           echo "${{ github.workspace }}/Qt/Tools/QtInstallerFramework/4.1/bin/" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Install explorepy depencies and necessary packages
