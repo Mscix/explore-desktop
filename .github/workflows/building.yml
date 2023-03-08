@@ -1,7 +1,10 @@
 name: building-offline
 on:
-  push:
-    branches: [APIS-730-Generate-Binaries-on-Merge-to-Master]
+  pull-request:
+    types:
+      - closed
+    branches:
+      - master
 env:
   exploredesktop_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\'
   config_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml'
@@ -9,6 +12,7 @@ env:
   usedevelop: false
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     strategy:
       matrix:
         os: [ windows-latest ]
