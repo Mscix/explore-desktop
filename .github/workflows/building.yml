@@ -2,16 +2,11 @@ name: building-offline
 on:
   push:
     branches: [APIS-730-Generate-Binaries-on-Merge-to-Master]
-    inputs:
-      usedevelop:
-        description: Use develop branch of explorepy
-        required: false
-        default: false
-        type: boolean
 env:
   exploredesktop_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\'
   config_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml'
   package_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages'
+  usedevelop: false
 jobs:
   build:
     strategy:
@@ -52,7 +47,7 @@ jobs:
           pip install -e .
           pip install --upgrade scipy==1.7.3
       - name: Use develop branch if specified
-        if: inputs.usedevelop
+        if: ${{ env.usedevelop }}
         run: |
           pip uninstall -y explorepy
           pip install git+https://github.com/Mentalab-hub/explorepy.git@develop
