@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'ui_main_window_redisign_menubar.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.2
+## Created by: Qt User Interface Compiler version 6.2.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -1018,142 +1018,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_21.addWidget(self.tabWidget)
 
-        self.label_7 = QLabel(self.page_plotsNoWidget)
-        self.label_7.setObjectName(u"label_7")
-        self.label_7.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.label_7.setOpenExternalLinks(True)
-
-        self.verticalLayout_21.addWidget(self.label_7)
-
         self.stackedWidget.addWidget(self.page_plotsNoWidget)
-        self.page_plotsRecorded = QWidget()
-        self.page_plotsRecorded.setObjectName(u"page_plotsRecorded")
-        self.page_plotsRecorded.setStyleSheet(u"")
-        self.verticalLayout_25 = QVBoxLayout(self.page_plotsRecorded)
-        self.verticalLayout_25.setSpacing(6)
-        self.verticalLayout_25.setObjectName(u"verticalLayout_25")
-        self.horizontalLayout_36 = QHBoxLayout()
-        self.horizontalLayout_36.setObjectName(u"horizontalLayout_36")
-        self.label_signal_rec = QLabel(self.page_plotsRecorded)
-        self.label_signal_rec.setObjectName(u"label_signal_rec")
-        self.label_signal_rec.setFont(font2)
-        self.label_signal_rec.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-
-        self.horizontalLayout_36.addWidget(self.label_signal_rec)
-
-        self.value_signal_rec = QComboBox(self.page_plotsRecorded)
-        self.value_signal_rec.setObjectName(u"value_signal_rec")
-        self.value_signal_rec.setMinimumSize(QSize(85, 0))
-        self.value_signal_rec.setMaximumSize(QSize(16777215, 16777215))
-
-        self.horizontalLayout_36.addWidget(self.value_signal_rec)
-
-        self.label_yAxis_rec = QLabel(self.page_plotsRecorded)
-        self.label_yAxis_rec.setObjectName(u"label_yAxis_rec")
-        self.label_yAxis_rec.setFont(font2)
-        self.label_yAxis_rec.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-
-        self.horizontalLayout_36.addWidget(self.label_yAxis_rec)
-
-        self.value_yAxis_rec = QComboBox(self.page_plotsRecorded)
-        self.value_yAxis_rec.setObjectName(u"value_yAxis_rec")
-        self.value_yAxis_rec.setMinimumSize(QSize(85, 0))
-        self.value_yAxis_rec.setMaximumSize(QSize(16777215, 16777215))
-
-        self.horizontalLayout_36.addWidget(self.value_yAxis_rec)
-
-        self.label_timeScale_rec = QLabel(self.page_plotsRecorded)
-        self.label_timeScale_rec.setObjectName(u"label_timeScale_rec")
-        self.label_timeScale_rec.setFont(font2)
-        self.label_timeScale_rec.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-
-        self.horizontalLayout_36.addWidget(self.label_timeScale_rec)
-
-        self.value_timeScale_rec = QComboBox(self.page_plotsRecorded)
-        self.value_timeScale_rec.setObjectName(u"value_timeScale_rec")
-        self.value_timeScale_rec.setMinimumSize(QSize(85, 0))
-        self.value_timeScale_rec.setMaximumSize(QSize(16777215, 16777215))
-
-        self.horizontalLayout_36.addWidget(self.value_timeScale_rec)
-
-        self.label_heartRate_rec = QLabel(self.page_plotsRecorded)
-        self.label_heartRate_rec.setObjectName(u"label_heartRate_rec")
-        self.label_heartRate_rec.setFont(font2)
-        self.label_heartRate_rec.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-
-        self.horizontalLayout_36.addWidget(self.label_heartRate_rec)
-
-        self.value_heartRate_rec = QLabel(self.page_plotsRecorded)
-        self.value_heartRate_rec.setObjectName(u"value_heartRate_rec")
-        self.value_heartRate_rec.setMaximumSize(QSize(16777215, 25))
-        self.value_heartRate_rec.setStyleSheet(u"")
-        self.value_heartRate_rec.setAlignment(Qt.AlignCenter)
-
-        self.horizontalLayout_36.addWidget(self.value_heartRate_rec)
-
-        self.btn_stream_rec = QPushButton(self.page_plotsRecorded)
-        self.btn_stream_rec.setObjectName(u"btn_stream_rec")
-        self.btn_stream_rec.setMinimumSize(QSize(150, 30))
-        self.btn_stream_rec.setMaximumSize(QSize(16777215, 16777215))
-        self.btn_stream_rec.setFont(font2)
-        self.btn_stream_rec.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_stream_rec.setStyleSheet(u"")
-
-        self.horizontalLayout_36.addWidget(self.btn_stream_rec)
-
-
-        self.verticalLayout_25.addLayout(self.horizontalLayout_36)
-
-        self.cb_swipping_rec = QCheckBox(self.page_plotsRecorded)
-        self.cb_swipping_rec.setObjectName(u"cb_swipping_rec")
-
-        self.verticalLayout_25.addWidget(self.cb_swipping_rec)
-
-        self.tabWidget_rec = QTabWidget(self.page_plotsRecorded)
-        self.tabWidget_rec.setObjectName(u"tabWidget_rec")
-        self.tabWidget_rec.setStyleSheet(u"")
-        self.exg_rec = QWidget()
-        self.exg_rec.setObjectName(u"exg_rec")
-        self.horizontalLayout_24 = QHBoxLayout(self.exg_rec)
-        self.horizontalLayout_24.setObjectName(u"horizontalLayout_24")
-        self.plot_exg_rec = GraphicsLayoutWidget(self.exg_rec)
-        self.plot_exg_rec.setObjectName(u"plot_exg_rec")
-
-        self.horizontalLayout_24.addWidget(self.plot_exg_rec)
-
-        self.tabWidget_rec.addTab(self.exg_rec, "")
-        self.orn_rec = QWidget()
-        self.orn_rec.setObjectName(u"orn_rec")
-        self.horizontalLayout_30 = QHBoxLayout(self.orn_rec)
-        self.horizontalLayout_30.setObjectName(u"horizontalLayout_30")
-        self.plot_orn_rec = GraphicsLayoutWidget(self.orn_rec)
-        self.plot_orn_rec.setObjectName(u"plot_orn_rec")
-
-        self.horizontalLayout_30.addWidget(self.plot_orn_rec)
-
-        self.tabWidget_rec.addTab(self.orn_rec, "")
-        self.fft_rec = QWidget()
-        self.fft_rec.setObjectName(u"fft_rec")
-        self.horizontalLayout_40 = QHBoxLayout(self.fft_rec)
-        self.horizontalLayout_40.setObjectName(u"horizontalLayout_40")
-        self.plot_fft_rec = PlotWidget(self.fft_rec)
-        self.plot_fft_rec.setObjectName(u"plot_fft_rec")
-
-        self.horizontalLayout_40.addWidget(self.plot_fft_rec)
-
-        self.tabWidget_rec.addTab(self.fft_rec, "")
-
-        self.verticalLayout_25.addWidget(self.tabWidget_rec)
-
-        self.label_3 = QLabel(self.page_plotsRecorded)
-        self.label_3.setObjectName(u"label_3")
-        self.label_3.setFont(font2)
-        self.label_3.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.label_3.setOpenExternalLinks(True)
-
-        self.verticalLayout_25.addWidget(self.label_3)
-
-        self.stackedWidget.addWidget(self.page_plotsRecorded)
         self.page_impedance = QWidget()
         self.page_impedance.setObjectName(u"page_impedance")
         self.page_impedance.setStyleSheet(u"QFrame[accessibleName=\"color_frame\"] {\n"
@@ -1542,9 +1407,9 @@ class Ui_MainWindow(object):
         self.cb_1020_3 = QCheckBox(self.page__testing)
         self.cb_1020_3.setObjectName(u"cb_1020_3")
         self.cb_1020_3.setGeometry(QRect(130, 110, 131, 22))
-        self.btn_apply_settings_2 = QPushButton(self.page__testing)
-        self.btn_apply_settings_2.setObjectName(u"btn_apply_settings_2")
-        self.btn_apply_settings_2.setGeometry(QRect(680, 270, 80, 24))
+        self.btn_apply_settings_test = QPushButton(self.page__testing)
+        self.btn_apply_settings_test.setObjectName(u"btn_apply_settings_test")
+        self.btn_apply_settings_test.setGeometry(QRect(680, 270, 80, 24))
         self.layoutWidget = QWidget(self.page__testing)
         self.layoutWidget.setObjectName(u"layoutWidget")
         self.layoutWidget.setGeometry(QRect(130, 150, 229, 32))
@@ -1707,9 +1572,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(5)
+        self.stackedWidget.setCurrentIndex(3)
         self.tabWidget.setCurrentIndex(0)
-        self.tabWidget_rec.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1780,18 +1644,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.exg), QCoreApplication.translate("MainWindow", u"  ExG  ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.orn), QCoreApplication.translate("MainWindow", u"  Orientation  ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.fft), QCoreApplication.translate("MainWindow", u"  FFT  ", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><a href=\"mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">Back to recorded data visualization</span></a></p></body></html>", None))
-        self.label_signal_rec.setText(QCoreApplication.translate("MainWindow", u"Signal", None))
-        self.label_yAxis_rec.setText(QCoreApplication.translate("MainWindow", u"Y-axis Scale", None))
-        self.label_timeScale_rec.setText(QCoreApplication.translate("MainWindow", u"Time window", None))
-        self.label_heartRate_rec.setText(QCoreApplication.translate("MainWindow", u"Heart Rate (bpm)", None))
-        self.value_heartRate_rec.setText(QCoreApplication.translate("MainWindow", u"NA", None))
-        self.btn_stream_rec.setText(QCoreApplication.translate("MainWindow", u"Start Visualization", None))
-        self.cb_swipping_rec.setText(QCoreApplication.translate("MainWindow", u"Moving window", None))
-        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.exg_rec), QCoreApplication.translate("MainWindow", u"  ExG  ", None))
-        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.orn_rec), QCoreApplication.translate("MainWindow", u"  Orientation  ", None))
-        self.tabWidget_rec.setTabText(self.tabWidget_rec.indexOf(self.fft_rec), QCoreApplication.translate("MainWindow", u"  FFT  ", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><a href=\"mentalab.com\"><span style=\" text-decoration: underline; color:#0069d9;\">Back to RT visualization</span></a></p></body></html>", None))
         self.impedance_title.setText(QCoreApplication.translate("MainWindow", u"Impedance Measurement", None))
 #if QT_CONFIG(tooltip)
         self.btn_imp_meas.setToolTip("")
@@ -1818,7 +1670,7 @@ class Ui_MainWindow(object):
         self.dev_name_input.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Explore_XXXX or XXXX", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"TESTING IMP", None))
         self.cb_1020_3.setText(QCoreApplication.translate("MainWindow", u"Use 10 - 20", None))
-        self.btn_apply_settings_2.setText(QCoreApplication.translate("MainWindow", u"Apply", None))
+        self.btn_apply_settings_test.setText(QCoreApplication.translate("MainWindow", u"Apply", None))
         self.cb_multitype_signal_3.setText(QCoreApplication.translate("MainWindow", u"Multi Type signal", None))
         self.ft_label_device_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">Not connected</span></p></body></html>", None))
         self.ft_label_firmware.setText(QCoreApplication.translate("MainWindow", u"Firmware Version  ", None))
