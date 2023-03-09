@@ -21,6 +21,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
 )
 from exploredesktop.modules.utils import display_msg, wait_cursor  # isort: skip
 from exploredesktop.modules.base_model import BaseModel  # isort: skip
+
 # Enable antialiasing for prettier plots
 pg.setConfigOptions(antialias=True)
 logger = logging.getLogger("explorepy." + __name__)
@@ -43,9 +44,15 @@ class ImpedanceGraph(pg.GraphItem):
         """
         chan_dict = self.model.explorer.get_chan_dict_list()
         n_chan = self.model.explorer.device_chan
+
+        # get positions
         x_pos, y_pos = self.model.get_pos_lists(n_chan)
         pos = np.array([[x, y] for x, y in zip(x_pos, y_pos)], dtype=float)
+
+        # get texts (channel names)
         texts = [f"{one_chan_dict['name']}\nNA" for one_chan_dict in chan_dict]
+
+        # get the stylesheet (all gray)
         brushes = [Stylesheets.GRAY_IMPEDANCE_STYLESHEET for i in range(n_chan)]
         self.setData(pos=pos, symbolBrush=brushes, text=texts)
 
@@ -84,6 +91,8 @@ class ImpedanceGraph(pg.GraphItem):
         """
         self._remove_old_text()
         self.text_items = []  # this keep only remove texts
+
+        # change font size depending on number of circles displayed
         font_size = 18 if len(texts) <= 4 else 14
         for txt in texts:
             t_chan, t_val = txt.split("\n")
@@ -104,12 +113,14 @@ class ImpedanceGraph(pg.GraphItem):
 
         Args:
             data (dict): dict containing text, position, symbols and brush style
+            n_packet_update (int): only update if packet received is a multiple of it
         """
         if self.packet % n_packet_update == 0:
             texts = data["texts"]
             pos = data["pos"]
             brushes = data["brushes"]
             self.setData(pos=pos, symbolBrush=brushes, text=texts)
+        # increase packet counter
         self.packet += 1
 
 
@@ -130,11 +141,15 @@ class ImpModel(BaseModel):
         Returns:
             str: stylesheet corresponding to input value
         """
+        # for dry right now all black is displayed. Uncomment the if block below to change the behavior
+        # and have different colors with the thresholds defined in app_settings.py
         if self.mode == ImpModes.DRY:
+            # If it is not a number, display gray circles
             if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
                 return Stylesheets.GRAY_IMPEDANCE_STYLESHEET
             else:
                 return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        
         rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
             imp_stylesheet = Stylesheets.GRAY_IMPEDANCE_STYLESHEET
@@ -286,10 +301,12 @@ class ImpFrameView():
         # question mark button clicked
         self.ui.imp_meas_info.clicked.connect(self.imp_info_clicked)
 
-    def change_legend(self):
+    def change_legend(self) -> None:
+        """Change legend"""
         mode = self.model.mode
         rules_dict = Settings.COLOR_RULES_DRY if mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         
+        # Remove the Sylesheet black in else if display changes
         label = "<=" + str(rules_dict["green"])
         color = Stylesheets.GREEN_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
         stylesheet = f"""
@@ -350,6 +367,7 @@ class ImpFrameView():
             disabled = self.explorer.disable_imp(self.model.imp_callback)
 
         # catch disconnection error when sending command
+        # and command not successfully exevuted
         if not self.explorer.is_connected or disabled is False:
             return
 
@@ -361,19 +379,24 @@ class ImpFrameView():
         """
         Slot to run when button impedance measurement is clicked
         """
+        # disable impedance if originally enabled
         if self.explorer.is_measuring_imp:
             self.disable_imp()
             return
 
+        # enable impedance if originally disabled
+        # check if there is a recording/lsl stream ongoing and display warning about added noise
         if not self.explorer.is_measuring_imp and (self.explorer.is_recording or self.explorer.is_pushing_lsl):
             response = display_msg(msg_text=Messages.IMP_NOISE, popup_type='question')
             if response == QMessageBox.StandardButton.No:
                 return
 
+        # verify sampling rate is 250. Do not run impedance if it is not
         sr_ok = self.verify_s_rate()
         if not sr_ok:
             return
 
+        # Start impedance measurement
         self.signals.btnImpMeasureChanged.emit("Stop")
         self.explorer.measure_imp(self.model.imp_callback)
 

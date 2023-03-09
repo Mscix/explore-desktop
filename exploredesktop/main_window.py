@@ -183,7 +183,9 @@ class MainWindow(QMainWindow, BaseModel):
         self._stop_recording()
         self._stop_impedance()
         self._stop_lsl()
-        self.mkr_plot.model.stop_lsl_marker_thread()
+        # TODO uncomment after proper test of external LSL markers and threading
+        # known issue: thread not stopped on close
+        # self.mkr_plot.model.stop_lsl_marker_thread()
 
     def _stop_lsl(self) -> None:
         """Stop lsl if active
@@ -337,7 +339,12 @@ class MainWindow(QMainWindow, BaseModel):
         actionScrollView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
         actionScrollView.triggered.connect(self._init_plots)
 
-        self.ui.actionReceive_LSL_Markers.triggered.connect(self.mkr_plot.model.enable_external_markers)
+        # TODO uncomment after proper test of external LSL markers and threading
+        # currently no QC to limit number of incoming markers --> app blocks
+        # self.ui.actionReceive_LSL_Markers.triggered.connect(self.mkr_plot.model.enable_external_markers)
+        self.ui.actionReceive_LSL_Markers.setVisible(False)
+        self.ui.actionReceive_LSL_Markers.setChecked(False)
+
 
     def _init_plots(self) -> None:
         """Initialize plots"""
@@ -539,10 +546,9 @@ class MainWindow(QMainWindow, BaseModel):
 
             if not self.is_streaming and filt:
                 self._subscribe_callbacks()
-                # TODO
-                # self.update_heart_rate()
                 self.is_streaming = True
-                self.mkr_plot.model.start_lsl_marker_thread()
+                # TODO uncomment after proper test of external LSL markers and threading
+                # self.mkr_plot.model.start_lsl_marker_thread()
 
         # Move to page
         self.ui.stackedWidget.setCurrentWidget(btn_page_map[btn_name])

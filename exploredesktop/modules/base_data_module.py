@@ -128,12 +128,9 @@ class DataContainer(BaseModel):
         Returns:
             int: number of points
         """
-        try:
-            n_new_points = len(data[list(data.keys())[0]])
-            return n_new_points
-        # Error happens on disconnect, when some signals are terminated before others
-        except IndexError:
-            return
+        # IndexError might happen on disconnect, when some signals are terminated before others
+        n_new_points = len(data[list(data.keys())[0]])
+        return n_new_points
 
     def insert_new_data(self, data: dict, fft: bool = False, exg=None):
         """Insert new data into plot vectors
@@ -142,6 +139,8 @@ class DataContainer(BaseModel):
             data (dict): data to insert
             fft (bool, optional): whether data is for FFT plot. Defaults to False.
         """
+        # The parts commented out correspond to the implementation for handling the bluetooth drop
+    
         # if fft is False and data['t'][0] < DataContainer.last_t:
         #     bt_drop = True
         # else:
@@ -180,10 +179,20 @@ class DataContainer(BaseModel):
                 except KeyError:
                     val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
 
-    def update_pointer(self, data, signal=None, fft=False):
-        """update pointer"""
+    def update_pointer(self, data: list, signal=None, fft: bool=False) -> None:
+        """Update pointer and emit signal
+
+        Args:
+            data (list): data from incoming packet
+            signal (PySide6 Signal, optional): Signal to emit when pointer is updated. Defaults to None.
+            fft (bool, optional): Whether it is computing FFT. Defaults to False.
+        """
+
+        # update pointer by adding number of new points
         self.pointer += self.get_n_new_points(data)
 
+        # pointer is bigger than length at the end of the screen,
+        # then restart and emit corresponding signal
         if self.pointer >= len(self.t_plot_data):
             self.pointer -= len(self.t_plot_data)
             if fft is False:
@@ -193,10 +202,13 @@ class DataContainer(BaseModel):
         """Actions to perform when pointer reaches end of the graph
 
         Args:
-            signal (_type_): _description_
+            signal (PySide6 Signal): signal to emit.
         """
+        # Change time vector to view previous points by adding the time scale value
         self.t_plot_data[self.pointer:] += self.timescale
+        # emit signal with smallest time point
         signal.emit(np.nanmin(self.t_plot_data))
+        # if replotting markers, uncomment line below (may cause lagging, not completely tested)
         # self.signals.replotMkrAdd.emit(self.t_plot_data[0])
 
     def new_t_axis(self, signal):
@@ -207,15 +219,21 @@ class DataContainer(BaseModel):
             t_vector (np.array): time vector
             pointer (int): index with current position in time
         """
+        # as long as time vector is smaller than timescale no need to change
         if np.nanmax(self.t_plot_data) < self.timescale:
             return
 
+        # set time ticks based on time vector values
         t_ticks = self.t_plot_data.copy()
         t_ticks[self.pointer:] -= self.timescale
         t_ticks = t_ticks.astype(int)
+
+        # number of points equals to one per second
         l_points = int(len(self.t_plot_data) / int(self.timescale))
         vals = self.t_plot_data[::l_points]
         ticks = t_ticks[::l_points]
+        
+        # Emit signal to update ticks
         try:
             signal.emit([vals, ticks])
         # RuntimeError might happen when the app closes
@@ -224,7 +242,7 @@ class DataContainer(BaseModel):
 
 
 class BasePlots:
-    """_summary_
+    """Base View class for plots
     """
 
     def __init__(self, ui) -> None:
@@ -272,12 +290,8 @@ class BasePlots:
         self.ui.value_yAxis.addItems(Settings.SCALE_MENU.keys())
         self.ui.value_yAxis.setCurrentText("1 mV")
 
-        self.ui.value_yAxis_rec.addItems(Settings.SCALE_MENU.keys())
-        self.ui.value_yAxis_rec.setCurrentText("1 mV")
-
         # value_time_scale
         self.ui.value_timeScale.addItems(Settings.TIME_RANGE_MENU.keys())
-        self.ui.value_timeScale_rec.addItems(Settings.TIME_RANGE_MENU.keys())
 
     @abstractmethod
     def init_plot(self):
@@ -316,6 +330,7 @@ class BasePlots:
 
         active_curves = []
 
+        # Add curves if the channel is active, else remove it
         for curve, active_state in zip(all_curves, [one_chan_dict['enable'] for one_chan_dict in chan_dict]):
             if active_state == 1:
                 plot_widget.addItem(curve)
@@ -331,7 +346,7 @@ class BasePlots:
         Args:
             data (float): minimum value for x range
         """
-
+        # t_min comes from the signal emitted from the model (on_wrap)
         t_min = data
         t_max = t_min + self.time_scale
         for plt in self.plots_list:
@@ -348,6 +363,7 @@ class BasePlots:
         Args:
             data (list): values and corresponding ticks
         """
+        # values and ticks come from signal emitted from the model (new_t_axis)
         values, ticks = data
         for plt in self.plots_list:
             try:
@@ -367,8 +383,15 @@ class BasePlots:
         Returns:
             np.array: connection vector with 0s and 1s
         """
+        # connection vector contains all ones at the beggining (all points connected)
         connection = np.full(length, 1)
+        
+        # a gap is needed around the position line, indicated by the model pointer, so 0s are added
+        # the size of the gap is decided in the n_nans input parameter
         connection[self.model.pointer - int(n_nans / 2): self.model.pointer + int(n_nans / 2)] = 0
+        
+        # more zeros are added where the plot data is nan (we want to have gaps)
+        # this is especially relevant if adding nans when BT drops
         first_key = list(self.model.plot_data.keys())[0]
         idx_nan = np.argwhere(np.isnan(self.model.plot_data[first_key]))
         idx_nan = np.delete(idx_nan, np.where(idx_nan >= [length]))
@@ -388,11 +411,14 @@ class BasePlots:
         Returns:
             list: position lines with updated time pos
         """
+        # the x coordinate is the last updated point of the time vector
         pos = t_vector[self.model.pointer - 1]
 
+        # at the beggining lines have to be initialized
         if None in self.lines:
             for idx, plt in enumerate(self.plots_list):
                 self.lines[idx] = plt.addLine(pos, pen=Stylesheets.POS_LINE_COLOR)
+        # afterwards only the position has to be updated
         else:
             for line in self.lines:
                 try:
@@ -424,6 +450,7 @@ class BasePlots:
 
         to_remove = []
         for idx_t in range(len(item_dict['t'])):
+            # remove the items that are older than the last timepoint acquired
             if item_dict['t'][idx_t] < last_t:
                 for plt_wdgt in self.plots_list:
                     for item in item_dict[item_type.value[0]][idx_t]:
