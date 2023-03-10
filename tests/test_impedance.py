@@ -49,6 +49,15 @@ def get_device_mock():
     mock_interface.settings = mock_settings_manager
     # load current settings soll immer das gleiche dict widergeben
 
+    # Have to set attributes for explore_device
+    # self.explorer.device_name
+    # self.explorer.chan_dict_list
+    # self.explorer.sampling_rate
+
+    mock_interface.device_name = 'Explore_1234'
+    mock_interface.chan_dict_list = [{'input': 'ch1', 'enable': 1, 'name': 'ch1', 'type': 'EEG'}, {'input': 'ch2', 'enable': 1, 'name': 'ch2', 'type': 'EEG'}, {'input': 'ch3', 'enable': 1, 'name': 'ch3', 'type': 'EEG'}, {'input': 'ch4', 'enable': 1, 'name': 'ch4', 'type': 'EEG'}]
+    mock_interface.sampling_rate = 250.0
+
     return mock_interface
 
 
@@ -71,6 +80,8 @@ class TestImpedance:
     def test_imp(self, qtbot):
         app = mw.MainWindow()
         og_bt = app.bt_frame
+
+
         with patch.object(BTFrameView, 'connect') as mock_connect:
             # Set behaviour for mocked connect and test
             mock_connect.return_value = True
@@ -84,13 +95,17 @@ class TestImpedance:
             bt.explorer = device_mock
             app.settings_frame.explorer = device_mock
 
+
+
             input_field = bt.ui.dev_name_input
             qtbot.addWidget(input_field)
             qtbot.keyClicks(input_field, "1234")
             qtbot.keyClick(input_field, Qt.Key_Enter)
+            # This triggers on_connect which in turn triggers setup_settings_frame() should mock it big time...
 
 
-    """
+
+
     def test_impedance_with_mock(self, qtbot):
         app = mw.MainWindow()
         og_bt = app.bt_frame
@@ -147,7 +162,7 @@ class TestImpedance:
             qtbot.mouseClick(meas_btn, Qt.LeftButton)
             sleep(3)
             # check if color changes or something??
-    """
+    
 
 
 
