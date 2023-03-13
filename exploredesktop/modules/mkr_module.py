@@ -37,7 +37,7 @@ class MarkerData(DataContainer):
         self.mrk_replot = {'t': [], 'code': [], 'lines': []}
 
         self.worker = None
-        # TODO: change to True when LSL external markers is properly tested
+        # TODO: change to True after proper test of external LSL markers and threading
         self.acquire_external_markers = False
 
     def callback(self, packet: explorepy.packet.EventMarker) -> None:
@@ -90,8 +90,7 @@ class MarkerData(DataContainer):
     def get_lsl_marker(self) -> None:
         """Acquire LSL markers and emit signal to plot
         """
-        # Currently not in use
-        # Re implement after proper test of external LSL markers and threading
+        # NOTE Currently not in use (will be used after proper test of external LSL markers and threading)
         logger.info("looking for a marker stream...")
         streams = resolve_stream('type', 'Markers')
         inlet = StreamInlet(streams[0], processing_flags=1 | 8)
@@ -109,8 +108,7 @@ class MarkerData(DataContainer):
         Args:
             state (bool): whether to acquire
         """
-        # Currently not in use
-        # Re implement after proper test of external LSL markers and threading
+        # NOTE Currently not in use (will be used after proper test of external LSL markers and threading)
         if state:
             self.acquire_external_markers = True
             self.start_lsl_marker_thread()
@@ -121,16 +119,14 @@ class MarkerData(DataContainer):
     def start_lsl_marker_thread(self) -> None:
         """Start worker and move to threadpool
         """
-        # Currently not in use
-        # Re implement after proper test of external LSL markers and threading
+        # NOTE Currently not in use (will be used after proper test of external LSL markers and threading)
         self.worker = Worker(self.get_lsl_marker)
         self.threadpool.start(self.worker)
 
     def stop_lsl_marker_thread(self):
         """Stop LSL marker acquisition
         """
-        # Currently not in use
-        # Re implement after proper test of external LSL markers and threading
+        # NOTE Currently not in use (will be used after proper test of external LSL markers and threading)
         if self.worker is not None:
             logger.info("Stopping LSL marker acquisition")
             self.worker.stop()
