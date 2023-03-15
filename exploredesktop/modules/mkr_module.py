@@ -37,7 +37,8 @@ class MarkerData(DataContainer):
         self.mrk_replot = {'t': [], 'code': [], 'lines': []}
 
         self.worker = None
-        self.acquire_external_markers = True
+        # TODO: change to True after proper test of external LSL markers and threading
+        self.acquire_external_markers = False
 
     def callback(self, packet: explorepy.packet.EventMarker) -> None:
         """Get marker data from packet and emit signal
