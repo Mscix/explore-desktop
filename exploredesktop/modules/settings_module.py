@@ -54,37 +54,6 @@ class SettingsFrameView(BaseModel):
         # Setup signal connections
         self.signals.dataSettingsChanged.connect(self.disable_apply)
 
-    @Slot()
-    def disable_apply(self, index: QModelIndex) -> None:
-        """Disable apply button based on the names of the channels
-
-        Args:
-            index (QModelIndex): index of the item changed
-        """
-        # Only relevant for Name column, return if item changed is another one
-        if index.column() != 2:
-            return
-
-        # Default values
-        enable = True
-        tooltip = ""
-
-        custom_names = self.ui.table_settings.model().get_list_names()
-        custom_names_alnum = ["".join(e for e in name if e.isalnum()).strip() for name in custom_names]
-
-        # Check for names containing only special characters
-        if "" in custom_names_alnum:
-            enable = False
-            tooltip = "Channel names cannot contain only special characters"
-
-        # Check for repeated names
-        if len(custom_names) != len(set(custom_names)):
-            enable = False
-            tooltip = "Channel names must be unique"
-
-        # Disable button and set tooltip
-        self.ui.btn_apply_settings.setEnabled(enable)
-        self.ui.btn_apply_settings.setToolTip(tooltip)
 
     def setup_tableview(self) -> None:
         """Configure settings table
@@ -110,7 +79,7 @@ class SettingsFrameView(BaseModel):
         self.ui.table_settings.setStyleSheet("""
         border: none;""")
 
-        # Remove button to highlight all
+        # Remove button to select all
         self.ui.table_settings.setCornerButtonEnabled(False)
 
         # Hide signal type column
@@ -120,7 +89,7 @@ class SettingsFrameView(BaseModel):
         """Initialize dropdowns and checkboxes
         """
         self.ui.value_sampling_rate.addItems([str(int(sr)) for sr in Settings.SAMPLING_RATES])
-        # TODO uncomment if signal type is implemented implemented
+        # TODO uncomment later if implemented
         # self.ui.dropdown_signal_type.addItems(ExGModes.all_values())
         # self.ui.cb_multitype_signal.setChecked(False)
         # self.ui.dropdown_signal_type.setHidden(False)
@@ -138,10 +107,10 @@ class SettingsFrameView(BaseModel):
         self.ui.btn_reset_settings.clicked.connect(self.reset_settings)
         self.ui.btn_format_memory.clicked.connect(self.format_memory)
         self.ui.btn_apply_settings.clicked.connect(self.change_settings)
-        # TODO uncomment if implemented
+        # TODO uncomment when implemented
         # self.ui.btn_calibrate.setHidden(True)
 
-        # TODO uncomment if implemented
+        # TODO uncomment later when implemented
         # self.ui.cb_multitype_signal.stateChanged.connect(self.multisignal_clicked)
         # self.ui.dropdown_signal_type.currentTextChanged.connect(self.signal_type_changed)
         # self.ui.cb_1020.stateChanged.connect(self.enable_10_20)
@@ -224,44 +193,20 @@ class SettingsFrameView(BaseModel):
         Apply changes in device settings
         """
         with wait_cursor():
-            # Remove filters needed because they are sensible to sampling rate and active channel
             self._remove_filters()
 
-            # Change settings
             changed_chan = self.change_active_channels()
             changed_sr = self.change_sampling_rate()
             changed_chan_names = self.change_channel_names()
-
             # Reset exg data and reapply filters
             self.signals.updateDataAttributes.emit([DataAttributes.DATA])
             if self.filters.current_filters is not None:
                 self.filters.apply_filters()
 
-        # If change is successfull, display popup information and restart plots
         if changed_sr or changed_chan or changed_chan_names:
             self._display_new_settings()
             self.signals.restartPlot.emit()
             self.signals.displayDefaultImp.emit()
-
-    def _display_new_settings(self) -> None:
-        """Display popup with new sampling rate and active channels
-        """
-        chan_dict = self.explorer.get_chan_dict_list()
-        act_chan = ", ".join([
-            f'{one_chan_dict["input"]} ({one_chan_dict["name"]})'
-            for one_chan_dict in chan_dict if one_chan_dict["enable"]])
-        msg = (
-            "Device settings have been changed:"
-            f"\nSampling Rate: {self.explorer.sampling_rate}"
-            f"\nActive Channels: {act_chan}"
-        )
-        display_msg(msg_text=msg, popup_type="info")
-
-    def _remove_filters(self) -> None:
-        """Remove filters"""
-        if self.filters.current_filters is not None:
-            self.signals.updateDataAttributes.emit([DataAttributes.BASELINE])
-            self.explorer.stream_processor.remove_filters()
 
     ###
     # Change settings functions
@@ -305,7 +250,6 @@ class SettingsFrameView(BaseModel):
 
         active_chan = self.get_active_chan_ui()
         active_chan_int = [int(i) for i in active_chan]
-        
         # verify at least one channel is selected
         n_active = sum(active_chan_int)
         if n_active == 0:
@@ -315,6 +259,9 @@ class SettingsFrameView(BaseModel):
         if (active_chan_int != self.explorer.chan_mask):
             # TODO decide how we handle (de)activation of channels for 4, 8 chan
             changed = True
+            # mask = "".join(active_chan)
+            # changed = self.explorer.set_channels(mask)
+            # self.explorer.chan_mask = self.ui.table_settings.model().get_chan_mask()
             mask = self.ui.table_settings.model().get_chan_mask()
             self.explorer.set_chan_mask(mask)
 
@@ -346,6 +293,7 @@ class SettingsFrameView(BaseModel):
             list[str]: binary list indicating whether channel is active
         """
         active_chan = [str(int(one_chan_dict["enable"])) for one_chan_dict in self.ui.table_settings.model().chan_data]
+        # active_chan = list(reversed(active_chan))
         return active_chan
 
     def change_sampling_rate(self) -> bool:
@@ -359,26 +307,13 @@ class SettingsFrameView(BaseModel):
         new_sr = int(self.ui.value_sampling_rate.currentText())
         changed = False
 
-        if int(current_sr) == new_sr:
-            return changed
-
-        # Check if current filters work with new SR
-        if self.filters.current_filters is not None:
-            self.filters.check_filters_sr(new_sr)
-        
-        # Change sampling rate
-        logger.info("\nOld Sampling rate: %s", self.explorer.sampling_rate)
-        changed = self.explorer.set_sampling_rate(sampling_rate=new_sr)
-
-        if changed:
+        if int(current_sr) != new_sr:
+            if self.filters.current_filters is not None:
+                self.filters.check_filters_sr(new_sr)
+            logger.info("\nOld Sampling rate: %s", self.explorer.sampling_rate)
+            changed = self.explorer.set_sampling_rate(sampling_rate=new_sr)
             self.explorer.settings.set_adc_mask(list(reversed(self.explorer.chan_mask)))
             logger.info("\nNew Sampling rate: %s", self.explorer.sampling_rate)
-
-        else:
-            display_msg("The command has not been received by the device. Try again")
-            s_rate = int(self.explorer.sampling_rate)
-            self.ui.value_sampling_rate.setCurrentText(str(s_rate))
-
         return changed
 
     def check_settings_saved(self) -> bool:
@@ -396,6 +331,8 @@ class SettingsFrameView(BaseModel):
         current_chan_names = self.explorer.active_chan_list(custom_name=True)
         ui_chan_names = self.ui.table_settings.model().get_list_names()
 
+        # TODO uncomment when adc mask is implemented
+        # current_active_chan = self.explorer.stream_processor.device_info['adc_mask']
         current_active_chan = self.explorer.chan_mask
         ui_active_chan = [int(i) for i in self.get_active_chan_ui()]
 
@@ -406,6 +343,26 @@ class SettingsFrameView(BaseModel):
         ) or (current_active_chan != ui_active_chan):
             saved = False
         return saved
+
+    def _display_new_settings(self) -> None:
+        """Display popup with new sampling rate and active channels
+        """
+        chan_dict = self.explorer.get_chan_dict_list()
+        act_chan = ", ".join([
+            f'{one_chan_dict["input"]} ({one_chan_dict["name"]})'
+            for one_chan_dict in chan_dict if one_chan_dict["enable"]])
+        msg = (
+            "Device settings have been changed:"
+            f"\nSampling Rate: {self.explorer.sampling_rate}"
+            f"\nActive Channels: {act_chan}"
+        )
+        display_msg(msg_text=msg, popup_type="info")
+
+    def _remove_filters(self) -> None:
+        """Remove filters"""
+        if self.filters.current_filters is not None:
+            self.signals.updateDataAttributes.emit([DataAttributes.BASELINE])
+            self.explorer.stream_processor.remove_filters()
 
     ###
     # Vis feedback slots
@@ -418,6 +375,38 @@ class SettingsFrameView(BaseModel):
             self.ui.lbl_sr_warning.show()
         else:
             self.ui.lbl_sr_warning.hide()
+
+    @Slot()
+    def disable_apply(self, index: QModelIndex) -> None:
+        """Disable apply button based on the names of the channels
+
+        Args:
+            index (QModelIndex): index of the item changed
+        """
+        # Only relevant for Name column, return if item changed is another one
+        if index.column() != 2:
+            return
+
+        # Default values
+        enable = True
+        tooltip = ""
+
+        custom_names = self.ui.table_settings.model().get_list_names()
+        custom_names_alnum = ["".join(e for e in name if e.isalnum()).strip() for name in custom_names]
+
+        # Check for names containing only special characters
+        if "" in custom_names_alnum:
+            enable = False
+            tooltip = "Channel names cannot contain only special characters"
+
+        # Check for repeated names
+        if len(custom_names) != len(set(custom_names)):
+            enable = False
+            tooltip = "Channel names must be unique"
+
+        # Disable button and set tooltip
+        self.ui.btn_apply_settings.setEnabled(enable)
+        self.ui.btn_apply_settings.setToolTip(tooltip)
 
     def enable_settings(self, enable=True) -> None:
         """Disable or enable device settings widgets
@@ -437,6 +426,7 @@ class SettingsFrameView(BaseModel):
         if enable is False:
             enabled = False
             s_rate_stylesheet = "color: gray;\nborder-color: gray;"
+            # stylesheet = Stylesheets.DISABLED_BTN_STYLESHEET
             tooltip_apply_settings = Messages.DISABLED_SETTINGS
             tooltip_reset_settings = Messages.DISABLED_RESET
             tooltip_format_mem = Messages.DISABLED_FORMAT_MEM
@@ -445,12 +435,15 @@ class SettingsFrameView(BaseModel):
         self.ui.value_sampling_rate.setStyleSheet(s_rate_stylesheet)
 
         self.ui.btn_apply_settings.setEnabled(enabled)
+        # self.ui.btn_apply_settings.setStyleSheet(stylesheet)
         self.ui.btn_apply_settings.setToolTip(tooltip_apply_settings)
 
         self.ui.btn_reset_settings.setEnabled(enabled)
+        # self.ui.btn_reset_settings.setStyleSheet(stylesheet)
         self.ui.btn_reset_settings.setToolTip(tooltip_reset_settings)
 
         self.ui.btn_format_memory.setEnabled(enabled)
+        # self.ui.btn_format_memory.setStyleSheet(stylesheet)
         self.ui.btn_format_memory.setToolTip(tooltip_format_mem)
 
         self.ui.label_warning_disabled.setHidden(enabled)
@@ -461,7 +454,6 @@ class SettingsFrameView(BaseModel):
     def multisignal_clicked(self) -> None:
         """Allow/Block selection of multiple signal types
         """
-        # Currently NOT in use, use if signal type is implemented
         multitype = self.ui.cb_multitype_signal.isChecked()
 
         self.ui.dropdown_signal_type.setHidden(multitype)
@@ -471,8 +463,6 @@ class SettingsFrameView(BaseModel):
     def signal_type_changed(self) -> None:
         """Change all signal type values based on dropdown value
         """
-        # Currently NOT in use, use if signal type is implemented
-
         if self.ui.dropdown_signal_type.currentText() == ExGModes.EEG.value:
             new_value = ExGModes.EEG.value
         else:
@@ -485,8 +475,6 @@ class SettingsFrameView(BaseModel):
     def enable_10_20(self) -> None:
         """Enable combobox for 10/20 notation
         """
-        # Currently NOT in use, use if 10/20 checkbox is implemented
-
         if self.ui.cb_1020.isChecked():
             self.ui.table_settings.model().change_column_editor("name", "combobox")
         else:
@@ -494,41 +482,37 @@ class SettingsFrameView(BaseModel):
 
         self.ui.table_settings.viewport().update()
 
-    # TODO move to menubar
+    ###
+    # Import/Export settings
+    ###
     def export_settings(self):
         """
         Open a dialog to select folder to be saved
         """
-        # Select last folder where settings were saved
         settings = QSettings("Mentalab", "ExploreDesktop")
         path = settings.value("last_settings_save_folder")
         if not path:
             path = os.path.expanduser("~")
 
-        # Launch file explorer to select folder and name to store
         dialog = QFileDialog()
         file_path = dialog.getSaveFileName(
             None,
             "Save As",
             os.path.join(path, "untitled.yaml"),
             "YAML (*.yaml)")
-        file_path = file_path[0]
 
-        # If nothing is selected, return
+        file_path = file_path[0]
         if file_path == "":
             return
 
-        # If path is different from settings, store new path
         if path != os.path.dirname(file_path):
             settings.setValue("last_settings_save_folder", os.path.dirname(file_path))
 
-        # Remove not relevant fields from settings manager
         settings_to_export = self.explorer.settings.settings_dict.copy()
         del settings_to_export["adc_mask"]
         del settings_to_export["firmware_version"]
         del settings_to_export["mac_address"]
 
-        # Save settigns as yaml
         with open(file_path, 'w+') as fp:
             yaml.safe_dump(settings_to_export, fp, default_flow_style=False)
             fp.close()
@@ -636,7 +620,7 @@ class SettingsFrameView(BaseModel):
 
 
 class _ConfigItemDelegate(QStyledItemDelegate):
-    '''Delegate to implement combobox in table items
+    '''Combobox item editor
     '''
 
     # pylint: disable=invalid-name
@@ -886,7 +870,6 @@ class ConfigTableModel(QAbstractTableModel, BaseModel):
         if property_name in ['input', 'name', 'type']:
             d = str(property[property_name])
         elif property_name == 'enable':
-            # 2 and 0 are the Qt states for Checkbox Enabled/Disabled
             d = 2 if property[property_name] is True else 0
         else:
             d = None
