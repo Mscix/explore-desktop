@@ -159,14 +159,43 @@ class DataContainer(BaseModel):
             #     except:
             #         pass
 
+
+            if bt_drop and exg:
+                # print(f"\n{data['t']=}")
+                # print(f"{DataContainer.last_t=}")
+                # print("drop")
+                # a = np.arange(idxs[0] - 10, idxs[-1] + 10)
+                # try:
+                    # print(f"Before adding: t={self.t_plot_data[a]}")
+                # except:
+                #     pass
+                try:
+                    i = np.where(self.t_plot_data<data['t'][0])[0][-1] + 1
+                    """
+                    Different approach. This one relies on inserting the delay packet on the original position
+                    idxs = np.arange(i, i+n_new_points)
+                    self.t_plot_data = np.insert(self.t_plot_data, idxs, data['t'])
+                    self.t_plot_data = self.t_plot_data[:-len(idxs)]"""
+                    self.pointer = i
+                    idxs = np.arange(self.pointer, self.pointer + n_new_points)
+                    # DataContainer.last_t = data['t'][-1]
+                except IndexError:
+                    print("IndexError - ", np.where(self.t_plot_data<data['t'][0]))
+
+            # Different approach. This one relies on the fact that the time between samples should be constant (0.004 for 8 chan)
+            # if len(self.t_plot_data[~np.isnan(self.t_plot_data)])>0 and data['t'][0] - self.t_plot_data[~np.isnan(self.t_plot_data)][-1] > 0.005:
+            #     data['t'] = np.arange(self.t_plot_data[~np.isnan(self.t_plot_data)][-1], data['t'][0], 0.004)
+            #     idxs = np.arange(self.pointer, len(data['t']))
+
+            # else:
             self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
-
+            
+            # if exg:
             # if bt_drop and exg:
-            #     try:
-            #         print(f"After adding: t={self.t_plot_data[a]}")
-            #     except:
-            #         pass
-
+                # try:
+                #     print(f"After adding: t={self.t_plot_data[a]}")
+                # except:
+                #     pass
 
         for key, val in self.plot_data.items():
             if bt_drop is True:

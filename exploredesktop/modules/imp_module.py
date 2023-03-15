@@ -235,7 +235,10 @@ class ImpModel(BaseModel):
         x_pos = [0 + i * 3 for i in range(8)]
 
         # multiplier to get desired list length
+        # if multiplier is smaller than one, means that there are less channels
+        # else there are more and the x coordinates need to be replicated (only y coord changes)
         mult = n_chan / 8
+
         if mult < 1:
             x_pos = x_pos[:n_chan]
         else:
