@@ -1,6 +1,6 @@
 name: building-offline
 on:
-  pull-request:
+  pull_request:
     types:
       - closed
     branches:
