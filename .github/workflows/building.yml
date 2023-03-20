@@ -5,6 +5,7 @@ on:
       - closed
     branches:
       - master
+      - develop
 env:
   exploredesktop_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\'
   config_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml'
