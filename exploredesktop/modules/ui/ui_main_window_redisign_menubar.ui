@@ -488,7 +488,7 @@ QTabBar::tab{
              <string notr="true">f</string>
             </property>
             <property name="currentIndex">
-             <number>3</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="page_home">
              <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -2956,8 +2956,8 @@ p, li { white-space: pre-wrap; }
                <rect>
                 <x>130</x>
                 <y>150</y>
-                <width>229</width>
-                <height>32</height>
+                <width>259</width>
+                <height>34</height>
                </rect>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -3207,7 +3207,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1116</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -3248,10 +3248,18 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionData_Repair"/>
     <addaction name="actionReceive_LSL_Markers"/>
+    <addaction name="actionRecorded_visualization"/>
+   </widget>
+   <widget class="QMenu" name="menuHel">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionDocumentation"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuVisualization"/>
    <addaction name="menuToold"/>
+   <addaction name="menuHel"/>
   </widget>
   <action name="actionNew">
    <property name="text">
@@ -3320,6 +3328,16 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Receive LSL Markers</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionRecorded_visualization">
+   <property name="text">
+    <string>Recorded visualization</string>
    </property>
   </action>
  </widget>

@@ -32,6 +32,8 @@ class ExploreInterface(Explore):
         self.chan_dict_list = []
         self.chan_mask = "1111"
         self.settings = None
+        self.record_filename = ""
+        self.filters = {}
 
     @property
     def sampling_rate(self) -> Optional[int]:

@@ -309,35 +309,43 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Disable actions requiring connection with explorepy
         self._enable_menubar(False)
-        # Metadata actions
+        # self.ui.actionRecorded_visualization.setEnabled(False)
+
+        # File actions
         self.ui.actionMetadata_import.triggered.connect(self.settings_frame.import_settings)
         self.ui.actionMetadata_export.triggered.connect(self.settings_frame.export_settings)
+        self.ui.actionLast_Session_Settings.triggered.connect(self.settings_frame.import_last_session_settings)
         self.ui.actionConvert.triggered.connect(self.menubar_actions.convert_bin)
         self.ui.actionEEGLAB_Dataset.triggered.connect(self.menubar_actions.export_eeglab_dataset)
         self.ui.actionData_Repair.triggered.connect(self.menubar_actions.repair_data)
 
+        # Help actions
+        self.ui.actionDocumentation.triggered.connect(self.menubar_actions.launch_wiki)
+
+        # Tools actions
+        self.ui.actionRecorded_visualization.triggered.connect(self.menubar_actions.recorded_visualization)        
+
+        # NOTE: uncomment below if implementing custom full/scroll view feature
         # View actions
         # self.ui.actionFull_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
         # self.ui.actionScroll_View.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
-        # TODO implement below
-        self.ui.actionLast_Session_Settings.triggered.connect(self.settings_frame.import_last_session_settings)
 
-        from PySide6.QtGui import QActionGroup
-        view_group = QActionGroup(self)
-        view_group.setExclusive(True)
+        # from PySide6.QtGui import QActionGroup
+        # view_group = QActionGroup(self)
+        # view_group.setExclusive(True)
 
-        actionFullView = view_group.addAction("Full View AG")
-        actionFullView.setCheckable(True)
-        actionScrollView = view_group.addAction("Scroll View AG")
-        actionScrollView.setCheckable(True)
-        actionScrollView.setChecked(True)
+        # actionFullView = view_group.addAction("Full View AG")
+        # actionFullView.setCheckable(True)
+        # actionScrollView = view_group.addAction("Scroll View AG")
+        # actionScrollView.setCheckable(True)
+        # actionScrollView.setChecked(True)
 
-        self.ui.menuVisualization.addActions(view_group.actions())
+        # self.ui.menuVisualization.addActions(view_group.actions())
 
-        actionFullView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
-        actionFullView.triggered.connect(self._init_plots)
-        actionScrollView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
-        actionScrollView.triggered.connect(self._init_plots)
+        # actionFullView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.FULL))
+        # actionFullView.triggered.connect(self._init_plots)
+        # actionScrollView.triggered.connect(lambda: self.exg_plot.model.change_vis_mode(VisModes.SCROLL))
+        # actionScrollView.triggered.connect(self._init_plots)
 
         # TODO uncomment after proper test of external LSL markers and threading
         # currently no QC to limit number of incoming markers --> app blocks

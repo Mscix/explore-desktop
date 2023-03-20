@@ -2,16 +2,30 @@
 import logging
 import os
 import shutil
+import sys
+import webbrowser
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+import pyqtgraph as pg
+from exploredesktop.modules.app_settings import Stylesheets
 from explorepy.tools import (
     compare_recover_from_bin,
     generate_eeglab_dataset
 )
 from PySide6.QtWidgets import (
+    QApplication,
     QFileDialog,
-    QMessageBox
+    QGraphicsView,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QScrollBar,
+    QVBoxLayout,
+    QWidget
 )
+from scipy import signal
 
 
 from exploredesktop.modules import (  # isort:skip
@@ -24,6 +38,8 @@ from exploredesktop.modules.dialogs import (  # isort:skip
 from exploredesktop.modules.utils import (  # isort:skip
     display_msg
 )
+
+
 
 logger = logging.getLogger("explorepy." + __name__)
 
@@ -168,3 +184,110 @@ class MenuBarActions(BaseModel):
         out_file = os.path.join(Path(path).parent.absolute(), filename)
         out_file = out_file.replace("_ExG", "").replace("_Meta", "").replace("ORN", "").replace("_Marker", "")
         return out_file
+
+    def launch_wiki(self):
+        webbrowser.open("https://wiki.mentalab.com/explore-desktop-guide/")
+
+    def recorded_visualization(self):
+        filepath = self.explorer.record_filename + "_ExG.csv"
+        # filepath = r"C:\Users\ProSomno\Documents\testing\Explore_CA52_09Mar2023_124936_ExG.csv"
+        filters = {}
+        filters["notch"] = 50
+        filters["high_cutoff"] = 30
+        filters["low_cutoff"] = 1
+        self.window = MainWindow(filepath, self.explorer.filters, self.explorer.sampling_rate)
+        # self.window = MainWindow(filepath, filters, 250)
+        self.window.show()
+
+
+class MainWindow(QMainWindow):
+    def __init__(self, file_path, filters, sr):
+        super().__init__()
+        self.centralWidget = CSVReader(file_path, filters, sr)
+        self.setCentralWidget(self.centralWidget)
+    
+
+class CSVReader(QWidget):
+    def __init__(self, file_path, filters, sampling_rate):
+        super().__init__()
+
+        self.file_path = file_path
+        self.filters = filters
+        self.sampling_rate = sampling_rate
+
+        self.setup_ui()
+        self.style_plot()
+        self.plot_data()
+
+        self.btn_refresh.clicked.connect(self.plot_data)
+
+    def setup_ui(self):
+        """Add widgets to UI
+        """
+        self.plotWidget = pg.PlotWidget()
+        self.plotWidget.setMouseEnabled(x=True, y=True)  # Disable x-axis mouse interaction
+        self.plotWidget.setDownsampling(mode='peak')
+        self.plotWidget.setClipToView(True)
+        self.viewBox = self.plotWidget.plotItem.getViewBox()
+        self.viewBox.setMouseMode(pg.ViewBox.PanMode)
+
+        self.btn_refresh = QPushButton(text="Refresh")
+
+        self.layout = QVBoxLayout(self)
+        self.layout.addWidget(self.btn_refresh)
+        self.layout.addWidget(self.plotWidget)
+
+    def style_plot(self):
+        """Style plot widget by changing color and adding labels
+        """
+        self.plotWidget.setBackground(Stylesheets.PLOT_BACKGROUND)
+        self.plotWidget.setLabel('bottom', "Time (s)")
+        self.plotWidget.setLabel('left', "Amplitude (uV)")
+
+        self.plotWidget.addLegend()
+
+    def plot_data(self):
+        self.read_csv()
+        self.apply_filters()
+        self.apply_offsets()
+
+        for idx, col in enumerate(reversed(list(self.data.columns))):
+            if col != "TimeStamp":
+                self.plotWidget.plot(self.data["TimeStamp"], self.data[col], pen=Stylesheets.FFT_LINE_COLORS[idx], name=col)
+
+    def read_csv(self):
+        self.plotWidget.clear()
+        df = pd.read_csv(self.file_path)
+        df['TimeStamp'] -= df.iloc[0,0]  # substract offset to start at 0
+        self.data = df
+
+    def apply_filters(self):
+        notch_freq = self.filters["notch"]
+        high_freq = self.filters["high_cutoff"]
+        low_freq = self.filters["low_cutoff"]
+        
+        for col in list(self.data.columns):
+            if col != "TimeStamp":
+                if notch_freq is not None:
+                    self.data[col] = self.notch_filter(self.data[col], self.sampling_rate, notch_freq)
+                if high_freq is not None and low_freq is not None:
+                    self.data[col] = self.bp_filter(self.data[col], low_freq, high_freq, self.sampling_rate)
+
+    def apply_offsets(self):
+        offsets = [i for i in reversed(np.arange(0.5, (len(self.data.columns)) / 2, 0.5)[:, np.newaxis].astype(float))]
+        for i, offset in enumerate(offsets):
+            self.data.iloc[:, i+1] += offset        
+
+    @staticmethod 
+    def notch_filter(exg, fs, f0):
+        Q = 30.0  # Quality factor
+        # Design notch filter
+        b, a = signal.iirnotch(f0, Q, fs)
+        return signal.filtfilt(b, a, exg)
+
+    @staticmethod
+    def bp_filter(exg, lf, hf, fs, type='bandpass'):
+        N = 4
+        b, a = signal.butter(N, [lf / fs, hf / fs], type)
+        return signal.filtfilt(b, a, exg)
+

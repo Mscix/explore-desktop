@@ -75,7 +75,10 @@ class RecordFunctions(BaseModel):
         self.signals.recordStart.emit()
         self.t_start_record = datetime.now()
         self._update_button()
-
+        
+        self.explorer.record_filename = os.path.join(file_path, file_name)
+        self.ui.actionRecorded_visualization.setEnabled(True)
+        
     def get_dialog_data(self) -> Tuple[str, str, Union[bool, dict]]:
         """Get data from recording popup dialog
 
@@ -160,6 +163,9 @@ class RecordFunctions(BaseModel):
             self._update_button(start=False)
             self.signals.recordEnd.emit(total_time.total_seconds())
             self.t_start_record = None
+    
+            self.explorer.record_filename = ""
+            self.ui.actionRecorded_visualization.setEnabled(False)
 
     def start_timer_recorder(self, duration: int) -> None:
         """Start timer to display recording time
