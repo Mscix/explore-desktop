@@ -190,13 +190,7 @@ class MenuBarActions(BaseModel):
 
     def recorded_visualization(self):
         filepath = self.explorer.record_filename + "_ExG.csv"
-        # filepath = r"C:\Users\ProSomno\Documents\testing\Explore_CA52_09Mar2023_124936_ExG.csv"
-        filters = {}
-        filters["notch"] = 50
-        filters["high_cutoff"] = 30
-        filters["low_cutoff"] = 1
         self.window = MainWindow(filepath, self.explorer.filters, self.explorer.sampling_rate)
-        # self.window = MainWindow(filepath, filters, 250)
         self.window.show()
 
 
