@@ -54,38 +54,6 @@ class SettingsFrameView(BaseModel):
         # Setup signal connections
         self.signals.dataSettingsChanged.connect(self.disable_apply)
 
-    @Slot()
-    def disable_apply(self, index: QModelIndex) -> None:
-        """Disable apply button based on the names of the channels
-
-        Args:
-            index (QModelIndex): index of the item changed
-        """
-        # Only relevant for Name column, return if item changed is another one
-        if index.column() != 2:
-            return
-
-        # Default values
-        enable = True
-        tooltip = ""
-
-        custom_names = self.ui.table_settings.model().get_list_names()
-        custom_names_alnum = ["".join(e for e in name if e.isalnum()).strip() for name in custom_names]
-
-        # Check for names containing only special characters
-        if "" in custom_names_alnum:
-            enable = False
-            tooltip = "Channel names cannot contain only special characters"
-
-        # Check for repeated names
-        if len(custom_names) != len(set(custom_names)):
-            enable = False
-            tooltip = "Channel names must be unique"
-
-        # Disable button and set tooltip
-        self.ui.btn_apply_settings.setEnabled(enable)
-        # TODO? add tooltip to cells
-        self.ui.btn_apply_settings.setToolTip(tooltip)
 
     def setup_tableview(self) -> None:
         """Configure settings table
@@ -240,26 +208,6 @@ class SettingsFrameView(BaseModel):
             self.signals.restartPlot.emit()
             self.signals.displayDefaultImp.emit()
 
-    def _display_new_settings(self) -> None:
-        """Display popup with new sampling rate and active channels
-        """
-        chan_dict = self.explorer.get_chan_dict_list()
-        act_chan = ", ".join([
-            f'{one_chan_dict["input"]} ({one_chan_dict["name"]})'
-            for one_chan_dict in chan_dict if one_chan_dict["enable"]])
-        msg = (
-            "Device settings have been changed:"
-            f"\nSampling Rate: {self.explorer.sampling_rate}"
-            f"\nActive Channels: {act_chan}"
-        )
-        display_msg(msg_text=msg, popup_type="info")
-
-    def _remove_filters(self) -> None:
-        """Remove filters"""
-        if self.filters.current_filters is not None:
-            self.signals.updateDataAttributes.emit([DataAttributes.BASELINE])
-            self.explorer.stream_processor.remove_filters()
-
     ###
     # Change settings functions
     ###
@@ -396,6 +344,26 @@ class SettingsFrameView(BaseModel):
             saved = False
         return saved
 
+    def _display_new_settings(self) -> None:
+        """Display popup with new sampling rate and active channels
+        """
+        chan_dict = self.explorer.get_chan_dict_list()
+        act_chan = ", ".join([
+            f'{one_chan_dict["input"]} ({one_chan_dict["name"]})'
+            for one_chan_dict in chan_dict if one_chan_dict["enable"]])
+        msg = (
+            "Device settings have been changed:"
+            f"\nSampling Rate: {self.explorer.sampling_rate}"
+            f"\nActive Channels: {act_chan}"
+        )
+        display_msg(msg_text=msg, popup_type="info")
+
+    def _remove_filters(self) -> None:
+        """Remove filters"""
+        if self.filters.current_filters is not None:
+            self.signals.updateDataAttributes.emit([DataAttributes.BASELINE])
+            self.explorer.stream_processor.remove_filters()
+
     ###
     # Vis feedback slots
     ###
@@ -407,6 +375,38 @@ class SettingsFrameView(BaseModel):
             self.ui.lbl_sr_warning.show()
         else:
             self.ui.lbl_sr_warning.hide()
+
+    @Slot()
+    def disable_apply(self, index: QModelIndex) -> None:
+        """Disable apply button based on the names of the channels
+
+        Args:
+            index (QModelIndex): index of the item changed
+        """
+        # Only relevant for Name column, return if item changed is another one
+        if index.column() != 2:
+            return
+
+        # Default values
+        enable = True
+        tooltip = ""
+
+        custom_names = self.ui.table_settings.model().get_list_names()
+        custom_names_alnum = ["".join(e for e in name if e.isalnum()).strip() for name in custom_names]
+
+        # Check for names containing only special characters
+        if "" in custom_names_alnum:
+            enable = False
+            tooltip = "Channel names cannot contain only special characters"
+
+        # Check for repeated names
+        if len(custom_names) != len(set(custom_names)):
+            enable = False
+            tooltip = "Channel names must be unique"
+
+        # Disable button and set tooltip
+        self.ui.btn_apply_settings.setEnabled(enable)
+        self.ui.btn_apply_settings.setToolTip(tooltip)
 
     def enable_settings(self, enable=True) -> None:
         """Disable or enable device settings widgets
@@ -482,7 +482,9 @@ class SettingsFrameView(BaseModel):
 
         self.ui.table_settings.viewport().update()
 
-    # TODO create a class for menubar and move there
+    ###
+    # Import/Export settings
+    ###
     def export_settings(self):
         """
         Open a dialog to select folder to be saved

@@ -156,7 +156,6 @@ class RecordFunctions(BaseModel):
         if self.explorer.is_recording and self.t_start_record is not None:
             total_time = datetime.now() - self.t_start_record
             self.explorer.stop_recording()
-            # total_time = datetime.now() - self.t_start_record
             self.timer.stop()
             self._update_button(start=False)
             self.signals.recordEnd.emit(total_time.total_seconds())

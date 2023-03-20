@@ -66,6 +66,7 @@ class MarkerData(DataContainer):
         else:
             mrk_dict = self.mrk_replot
 
+        # Add timestamp and code to dictionary, emit signal that will add line
         mrk_dict['t'].append(t_point)
         mrk_dict['code'].append(code)
         self.signals.mkrPlot.emit(data)
@@ -77,6 +78,7 @@ class MarkerData(DataContainer):
         Args:
             t_thr (float): last time point
         """
+        # Currently not in use - replotting markers may lead to lag
         for idx_t in range(len(self.mrk_plot['t'])):
             if self.mrk_plot['t'][idx_t] < t_thr:
                 t_point = self.mrk_plot['t'][idx_t] + self.timescale
@@ -88,6 +90,7 @@ class MarkerData(DataContainer):
     def get_lsl_marker(self) -> None:
         """Acquire LSL markers and emit signal to plot
         """
+        # NOTE Currently not in use (will be used after proper test of external LSL markers and threading)
         logger.info("looking for a marker stream...")
         streams = resolve_stream('type', 'Markers')
         inlet = StreamInlet(streams[0], processing_flags=1 | 8)
@@ -105,6 +108,7 @@ class MarkerData(DataContainer):
         Args:
             state (bool): whether to acquire
         """
+        # NOTE Currently not in use (will be used after proper test of external LSL markers and threading)
         if state:
             self.acquire_external_markers = True
             self.start_lsl_marker_thread()
@@ -115,12 +119,14 @@ class MarkerData(DataContainer):
     def start_lsl_marker_thread(self) -> None:
         """Start worker and move to threadpool
         """
+        # NOTE Currently not in use (will be used after proper test of external LSL markers and threading)
         self.worker = Worker(self.get_lsl_marker)
         self.threadpool.start(self.worker)
 
     def stop_lsl_marker_thread(self):
         """Stop LSL marker acquisition
         """
+        # NOTE Currently not in use (will be used after proper test of external LSL markers and threading)
         if self.worker is not None:
             logger.info("Stopping LSL marker acquisition")
             self.worker.stop()

@@ -414,22 +414,15 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.menuBar.setStyleSheet("font: 10pt")
 
         # Hide unnecessary labels
-        # TODO: review in QtCreator if labels are needed in the future or can be deleted
-        # TODO check if sethidden can be set from qtCreator
-
-        # self.ui.label_3.setHidden(self.file_names is None)
-
-        # plotting page
-        self.ui.label_3.setHidden(True)
-        self.ui.label_7.setHidden(True)
-
         # settings page
         self.ui.label_warning_disabled.setHidden(True)
         self.ui.lbl_sr_warning.hide()
         self.ui.btn_calibrate.setHidden(True)
+        
         # connect page
         self.ui.lbl_wdws_warning.hide()
         # self.ui.lbl_bt_instructions.hide()
+        
         # integration page
         # TODO: decide if we want to enable duration
         self.ui.lsl_duration_value.hide()
@@ -552,8 +545,6 @@ class MainWindow(QMainWindow, BaseModel):
 
             if not self.is_streaming and filt:
                 self._subscribe_callbacks()
-                # TODO
-                # self.update_heart_rate()
                 self.is_streaming = True
                 # TODO uncomment after proper test of external LSL markers and threading
                 # self.mkr_plot.model.start_lsl_marker_thread()

@@ -44,7 +44,6 @@ class Worker(QRunnable):
         """Initialise the runner function with passed args, kwargs"""
         try:
             if self._running:
-                print(f"{self._running=}")
                 result = self.funct(*self.args, **self.kwargs)
             self.signals.finished.emit()
         # pylint: disable=bare-except

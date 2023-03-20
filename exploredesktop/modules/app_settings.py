@@ -288,6 +288,7 @@ class Messages():
     WARNING_PAIRED_DEV_WINDOWS = "Note: Listed paired devices might not be advertising"
     INVALID_EXPLORE_NAME = "Please select a device or provide a valid name (Explore_XXXX or XXXX) before connecting."
     WINDOWS_PAIR_INSTRUCTIONS = "Follow Windows' instructions to pair your device."
+    CONNECTION_REFUSED = "Please unpair Explore device manually or use a Bluetooth dongle"
 
     #########################
     # config functions
