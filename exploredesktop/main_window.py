@@ -309,7 +309,7 @@ class MainWindow(QMainWindow, BaseModel):
 
         # Disable actions requiring connection with explorepy
         self._enable_menubar(False)
-        # self.ui.actionRecorded_visualization.setEnabled(False)
+        self.ui.actionRecorded_visualization.setEnabled(False)
 
         # File actions
         self.ui.actionMetadata_import.triggered.connect(self.settings_frame.import_settings)
