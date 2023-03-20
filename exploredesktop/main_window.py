@@ -345,7 +345,6 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionReceive_LSL_Markers.setVisible(False)
         self.ui.actionReceive_LSL_Markers.setChecked(False)
 
-
     def _init_plots(self) -> None:
         """Initialize plots"""
         self.orn_plot.init_plot()
