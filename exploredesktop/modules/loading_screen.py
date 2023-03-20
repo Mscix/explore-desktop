@@ -1,4 +1,4 @@
-"""Conatins implementation for a moving gif. 
+"""Conatins implementation for a moving gif.
 Not used currently but code can be used in future if desired with small changes
 """
 from PySide6.QtCore import (

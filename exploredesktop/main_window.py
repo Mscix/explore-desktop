@@ -42,8 +42,7 @@ from exploredesktop.modules.app_settings import (  # isort:skip
     ConnectionStatus,
     DataAttributes,
     EnvVariables,
-    Messages,
-    VisModes
+    Messages
 )
 from exploredesktop.modules.bt_module import BTFrameView  # isort:skip
 from exploredesktop.modules.exg_module import ExGPlot  # isort:skip

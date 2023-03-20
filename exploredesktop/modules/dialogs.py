@@ -517,11 +517,11 @@ class ConvertBinDialog(PathInputDialog):
 
         self.ui.rdbtn_csv.toggled.connect(self.validate_filepath)
         self.ui.rdbtn_edf.toggled.connect(self.validate_filepath)
-        
+
         self.ui.input_filepath.textChanged.connect(self.validate_filepath)
         self.ui.input_filepath.textChanged.connect(self.validate_input_file)
         self.ui.input_filepath.textChanged.connect(self.check_not_empty)
-        
+
         self.ui.input_dest_folder.textChanged.connect(self.validate_filepath)
         self.ui.input_dest_folder.textChanged.connect(self.check_not_empty)
 
@@ -646,7 +646,7 @@ class RepairDataDialog(PathInputDialog):
         self.folder_path = ""
         self.ui.btn_browse.clicked.connect(self.browse)
         self.ui.btn_browse.clicked.connect(self.verify_bin_path)
-        
+
         self.ui.input_filename.textChanged.connect(self.check_not_empty)
         self.ui.input_filename.textChanged.connect(self.verify_bin_path)
 

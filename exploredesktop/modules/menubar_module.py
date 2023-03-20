@@ -2,7 +2,6 @@
 import logging
 import os
 import shutil
-import sys
 import webbrowser
 from pathlib import Path
 
@@ -15,13 +14,10 @@ from explorepy.tools import (
     generate_eeglab_dataset
 )
 from PySide6.QtWidgets import (
-    QApplication,
     QFileDialog,
-    QGraphicsView,
     QMainWindow,
     QMessageBox,
     QPushButton,
-    QScrollBar,
     QVBoxLayout,
     QWidget
 )
@@ -38,7 +34,6 @@ from exploredesktop.modules.dialogs import (  # isort:skip
 from exploredesktop.modules.utils import (  # isort:skip
     display_msg
 )
-
 
 
 logger = logging.getLogger("explorepy." + __name__)
@@ -93,7 +88,7 @@ class MenuBarActions(BaseModel):
         # if files were originally bdfs (no conversion needed), remove subfolder
         if len(os.listdir(folder_bdfs)) == 0:
             os.rmdir(folder_bdfs)
-        
+
         # Display confirmation message with number of exported datasets
         folder_datasets = folder_datasets.replace("/", "\\")
         msg = f"{n_files} datasets exported in folder {folder_datasets}"
@@ -190,16 +185,16 @@ class MenuBarActions(BaseModel):
 
     def recorded_visualization(self):
         filepath = self.explorer.record_filename + "_ExG.csv"
-        self.window = MainWindow(filepath, self.explorer.filters, self.explorer.sampling_rate)
+        self.window = PlotWindow(filepath, self.explorer.filters, self.explorer.sampling_rate)
         self.window.show()
 
 
-class MainWindow(QMainWindow):
+class PlotWindow(QMainWindow):
     def __init__(self, file_path, filters, sr):
         super().__init__()
         self.centralWidget = CSVReader(file_path, filters, sr)
         self.setCentralWidget(self.centralWidget)
-    
+
 
 class CSVReader(QWidget):
     def __init__(self, file_path, filters, sampling_rate):
@@ -247,19 +242,25 @@ class CSVReader(QWidget):
 
         for idx, col in enumerate(reversed(list(self.data.columns))):
             if col != "TimeStamp":
-                self.plotWidget.plot(self.data["TimeStamp"], self.data[col], pen=Stylesheets.FFT_LINE_COLORS[idx], name=col)
+                self.plotWidget.plot(
+                    self.data["TimeStamp"],
+                    self.data[col],
+                    pen=Stylesheets.FFT_LINE_COLORS[idx],
+                    name=col
+                )
 
     def read_csv(self):
         self.plotWidget.clear()
         df = pd.read_csv(self.file_path)
-        df['TimeStamp'] -= df.iloc[0,0]  # substract offset to start at 0
+        # substract offset to start at 0
+        df['TimeStamp'] -= df.iloc[0, 0]
         self.data = df
 
     def apply_filters(self):
         notch_freq = self.filters["notch"]
         high_freq = self.filters["high_cutoff"]
         low_freq = self.filters["low_cutoff"]
-        
+
         for col in list(self.data.columns):
             if col != "TimeStamp":
                 if notch_freq is not None:
@@ -270,9 +271,9 @@ class CSVReader(QWidget):
     def apply_offsets(self):
         offsets = [i for i in reversed(np.arange(0.5, (len(self.data.columns)) / 2, 0.5)[:, np.newaxis].astype(float))]
         for i, offset in enumerate(offsets):
-            self.data.iloc[:, i+1] += offset        
+            self.data.iloc[:, i + 1] += offset
 
-    @staticmethod 
+    @staticmethod
     def notch_filter(exg, fs, f0):
         Q = 30.0  # Quality factor
         # Design notch filter
@@ -284,4 +285,3 @@ class CSVReader(QWidget):
         N = 4
         b, a = signal.butter(N, [lf / fs, hf / fs], type)
         return signal.filtfilt(b, a, exg)
-

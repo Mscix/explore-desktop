@@ -71,8 +71,8 @@ class ExploreInterface(Explore):
 
         Note:
             In Windows, this function returns all the paired devices and unpaired advertising devices. The 'is_paired'
-            attribute shows if the device is paired. If a device is paired, it will be in the returned list regardless if
-            it is currently advertising or not.
+            attribute shows if the device is paired. If a device is paired,
+            it will be in the returned list regardless if it is currently advertising or not.
 
         Returns:
                 list of nearby devices
@@ -220,7 +220,7 @@ class ExploreInterface(Explore):
     # pylint: disable=arguments-differ
     def measure_imp(self, imp_callback: Callable) -> bool:
         """Activate impedance measurement mode and subscribe to impedance topic
-        
+
         Returns:
             True if successful, False otherwise"""
         try:
@@ -233,7 +233,7 @@ class ExploreInterface(Explore):
 
     def disable_imp(self, imp_callback: Callable) -> bool:
         """Disable impedance measurement mode and unsubscribe from impedance topic
-        
+
         Returns:
             True if successful, False otherwise
         """
@@ -247,7 +247,7 @@ class ExploreInterface(Explore):
     # TODO should be property setter
     def set_sampling_rate(self, sampling_rate: int) -> bool:
         """Change the sampling rate of the device
-        
+
         Returns:
             True if successful, False otherwise
         """
