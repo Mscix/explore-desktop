@@ -322,7 +322,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionDocumentation.triggered.connect(self.menubar_actions.launch_wiki)
 
         # Tools actions
-        self.ui.actionRecorded_visualization.triggered.connect(self.menubar_actions.recorded_visualization)      
+        self.ui.actionRecorded_visualization.triggered.connect(self.menubar_actions.recorded_visualization)
 
         # NOTE: uncomment below if implementing custom full/scroll view feature
         # View actions
