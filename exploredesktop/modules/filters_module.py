@@ -30,6 +30,7 @@ class Filters(BaseModel):
     def reset_vars(self) -> None:
         """Reset variables"""
         self.current_filters = None
+        self.explorer.filters = None
 
     def setup_ui_connections(self) -> None:
         """Setup connections between widgets and slots"""
@@ -49,13 +50,14 @@ class Filters(BaseModel):
         if self._check_same_filters(new_filters=filters):
             return True
         self.current_filters = filters
+        self.explorer.filters = filters
 
         # Remove filters before applying so they dont accumulate
         if self.current_filters is not None:
             self.explorer.remove_filters()
 
         self.apply_filters()
-    
+
         # If applying filters for the first time sleep for 1.5 seconds to reduce wavy behavior
         if self.current_filters is None:
             time.sleep(1.5)

@@ -149,7 +149,7 @@ class ImpModel(BaseModel):
                 return Stylesheets.GRAY_IMPEDANCE_STYLESHEET
             else:
                 return Stylesheets.BLACK_IMPEDANCE_STYLESHEET
-        
+
         rules_dict = Settings.COLOR_RULES_DRY if self.mode == ImpModes.DRY else Settings.COLOR_RULES_WET
         if isinstance(value, str) and not value.replace(".", "", 1).isdigit():
             imp_stylesheet = Stylesheets.GRAY_IMPEDANCE_STYLESHEET
@@ -308,19 +308,20 @@ class ImpFrameView():
         """Change legend"""
         mode = self.model.mode
         rules_dict = Settings.COLOR_RULES_DRY if mode == ImpModes.DRY else Settings.COLOR_RULES_WET
-        
+
+        black = Stylesheets.BLACK_IMPEDANCE_STYLESHEET
         # Remove the Sylesheet black in else if display changes
         label = "<=" + str(rules_dict["green"])
-        color = Stylesheets.GREEN_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        color = Stylesheets.GREEN_IMPEDANCE_STYLESHEET if mode == ImpModes.WET else black
         stylesheet = f"""
         border-radius: 10px;
         background-color: {color};
         """
         self.ui.lbl_green_imp.setText(label)
         self.ui.frame_green_imp.setStyleSheet(stylesheet)
-        
+
         label = str(rules_dict["green"] + 1) + " - " + str(rules_dict["yellow"])
-        color = Stylesheets.YELLOW_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        color = Stylesheets.YELLOW_IMPEDANCE_STYLESHEET if mode == ImpModes.WET else black
         stylesheet = f"""
         border-radius: 10px;
         background-color: {color};
@@ -329,7 +330,7 @@ class ImpFrameView():
         self.ui.frame_yellow_imp.setStyleSheet(stylesheet)
 
         label = str(rules_dict["yellow"] + 1) + " - " + str(rules_dict["orange"])
-        color = Stylesheets.ORANGE_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        color = Stylesheets.ORANGE_IMPEDANCE_STYLESHEET if mode == ImpModes.WET else black
         stylesheet = f"""
         border-radius: 10px;
         background-color: {color};
@@ -338,7 +339,7 @@ class ImpFrameView():
         self.ui.frame_orange_imp.setStyleSheet(stylesheet)
 
         label = str(rules_dict["orange"] + 1) + " - " + str(rules_dict["red"])
-        color = Stylesheets.RED_IMPEDANCE_STYLESHEET  if mode == ImpModes.WET else Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        color = Stylesheets.RED_IMPEDANCE_STYLESHEET if mode == ImpModes.WET else black
         stylesheet = f"""
         border-radius: 10px;
         background-color: {color};

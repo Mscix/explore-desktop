@@ -280,6 +280,11 @@ class BTFrameView(BaseModel):
         elif err_type == ValueError or err_type == SystemError:
             msg = Messages.NO_BT_CONNECTION
             logger.warning("No Bluetooth connection available.")
+            logger.debug(err_msg)
+
+        elif err_type == ConnectionRefusedError:
+            msg = Messages.CONNECTION_REFUSED
+            logger.warning("Connection Refused exception while connecting")
 
         elif err_type == ConnectionRefusedError:
             msg = Messages.CONNECTION_REFUSED

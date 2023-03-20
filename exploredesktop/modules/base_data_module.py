@@ -140,7 +140,7 @@ class DataContainer(BaseModel):
             fft (bool, optional): whether data is for FFT plot. Defaults to False.
         """
         # The parts commented out correspond to the implementation for handling the bluetooth drop
-    
+
         # if fft is False and data['t'][0] < DataContainer.last_t:
         #     bt_drop = True
         # else:
@@ -159,18 +159,17 @@ class DataContainer(BaseModel):
             #     except:
             #         pass
 
-
             if bt_drop and exg:
                 # print(f"\n{data['t']=}")
                 # print(f"{DataContainer.last_t=}")
                 # print("drop")
                 # a = np.arange(idxs[0] - 10, idxs[-1] + 10)
                 # try:
-                    # print(f"Before adding: t={self.t_plot_data[a]}")
+                #   print(f"Before adding: t={self.t_plot_data[a]}")
                 # except:
                 #     pass
                 try:
-                    i = np.where(self.t_plot_data<data['t'][0])[0][-1] + 1
+                    i = np.where(self.t_plot_data < data['t'][0])[0][-1] + 1
                     """
                     Different approach. This one relies on inserting the delay packet on the original position
                     idxs = np.arange(i, i+n_new_points)
@@ -180,22 +179,24 @@ class DataContainer(BaseModel):
                     idxs = np.arange(self.pointer, self.pointer + n_new_points)
                     # DataContainer.last_t = data['t'][-1]
                 except IndexError:
-                    print("IndexError - ", np.where(self.t_plot_data<data['t'][0]))
+                    print("IndexError - ", np.where(self.t_plot_data < data['t'][0]))
 
-            # Different approach. This one relies on the fact that the time between samples should be constant (0.004 for 8 chan)
-            # if len(self.t_plot_data[~np.isnan(self.t_plot_data)])>0 and data['t'][0] - self.t_plot_data[~np.isnan(self.t_plot_data)][-1] > 0.005:
+            # Different approach. This one relies on the fact that the time between samples
+            # should be constant (0.004 for 8 chan)
+            # if len(self.t_plot_data[~np.isnan(self.t_plot_data)])>0 \
+            # and data['t'][0] - self.t_plot_data[~np.isnan(self.t_plot_data)][-1] > 0.005:
             #     data['t'] = np.arange(self.t_plot_data[~np.isnan(self.t_plot_data)][-1], data['t'][0], 0.004)
             #     idxs = np.arange(self.pointer, len(data['t']))
 
             # else:
             self.t_plot_data.put(idxs, data['t'], mode='wrap')  # replace values with new points
-            
+
             # if exg:
             # if bt_drop and exg:
-                # try:
-                #     print(f"After adding: t={self.t_plot_data[a]}")
-                # except:
-                #     pass
+            #   try:
+            #     print(f"After adding: t={self.t_plot_data[a]}")
+            #   except:
+            #     pass
 
         for key, val in self.plot_data.items():
             if bt_drop is True:
@@ -208,7 +209,7 @@ class DataContainer(BaseModel):
                 except KeyError:
                     val.put(idxs, [np.NaN for i in range(n_new_points)], mode='wrap')
 
-    def update_pointer(self, data: list, signal=None, fft: bool=False) -> None:
+    def update_pointer(self, data: list, signal=None, fft: bool = False) -> None:
         """Update pointer and emit signal
 
         Args:
@@ -261,7 +262,7 @@ class DataContainer(BaseModel):
         l_points = int(len(self.t_plot_data) / int(self.timescale))
         vals = self.t_plot_data[::l_points]
         ticks = t_ticks[::l_points]
-        
+
         # Emit signal to update ticks
         try:
             signal.emit([vals, ticks])
@@ -414,11 +415,11 @@ class BasePlots:
         """
         # connection vector contains all ones at the beggining (all points connected)
         connection = np.full(length, 1)
-        
+
         # a gap is needed around the position line, indicated by the model pointer, so 0s are added
         # the size of the gap is decided in the n_nans input parameter
         connection[self.model.pointer - int(n_nans / 2): self.model.pointer + int(n_nans / 2)] = 0
-        
+
         # more zeros are added where the plot data is nan (we want to have gaps)
         # this is especially relevant if adding nans when BT drops
         first_key = list(self.model.plot_data.keys())[0]

@@ -60,6 +60,10 @@ class Ui_MainWindow(object):
         self.actionReceive_LSL_Markers.setObjectName(u"actionReceive_LSL_Markers")
         self.actionReceive_LSL_Markers.setCheckable(True)
         self.actionReceive_LSL_Markers.setChecked(True)
+        self.actionDocumentation = QAction(MainWindow)
+        self.actionDocumentation.setObjectName(u"actionDocumentation")
+        self.actionRecorded_visualization = QAction(MainWindow)
+        self.actionRecorded_visualization.setObjectName(u"actionRecorded_visualization")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(140, 0))
@@ -1412,7 +1416,7 @@ class Ui_MainWindow(object):
         self.btn_apply_settings_test.setGeometry(QRect(680, 270, 80, 24))
         self.layoutWidget = QWidget(self.page__testing)
         self.layoutWidget.setObjectName(u"layoutWidget")
-        self.layoutWidget.setGeometry(QRect(130, 150, 229, 32))
+        self.layoutWidget.setGeometry(QRect(130, 150, 259, 34))
         self.horizontalLayout_2 = QHBoxLayout(self.layoutWidget)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -1539,7 +1543,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 1116, 21))
+        self.menuBar.setGeometry(QRect(0, 0, 1116, 25))
         self.menuFile = QMenu(self.menuBar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuImport = QMenu(self.menuFile)
@@ -1550,11 +1554,14 @@ class Ui_MainWindow(object):
         self.menuVisualization.setObjectName(u"menuVisualization")
         self.menuToold = QMenu(self.menuBar)
         self.menuToold.setObjectName(u"menuToold")
+        self.menuHel = QMenu(self.menuBar)
+        self.menuHel.setObjectName(u"menuHel")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuVisualization.menuAction())
         self.menuBar.addAction(self.menuToold.menuAction())
+        self.menuBar.addAction(self.menuHel.menuAction())
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.menuImport.menuAction())
         self.menuFile.addAction(self.menuExport.menuAction())
@@ -1569,10 +1576,13 @@ class Ui_MainWindow(object):
         self.menuExport.addAction(self.actionEEGLAB_Dataset)
         self.menuToold.addAction(self.actionData_Repair)
         self.menuToold.addAction(self.actionReceive_LSL_Markers)
+        self.menuToold.addAction(self.actionRecorded_visualization)
+        self.menuHel.addAction(self.actionDocumentation)
 
         self.retranslateUi(MainWindow)
 
         self.stackedWidget.setCurrentIndex(3)
+
         self.tabWidget.setCurrentIndex(0)
 
 
@@ -1596,6 +1606,8 @@ class Ui_MainWindow(object):
         self.actionEEGLAB_Dataset.setText(QCoreApplication.translate("MainWindow", u"EEGLAB Dataset", None))
         self.actionData_Repair.setText(QCoreApplication.translate("MainWindow", u"Data Repair", None))
         self.actionReceive_LSL_Markers.setText(QCoreApplication.translate("MainWindow", u"Receive LSL Markers", None))
+        self.actionDocumentation.setText(QCoreApplication.translate("MainWindow", u"Documentation", None))
+        self.actionRecorded_visualization.setText(QCoreApplication.translate("MainWindow", u"Recorded visualization", None))
         self.btn_left_menu_toggle.setText(QCoreApplication.translate("MainWindow", u"        Hide", None))
         self.btn_home.setText(QCoreApplication.translate("MainWindow", u"        Home", None))
         self.btn_bt.setText(QCoreApplication.translate("MainWindow", u"        Connect", None))
@@ -1685,5 +1697,6 @@ class Ui_MainWindow(object):
         self.menuExport.setTitle(QCoreApplication.translate("MainWindow", u"Export", None))
         self.menuVisualization.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
         self.menuToold.setTitle(QCoreApplication.translate("MainWindow", u"Tools", None))
+        self.menuHel.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
     # retranslateUi
 

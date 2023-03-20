@@ -54,7 +54,6 @@ class SettingsFrameView(BaseModel):
         # Setup signal connections
         self.signals.dataSettingsChanged.connect(self.disable_apply)
 
-
     def setup_tableview(self) -> None:
         """Configure settings table
         """
