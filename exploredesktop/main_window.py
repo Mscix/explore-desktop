@@ -322,7 +322,7 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.actionDocumentation.triggered.connect(self.menubar_actions.launch_wiki)
 
         # Tools actions
-        self.ui.actionRecorded_visualization.triggered.connect(self.menubar_actions.recorded_visualization)        
+        self.ui.actionRecorded_visualization.triggered.connect(self.menubar_actions.recorded_visualization)      
 
         # NOTE: uncomment below if implementing custom full/scroll view feature
         # View actions
@@ -425,11 +425,11 @@ class MainWindow(QMainWindow, BaseModel):
         self.ui.label_warning_disabled.setHidden(True)
         self.ui.lbl_sr_warning.hide()
         self.ui.btn_calibrate.setHidden(True)
-        
+
         # connect page
         self.ui.lbl_wdws_warning.hide()
         # self.ui.lbl_bt_instructions.hide()
-        
+
         # integration page
         # TODO: decide if we want to enable duration
         self.ui.lsl_duration_value.hide()
