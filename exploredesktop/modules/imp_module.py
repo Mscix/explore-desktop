@@ -141,6 +141,7 @@ class ImpModel(BaseModel):
         Returns:
             str: stylesheet corresponding to input value
         """
+        # NOTE
         # for dry right now all black is displayed. Uncomment the if block below to change the behavior
         # and have different colors with the thresholds defined in app_settings.py
         if self.mode == ImpModes.DRY:
@@ -310,6 +311,7 @@ class ImpFrameView():
         rules_dict = Settings.COLOR_RULES_DRY if mode == ImpModes.DRY else Settings.COLOR_RULES_WET
 
         black = Stylesheets.BLACK_IMPEDANCE_STYLESHEET
+        # NOTE
         # Remove the Sylesheet black in else if display changes
         label = "<=" + str(rules_dict["green"])
         color = Stylesheets.GREEN_IMPEDANCE_STYLESHEET if mode == ImpModes.WET else black
