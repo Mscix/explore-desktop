@@ -51,6 +51,7 @@ class Filters(BaseModel):
             return True
         self.current_filters = filters
         self.explorer.filters = filters
+
         # Remove filters before applying so they dont accumulate
         if self.current_filters is not None:
             self.explorer.remove_filters()

@@ -286,6 +286,10 @@ class BTFrameView(BaseModel):
             msg = Messages.CONNECTION_REFUSED
             logger.warning("Connection Refused exception while connecting")
 
+        elif err_type == ConnectionRefusedError:
+            msg = Messages.CONNECTION_REFUSED
+            logger.warning("Connection Refused exception while connecting")
+
         else:
             msg = err_msg
             logger.debug("Got an exception while connecting to the device: %s of type: %s", err_msg, err_type)
