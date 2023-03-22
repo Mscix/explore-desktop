@@ -1123,6 +1123,12 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_5.addItem(self.verticalSpacer_21)
 
+        self.frame_legend = QFrame(self.page_impedance)
+        self.frame_legend.setObjectName(u"frame_legend")
+        self.frame_legend.setFrameShape(QFrame.StyledPanel)
+        self.frame_legend.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_9 = QVBoxLayout(self.frame_legend)
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.horizontalLayout_28 = QHBoxLayout()
         self.horizontalLayout_28.setSpacing(15)
         self.horizontalLayout_28.setObjectName(u"horizontalLayout_28")
@@ -1132,7 +1138,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.frame_green_imp = QFrame(self.page_impedance)
+        self.frame_green_imp = QFrame(self.frame_legend)
         self.frame_green_imp.setObjectName(u"frame_green_imp")
         self.frame_green_imp.setMinimumSize(QSize(20, 20))
         self.frame_green_imp.setMaximumSize(QSize(20, 20))
@@ -1143,7 +1149,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_6.addWidget(self.frame_green_imp)
 
-        self.lbl_green_imp = QLabel(self.page_impedance)
+        self.lbl_green_imp = QLabel(self.frame_legend)
         self.lbl_green_imp.setObjectName(u"lbl_green_imp")
 
         self.horizontalLayout_6.addWidget(self.lbl_green_imp)
@@ -1153,7 +1159,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_10 = QHBoxLayout()
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.frame_yellow_imp = QFrame(self.page_impedance)
+        self.frame_yellow_imp = QFrame(self.frame_legend)
         self.frame_yellow_imp.setObjectName(u"frame_yellow_imp")
         self.frame_yellow_imp.setMinimumSize(QSize(20, 20))
         self.frame_yellow_imp.setMaximumSize(QSize(20, 20))
@@ -1164,7 +1170,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_10.addWidget(self.frame_yellow_imp)
 
-        self.lbl_yellow_imp = QLabel(self.page_impedance)
+        self.lbl_yellow_imp = QLabel(self.frame_legend)
         self.lbl_yellow_imp.setObjectName(u"lbl_yellow_imp")
 
         self.horizontalLayout_10.addWidget(self.lbl_yellow_imp)
@@ -1174,7 +1180,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_18 = QHBoxLayout()
         self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
-        self.frame_orange_imp = QFrame(self.page_impedance)
+        self.frame_orange_imp = QFrame(self.frame_legend)
         self.frame_orange_imp.setObjectName(u"frame_orange_imp")
         self.frame_orange_imp.setMinimumSize(QSize(20, 20))
         self.frame_orange_imp.setMaximumSize(QSize(20, 20))
@@ -1185,7 +1191,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_18.addWidget(self.frame_orange_imp)
 
-        self.lbl_orange_imp = QLabel(self.page_impedance)
+        self.lbl_orange_imp = QLabel(self.frame_legend)
         self.lbl_orange_imp.setObjectName(u"lbl_orange_imp")
 
         self.horizontalLayout_18.addWidget(self.lbl_orange_imp)
@@ -1195,7 +1201,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_20 = QHBoxLayout()
         self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
-        self.frame_red_imp = QFrame(self.page_impedance)
+        self.frame_red_imp = QFrame(self.frame_legend)
         self.frame_red_imp.setObjectName(u"frame_red_imp")
         self.frame_red_imp.setMinimumSize(QSize(20, 20))
         self.frame_red_imp.setMaximumSize(QSize(20, 20))
@@ -1206,7 +1212,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_20.addWidget(self.frame_red_imp)
 
-        self.lbl_red_imp = QLabel(self.page_impedance)
+        self.lbl_red_imp = QLabel(self.frame_legend)
         self.lbl_red_imp.setObjectName(u"lbl_red_imp")
 
         self.horizontalLayout_20.addWidget(self.lbl_red_imp)
@@ -1216,7 +1222,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.frame_black_imp = QFrame(self.page_impedance)
+        self.frame_black_imp = QFrame(self.frame_legend)
         self.frame_black_imp.setObjectName(u"frame_black_imp")
         self.frame_black_imp.setMinimumSize(QSize(20, 20))
         self.frame_black_imp.setMaximumSize(QSize(20, 20))
@@ -1227,7 +1233,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_3.addWidget(self.frame_black_imp)
 
-        self.lbl_black_imp = QLabel(self.page_impedance)
+        self.lbl_black_imp = QLabel(self.frame_legend)
         self.lbl_black_imp.setObjectName(u"lbl_black_imp")
 
         self.horizontalLayout_3.addWidget(self.lbl_black_imp)
@@ -1235,7 +1241,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_28.addLayout(self.horizontalLayout_3)
 
-        self.label_8 = QLabel(self.page_impedance)
+        self.label_8 = QLabel(self.frame_legend)
         self.label_8.setObjectName(u"label_8")
 
         self.horizontalLayout_28.addWidget(self.label_8)
@@ -1245,7 +1251,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_28.addItem(self.horizontalSpacer_13)
 
 
-        self.verticalLayout_5.addLayout(self.horizontalLayout_28)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_28)
+
+
+        self.verticalLayout_5.addWidget(self.frame_legend)
 
         self.verticalSpacer_17 = QSpacerItem(15, 50, QSizePolicy.Minimum, QSizePolicy.Minimum)
 
@@ -1543,7 +1552,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 1116, 25))
+        self.menuBar.setGeometry(QRect(0, 0, 1116, 21))
         self.menuFile = QMenu(self.menuBar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuImport = QMenu(self.menuFile)
@@ -1581,8 +1590,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
-
+        self.stackedWidget.setCurrentIndex(4)
         self.tabWidget.setCurrentIndex(0)
 
 
