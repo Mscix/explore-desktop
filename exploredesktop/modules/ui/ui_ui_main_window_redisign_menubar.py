@@ -1615,7 +1615,7 @@ class Ui_MainWindow(object):
         self.actionData_Repair.setText(QCoreApplication.translate("MainWindow", u"Data Repair", None))
         self.actionReceive_LSL_Markers.setText(QCoreApplication.translate("MainWindow", u"Receive LSL Markers", None))
         self.actionDocumentation.setText(QCoreApplication.translate("MainWindow", u"Documentation", None))
-        self.actionRecorded_visualization.setText(QCoreApplication.translate("MainWindow", u"Recorded visualization", None))
+        self.actionRecorded_visualization.setText(QCoreApplication.translate("MainWindow", u"Inspect Ongoing Recording", None))
         self.btn_left_menu_toggle.setText(QCoreApplication.translate("MainWindow", u"        Hide", None))
         self.btn_home.setText(QCoreApplication.translate("MainWindow", u"        Home", None))
         self.btn_bt.setText(QCoreApplication.translate("MainWindow", u"        Connect", None))

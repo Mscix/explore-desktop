@@ -3349,7 +3349,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionRecorded_visualization">
    <property name="text">
-    <string>Recorded visualization</string>
+    <string>Inspect Ongoing Recording</string>
    </property>
   </action>
  </widget>
