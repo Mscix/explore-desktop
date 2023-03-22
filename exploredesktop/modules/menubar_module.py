@@ -272,7 +272,8 @@ class CSVReader(QWidget):
                     filter_type = "lowpass"
                 elif high_freq is not None and low_freq is None:
                     filter_type = "highpass"
-                self.data[col] = self.bp_filter(self.data[col], low_freq, high_freq, self.sampling_rate, filter_type=filter_type)                    
+                self.data[col] = self.bp_filter(
+                    self.data[col], low_freq, high_freq, self.sampling_rate, filter_type=filter_type)
 
     def apply_offsets(self):
         offsets = [i for i in reversed(np.arange(0.5, (len(self.data.columns)) / 2, 0.5)[:, np.newaxis].astype(float))]
@@ -289,11 +290,11 @@ class CSVReader(QWidget):
     @staticmethod
     def bp_filter(exg, lf=None, hf=None, fs=250, filter_type='bandpass'):
         N = 4
-        if filter_type=="bandpass":
+        if filter_type == "bandpass":
             freq = [lf / fs, hf / fs]
-        elif filter_type=="lowpass":
+        elif filter_type == "lowpass":
             freq = hf
-        elif filter_type=="highpass":
+        elif filter_type == "highpass":
             freq = lf
         b, a = signal.butter(N, freq, filter_type)
         return signal.filtfilt(b, a, exg)
