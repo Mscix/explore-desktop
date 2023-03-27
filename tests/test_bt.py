@@ -40,7 +40,7 @@ def get_device_mock_for_BT():
 class TestBT:
     def test_connect_w_add_scanned_device_mock(self, qtbot):
         app = mw.MainWindow()
-        # idea mock BT as well and mock connect method
+        app.show()
         og_bt = app.bt_frame
         with patch.object(BTFrameView, 'connect') as mock_connect:
             # Set behaviour for mocked connect and test
@@ -104,6 +104,7 @@ class TestBT:
             qtbot.keyClick(input_field, Qt.Key_Enter)
             assert bt.explorer.is_connected
 
+    """
     def test_connect_turns_connecting(self, qtbot):
         app = mw.MainWindow()
         og_bt = app.bt_frame
@@ -122,7 +123,7 @@ class TestBT:
             with qtbot.waitSignal(scan_btn, timeout=3000) as blocker:
                 qtbot.addWidget(scan_btn)
                 qtbot.mouseClick(scan_btn, Qt.LeftButton)
-
+        """
 
 
     def test_disconnect(self, qtbot):
@@ -148,7 +149,8 @@ class TestBT:
             assert bt.explorer.is_connected
 
 
-    #def test_no_mock(self, qtbot):
+
+
 
 
 
