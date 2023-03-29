@@ -41,7 +41,7 @@ class IntegrationFrameView(BaseModel):
         Args:
             duration (Optional[int]): Duration of the stream. Defaults to None.
         """
-        duration = 3600 if duration is None else duration
+        duration = 3600 * 8 if duration is None else duration
         self.explorer.push2lsl(duration, block=False)
         self.ui.btn_lsl.setIcon(QIcon(u":icons/icons/cil-media-pause.png"))
         self.start_timer(duration)
