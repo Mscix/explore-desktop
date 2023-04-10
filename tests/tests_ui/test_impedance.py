@@ -1,6 +1,8 @@
 import pytest
 import PySide6
 from time import sleep
+
+from PySide6 import QtWidgets, QtCore
 from pytestqt.qtbot import QtBot
 from PySide6.QtTest import QTest, QSignalSpy
 from PySide6.QtCore import Qt, QTimer
@@ -15,6 +17,7 @@ from test_main import connect_device
 from exploredesktop.modules.app_settings import Messages
 from unittest.mock import patch
 
+
 # TODO tests todo
 # TODO check if filters have been applied
 # TODO test upper hotbar for evrything output file and stuff
@@ -28,10 +31,12 @@ def get_device_mock():
 
     def connect_se():
         mock_interface.is_connected = True
+
     mock_interface.connect = connect_se
 
     def disconnect_se():
         mock_interface.is_connected = False
+
     mock_interface.disconnect = disconnect_se
 
     NearbyDeviceInfo = namedtuple("NearbyDeviceInfo", ["name", "address", "is_paired"])
@@ -52,7 +57,10 @@ def get_device_mock():
     mock_settings_manager.load_current_settings.return_value = se_dict
     mock_interface.settings = mock_settings_manager
     mock_interface.device_name = 'Explore_1234'
-    mock_interface.chan_dict_list = [{'input': 'ch1', 'enable': 1, 'name': 'ch1', 'type': 'EEG'}, {'input': 'ch2', 'enable': 1, 'name': 'ch2', 'type': 'EEG'}, {'input': 'ch3', 'enable': 1, 'name': 'ch3', 'type': 'EEG'}, {'input': 'ch4', 'enable': 1, 'name': 'ch4', 'type': 'EEG'}]
+    mock_interface.chan_dict_list = [{'input': 'ch1', 'enable': 1, 'name': 'ch1', 'type': 'EEG'},
+                                     {'input': 'ch2', 'enable': 1, 'name': 'ch2', 'type': 'EEG'},
+                                     {'input': 'ch3', 'enable': 1, 'name': 'ch3', 'type': 'EEG'},
+                                     {'input': 'ch4', 'enable': 1, 'name': 'ch4', 'type': 'EEG'}]
     mock_interface.device_chan = 4  # TODO problems
     # Mocking all methods of ExplorePy Interface
 
@@ -87,11 +95,11 @@ def get_device_mock():
     # Mock set_chan_dict_list()
     def set_chan_dict_list_se(a):
         pass  # doing a pass as the chan_dict list should not change and is set before
+
     mock_interface.set_chan_dict_list = set_chan_dict_list_se
 
     # Mock get_chan_dict_list()
     # should still work? TODO: does not work
-
 
     # Mock _set_n_chan(packet: explorepy.packet.EEG)
 
@@ -108,17 +116,20 @@ def get_device_mock():
     # Lets go with returning True
     def measure_imp_se(*args, **kwargs):
         return True
+
     mock_interface.measure_imp.return_value = measure_imp_se
 
     # Mock disable_imp(self, imp_callback: Callable) -> bool
     def disable_imp_se(*args, **kwargs):
         return True
+
     mock_interface.disable_imp.return_value = disable_imp_se()
 
     # Mock set_sampling_rate(self, sampling_rate: int) -> Optional[bool]
     def set_sampling_rate_se(*args, **kwargs):
         # Don't want to change anything might break so check if ok
         return False
+
     mock_interface.set_sampling_rate = set_sampling_rate_se
 
     # Problem when measure_imp clicked the explorepy is used where it is not explore_interface mock
@@ -139,78 +150,13 @@ def navigate_to_impedance_view(qtbot, window):
 
 
 class TestImpedance:
-
-    """
-        def test_impedance_with_mock(self, qtbot):
-        app = mw.MainWindow()
-        og_bt = app.bt_frame
-        with patch.object(BTFrameView, 'connect') as mock_connect:
-            # Set behaviour for mocked connect and test
-            mock_connect.return_value = True
-            result = app.bt_frame.connect()
-            mock_connect.assert_called_once_with()
-            assert result
-            # instantiate BT with mocked connect method
-            app.bt_frame = BTFrameView(og_bt.ui)
-            bt = app.bt_frame
-            device_mock = get_device_mock()
-            bt.explorer = device_mock
-            app.settings_frame.explorer = device_mock
-
-            input_field = bt.ui.dev_name_input
-            qtbot.addWidget(input_field)
-            qtbot.keyClicks(input_field, "1234")
-            qtbot.keyClick(input_field, Qt.Key_Enter)
-            assert bt.explorer.is_connected
-            settings = app.settings_frame
-            settings.explorer.device_name = 'Explore_1234'
-            settings.ui.table_settings.setModel(ConfigTableModel([{'input': 'ch1', 'enable': 1, 'name': 'ch1', 'type': 'EEG'}, {'input': 'ch2', 'enable': 1, 'name': 'ch2', 'type': 'EEG'}, {'input': 'ch3', 'enable': 1, 'name': 'ch3', 'type': 'EEG'}, {'input': 'ch4', 'enable': 1, 'name': 'ch4', 'type': 'EEG'}])) #fillthis?
-            # setup_settings_frame one on init
-            # and once on connect because we connect by mock it breaks...
-
-            imp = app.imp_frame
-            imp.explorer = device_mock
-            imp.model.explorer = device_mock
-            imp_button = app.ui.btn_impedance
-
-            exg = app.exg_plot
-            exg.explorer = device_mock
-            exg.model.explorer = device_mock
-
-            # press apply changes so the popup does not interfere
-            apply_btn = settings.ui.btn_apply_settings
-            qtbot.addWidget(apply_btn)
-            # set the frame with default settings of the device
-            settings.setup_settings_frame()
-            qtbot.mouseClick(apply_btn, Qt.LeftButton)
-            # change to impedance view
-            qtbot.addWidget(imp_button)
-            qtbot.mouseClick(imp_button, Qt.LeftButton)
-            # press dropdown and select Wet Electrodes
-            drop_down = imp.ui.imp_mode
-            qtbot.addWidget(drop_down)
-            qtbot.keyClicks(drop_down, ImpModes.WET.value)
-            # Press measure btn
-            meas_btn = imp.ui.btn_imp_meas
-            qtbot.mouseClick(meas_btn, Qt.LeftButton)
-            # sleep(5)
-            # disable Impedance measurement
-            qtbot.mouseClick(meas_btn, Qt.LeftButton)
-            # Change to Dry Electrodes
-            qtbot.keyClicks(drop_down, ImpModes.DRY.value)
-            # start measuring Impedance
-            qtbot.mouseClick(meas_btn, Qt.LeftButton)
-            sleep(3)
-            # check if color changes or something??
-    """
-
     # Can only always test one test as each test needs its own device...
 
-    """
-    def test_no_mock(self, qtbot):
-        app = connect_device(qtbot)
-        imp = app.imp_frame
-        navigate_to_impedance_view(qtbot, app)
+    def test_impedance_modes(self, qtbot):
+        window = connect_device(qtbot)
+        # window.show()
+        imp = window.imp_frame
+        navigate_to_impedance_view(qtbot, window)
         # press dropdown and select Wet Electrodes
         drop_down = imp.ui.imp_mode
         qtbot.addWidget(drop_down)
@@ -220,16 +166,19 @@ class TestImpedance:
         qtbot.mouseClick(meas_btn, Qt.LeftButton)
         qtbot.wait(1000)
         # Check the color
+        # get Impframe view call get_stylesheet check color?
+        imp_model = imp.get_graph().model
+        assert imp_model.mode == ImpModes.WET
         # disable Impedance measurement
         qtbot.mouseClick(meas_btn, Qt.LeftButton)
         # Change to Dry Electrodes
         qtbot.keyClicks(drop_down, ImpModes.DRY.value)
-        # start measuring Impedance
+        assert imp_model.mode == ImpModes.DRY
+        # stop measuring Impedance
         qtbot.mouseClick(meas_btn, Qt.LeftButton)
+
     """
-
-
-    def test_pop_up(self, qtbot):
+        def test_pop_up(self, qtbot):
         # Helper method where Qtbot connects the device and returns QMainWindow instance
         window = connect_device(qtbot)
         # Only for visualisation
@@ -240,23 +189,16 @@ class TestImpedance:
         # Get the reference to the question mark button in the Impedance Frame
         info = imp.ui.imp_meas_info
         # Give the reference to qtbot so it know it
-        qtbot.addWidget(info)
-        # Get instance of the currently running application
-        # The application was started by qtbot fixture
-        app = QApplication.instance()
-        # print(app.topLevelWidgets())
+        qtbot.addWidget(info) 
+        
         def handle_dialog():
-            msg_box = None
-            for widget in app.topLevelWidgets():
-                if isinstance(widget, QMessageBox):
-                    print(widget.text())
-                    if widget.text() == Messages.IMP_INFO:
-                        assert True
-                        msg_box = widget
-            qtbot.mouseClick(msg_box.button(QMessageBox.Ok), Qt.LeftButton)
-        QTimer.singleShot(500, handle_dialog())
-        qtbot.mouseClick(info, Qt.LeftButton, delay=0)
-        qtbot.wait(2000)
+            # Get an instance of the currently open window
+            messagebox = QtWidgets.QApplication.activeWindow()
+            assert messagebox.text() == Messages.IMP_INFO
+            ok_button = messagebox.button(QtWidgets.QMessageBox.Ok)
+            qtbot.mouseClick(ok_button, Qt.LeftButton)
 
-
+        QtCore.QTimer.singleShot(100, handle_dialog)
+        qtbot.mouseClick(info, Qt.LeftButton, delay=1)
+    """
 
