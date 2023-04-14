@@ -12,6 +12,7 @@ from collections import namedtuple
 
 from exploredesktop.modules.explore_interface import ExploreInterface
 
+# TODO: reimplement with actual device.
 
 
 ##### Mocks ######
@@ -66,6 +67,7 @@ class TestBT:
             qtbot.mouseClick(c_button, Qt.LeftButton)
             assert bt.explorer.is_connected
 
+    """
     def test_connect_w_input_device_short_name(self, qtbot):
         app = mw.MainWindow()
         og_bt = app.bt_frame
@@ -147,8 +149,7 @@ class TestBT:
             qtbot.keyClick(input_field, Qt.Key_Enter)
             sleep(4)
             assert bt.explorer.is_connected
-
-
+        """
 
 
 

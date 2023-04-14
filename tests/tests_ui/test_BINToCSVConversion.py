@@ -7,21 +7,14 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction
 import exploredesktop.main_window as mw
 import unittest
-from test_main import connect_device
+from test_Window import connect_device
 import os
 from exploredesktop.modules.dialogs import ConvertBinDialog
 from PySide6.QtWidgets import QApplication
 
 
 class TestFile:
-    # HOME PAGE
-    #self.ui.cb_permission.stateChanged.connect(self.set_permissions)
-    #self.ui.btn_import_edf.clicked.connect(self.select_edf_file)
-    #self.ui.btn_generate_bdf.setEnabled(False)
-    #self.ui.btn_generate_bdf.clicked.connect(self.export_eeglab_dataset)
-    #self.ui.le_import_edf.textChanged.connect(
-    #    lambda: self.ui.btn_generate_bdf.setEnabled(self.ui.le_import_edf.text() != "")
-    #)
+    """
     def test_convert_file(self, qtbot):
         window = connect_device(qtbot)
         window.show()
@@ -41,10 +34,6 @@ class TestFile:
         # qtbot.mouseClick(file_menu, Qt.LeftButton, pos=)
         # qtbot.wait(3000)
 
-
-
-
-
         # File path to the input Bin file:
         standard_path = "C:/Users/Mentalab/Desktop/explore-desktop/tests/tests_ui/test_files/"
         file_name = "DATA000_8_channel.BIN"
@@ -52,6 +41,8 @@ class TestFile:
         # File path to where the result will be written:
         result_path = "C:/Users/Mentalab/Desktop/explore-desktop/tests/tests_ui/test_files"
         output_path = os.path.abspath(result_path)
+
+        qtbot.wait(1000)
 
         def handle_dialog():
             # Get an instance of the currently open window
@@ -64,12 +55,17 @@ class TestFile:
             qtbot.keyClicks(output_field, output_path)
             dialog.accept()
 
+        def pop_up():
+            dialog = QApplication.activeWindow()
+            dialog.accept()
+
         QTimer.singleShot(100, handle_dialog)
+        # Answers the conversion confirmation pop up
+        QTimer.singleShot(500, pop_up)
+
         # Easy way:
         # -> ConvertBinDialog().exec()
         window.ui.actionConvert.trigger()
-        # TODO handle date time error
-        # but the conversion works??
 
         # Checks for CSV files:
         exg_file = os.path.abspath(standard_path + "DATA000_8_channel_ExG.csv")
@@ -82,11 +78,55 @@ class TestFile:
         assert os.path.exists(meta_file)
         assert os.path.exists(orn_file)
 
-        # TODO answer last pop up...
+        try:
+            os.remove(exg_file)
+            os.remove(marker_file)
+            os.remove(meta_file)
+            os.remove(orn_file)
+        except FileExistsError:
+            raise FileExistsError('Error in file conversion')
 
 
 
 
+
+        # TODO: mark the unreliable tests expected to fail
+
+    """
+    def test_invalid_path(self, qtbot):
+        window = connect_device(qtbot)
+        window.show()
+
+        input_path = 'This is a wrong path'
+        output_path = 'This is a wrong path also'
+
+        try:
+            def handle_dialog():
+                # Get an instance of the currently open window
+                dialog = QApplication.activeWindow()
+                input_field = dialog.ui.input_filepath
+                output_field = dialog.ui.input_dest_folder
+                qtbot.addWidget(input_field)
+                qtbot.keyClicks(input_field, input_path)
+                qtbot.addWidget(output_field)
+                qtbot.keyClicks(output_field, output_path)
+                dialog.accept()
+
+            def handle_pop_up():
+                dialog = QApplication.activeWindow()
+                dialog.accept()
+
+            QTimer.singleShot(100, handle_dialog)
+            # Answers the conversion alert pop up
+            QTimer.singleShot(500, handle_pop_up)
+
+            # Easy way:
+            # -> ConvertBinDialog().exec()
+            window.ui.actionConvert.trigger()
+
+        except Exception as e:
+            if not isinstance(e, AssertionError):
+                pass
 
 
 

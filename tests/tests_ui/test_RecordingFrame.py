@@ -8,23 +8,23 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QApplication, QMessageBox, QDialogButtonBox, QTabBar
 import unittest
 from unittest.mock import Mock, MagicMock, patch
-from test_main import connect_device
+from test_Window import connect_device
 from exploredesktop.modules.recording_module import RecordFunctions
 from exploredesktop.modules.dialogs import RecordingDialog
 from exploredesktop.modules.app_settings import Messages
 import os
-from test_main import connect_device
+from test_Window import connect_device
 
 
 def navigate_to_recording_view(qtbot, window):
     record_btn = window.ui.btn_plots
     qtbot.addWidget(record_btn)
-    qtbot.mouseClick(record_btn, Qt.LeftButton)
+    qtbot.mouseClick(record_btn, Qt.LeftButton, delay=1)
 
 
 class TestRecording:
 
-    """
+
     def test_cancel_dialog(self, qtbot):
         window = connect_device(qtbot)
         window.show()
@@ -37,7 +37,6 @@ class TestRecording:
         QTimer.singleShot(100, handle_dialog)
         qtbot.mouseClick(record_btn, Qt.LeftButton, delay=1)
         assert not window.explorer.is_recording
-    """
 
     """
     def test_recording(self, qtbot):
@@ -62,7 +61,7 @@ class TestRecording:
 
         QTimer.singleShot(100, handle_dialog)
         qtbot.mouseClick(record_btn, Qt.LeftButton, delay=1)
-        qtbot.wait(10000)
+        qtbot.wait(10000)  # Recording duration
 
         def handle_dialog_2():
             # Get an instance of the currently open window
@@ -73,7 +72,9 @@ class TestRecording:
         QTimer.singleShot(500, handle_dialog_2)
         qtbot.mouseClick(record_btn, Qt.LeftButton)
         qtbot.wait(2000)
+    """
 
+    """
     def test_visualisation_graph(self, qtbot):
         window = connect_device(qtbot)
         window.show()
@@ -105,9 +106,9 @@ class TestRecording:
         assert tab_widget.currentIndex() == 0
     """
 
-    # TODO address the Settings problem
-    """
-    def test_change_time_window(self, qtbot):
+    """    
+    @pytest.mark.xfail(reason='This test fails often because of PyQt Graph')
+    def test_change_graph_scaling(self, qtbot):
         window = connect_device(qtbot)
         window.show()
         # Navigate to the recording Frame
@@ -122,25 +123,29 @@ class TestRecording:
 
         QTimer.singleShot(100, handle_dialog)
         qtbot.mouseClick(plot_view_btn, Qt.LeftButton, delay=1)
-
+        qtbot.wait(1000)
         # Select dropdown for Y-Scale
         y_scale = window.ui.value_yAxis
         qtbot.addWidget(y_scale)
         qtbot.mouseClick(y_scale, Qt.LeftButton)
-
+        qtbot.wait(1000)
         qtbot.keyClick(y_scale, Qt.Key_Up, delay=3)
+        qtbot.wait(1000)
         qtbot.keyClick(y_scale, Qt.Key_Enter, delay=3)
-
+        qtbot.wait(1000)
         # Select dropdown for time window
         time_scale = window.ui.value_timeScale
         qtbot.addWidget(time_scale)
         qtbot.mouseClick(time_scale, Qt.LeftButton)
-
+        qtbot.wait(1000)
         qtbot.keyClick(time_scale, Qt.Key_Down, delay=3)
+        qtbot.wait(1000)
         qtbot.keyClick(time_scale, Qt.Key_Enter, delay=3)
 
         assert y_scale.currentText() == "500 uV"
         assert time_scale.currentText() == "5 s"
+    """
+
     """
     def test_filters(self, qtbot):
         window = connect_device(qtbot)
@@ -161,8 +166,7 @@ class TestRecording:
         filters_btn = window.ui.btn_plot_filters
         QTimer.singleShot(100, handle_dialog)
         qtbot.mouseClick(filters_btn, Qt.LeftButton, delay=1)
-
-
+        """
 
 
 

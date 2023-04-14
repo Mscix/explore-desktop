@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QApplication, QMessageBox, QDialogButtonBox, QTabBar
-from test_main import connect_device
+from test_Window import connect_device
 
 
 class TestSettings:

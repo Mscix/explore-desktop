@@ -594,12 +594,17 @@ class SettingsFrameView(BaseModel):
         data = dialog.exec()
         if data is False:
             return
-        self.explorer.convert_bin(
-            bin_file=data['bin_path'],
-            out_dir=data['dst_folder'],
-            file_type=data['file_type'],
-            out_dir_is_full=True
-        )
+        try:
+            self.explorer.convert_bin(
+                bin_file=data['bin_path'],
+                out_dir=data['dst_folder'],
+                file_type=data['file_type'],
+                out_dir_is_full=True
+            )
+        except AssertionError as msg:
+            display_msg(msg.args[0], popup_type="error")
+            return
+
         display_msg("Conversion finished", popup_type="info")
 
 

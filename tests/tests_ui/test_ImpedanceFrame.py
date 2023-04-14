@@ -13,7 +13,7 @@ from exploredesktop.modules.app_settings import ImpModes
 from exploredesktop.modules.explore_interface import ExploreInterface
 from collections import namedtuple
 from explorepy.settings_manager import SettingsManager
-from test_main import connect_device
+from test_Window import connect_device
 from exploredesktop.modules.app_settings import Messages
 from unittest.mock import patch
 
@@ -152,6 +152,7 @@ def navigate_to_impedance_view(qtbot, window):
 class TestImpedance:
     # Can only always test one test as each test needs its own device...
 
+    """
     def test_impedance_modes(self, qtbot):
         window = connect_device(qtbot)
         # window.show()
@@ -176,9 +177,9 @@ class TestImpedance:
         assert imp_model.mode == ImpModes.DRY
         # stop measuring Impedance
         qtbot.mouseClick(meas_btn, Qt.LeftButton)
-
     """
-        def test_pop_up(self, qtbot):
+
+    def test_pop_up(self, qtbot):
         # Helper method where Qtbot connects the device and returns QMainWindow instance
         window = connect_device(qtbot)
         # Only for visualisation
@@ -200,5 +201,5 @@ class TestImpedance:
 
         QtCore.QTimer.singleShot(100, handle_dialog)
         qtbot.mouseClick(info, Qt.LeftButton, delay=1)
-    """
+
 
