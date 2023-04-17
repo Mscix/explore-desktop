@@ -37,8 +37,7 @@ class MarkerData(DataContainer):
         self.mrk_replot = {'t': [], 'code': [], 'lines': []}
 
         self.worker = None
-        # TODO: change to True after proper test of external LSL markers and threading
-        self.acquire_external_markers = False
+        self.acquire_external_markers = True
 
     def callback(self, packet: explorepy.packet.EventMarker) -> None:
         """Get marker data from packet and emit signal
@@ -98,9 +97,6 @@ class MarkerData(DataContainer):
             sample, timestamp = inlet.pull_sample()
             if self.acquire_external_markers:
                 self.explorer.set_external_marker(timestamp, str(sample[0]))
-                if DataContainer.vis_time_offset is not None:
-                    data = [timestamp - DataContainer.vis_time_offset, str(sample[0]), False]
-                    self.signals.mkrAdd.emit(data)
 
     def enable_external_markers(self, state: bool) -> None:
         """Enable and disable external marker acquisition
