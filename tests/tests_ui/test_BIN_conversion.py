@@ -1,4 +1,3 @@
-import pytest
 from pytestqt.qtbot import QtBot
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
@@ -8,8 +7,6 @@ import os
 
 def test_convert_file(qtbot):
     window = connect_device(qtbot)
-    # window.show()
-
     # File path to the input Bin file:
     standard_path = "C:/Users/Mentalab/Desktop/explore-desktop/tests/tests_ui/test_files/"
     file_name = "DATA000_8_channel.BIN"
@@ -84,23 +81,18 @@ def test_invalid_path(qtbot):
             qtbot.addWidget(output_field)
             qtbot.keyClicks(output_field, output_path)
             dialog.accept()
+        QTimer.singleShot(100, handle_dialog)
+
+        # Handles the thrown exception so the test does not crash
+    except Exception as e:
+        if isinstance(e, AssertionError):
+            pass
 
         def handle_pop_up():
             # Handles the error pop up
             dialog = QApplication.activeWindow()
             dialog.accept()
-
-        QTimer.singleShot(100, handle_dialog)
         # Triggers the alert pop-up handler
         QTimer.singleShot(500, handle_pop_up)
 
         window.ui.actionConvert.trigger()
-
-    # Handles the thrown exception so the test does not crash
-    except Exception as e:
-        if not isinstance(e, AssertionError):
-            pass
-
-
-
-

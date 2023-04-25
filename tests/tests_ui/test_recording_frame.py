@@ -153,4 +153,3 @@ def test_filters(qtbot):
     filters_btn = window.ui.btn_plot_filters
     QTimer.singleShot(100, handle_dialog)
     qtbot.mouseClick(filters_btn, Qt.LeftButton, delay=1)
-
