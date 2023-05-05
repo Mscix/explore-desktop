@@ -18,6 +18,8 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QFileDialog
 )
+
+
 from exploredesktop.modules.app_settings import (  # isort: skip
     FileTypes,
     GUISettings,
