@@ -14,7 +14,6 @@ from explorepy.tools import (
     generate_eeglab_dataset
 )
 from PySide6.QtWidgets import (
-    QFileDialog,
     QMainWindow,
     QMessageBox,
     QPushButton,

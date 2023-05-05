@@ -1,6 +1,5 @@
 import os
 import re
-import shutil
 from abc import abstractmethod
 from typing import Union
 
@@ -19,8 +18,6 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QFileDialog
 )
-from explorepy.tools import generate_eeglab_dataset
-
 from exploredesktop.modules.app_settings import (  # isort: skip
     FileTypes,
     GUISettings,
@@ -30,7 +27,7 @@ from exploredesktop.modules.app_settings import (  # isort: skip
 )
 from exploredesktop.modules.utils import (  # isort: skip
     verify_filters,
-    get_path_settings, display_msg
+    get_path_settings
 )
 from exploredesktop.modules.ui import (  # isort: skip
     Ui_PlotDialog,
@@ -728,16 +725,15 @@ class RepairDataDialog(PathInputDialog):
         }
         return data
 
+
 class EdfToEeglabDialogue(PathInputDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.ui = Ui_Convert_Edf_Eeglab()
         self.ui.setupUi(self)
         self.setWindowTitle("BDF+(EDF) to EEGLAB dataset")
-
         self.bdf_path = ""
         self.ui.btn_browse.clicked.connect(self.browse)
-
 
     def browse(self) -> None:
         """Select csv to repair
@@ -754,42 +750,6 @@ class EdfToEeglabDialogue(PathInputDialog):
             path,
             QFileDialog.ShowDirsOnly)
         self.ui.input_filename.setText(self.bdf_path)
-
-    def handle_conversion_process(self):
-        # Create subfolder to store bdf files
-        folder_bdfs = os.path.join(self.folder_path, "bdf")
-        if not os.path.isdir(folder_bdfs):
-            os.mkdir(folder_bdfs)
-        # Create subfolder to store eeglab dataset files
-        folder_datasets = os.path.join(folder_name, "datasets")
-        if not os.path.isdir(folder_datasets):
-            os.mkdir(folder_datasets)
-        n_files = 0
-        for file in os.listdir(folder_bdfs):
-            file_path = os.path.join(folder_bdfs, file)
-            # if file is .edf, fist step is to convert to .bdf
-            if file_path.endswith(".edf") and os.path.isfile(file_path):
-                bdf_file = os.path.splitext(file)[0] + ".bdf"
-                dataset_file = os.path.splitext(file)[0] + ".set"
-                bdf_path = os.path.join(folder_bdfs, bdf_file)
-                dataset_path = os.path.join(folder_datasets, dataset_file)
-                shutil.copy2(file_path, bdf_path)  # convert to .bdf
-                generate_eeglab_dataset(sel, dataset_path)
-                n_files += 1
-            # if file is .bdf it can be exported directly
-            elif file_path.endswith(".bdf") and os.path.isfile(file_path):
-                dataset_file = os.path.splitext(file)[0] + ".set"
-                dataset_path = os.path.join(folder_datasets, dataset_file)
-                generate_eeglab_dataset(self.bdf_path, dataset_path)
-                n_files += 1
-        # if files were originally bdfs (no conversion needed), remove subfolder
-        if len(os.listdir(folder_bdfs)) == 0:
-            os.rmdir(folder_bdfs)
-        # Display confirmation message with number of exported datasets
-        folder_datasets = folder_datasets.replace("/", "\\")
-        msg = f"{n_files} datasets exported in folder {folder_datasets}"
-        display_msg(msg, popup_type="info")
-
 
     def get_data(self) -> dict:
         """Get dialog data
