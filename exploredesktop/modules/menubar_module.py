@@ -29,7 +29,8 @@ from exploredesktop.modules import (  # isort:skip
 )
 from exploredesktop.modules.dialogs import (  # isort:skip
     ConvertBinDialog,
-    RepairDataDialog
+    RepairDataDialog,
+    EdfToEeglabDialogue
 )
 from exploredesktop.modules.utils import (  # isort:skip
     display_msg
@@ -46,7 +47,9 @@ class MenuBarActions(BaseModel):
         """Export eeglab dataset
         """
         # Select folder containing edf files and make sure it exists
-        folder_name = self.select_edf_file()
+        dialog = EdfToEeglabDialogue()
+        data = dialog.exec()
+        folder_name = data['bdf_path']
         if folder_name in [False, '']:
             return
 
@@ -54,18 +57,19 @@ class MenuBarActions(BaseModel):
             display_msg("Directory does not exist. Please select an existing folder")
             return
 
+        self.handle_bdf_conversion(folder_name)
+
+    def handle_bdf_conversion(self, folder_name):
         # Create subfolder to store bdf files
         folder_bdfs = os.path.join(folder_name, "bdf")
         if not os.path.isdir(folder_bdfs):
             os.mkdir(folder_bdfs)
             logger.info("Creating folder %s to store bdf files" % folder_bdfs)
-
         # Create subfolder to store eeglab dataset files
         folder_datasets = os.path.join(folder_name, "datasets")
         if not os.path.isdir(folder_datasets):
             os.mkdir(folder_datasets)
             logger.info("Creating folder %s to store dataset files" % folder_datasets)
-
         n_files = 0
         for file in os.listdir(folder_name):
             file_path = os.path.join(folder_name, file)
@@ -84,29 +88,14 @@ class MenuBarActions(BaseModel):
                 dataset_path = os.path.join(folder_datasets, dataset_file)
                 generate_eeglab_dataset(file_path, dataset_path)
                 n_files += 1
-
         # if files were originally bdfs (no conversion needed), remove subfolder
         if len(os.listdir(folder_bdfs)) == 0:
             os.rmdir(folder_bdfs)
-
         # Display confirmation message with number of exported datasets
         folder_datasets = folder_datasets.replace("/", "\\")
         msg = f"{n_files} datasets exported in folder {folder_datasets}"
         logger.info(msg)
         display_msg(msg, popup_type="info")
-
-    def select_edf_file(self) -> None:
-        """
-        Open a dialog to select file name to be saved
-        """
-        dialog = QFileDialog()
-        file_path = dialog.getExistingDirectory(
-            self,
-            "Choose Directory containing EDF/BDF files",
-            "",
-            QFileDialog.ShowDirsOnly)
-
-        return file_path
 
     def convert_bin(self) -> None:
         """Convert BIN file to csv/edf
