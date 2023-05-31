@@ -1,5 +1,6 @@
 name: building-offline
 on:
+  workflow_dispatch:
   pull_request:
     types:
       - closed
@@ -10,10 +11,10 @@ env:
   exploredesktop_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\'
   config_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml'
   package_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages'
-  usedevelop: false
+  usedevelop: true
 jobs:
   build:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
         os: [ windows-latest ]
@@ -47,12 +48,13 @@ jobs:
       - name: Install explorepy depencies and necessary packages
         run: |
           pip install pyinstaller==4.7
+          pip install --upgrade pyinstaller-hooks-contrib==2023.2
           pip install eeglabio
           pip install mne
           pip install -e .
           pip install --upgrade scipy==1.7.3
       - name: Use develop branch if specified
-        if: ${{ env.usedevelop }}
+        if: ${{ env.usedevelop == true }}
         run: |
           pip uninstall -y explorepy
           pip install git+https://github.com/Mentalab-hub/explorepy.git@develop
