@@ -11,7 +11,7 @@ env:
   exploredesktop_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages\com.Mentalab.ExploreDesktop\'
   config_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\config\config.xml'
   package_path: 'installer\ExploreDesktopInstaller\ExploreDesktop\packages'
-  usedevelop: true
+  usedevelop: 'true'
 jobs:
   build:
     if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
@@ -54,7 +54,7 @@ jobs:
           pip install -e .
           pip install --upgrade scipy==1.7.3
       - name: Use develop branch if specified
-        if: ${{ env.usedevelop == true }}
+        if: ${{ env.usedevelop == 'true' }}
         run: |
           pip uninstall -y explorepy
           pip install git+https://github.com/Mentalab-hub/explorepy.git@develop
