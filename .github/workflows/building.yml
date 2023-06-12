@@ -42,9 +42,9 @@ jobs:
         run: |
           pip install aqtinstall
           python -m aqt install-qt -O ${{ github.workspace }}/Qt/ windows desktop 6.2.0 win64_msvc2019_64
-          python -m aqt install-tool -O ${{ github.workspace }}/Qt/ windows desktop tools_ifw qt.tools.ifw.45
+          python -m aqt install-tool -O ${{ github.workspace }}/Qt/ windows desktop tools_ifw qt.tools.ifw.46
           echo "${{ github.workspace }}/Qt/6.2.0/msvc2019_64/bin/" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "${{ github.workspace }}/Qt/Tools/QtInstallerFramework/4.5/bin/" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "${{ github.workspace }}/Qt/Tools/QtInstallerFramework/4.6/bin/" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Install explorepy depencies and necessary packages
         run: |
           pip install pyinstaller==4.7
